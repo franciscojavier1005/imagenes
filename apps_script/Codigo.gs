@@ -12,12 +12,13 @@ var DIAS = ['', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', '
 var SESIONES = [
   '1H 06:30-07:15', '2H 07:15-08:00', '3H 08:20-09:05', '4H 09:05-09:50',
   '5H 10:10-10:55', '6H 10:55-11:40', '7H 12:00-12:45', '8H 12:45-13:30'];
-var DIRECTIVOS = ['Coordinador 1', 'Coordinador 2', 'Coordinador 3', 'Rector'];  // ajustar nombres
+function directivos_() { return datos_('Directivos').map(function (d) { return d.nombre; }); }
 
 function onOpen() {
   SpreadsheetApp.getUi().createMenu('Asistencia ICET')
     .addItem('1. Crear formulario de novedades', 'crearFormulario')
-    .addItem('2. Ver URL de la consulta', 'mostrarUrlConsulta')
+    .addItem('2. Compartir con directivos (correos reales)', 'compartirConDirectivos')
+    .addItem('3. Ver URL de la consulta', 'mostrarUrlConsulta')
     .addToUi();
 }
 
@@ -43,7 +44,7 @@ function crearFormulario() {
   var f = FormApp.create('ICET 2026 - Registro de novedades docentes');
   f.setDescription('Uso exclusivo de directivos. Registra presencia o novedad de un docente en una o varias sesiones.');
   f.addDateItem().setTitle('Fecha').setRequired(true);
-  f.addListItem().setTitle('Registrado por').setChoiceValues(DIRECTIVOS).setRequired(true);
+  f.addListItem().setTitle('Registrado por').setChoiceValues(directivos_()).setRequired(true);
   f.addListItem().setTitle('Docente').setChoiceValues(docentes).setRequired(true);
   f.addListItem().setTitle('Tipo de novedad').setChoiceValues(tipos).setRequired(true);
   f.addCheckboxItem().setTitle('Sesiones afectadas').setChoiceValues(SESIONES).setRequired(true);
@@ -69,7 +70,7 @@ function alEnviar(e) {
     })[0];
     return [e.response.getTimestamp(), Utilities.formatDate(fecha, TZ, 'yyyy-MM-dd'), g['Registrado por'],
       g['Docente'], g['Tipo de novedad'], 'B' + Math.ceil(hora / 2), s,
-      m ? (m.grupo || ('Énfasis ' + m.enfasis_ref)) : 'SIN CLASE EN HORARIO',
+      m ? (m.grupo || ('Énfasis ' + m.grupos_enfasis)) : 'SIN CLASE EN HORARIO',
       m ? m.area : '', m ? m.tipo : '', g['Observaciones'] || '', g['Enlace al soporte (opcional)'] || '', dia];
   });
   var sh = hoja_('Novedades');
@@ -97,8 +98,9 @@ function consultarAhora(fechaHora) {
     return h.dia === dia && Number(h.hora) === Number(tramo.hora);
   }).map(function (h) {
     var n = nov.filter(function (x) { return x.docente === h.docente; })[0];
-    return { docente: h.docente, grupo: h.grupo || ('ÉNFASIS ' + h.enfasis_ref), area: h.area, tipo: h.tipo,
-             novedad: n ? n.tipo_novedad : '' };
+    var nota = [h.alternancia, h.equipo_enfasis ? 'Con: ' + h.equipo_enfasis : ''].filter(String).join(' · ');
+    return { docente: h.docente, grupo: h.grupo || ('ÉNFASIS ' + h.grupos_enfasis), area: h.area, tipo: h.tipo,
+             nota: nota, novedad: n ? n.tipo_novedad : '' };
   }).sort(function (a, b) { return a.grupo < b.grupo ? -1 : 1; });
   return res;
 }
@@ -106,6 +108,17 @@ function consultarAhora(fechaHora) {
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('Consulta').setTitle('ICET - ¿Quién debe estar dónde?')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+/** Comparte el libro con los directivos; omite los correos temporales (@example.com). */
+function compartirConDirectivos() {
+  var ok = [], omitidos = [];
+  datos_('Directivos').forEach(function (d) {
+    var c = String(d.correo_temporal).trim();
+    if (!c || /@example\.com$/i.test(c)) { omitidos.push(d.nombre); return; }
+    SpreadsheetApp.getActive().addEditor(c); ok.push(d.nombre);
+  });
+  SpreadsheetApp.getUi().alert('Compartido con: ' + (ok.join(', ') || 'nadie') + '\nPendientes (correo temporal): ' + (omitidos.join(', ') || 'ninguno'));
 }
 
 function mostrarUrlConsulta() {

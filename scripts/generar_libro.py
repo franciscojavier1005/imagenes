@@ -43,9 +43,11 @@ for t in [
     "  Grupos      - 14 grupos regulares + 4 de Caminar en Secundaria (CS 1-1, 1-2, 2-1, 2-2).",
     "  Horario     - Una fila por docente / día / sesión de 45 min. Fuente: PDF de asignación académica 02-02-2026.",
     "  Novedades   - Aquí caen las respuestas del Formulario (las crea el menú 'Asistencia ICET').",
+    "  Directivos  - Quienes registran novedades. Correos TEMPORALES (@example.com): reemplazar por los reales antes de compartir.",
     "  Config      - Tipos de novedad, responsables y zona horaria.",
     "",
-    "Tipo ENFASIS: el docente atiende estudiantes dispersos de varios cursos; 'enfasis_ref' indica el curso de referencia del PDF.",
+    "Tipo ENFASIS: estudiantes dispersos de un curso atendidos por un equipo de docentes. 'grupos_enfasis' = curso atendido; 'equipo_enfasis' = demás docentes del equipo.",
+    "Alternancia: parejas de énfasis alternan por semana; Sociales/Inglés y Ética/Religión alternan sus áreas cada semana (según asignación del rector).",
     "Datos personales de docentes: acceso solo para directivos (Ley 1581 de 2012).",
 ]:
     leeme.append([t])
@@ -59,6 +61,11 @@ hoja(wb, "Horario", leer("horario_maestro.csv"))
 hoja(wb, "Novedades", [[
     "marca_temporal", "fecha", "registrado_por", "docente", "tipo_novedad", "bloque", "hora_inicio",
     "grupo_segun_horario", "area_segun_horario", "tipo_clase", "observaciones", "soporte", "dia"]])
+hoja(wb, "Directivos", [["nombre", "rol", "correo_temporal"],
+    ["Coordinador 1", "Coordinador académico", "coordinador1.temporal@example.com"],
+    ["Coordinador 2", "Coordinador", "coordinador2.temporal@example.com"],
+    ["Coordinador 3", "Coordinador", "coordinador3.temporal@example.com"],
+    ["Rector", "Rector", "rector.temporal@example.com"]])
 hoja(wb, "Config", [["tipo_novedad", "responsables", "zona_horaria"],
     ["Ausencia con permiso", "Coordinador 1", "America/Bogota"],
     ["Ausencia por incapacidad", "Coordinador 2", ""],

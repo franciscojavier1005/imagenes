@@ -52,7 +52,7 @@ def parse_titulo_docente(t):
 # Cruce PDF -> Word (número en la lista oficial). Revisado manualmente.
 # "?" = pendiente de confirmar por el coordinador (ver data/VALIDACION.md).
 MAPA = {
-    "PUCHES ANA": 39, "CUELLAR MARIA": 14, "ARIZALA ROBERTO": 4, "CUERO HERNANDO": 16,
+    "PUCHES ANA": 39, "CUELLAR MARIA": 20, "ARIZALA ROBERTO": 4, "CUERO HERNANDO": 16,
     "LOZANO AMANDA": 26, "QUIÑONES MARCOS": 42,
     "PRADO MARIBEL": 37, "CASTILLO DAIRA": 10, "ORDOÑEZ JAIME": 34, "TERAN JORGE": 47,
     "QUINTERO CARMEN": 41, "CASANOVA YOLI": 8, "VASQUEZ SEGUNDO": 52, "AGUIRRE ANDRES": 1,
@@ -63,8 +63,7 @@ MAPA = {
     "ARBOLEDA AMERICA": 3, "ANCHICO HECTOR": 30, "RAMIREZ JIMMY": 43, "VILLOTA HECTOR": 53,
     "PULGARIN CESAR": 40, "MONTAÑO LEIDY": 31, "VILLOTA RUBIO JANETH": 54, "ANGULO ANDRES": 2,
 }
-PENDIENTES = {"CUELLAR MARIA": "En el PDF dice 'CUELLAR MARIA'; en la lista del Word solo existe 'Cuéllar Gallo, Nemesia' (#14).",
-              "BETANCOURT JOHANA": "Se asignó a 'Betancourth Ocampo, Yohana Patricia' (#6); también existe 'Casanova Casanova, Johana Andrea' (#7)."}
+PENDIENTES = {}
 CORRECCION_AREA = {"ETI": "ETR", "REL": "ETR"}  # erratas del PDF (DOCENTES-2, Casanova Yoli)
 
 
@@ -82,6 +81,26 @@ def grupo_info(g):
     if g.startswith("CS2"):
         return "CAMINAR EN SECUNDARIA 2", "8°-9°", f"CS 2-{g[-1]}"
     return "REGULAR", str(int(g[:2])) + "°", f"{int(g[:2])}°-{g[2:]}"
+
+
+AREA_NOMBRE = {"ART": "Arte y Cultura Afro", "CAS": "Castellano", "CNA": "Ciencias Naturales", "CSI": "Sociales e Inglés",
+               "ERD": "Educación Física", "ETR": "Ética y Religión", "MAT": "Matemáticas", "TEI": "Tecnología e Informática"}
+# Áreas que el rector asigna alternando por semana (confirmado por el coordinador)
+ALTERNAN = {"CSI": "Sociales / Inglés (alternan cada semana)", "ETR": "Ética / Religión (alternan cada semana)"}
+GRADO_REF = {"D3-8°": ("0801", "0802"), "D5-10°": ("1001", "1002"), "D5-11°": ("1101", "1102")}
+
+
+def enfasis_por_grupo():
+    """{grupo: {(dia, hora)}} leído de los PDF por grupo (EST-AREAS)."""
+    res = {}
+    for pdf in sorted(glob.glob(os.path.join(FUENTES, "*EST-AREAS*.pdf"))):
+        with pdfplumber.open(pdf) as d:
+            for p in d.pages:
+                for f in extraer_pagina(p):
+                    m = re.search(r"(CS\d{3}|\d{4})\s*-", f["titulo"])
+                    if m and f["celda"].startswith("ENFASIS"):
+                        res.setdefault(m.group(1), set()).add((f["dia"], f["hora"]))
+    return res
 
 
 def main():
@@ -114,6 +133,28 @@ def main():
                   "dia": f["dia"], "hora": f["hora"], "bloque": bloque, "sesion": ses,
                   "inicio": ini, "fin": fin, "tipo": tipo, "grupo": grupo, "area": area,
                   "enfasis_ref": ref, "celda_original": celda})
+    areas_doc = {}
+    for r in h:
+        if r["area"]:
+            areas_doc.setdefault(r["docente_n"], set()).add(r["area"])
+    # --- énfasis: grupos atendidos, equipo y alternancia
+    eg = enfasis_por_grupo()
+    equipo = {}
+    for r in h:
+        if r["tipo"] == "ENFASIS":
+            equipo.setdefault((r["enfasis_ref"], r["dia"], r["hora"]), []).append(r)
+    for r in h:
+        r["grupos_enfasis"] = r["equipo_enfasis"] = r["alternancia"] = ""
+        if r["tipo"] == "ENFASIS":
+            ref = r["enfasis_ref"]
+            cand = GRADO_REF.get(ref, (ref,))
+            r["grupos_enfasis"] = "+".join(g for g in cand if (r["dia"], int(r["hora"])) in eg.get(g, set()))
+            otros = [o for o in equipo[(ref, r["dia"], r["hora"])] if o["docente_n"] != r["docente_n"]]
+            r["equipo_enfasis"] = "; ".join(f'{o["docente"]} ({"/".join(sorted(areas_doc.get(o["docente_n"], [])))})' for o in otros)
+            r["alternancia"] = ("PAREJA: alternan por semana" if len(otros) == 1
+                                else f"EQUIPO DE {len(otros) + 1} docentes (reparto por confirmar)")
+        elif r["area"] in ALTERNAN:
+            r["alternancia"] = ALTERNAN[r["area"]]
     h.sort(key=lambda r: (r["docente_n"], ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"].index(r["dia"]), r["hora"]))
     return docs, h
 
@@ -140,7 +181,7 @@ if __name__ == "__main__":
                      "nivel": "SECUNDARIA" if d["n"] in con_horario else "POR DEFINIR",
                      "areas": "/".join(sorted(areas.get(d["n"], []))), "correo": "", "tiene_horario": "SI" if d["n"] in con_horario else "NO"})
     escribir("docentes.csv", dres, ["codigo", "n", "apellidos", "nombres", "nombre_completo", "nivel", "areas", "correo", "tiene_horario"])
-    cols = ["docente_n", "docente", "dia", "hora", "bloque", "sesion", "inicio", "fin", "tipo", "grupo", "area", "enfasis_ref", "celda_original"]
+    cols = ["docente_n", "docente", "dia", "hora", "bloque", "sesion", "inicio", "fin", "tipo", "grupo", "area", "enfasis_ref", "grupos_enfasis", "equipo_enfasis", "alternancia", "celda_original"]
     escribir("horario_maestro.csv", h, cols)
     gs = sorted({r["grupo"] for r in h if r["grupo"]})
     escribir("grupos.csv", [dict(zip(["grupo", "tipo", "grado", "nombre"], (g,) + grupo_info(g))) for g in gs], ["grupo", "tipo", "grado", "nombre"])

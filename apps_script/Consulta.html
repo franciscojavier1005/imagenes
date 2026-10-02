@@ -20,7 +20,7 @@
 <main>
   <input id="q" placeholder="Filtrar por docente o grupo"> <button onclick="cargar()">Actualizar</button>
   <div id="nota"></div>
-  <table><thead><tr><th>Grupo</th><th>Docente</th><th>Área</th><th>Novedad hoy</th></tr></thead><tbody id="t"></tbody></table>
+  <table><thead><tr><th>Grupo</th><th>Docente</th><th>Área</th><th>Nota</th><th>Novedad hoy</th></tr></thead><tbody id="t"></tbody></table>
 </main>
 <script>
 var datos=[];
@@ -30,7 +30,7 @@ function pintar(){
     return (f.docente+f.grupo).toLowerCase().indexOf(q)>=0;
   }).map(function(f){
     return '<tr class="'+(f.novedad?'nov':'')+'"><td class="'+(f.tipo=='ENFASIS'?'ens':'')+'">'+f.grupo+'</td><td>'+f.docente+
-           '</td><td>'+f.area+'</td><td>'+f.novedad+'</td></tr>';
+           '</td><td>'+f.area+'</td><td>'+f.nota+'</td><td>'+f.novedad+'</td></tr>';
   }).join('');
 }
 function cargar(){

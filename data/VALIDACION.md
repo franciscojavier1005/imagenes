@@ -14,10 +14,23 @@ Fuente: 5 PDF por docente (`ASIG_ACAD_DOC-1..5`), 5 PDF por grupo (`EST-AREAS`) 
 
 Se reproduce con `python3 scripts/construir_datos.py && python3 scripts/validar.py`.
 
-## Pendientes por confirmar con el coordinador
+## Confirmado por el coordinador
 
-1. **Cuéllar María (CSI, grado 6°)**: en el PDF aparece "CUELLAR MARIA"; en el Word solo existe *Cuéllar Gallo, Nemesia* (#14). Se asignó a ella.
-2. **Betancourt Johana (CSI, grado 9°-10°)**: se asignó a *Betancourth Ocampo, Yohana Patricia* (#6). Otra posible: *Casanova Casanova, Johana Andrea* (#7).
-3. **Erratas en el PDF**: en `DOC-2`, Casanova Yoli aparece con áreas "ETI" y "REL"; se normalizaron a ETR.
-4. **19 docentes del Word sin horario** (preescolar, primaria y otros cargos): faltan sus PDF.
-5. **Énfasis (448 sesiones)**: los PDF solo dicen "ENFASIS-0701", "ENFASIS-D5-10°", etc. No indican aula, ni con qué estudiantes ni qué área dicta. Se guardan como tipo ENFASIS con su referencia.
+- "CUELLAR MARIA" del PDF es **García Gobea, Saydi Magali** (#20), Sociales e Inglés de D1.
+- **Betancourth Ocampo, Yohana Patricia** (#6) es correcta para "BETANCOURT JOHANA".
+- "ETI/REL" del PDF equivale a ETR (Ética y Religión).
+- Sociales e Inglés (CSI) y Ética y Religión (ETR) alternan sus dos áreas cada semana por decisión del rector.
+
+## Énfasis (448 sesiones), resueltos con los PDF por grupo
+
+- Cada curso tiene 8 sesiones de énfasis (PDF por grupo: `ENFASIS-Dn` = pool de docentes). Las 144 celdas de énfasis de los PDF por grupo coinciden con las franjas de los docentes.
+- Los énfasis de grado (`D3-8°`, `D5-10°`, `D5-11°`) se asignan al curso del grado que tiene énfasis en esa franja.
+- Equipos: 160 sesiones con **pareja** (alternan por semana) y 288 con **equipo de 4** (D3-8°, D4, D5).
+
+## Pendientes
+
+1. **Equipos de 4 docentes** (octavo, noveno, décimo, once, CS 2-1, CS 2-2): ¿se reparten los estudiantes entre los 4, o también alternan?
+2. **Parejas**: ¿qué docente de la pareja atiende en la semana del 2 de febrero? Con eso se puede indicar cuál corresponde cada semana.
+3. **Aula o sitio** del énfasis: los PDF no lo traen.
+4. **19 docentes sin horario** (preescolar, primaria y otros cargos): faltan sus PDF.
+5. **Correos**: los de directivos son temporales (`@example.com`, hoja `Directivos`); los de docentes quedan vacíos.

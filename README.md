@@ -6,14 +6,25 @@
 - `ICET_Control_Asistencia_Docente_2026.xlsx`: libro listo para importar a Google Sheets.
 - `apps_script/`: `Codigo.gs` (formulario + registro automático) y `Consulta.html` (¿quién debe estar dónde ahora?).
 
+## Base de datos aparte (consulta y verificación)
+- `ICET_Base_Datos_2026.xlsx`: tablas (docentes, grupos, direccion_grupo, franjas, horario, motivos), `Horario_Legible` para filtrar por día y sesión, y hojas de verificación `Controles`, `Carga_Docente` y `Cobertura_Grupo`.
+- `ICET_Base_Datos_2026.db` (SQLite): las mismas tablas con vistas `v_horario`, `v_carga_docente` y `v_cobertura_grupo`.
+  ```sql
+  -- ¿Quién debe estar el martes en la sesión 3?
+  SELECT grupo, docente, area FROM v_horario WHERE dia='MARTES' AND sesion=3 ORDER BY grupo;
+  -- ¿Dónde está un docente el lunes?
+  SELECT sesion, inicio, fin, grupo, area FROM v_horario WHERE docente LIKE 'Villota Rubio Janeth%' AND dia='LUNES' ORDER BY sesion;
+  ```
+- Se regenera con `python3 scripts/generar_base_datos.py`.
+
 ## Uso rápido
 - **Excel / Sheets:** hoja `Ronda` muestra sola quién debe estar en cada grupo en la sesión actual; `Matriz_Grupos` y `Horario` sirven para filtrar.
-- **Celular o tablet (para guardar la ronda):** aplicación web de `apps_script/` con botones de radio (presente / no asistió / tarde) y justificación por categorías. Guarda en `Registro_Ronda` y, si hay novedad, en `Novedades` con las mismas columnas de su formulario de ausentismo.
+- **Celular o tablet (para guardar la ronda):** aplicación web de `apps_script/` con desplegables: asistencia (presente / no asistió / llegada tarde / salida temprana); si no estuvo se activan justificación, motivo por categoría, minutos y actividad de aprendizaje. Guarda en `Registro_Ronda` y, si hay novedad, en `Novedades` con las mismas columnas de su formulario de ausentismo.
 
 ## Puesta en marcha
 1. Drive > Nuevo > Subir archivo > el `.xlsx` > abrir con Google Sheets.
 2. Extensiones > Apps Script: pegar `Codigo.gs` y crear el archivo HTML `Consulta` con el contenido de `Consulta.html`.
-3. Recargar la hoja. Menú **Asistencia ICET > Crear formulario de novedades (radios)** si quiere el formulario de Google.
+3. Recargar la hoja. Menú **Asistencia ICET > Crear formulario de novedades (desplegables)** si quiere el formulario de Google.
 4. Implementar > Aplicación web (ejecutar como el usuario que accede; acceso restringido a directivos) para la ronda.
 6. En Google Sheets: Archivo > Configuración > zona horaria (GMT-05:00 Bogotá).
 5. Compartir la hoja solo con los 3 coordinadores y el rector (Ley 1581 de 2012).

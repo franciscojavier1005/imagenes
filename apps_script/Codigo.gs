@@ -15,7 +15,7 @@ var FUENTE_RONDA = 'Coordinador(a)';
 
 function onOpen() {
   SpreadsheetApp.getUi().createMenu('Asistencia ICET')
-    .addItem('Crear formulario de novedades (radios)', 'crearFormulario')
+    .addItem('Crear formulario de novedades (desplegables)', 'crearFormulario')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')
     .addToUi();
@@ -177,16 +177,16 @@ function crearFormulario() {
   var f = FormApp.create('ICET 2026 - Registro de novedades docentes');
   f.setDescription('Uso exclusivo de directivos docentes. Para la ronda en vivo use la aplicación web.');
   f.addDateItem().setTitle('Fecha Novedad').setRequired(true);
-  f.addMultipleChoiceItem().setTitle('Directivo Docente').setChoiceValues(dirs).setRequired(true);
+  f.addListItem().setTitle('Directivo Docente').setChoiceValues(dirs).setRequired(true);
   f.addListItem().setTitle('Docente').setChoiceValues(docentes).setRequired(true);
-  var estado = f.addMultipleChoiceItem().setTitle('Tipo Novedad').setRequired(true);
+  var estado = f.addListItem().setTitle('Tipo Novedad').setRequired(true);
   var pDetalle = f.addPageBreakItem().setTitle('Detalle de la novedad');
-  f.addMultipleChoiceItem().setTitle('Motivo Ausencia').setChoiceValues(motivos).setRequired(true);
-  f.addMultipleChoiceItem().setTitle('Actividad de Aprendizaje').setChoiceValues(['Sí', 'No', 'N/A']).setRequired(true);
+  f.addListItem().setTitle('Motivo Ausencia').setChoiceValues(motivos).setRequired(true);
+  f.addListItem().setTitle('Actividad de Aprendizaje').setChoiceValues(['N/A', 'Sí', 'No']).setRequired(true);
   f.addCheckboxItem().setTitle('Sesiones afectadas').setChoiceValues(['S1 06:30-07:15', 'S2 07:15-08:00', 'S3 08:20-09:05', 'S4 09:05-09:50',
     'S5 10:10-10:55', 'S6 10:55-11:40', 'S7 12:00-12:45', 'S8 12:45-13:30']).setRequired(true);
-  f.addMultipleChoiceItem().setTitle('Fuente Novedad').setChoiceValues(l('fuente')).setRequired(true);
-  f.addMultipleChoiceItem().setTitle('Medio Información').setChoiceValues(l('medio')).setRequired(true);
+  f.addListItem().setTitle('Fuente Novedad').setChoiceValues(l('fuente')).setRequired(true);
+  f.addListItem().setTitle('Medio Información').setChoiceValues(l('medio')).setRequired(true);
   f.addParagraphTextItem().setTitle('Descripción');
   // "Presente" termina el formulario; el resto pasa a la página de detalle
   estado.setChoices(l('tipo_novedad').map(function (t) {

@@ -18,8 +18,9 @@ BASICA_PDF = {
     "0402": ("ELCY NÚÑEZ PERLAZA", 33, "PRIMARIA", ""),
     "0501": ("NEMECIA CUÉLLAR GALLO", 14, "PRIMARIA", ""),
     "0502": ("CLAUDIA PATRICIA CENTENO ZÚÑIGA", 11, "PRIMARIA", ""),
-    "0503": ("LILIANA ESCOBAR CORTÉS", 17, "PRIMARIA", "ACELERACIÓN DEL APRENDIZAJE"),
-    "0504": ("DORA ALEJANDRA NARVÁEZ SÁNCHEZ", 32, "PRIMARIA", "ACELERACIÓN DEL APRENDIZAJE"),
+    # El PDF de marzo dice 5°-3 Escobar y 5°-4 Narváez; el coordinador confirmó (oct-2026) lo contrario, igual que sus registros.
+    "0503": ("DORA ALEJANDRA NARVÁEZ SÁNCHEZ", 32, "PRIMARIA", "ACELERACIÓN DEL APRENDIZAJE"),
+    "0504": ("LILIANA ESCOBAR CORTÉS", 17, "PRIMARIA", "ACELERACIÓN DEL APRENDIZAJE"),
 }
 
 # Bachillerato: (docente 1, n.º), (docente 2, n.º)

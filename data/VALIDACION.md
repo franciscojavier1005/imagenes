@@ -35,9 +35,15 @@ Fuente oficial: `fuentes/…DIRECCIÓN_DE_GRUPO_ICET_2026.pdf` (publicaciones de
 - Modalidad "extra edad": 3°-2 Procesos Básicos; 5°-3 y 5°-4 Aceleración del Aprendizaje.
 - Bachillerato: dirección **dual**, ambos docentes son responsables (sin titular ni suplente). Miriam Lemos Guancha y César Marino Pulgarín no tienen grupo asignado.
 - Los 51 nombres del PDF se cruzaron con el Word sin ambigüedad; solo hay diferencias de escritura (Landázury/Landázuri, Nemecia/Nemesia, Concepción/Ascención, Govea/Gobea, Seneida/Zeneida).
-- **Discrepancia a confirmar:** el PDF dice Escobar 5°-3 y Narváez 5°-4; los registros del formulario de ausentismo (jul-ago) decían Escobar 5°-4 y Narváez 5°-3. Se usó el PDF.
+- **Confirmado por el coordinador:** Escobar dirige 5°-4 y Narváez 5°-3 (el PDF de marzo decía lo contrario, pero los registros de jul-ago y el coordinador lo confirman).
 - Sin nivel definido (3): Casanova Casanova Johana Andrea, Ponce Moncayo Ángela Paola, Ortiz Estacio Martha Cecilia.
 - Armero Dájome Jesús dirige 6°-2 (secundaria) pero no tiene horario en los PDF de asignación.
+
+## Verificaciones de la base de datos (`ICET_Base_Datos_2026.xlsx`, hoja `Controles`)
+
+- Los 33 grupos tienen todas sus sesiones cubiertas: 40 en bachillerato, 30 en primaria y 25 en preescolar. Esto confirma que los énfasis quedaron bien reconstruidos.
+- Sin docentes en dos sitios a la vez ni dos docentes de clase con el mismo grupo.
+- **Errata en el PDF de asignación:** Valencia Saidy, Meza Gladys y González Jimy dicen "26 SECCIONES" en el título, pero su cuadrícula tiene 28 sesiones y coincide con los PDF por grupo.
 
 ## Justificaciones
 
@@ -50,7 +56,7 @@ Catálogo en `data/motivos.csv` (15 motivos en 8 categorías). Parte de los moti
 
 ## Pendientes
 
-1. Confirmar Escobar / Narváez (5°-3 y 5°-4) y el cargo de los 3 docentes sin nivel; falta el horario de Armero Dájome Jesús.
+1. Cargo de los 3 docentes sin nivel (Casanova Johana, Ponce Moncayo, Ortiz Estacio).
 2. Equipos de 4 docentes en énfasis (octavo a once, CS 2-1 y CS 2-2): ¿reparto o alternancia?
 3. Parejas de énfasis: ¿quién atiende la semana del 2 de febrero?
 4. Correos de directivos (hoy temporales) y de docentes (vacíos).

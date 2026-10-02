@@ -20,32 +20,27 @@
   main{padding:10px 10px 0}
   .buscar{width:100%;padding:11px;border-radius:10px;border:1px solid var(--borde);margin-bottom:8px;font-size:16px}
   .quien{font-size:14px;margin:4px 0 8px}
-  .quien label{display:inline-block;margin:2px 10px 2px 0;padding:6px 10px;border:1px solid var(--borde);border-radius:18px;background:#fff}
-  .quien input{margin-right:4px}
   .grupo{background:#fff;border:1px solid var(--borde);border-radius:12px;margin:10px 0;overflow:hidden}
   .grupo>h2{margin:0;padding:9px 12px;background:#e6edf5;font-size:16px;display:flex;justify-content:space-between;align-items:center}
   .grupo>h2 small{font-weight:400;color:#456}
   .dirgrupo{padding:4px 12px;font-size:12px;color:#456;background:#f4f8fc;border-top:1px solid #e3e9f0}
   .doc{padding:10px 12px;border-top:1px solid #eef1f5;scroll-margin-top:140px;scroll-margin-bottom:100px}
-  .detalle label,.seg label{scroll-margin-top:140px;scroll-margin-bottom:100px}
+  .detalle label{scroll-margin-top:140px;scroll-margin-bottom:100px}
   .doc.estado-No{background:#fdecea} .doc.estado-Tarde{background:#fff6e0} .doc.estado-Presente{background:#edf7ee}
   .nombre{font-weight:600;font-size:16px}
   .meta{font-size:13px;color:#566}
   .nota{font-size:12px;color:#7a5200;margin-top:2px}
   .previo{font-size:12px;color:#555;margin-top:2px}
-  .seg{display:flex;gap:6px;margin-top:8px}
-  .seg label{flex:1;text-align:center;border:2px solid var(--borde);border-radius:10px;padding:11px 4px;font-weight:600;background:#fff;cursor:pointer;min-height:46px;user-select:none}
-  .seg input{position:absolute;opacity:0;pointer-events:none}
-  .seg input:checked+span.p{color:#fff}
-  .seg label:has(input[value=Presente]:checked){background:var(--ok);border-color:var(--ok);color:#fff}
-  .seg label:has(input[value=No]:checked){background:var(--no);border-color:var(--no);color:#fff}
-  .seg label:has(input[value=Tarde]:checked){background:var(--tarde);border-color:var(--tarde);color:#fff}
-  .detalle{margin-top:8px;padding:8px;background:#fff;border:1px dashed var(--borde);border-radius:10px}
-  .detalle h4{margin:6px 0 4px;font-size:13px;color:#456}
-  .opciones label{display:inline-block;margin:3px 6px 3px 0;padding:8px 11px;border:1px solid var(--borde);border-radius:18px;background:#fafbfc;font-size:14px;min-height:38px}
-  .opciones input{margin-right:5px}
-  .opciones label:has(input:checked){background:var(--azul);color:#fff;border-color:var(--azul)}
-  textarea{width:100%;padding:8px;border:1px solid var(--borde);border-radius:8px;font:inherit;min-height:44px}
+  .detalle{margin-top:8px;padding:8px 10px 10px;background:#fff;border:1px dashed var(--borde);border-radius:10px}
+  .sel{width:100%;margin-top:8px;padding:12px 10px;font-size:16px;border:2px solid var(--borde);border-radius:10px;background:#fff;min-height:48px}
+  .sel.est{font-weight:600}
+  .sel:disabled{background:#eceff3;color:#8a94a0;border-style:dashed}
+  .doc.estado-Presente .sel.est{border-color:var(--ok)} .doc.estado-No .sel.est{border-color:var(--no)} .doc.estado-Tarde .sel.est{border-color:var(--tarde)}
+  .rej{display:grid;grid-template-columns:1fr;gap:2px}
+  @media(min-width:640px){.rej{grid-template-columns:1fr 1fr}}
+  .detalle label{display:block;font-size:13px;color:#456;margin-top:6px}
+  .detalle .sel{margin-top:3px}
+  .obs{width:100%;margin-top:3px;padding:11px;border:2px solid var(--borde);border-radius:10px;font-size:16px}
   .barra{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--borde);padding:8px 10px;display:flex;gap:8px;align-items:center;z-index:6}
   .barra .cuenta{flex:1;font-size:13px}
   .barra button{border:0;border-radius:10px;padding:12px 14px;font-weight:700;font-size:15px;min-height:46px}
@@ -85,6 +80,8 @@
 var S = null;          // respuesta del servidor
 var marcas = {};       // docente -> {estado, just, motivo, minutos, obs}
 var diaSel = null, sesSel = null;
+var ESTADOS=['Presente','No asistió','Llegada tarde','Salida temprana'];
+var ICONOS={'Presente':'✔','No asistió':'✖','Llegada tarde':'⏰','Salida temprana':'↩'};
 
 function el(id){return document.getElementById(id);}
 function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
@@ -99,8 +96,8 @@ function cargar(dia, ses){
     r.filas.forEach(function(f){
       if(f.previo){
         var m=null; r.motivos.forEach(function(x){ if(x.motivo===f.previo.motivo) m=x; });
-        marcas[f.docente]={estado:f.previo.estado==='Presente'?'Presente':(/tarde/i.test(f.previo.estado)?'Tarde':'No'),
-          just:m?(m.justificada==='SI'?'Con':'Sin'):'Sin', motivo:f.previo.motivo||'', minutos:f.previo.minutos||'', obs:f.previo.observaciones||''};
+        marcas[f.docente]={estado:f.previo.estado, just:m?(m.justificada==='SI'?'Con':'Sin'):'Sin',
+          motivo:f.previo.motivo||'', minutos:f.previo.minutos||'', obs:f.previo.observaciones||''};
       }
     });
     diaSel=r.dia; sesSel=r.sesion;
@@ -119,8 +116,8 @@ function cambiaDia(){ cargar(el('dia').value, sesSel||1); }
 
 function pintarQuien(){
   var d=dirActual();
-  el('quien').innerHTML='<b>Ronda a cargo de:</b> '+S.directivos.map(function(n){
-    return '<label><input type="radio" name="dir" value="'+esc(n)+'" '+(n===d?'checked':'')+' onchange="setDir(this.value)">'+esc(n)+'</label>';}).join('');
+  el('quien').innerHTML='<label><b>Ronda a cargo de:</b><select class="sel" style="margin-top:4px" onchange="setDir(this.value)">'+
+    opt('','— Elegir directivo —',!d)+S.directivos.map(function(n){return opt(n,n,n===d);}).join('')+'</select></label>';
 }
 
 function grupos(){
@@ -149,50 +146,53 @@ function pintar(){
   cuenta();
 }
 
+function opt(v,t,sel){return '<option value="'+esc(v)+'"'+(sel?' selected':'')+'>'+esc(t)+'</option>';}
+
 function tarjeta(f){
-  var m=marcas[f.docente]||{}, k=esc(f.docente), id=btoa(unescape(encodeURIComponent(f.docente))).replace(/=/g,'');
-  var h='<div class="doc estado-'+(m.estado||'')+'" id="d_'+id+'">'+
+  var m=marcas[f.docente]||{}, k=esc(f.docente), id=idDe(f.docente);
+  var h='<div class="doc estado-'+({'Presente':'Presente','No asistió':'No'}[m.estado]||(m.estado?'Tarde':''))+'" id="d_'+id+'">'+
     '<div class="nombre">'+k+'</div><div class="meta">'+esc(f.area)+'</div>'+
     (f.nota?'<div class="nota">'+esc(f.nota)+'</div>':'')+
     (f.previo?'<div class="previo">Ya registrado: '+esc(f.previo.estado)+(f.previo.motivo?' · '+esc(f.previo.motivo):'')+'</div>':'')+
-    '<div class="seg" role="radiogroup" aria-label="Asistencia de '+k+'">'+
-    ['Presente|✔ Presente','No|✖ No asistió','Tarde|⏰ Tarde'].map(function(o){var p=o.split('|');
-      return '<label><input type="radio" name="e_'+id+'" value="'+p[0]+'" '+(m.estado===p[0]?'checked':'')+' onchange="marcar(\''+id+'\',\''+p[0]+'\')">'+p[1]+'</label>';}).join('')+
-    '</div>';
-  if(m.estado==='No'||m.estado==='Tarde') h+=detalle(f,id,m);
+    '<select class="sel est" aria-label="Asistencia de '+k+'" onchange="marcar(\''+id+'\',this.value)">'+
+      opt('','— Asistencia —',!m.estado)+
+      ESTADOS.map(function(e){return opt(e,ICONOS[e]+' '+e,m.estado===e);}).join('')+
+    '</select>';
+  if(m.estado && m.estado!=='Presente') h+=detalle(id,m);
   return h+'</div>';
 }
 
-function detalle(f,id,m){
-  var h='<div class="detalle">';
-  if(m.estado==='Tarde'){
-    h+='<h4>Minutos de retraso</h4><div class="opciones">'+[5,10,15,30,45].map(function(x){
-      return '<label><input type="radio" name="mi_'+id+'" value="'+x+'" '+(Number(m.minutos)===x?'checked':'')+' onchange="campo(\''+id+'\',\'minutos\','+x+')">'+x+' min</label>';}).join('')+'</div>';
-  }
-  h+='<h4>Justificación</h4><div class="opciones">'+
-    ['Sin|Sin justificación','Con|Con justificación'].map(function(o){var p=o.split('|');
-      return '<label><input type="radio" name="j_'+id+'" value="'+p[0]+'" '+(m.just===p[0]?'checked':'')+' onchange="campo(\''+id+'\',\'just\',\''+p[0]+'\',true)">'+p[1]+'</label>';}).join('')+'</div>';
-  if(m.just==='Con'){
-    var cats={}, ord=[];
-    S.motivos.forEach(function(x){ if(x.justificada==='SI'){ if(!cats[x.categoria]){cats[x.categoria]=[];ord.push(x.categoria);} cats[x.categoria].push(x.motivo);} });
-    ord.forEach(function(c){
-      h+='<h4>'+esc(c)+'</h4><div class="opciones">'+cats[c].map(function(mo){
-        return '<label><input type="radio" name="mo_'+id+'" value="'+esc(mo)+'" '+(m.motivo===mo?'checked':'')+' onchange="campo(\''+id+'\',\'motivo\',this.value)">'+esc(mo)+'</label>';}).join('')+'</div>';
-    });
-  }
-  h+='<h4>Observaciones</h4><textarea oninput="campo(\''+id+'\',\'obs\',this.value,false,true)">'+esc(m.obs||'')+'</textarea></div>';
+/* Controles de la novedad: los que no corresponden quedan desactivados */
+function detalle(id,m){
+  var noAsistio=m.estado==='No asistió', conJust=m.just==='Con';
+  var h='<div class="detalle"><div class="rej">';
+  h+='<label>Justificación<select class="sel" onchange="campo(\''+id+'\',\'just\',this.value,true)">'+
+     opt('Sin','Sin justificación',m.just!=='Con')+opt('Con','Con justificación',conJust)+'</select></label>';
+  var cats={}, ord=[];
+  S.motivos.forEach(function(x){ if(x.justificada==='SI'){ if(!cats[x.categoria]){cats[x.categoria]=[];ord.push(x.categoria);} cats[x.categoria].push(x.motivo);} });
+  h+='<label>Motivo<select class="sel" '+(conJust?'':'disabled')+' onchange="campo(\''+id+'\',\'motivo\',this.value)">'+
+     opt('',conJust?'— Elegir motivo —':'(no aplica)',!m.motivo||!conJust)+
+     ord.map(function(c){return '<optgroup label="'+esc(c)+'">'+cats[c].map(function(mo){return opt(mo,mo,m.motivo===mo);}).join('')+'</optgroup>';}).join('')+
+     '</select></label>';
+  h+='<label>Minutos'+(noAsistio?' (sesión completa)':'')+'<select class="sel" '+(noAsistio?'disabled':'')+' onchange="campo(\''+id+'\',\'minutos\',this.value)">'+
+     opt('',noAsistio?'45':'— Elegir —',!m.minutos||noAsistio)+[5,10,15,20,30,45].map(function(x){return opt(x,x+' min',Number(m.minutos)===x&&!noAsistio);}).join('')+'</select></label>';
+  h+='<label>Dejó actividad de aprendizaje<select class="sel" onchange="campo(\''+id+'\',\'actividad\',this.value)">'+
+     ['N/A','Sí','No'].map(function(x){return opt(x,x,(m.actividad||'N/A')===x);}).join('')+'</select></label>';
+  h+='</div><label>Observaciones<input type="text" class="obs" value="'+esc(m.obs||'')+'" oninput="campo(\''+id+'\',\'obs\',this.value,false)"></label></div>';
   return h;
 }
 
+function idDe(d){ return btoa(unescape(encodeURIComponent(d))).replace(/=/g,''); }
 function nombrePorId(id){ return decodeURIComponent(escape(atob(id))); }
 function marcar(id,estado){
   var d=nombrePorId(id), m=marcas[d]||{};
+  if(!estado){ delete marcas[d]; pintar(); return; }
   m.estado=estado;
-  if(estado==='No'||estado==='Tarde'){ m.just=m.just||'Sin'; if(m.just==='Sin') m.motivo='Sin justificación'; }
-  if(estado==='Presente'){ m.just='';m.motivo='';m.minutos='';m.obs=''; }
+  if(estado==='Presente'){ m={estado:'Presente'}; }
+  else { m.just=m.just||'Sin'; if(m.just==='Sin') m.motivo='Sin justificación'; if(estado==='No asistió') m.minutos=45; else if(Number(m.minutos)===45&&m.estado!=='No asistió') m.minutos=''; }
   marcas[d]=m; pintar();
 }
-function campo(id,k,v,repintar,sinRepintar){
+function campo(id,k,v,repintar){
   var d=nombrePorId(id), m=marcas[d]||{}; m[k]=v;
   if(k==='just'){ m.motivo=(v==='Sin')?'Sin justificación':''; }
   marcas[d]=m;
@@ -204,7 +204,7 @@ function todosPresentes(){
 }
 function cuenta(){
   var n=0,no=0,t=0,p=0;
-  S.filas.forEach(function(f){var m=marcas[f.docente]; if(m&&m.estado){n++; if(m.estado==='No')no++; if(m.estado==='Tarde')t++; if(m.estado==='Presente')p++;}});
+  S.filas.forEach(function(f){var m=marcas[f.docente]; if(m&&m.estado){n++; if(m.estado==='No asistió')no++; else if(m.estado!=='Presente')t++; else p++;}});
   el('cuenta').innerHTML='<b>'+n+'/'+S.filas.length+'</b> marcados · ✔'+p+' ✖'+no+' ⏰'+t;
 }
 
@@ -216,11 +216,10 @@ function guardar(){
     var m=marcas[f.docente]; if(!m||!m.estado) return;
     if(m.estado!=='Presente'){
       if(m.just==='Con'&&!m.motivo) falta=falta||f.docente+': elija el motivo';
-      if(m.estado==='Tarde'&&!m.minutos) falta=falta||f.docente+': minutos de retraso';
+      if((m.estado==='Llegada tarde'||m.estado==='Salida temprana')&&!m.minutos) falta=falta||f.docente+': elija los minutos';
     }
-    regs.push({docente:f.docente,grupoCodigo:f.grupoCodigo,area:f.area,
-      estado:m.estado==='Presente'?'Presente':(m.estado==='Tarde'?'Llegada tarde':'No asistió'),
-      motivo:m.motivo||'',minutos:m.minutos||'',obs:m.obs||''});
+    regs.push({docente:f.docente,grupoCodigo:f.grupoCodigo,area:f.area,estado:m.estado,motivo:m.motivo||'',
+      minutos:m.minutos||'',actividad:m.actividad||'N/A',obs:m.obs||''});
   });
   if(falta){ toast(falta); return; }
   if(!regs.length){ toast('No hay marcas para guardar'); return; }

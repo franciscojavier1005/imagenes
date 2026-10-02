@@ -2,46 +2,233 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ICET - Ronda de asistencia docente</title>
 <style>
-  body{font-family:system-ui,sans-serif;margin:0;background:#f4f6f8;color:#1b2430}
-  header{background:#1F4E78;color:#fff;padding:12px 16px}
-  h1{font-size:18px;margin:0} #sub{font-size:13px;opacity:.9}
-  main{padding:12px}
-  input,button{font-size:16px;padding:8px;border-radius:6px;border:1px solid #bbb}
-  button{background:#1F4E78;color:#fff;border:0}
-  table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff}
-  th,td{padding:7px 8px;border-bottom:1px solid #e3e7eb;text-align:left;font-size:14px}
-  th{background:#e8eef4;position:sticky;top:0}
-  .ens{color:#8a5a00} .nov{background:#fde8e8;font-weight:600}
+  :root{--azul:#1F4E78;--ok:#2e7d32;--no:#c62828;--tarde:#b26a00;--fondo:#f3f5f8;--borde:#d5dbe3;--texto:#1b2430}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--fondo);color:var(--texto);padding-bottom:84px}
+  header{background:var(--azul);color:#fff;padding:6px 10px;position:sticky;top:0;z-index:5}
+  header h1{margin:0;font-size:13px;font-weight:600;opacity:.9}
+  .fila{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px}
+  .sesion{font-size:17px;font-weight:700}
+  .chip{background:rgba(255,255,255,.18);border-radius:14px;padding:2px 8px;font-size:12px}
+  button,select,input[type=text],input[type=search]{font:inherit}
+  .nav{background:#fff;color:var(--azul);border:0;border-radius:8px;padding:6px 10px;font-weight:700;font-size:15px;min-height:40px}
+  .ahora{background:#ffd54f;color:#3b2e00}
+  select{padding:6px;border-radius:8px;border:0;min-height:40px;font-size:14px}
+  main{padding:10px 10px 0}
+  .buscar{width:100%;padding:11px;border-radius:10px;border:1px solid var(--borde);margin-bottom:8px;font-size:16px}
+  .quien{font-size:14px;margin:4px 0 8px}
+  .quien label{display:inline-block;margin:2px 10px 2px 0;padding:6px 10px;border:1px solid var(--borde);border-radius:18px;background:#fff}
+  .quien input{margin-right:4px}
+  .grupo{background:#fff;border:1px solid var(--borde);border-radius:12px;margin:10px 0;overflow:hidden}
+  .grupo>h2{margin:0;padding:9px 12px;background:#e6edf5;font-size:16px;display:flex;justify-content:space-between;align-items:center}
+  .grupo>h2 small{font-weight:400;color:#456}
+  .doc{padding:10px 12px;border-top:1px solid #eef1f5;scroll-margin-top:140px;scroll-margin-bottom:100px}
+  .detalle label,.seg label{scroll-margin-top:140px;scroll-margin-bottom:100px}
+  .doc.estado-No{background:#fdecea} .doc.estado-Tarde{background:#fff6e0} .doc.estado-Presente{background:#edf7ee}
+  .nombre{font-weight:600;font-size:16px}
+  .meta{font-size:13px;color:#566}
+  .nota{font-size:12px;color:#7a5200;margin-top:2px}
+  .previo{font-size:12px;color:#555;margin-top:2px}
+  .seg{display:flex;gap:6px;margin-top:8px}
+  .seg label{flex:1;text-align:center;border:2px solid var(--borde);border-radius:10px;padding:11px 4px;font-weight:600;background:#fff;cursor:pointer;min-height:46px;user-select:none}
+  .seg input{position:absolute;opacity:0;pointer-events:none}
+  .seg input:checked+span.p{color:#fff}
+  .seg label:has(input[value=Presente]:checked){background:var(--ok);border-color:var(--ok);color:#fff}
+  .seg label:has(input[value=No]:checked){background:var(--no);border-color:var(--no);color:#fff}
+  .seg label:has(input[value=Tarde]:checked){background:var(--tarde);border-color:var(--tarde);color:#fff}
+  .detalle{margin-top:8px;padding:8px;background:#fff;border:1px dashed var(--borde);border-radius:10px}
+  .detalle h4{margin:6px 0 4px;font-size:13px;color:#456}
+  .opciones label{display:inline-block;margin:3px 6px 3px 0;padding:8px 11px;border:1px solid var(--borde);border-radius:18px;background:#fafbfc;font-size:14px;min-height:38px}
+  .opciones input{margin-right:5px}
+  .opciones label:has(input:checked){background:var(--azul);color:#fff;border-color:var(--azul)}
+  textarea{width:100%;padding:8px;border:1px solid var(--borde);border-radius:8px;font:inherit;min-height:44px}
+  .barra{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--borde);padding:8px 10px;display:flex;gap:8px;align-items:center;z-index:6}
+  .barra .cuenta{flex:1;font-size:13px}
+  .barra button{border:0;border-radius:10px;padding:12px 14px;font-weight:700;font-size:15px;min-height:46px}
+  .todos{background:#e8f5e9;color:var(--ok)} .guardar{background:var(--azul);color:#fff}
+  .guardar:disabled{opacity:.5}
+  .aviso{padding:30px 14px;text-align:center;color:#456;font-size:16px}
+  .toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#263238;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;z-index:9;display:none}
 </style>
 </head>
 <body>
-<header><h1>¿Quién debe estar dónde?</h1><div id="sub">Cargando…</div></header>
+<header>
+  <h1>Ronda docente · ICET 2026</h1>
+  <div class="fila">
+    <button class="nav" onclick="mover(-1)" aria-label="Sesión anterior">◀</button>
+    <span class="sesion" id="sesion">…</span>
+    <button class="nav" onclick="mover(1)" aria-label="Sesión siguiente">▶</button>
+    <select id="dia" onchange="cambiaDia()" aria-label="Día">
+      <option>LUNES</option><option>MARTES</option><option>MIERCOLES</option><option>JUEVES</option><option>VIERNES</option>
+    </select>
+    <button class="nav ahora" onclick="ahora()">Ahora</button>
+  </div>
+  <div class="fila"><span class="chip" id="franja"></span><span class="chip" id="reloj"></span><span class="chip" id="total"></span></div>
+</header>
 <main>
-  <input id="q" placeholder="Filtrar por docente o grupo"> <button onclick="cargar()">Actualizar</button>
-  <div id="nota"></div>
-  <table><thead><tr><th>Grupo</th><th>Docente</th><th>Área</th><th>Nota</th><th>Novedad hoy</th></tr></thead><tbody id="t"></tbody></table>
+  <div class="quien" id="quien"></div>
+  <input class="buscar" id="q" type="search" placeholder="Buscar docente o grupo" oninput="pintar()">
+  <div id="lista"><div class="aviso">Cargando…</div></div>
 </main>
+<div class="barra">
+  <div class="cuenta" id="cuenta"></div>
+  <button class="todos" onclick="todosPresentes()">Todos presentes</button>
+  <button class="guardar" id="btnGuardar" onclick="guardar()">Guardar ronda</button>
+</div>
+<div class="toast" id="toast"></div>
+
 <script>
-var datos=[];
-function pintar(){
-  var q=document.getElementById('q').value.toLowerCase();
-  document.getElementById('t').innerHTML=datos.filter(function(f){
-    return (f.docente+f.grupo).toLowerCase().indexOf(q)>=0;
-  }).map(function(f){
-    return '<tr class="'+(f.novedad?'nov':'')+'"><td class="'+(f.tipo=='ENFASIS'?'ens':'')+'">'+f.grupo+'</td><td>'+f.docente+
-           '</td><td>'+f.area+'</td><td>'+f.nota+'</td><td>'+f.novedad+'</td></tr>';
-  }).join('');
-}
-function cargar(){
+var S = null;          // respuesta del servidor
+var marcas = {};       // docente -> {estado, just, motivo, minutos, obs}
+var diaSel = null, sesSel = null;
+
+function el(id){return document.getElementById(id);}
+function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function toast(t){var x=el('toast');x.textContent=t;x.style.display='block';setTimeout(function(){x.style.display='none';},2600);}
+function dirActual(){try{return localStorage.getItem('icet_directivo')||'';}catch(e){return '';}}
+function setDir(v){try{localStorage.setItem('icet_directivo',v);}catch(e){} }
+
+function cargar(dia, ses){
+  el('lista').innerHTML='<div class="aviso">Cargando…</div>';
   google.script.run.withSuccessHandler(function(r){
-    document.getElementById('sub').textContent=r.dia+' '+r.hora+(r.sesion?' · sesión '+r.sesion:'');
-    document.getElementById('nota').textContent=r.nota||'';
-    datos=r.filas; pintar();
-  }).consultarAhora();
+    S=r; marcas={};
+    r.filas.forEach(function(f){
+      if(f.previo){
+        var m=null; r.motivos.forEach(function(x){ if(x.motivo===f.previo.motivo) m=x; });
+        marcas[f.docente]={estado:f.previo.estado==='Presente'?'Presente':(/tarde/i.test(f.previo.estado)?'Tarde':'No'),
+          just:m?(m.justificada==='SI'?'Con':'Sin'):'Sin', motivo:f.previo.motivo||'', minutos:f.previo.minutos||'', obs:f.previo.observaciones||''};
+      }
+    });
+    diaSel=r.dia; sesSel=r.sesion;
+    el('dia').value=r.dia; el('sesion').textContent=r.sesion?('Sesión '+r.sesion):'Descanso';
+    el('franja').textContent=r.franja||r.nota; el('reloj').textContent='Hora: '+r.hora;
+    el('total').textContent=r.filas.length+' docentes';
+    pintarQuien(); pintar();
+  }).withFailureHandler(function(e){el('lista').innerHTML='<div class="aviso">Error: '+esc(e.message||e)+'</div>';}).consultarSesion(dia||null, ses||null);
 }
-document.getElementById('q').addEventListener('input',pintar);
-cargar();
+function ahora(){cargar(null,null);}
+function mover(d){
+  var n=(sesSel||0)+d; if(n<1) n=1; if(n>8) n=8;
+  cargar(diaSel, n);
+}
+function cambiaDia(){ cargar(el('dia').value, sesSel||1); }
+
+function pintarQuien(){
+  var d=dirActual();
+  el('quien').innerHTML='<b>Ronda a cargo de:</b> '+S.directivos.map(function(n){
+    return '<label><input type="radio" name="dir" value="'+esc(n)+'" '+(n===d?'checked':'')+' onchange="setDir(this.value)">'+esc(n)+'</label>';}).join('');
+}
+
+function grupos(){
+  var q=el('q').value.toLowerCase(), g={}, orden=[];
+  S.filas.forEach(function(f){
+    if((f.docente+' '+f.grupo+' '+f.area).toLowerCase().indexOf(q)<0) return;
+    if(!g[f.grupo]){g[f.grupo]=[];orden.push(f.grupo);}
+    g[f.grupo].push(f);
+  });
+  return {g:g,orden:orden};
+}
+
+function pintar(){
+  if(!S) return;
+  if(!S.filas.length){ el('lista').innerHTML='<div class="aviso">'+esc(S.nota||'No hay docentes con clase en esta sesión.')+'</div>'; cuenta(); return; }
+  var G=grupos(), h='';
+  G.orden.forEach(function(nombre){
+    var fs=G.g[nombre], ens=fs[0].tipo==='ENFASIS';
+    h+='<section class="grupo"><h2>'+esc(nombre)+'<small>'+(ens?'equipo de '+fs.length:'')+'</small></h2>';
+    fs.forEach(function(f){ h+=tarjeta(f); });
+    h+='</section>';
+  });
+  el('lista').innerHTML=h||'<div class="aviso">Sin resultados</div>';
+  cuenta();
+}
+
+function tarjeta(f){
+  var m=marcas[f.docente]||{}, k=esc(f.docente), id=btoa(unescape(encodeURIComponent(f.docente))).replace(/=/g,'');
+  var h='<div class="doc estado-'+(m.estado||'')+'" id="d_'+id+'">'+
+    '<div class="nombre">'+k+'</div><div class="meta">'+esc(f.area)+'</div>'+
+    (f.nota?'<div class="nota">'+esc(f.nota)+'</div>':'')+
+    (f.previo?'<div class="previo">Ya registrado: '+esc(f.previo.estado)+(f.previo.motivo?' · '+esc(f.previo.motivo):'')+'</div>':'')+
+    '<div class="seg" role="radiogroup" aria-label="Asistencia de '+k+'">'+
+    ['Presente|✔ Presente','No|✖ No asistió','Tarde|⏰ Tarde'].map(function(o){var p=o.split('|');
+      return '<label><input type="radio" name="e_'+id+'" value="'+p[0]+'" '+(m.estado===p[0]?'checked':'')+' onchange="marcar(\''+id+'\',\''+p[0]+'\')">'+p[1]+'</label>';}).join('')+
+    '</div>';
+  if(m.estado==='No'||m.estado==='Tarde') h+=detalle(f,id,m);
+  return h+'</div>';
+}
+
+function detalle(f,id,m){
+  var h='<div class="detalle">';
+  if(m.estado==='Tarde'){
+    h+='<h4>Minutos de retraso</h4><div class="opciones">'+[5,10,15,30,45].map(function(x){
+      return '<label><input type="radio" name="mi_'+id+'" value="'+x+'" '+(Number(m.minutos)===x?'checked':'')+' onchange="campo(\''+id+'\',\'minutos\','+x+')">'+x+' min</label>';}).join('')+'</div>';
+  }
+  h+='<h4>Justificación</h4><div class="opciones">'+
+    ['Sin|Sin justificación','Con|Con justificación'].map(function(o){var p=o.split('|');
+      return '<label><input type="radio" name="j_'+id+'" value="'+p[0]+'" '+(m.just===p[0]?'checked':'')+' onchange="campo(\''+id+'\',\'just\',\''+p[0]+'\',true)">'+p[1]+'</label>';}).join('')+'</div>';
+  if(m.just==='Con'){
+    var cats={}, ord=[];
+    S.motivos.forEach(function(x){ if(x.justificada==='SI'){ if(!cats[x.categoria]){cats[x.categoria]=[];ord.push(x.categoria);} cats[x.categoria].push(x.motivo);} });
+    ord.forEach(function(c){
+      h+='<h4>'+esc(c)+'</h4><div class="opciones">'+cats[c].map(function(mo){
+        return '<label><input type="radio" name="mo_'+id+'" value="'+esc(mo)+'" '+(m.motivo===mo?'checked':'')+' onchange="campo(\''+id+'\',\'motivo\',this.value)">'+esc(mo)+'</label>';}).join('')+'</div>';
+    });
+  }
+  h+='<h4>Observaciones</h4><textarea oninput="campo(\''+id+'\',\'obs\',this.value,false,true)">'+esc(m.obs||'')+'</textarea></div>';
+  return h;
+}
+
+function nombrePorId(id){ return decodeURIComponent(escape(atob(id))); }
+function marcar(id,estado){
+  var d=nombrePorId(id), m=marcas[d]||{};
+  m.estado=estado;
+  if(estado==='No'||estado==='Tarde'){ m.just=m.just||'Sin'; if(m.just==='Sin') m.motivo='Sin justificación'; }
+  if(estado==='Presente'){ m.just='';m.motivo='';m.minutos='';m.obs=''; }
+  marcas[d]=m; pintar();
+}
+function campo(id,k,v,repintar,sinRepintar){
+  var d=nombrePorId(id), m=marcas[d]||{}; m[k]=v;
+  if(k==='just'){ m.motivo=(v==='Sin')?'Sin justificación':''; }
+  marcas[d]=m;
+  if(repintar) pintar(); else cuenta();
+}
+function todosPresentes(){
+  S.filas.forEach(function(f){ if(!marcas[f.docente]||!marcas[f.docente].estado) marcas[f.docente]={estado:'Presente'}; });
+  pintar();
+}
+function cuenta(){
+  var n=0,no=0,t=0,p=0;
+  S.filas.forEach(function(f){var m=marcas[f.docente]; if(m&&m.estado){n++; if(m.estado==='No')no++; if(m.estado==='Tarde')t++; if(m.estado==='Presente')p++;}});
+  el('cuenta').innerHTML='<b>'+n+'/'+S.filas.length+'</b> marcados · ✔'+p+' ✖'+no+' ⏰'+t;
+}
+
+function guardar(){
+  var dir=dirActual();
+  if(!dir){ toast('Elija quién hace la ronda'); window.scrollTo(0,0); return; }
+  var regs=[], falta=null;
+  S.filas.forEach(function(f){
+    var m=marcas[f.docente]; if(!m||!m.estado) return;
+    if(m.estado!=='Presente'){
+      if(m.just==='Con'&&!m.motivo) falta=falta||f.docente+': elija el motivo';
+      if(m.estado==='Tarde'&&!m.minutos) falta=falta||f.docente+': minutos de retraso';
+    }
+    regs.push({docente:f.docente,grupoCodigo:f.grupoCodigo,area:f.area,
+      estado:m.estado==='Presente'?'Presente':(m.estado==='Tarde'?'Llegada tarde':'No asistió'),
+      motivo:m.motivo||'',minutos:m.minutos||'',obs:m.obs||''});
+  });
+  if(falta){ toast(falta); return; }
+  if(!regs.length){ toast('No hay marcas para guardar'); return; }
+  if(S.dia!==S.diaHoy){ toast('Solo se guarda la ronda del día de hoy ('+S.diaHoy+')'); return; }
+  el('btnGuardar').disabled=true;
+  google.script.run.withSuccessHandler(function(r){
+    el('btnGuardar').disabled=false; toast('Guardado: '+r.guardados+' registros'); cargar(diaSel,sesSel);
+  }).withFailureHandler(function(e){el('btnGuardar').disabled=false;toast('Error: '+(e.message||e));})
+  .guardarRonda({directivo:dir,dia:S.dia,sesion:S.sesion,fecha:S.fecha,registros:regs});
+}
+ahora();
 </script>
 </body>
 </html>

@@ -1,0 +1,20 @@
+﻿lista,valor
+tipo_novedad,Presente
+tipo_novedad,No asistió
+tipo_novedad,Llegada tarde
+tipo_novedad,Llegada tarde informada
+tipo_novedad,Salida temprana
+tipo_novedad,Salida temprana informada
+fuente,Coordinador(a)
+fuente,Docente ausente
+fuente,Estudiantes
+fuente,Otro docente
+fuente,Rector
+medio,Inspección ocular/Ronda supervisión
+medio,Reporte/Conversación con estudiantes
+medio,Llamada celular
+medio,WhatsApp directo
+medio,WhatsApp grupal
+medio,Formato Permiso Docente
+medio,Verbal
+medio,Copia incapacidad/licencia

@@ -27,10 +27,27 @@ Se reproduce con `python3 scripts/construir_datos.py && python3 scripts/validar.
 - Los énfasis de grado (`D3-8°`, `D5-10°`, `D5-11°`) se asignan al curso del grado que tiene énfasis en esa franja.
 - Equipos: 160 sesiones con **pareja** (alternan por semana) y 288 con **equipo de 4** (D3-8°, D4, D5).
 
+## Primaria y preescolar (áreas múltiples)
+
+- Los docentes de primaria no tienen horario por áreas: se modelan como **ÁREAS MÚLTIPLES** con su grupo, de lunes a viernes, en las sesiones 1 a 6 (6:30 a 11:40).
+- Preescolar (7:30 a 11:30) usaría las sesiones 2 a 6; todavía no hay docentes identificados en ese nivel.
+- Grupos de 5 docentes tomados de los registros del formulario de ausentismo (hoja "ASISTENCIA DOCENTE ICET (respuestas)", 14/07 a 04/08/2026). **Confirmar:**
+  Escobar Cortés Liliana 5°-4 · Narváez Sánchez Dora Alejandra 5°-3 · Núñez Perlaza Elcy 4°-2 · Sinisterra Ana Lucía 1°-2 · Torres Segura Encarnación 3°-1.
+- El formulario escribe "Elsy" y el Word "Elcy" para #33. Se conservó el del Word.
+- Sin grupo ni nivel (14): Casanova Casanova Johana Andrea, Centeno Zúñiga Claudia Patricia, Cortés Salazar María Ebelice, Cuéllar Gallo Nemesia, Garzón Quiñones Sixta Janina, Landázuri Quiñones María Elia, Landázuri Gallón Teresa, Martínez Álvarez Andrea Ascención, Ponce Moncayo Ángela Paola, Valencia Solís Gloria Alexa, Zamora Ordóñez Celia Pastora, Ortiz Estacio Martha Cecilia, Armero Dájome Jesús, y la fila #56 si es de otro cargo.
+
+## Justificaciones
+
+Catálogo en `data/motivos.csv` (15 motivos en 8 categorías). Parte de los motivos reales del formulario de ausentismo e incorpora los pedidos: evento de la Secretaría de Educación, tema académico del docente, salud de hijo(a) o familiar y tema académico de hijo(a) (dentro de calamidad doméstica).
+
+## Pruebas realizadas
+
+- Hoja `Ronda`: fórmulas evaluadas con un motor de cálculo en Python (martes, sesión 1: 34 docentes, 23 grupos). La detección de sesión se probó en 15 horas, con descansos y fuera de jornada. No se pudo probar en Excel ni en Google Sheets.
+- Aplicación web `Consulta.html`: probada en un navegador con tamaño de celular y un servidor simulado (marcar, justificar, tarde con minutos, guardar, cambiar de sesión). El Apps Script solo se revisó en sintaxis; no se ha ejecutado en Google.
+
 ## Pendientes
 
-1. **Equipos de 4 docentes** (octavo, noveno, décimo, once, CS 2-1, CS 2-2): ¿se reparten los estudiantes entre los 4, o también alternan?
-2. **Parejas**: ¿qué docente de la pareja atiende en la semana del 2 de febrero? Con eso se puede indicar cuál corresponde cada semana.
-3. **Aula o sitio** del énfasis: los PDF no lo traen.
-4. **19 docentes sin horario** (preescolar, primaria y otros cargos): faltan sus PDF.
-5. **Correos**: los de directivos son temporales (`@example.com`, hoja `Directivos`); los de docentes quedan vacíos.
+1. Confirmar los 5 grupos de primaria y completar los 14 docentes sin nivel o grupo.
+2. Equipos de 4 docentes en énfasis (octavo a once, CS 2-1 y CS 2-2): ¿reparto o alternancia?
+3. Parejas de énfasis: ¿quién atiende la semana del 2 de febrero?
+4. Correos de directivos (hoy temporales) y de docentes (vacíos).

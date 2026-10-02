@@ -159,6 +159,41 @@ def main():
     return docs, h
 
 
+# Docentes de primaria/preescolar. Grupo tomado de los registros del formulario de ausentismo
+# (hoja "ASISTENCIA DOCENTE ICET (respuestas)", jul-ago 2026). Pendiente de confirmar por el coordinador.
+BASICA = {  # n_docente: (nivel, grupo)
+    17: ("PRIMARIA", "0504"),  # Escobar Cortés Liliana        - 05-4
+    32: ("PRIMARIA", "0503"),  # Narváez Sánchez Dora Alejandra - 05-3
+    33: ("PRIMARIA", "0402"),  # Núñez Perlaza Elcy ("Elsy" en el formulario) - 04-2
+    45: ("PRIMARIA", "0102"),  # Sinisterra Ana Lucía           - 01-2
+    48: ("PRIMARIA", "0301"),  # Torres Segura Encarnación      - 03-1
+}
+JORNADA_SESIONES = {"PRIMARIA": range(1, 7), "PREESCOLAR": range(2, 7)}  # primaria 6:30-12:00; preescolar 7:30-11:30
+DIAS_SEM = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"]
+
+MOTIVOS = [  # (categoria, motivo, justificada, soporte)
+    ("SIN JUSTIFICACIÓN", "Sin justificación", "NO", ""),
+    ("SALUD", "Mal estado de salud", "SI", "Verbal / incapacidad posterior"),
+    ("SALUD", "Incapacidad Médica", "SI", "Copia incapacidad/licencia"),
+    ("SALUD", "Exámenes clínicos", "SI", "Constancia de cita"),
+    ("PERMISO INSTITUCIONAL", "Permiso del rector", "SI", "Formato Permiso Docente"),
+    ("EVENTO EXTERNO", "Capacitación/Taller", "SI", "Citación"),
+    ("EVENTO EXTERNO", "Evento Secretaría de Educación", "SI", "Citación / oficio de la SED"),
+    ("ACADÉMICO DEL DOCENTE", "Tema académico del docente", "SI", "Constancia (estudios, posgrado)"),
+    ("CALAMIDAD DOMÉSTICA", "Calamidad familiar", "SI", "Verbal / soporte posterior"),
+    ("CALAMIDAD DOMÉSTICA", "Salud de hijo(a) o familiar", "SI", "Constancia médica"),
+    ("CALAMIDAD DOMÉSTICA", "Traslado hijo(a) a colegio/médico", "SI", "Verbal"),
+    ("CALAMIDAD DOMÉSTICA", "Tema académico de hijo(a)", "SI", "Citación del colegio"),
+    ("TRASLADO", "Remisión otra ciudad", "SI", "Formato Permiso Docente"),
+    ("FORTUITO", "Situación fortuita camino al trabajo", "SI", "Verbal"),
+    ("OTRO", "Otro", "SI", "Describir en observaciones"),
+]
+TIPOS = ["Presente", "No asistió", "Llegada tarde", "Llegada tarde informada", "Salida temprana", "Salida temprana informada"]
+FUENTES_NOVEDAD = ["Coordinador(a)", "Docente ausente", "Estudiantes", "Otro docente", "Rector"]
+MEDIOS = ["Inspección ocular/Ronda supervisión", "Reporte/Conversación con estudiantes", "Llamada celular", "WhatsApp directo",
+          "WhatsApp grupal", "Formato Permiso Docente", "Verbal", "Copia incapacidad/licencia"]
+
+
 def escribir(nombre, filas, cols):
     with open(os.path.join(DATA, nombre), "w", newline="", encoding="utf-8-sig") as f:
         w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
@@ -169,22 +204,43 @@ def escribir(nombre, filas, cols):
 if __name__ == "__main__":
     docs, h = main()
     os.makedirs(DATA, exist_ok=True)
-    con_horario = {r["docente_n"] for r in h}
+    sec = {r["docente_n"] for r in h if r["tipo"] in ("CLASE", "ENFASIS")}
     areas = {}
     for r in h:
         if r["area"]:
             areas.setdefault(r["docente_n"], set()).add(r["area"])
+    # filas de áreas múltiples (primaria/preescolar)
+    from extraer_horarios import SESIONES as _S
+    nombre_doc = {d["n"]: f'{d["apellidos"]} {d["nombres"]}' for d in docs}
+    for n, (nivel, g) in BASICA.items():
+        for dia in DIAS_SEM:
+            for hora in JORNADA_SESIONES[nivel]:
+                b, ses, ini, fin = _S[hora]
+                h.append({"docente_n": n, "docente": nombre_doc[n], "dia": dia, "hora": hora, "bloque": b, "sesion": ses,
+                          "inicio": ini, "fin": fin, "tipo": "AREAS_MULTIPLES", "grupo": g, "area": "ÁREAS MÚLTIPLES",
+                          "enfasis_ref": "", "grupos_enfasis": "", "equipo_enfasis": "",
+                          "alternancia": "Maestro de aula: todas las áreas con su grupo", "celda_original": ""})
+    h.sort(key=lambda r: (["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"].index(r["dia"]), int(r["hora"]),
+                          r["grupo"] or "~" + r["grupos_enfasis"], r["docente_n"]))
+    con_horario = {r["docente_n"] for r in h}
     dres = []
     for d in docs:
         dres.append({"codigo": f'D{d["n"]:03d}', "n": d["n"], "apellidos": d["apellidos"], "nombres": d["nombres"],
                      "nombre_completo": f'{d["apellidos"]} {d["nombres"]}',
-                     "nivel": "SECUNDARIA" if d["n"] in con_horario else "POR DEFINIR",
+                     "nivel": BASICA[d["n"]][0] if d["n"] in BASICA else ("SECUNDARIA" if d["n"] in sec else "POR DEFINIR"),
+                     "grupo_titular": BASICA[d["n"]][1] if d["n"] in BASICA else "",
+                     "nota": "Grupo según formulario de ausentismo; confirmar" if d["n"] in BASICA else "",
                      "areas": "/".join(sorted(areas.get(d["n"], []))), "correo": "", "tiene_horario": "SI" if d["n"] in con_horario else "NO"})
-    escribir("docentes.csv", dres, ["codigo", "n", "apellidos", "nombres", "nombre_completo", "nivel", "areas", "correo", "tiene_horario"])
+    escribir("docentes.csv", dres, ["codigo", "n", "apellidos", "nombres", "nombre_completo", "nivel", "grupo_titular", "areas", "correo", "tiene_horario", "nota"])
     cols = ["docente_n", "docente", "dia", "hora", "bloque", "sesion", "inicio", "fin", "tipo", "grupo", "area", "enfasis_ref", "grupos_enfasis", "equipo_enfasis", "alternancia", "celda_original"]
     escribir("horario_maestro.csv", h, cols)
     gs = sorted({r["grupo"] for r in h if r["grupo"]})
     escribir("grupos.csv", [dict(zip(["grupo", "tipo", "grado", "nombre"], (g,) + grupo_info(g))) for g in gs], ["grupo", "tipo", "grado", "nombre"])
-    fr = [{"hora": k, "bloque": v[0], "sesion": v[1], "inicio": v[2], "fin": v[3]} for k, v in SESIONES.items()]
-    escribir("franjas.csv", fr, ["hora", "bloque", "sesion", "inicio", "fin"])
+    escribir("motivos.csv", [{"categoria": c, "motivo": m, "justificada": j, "soporte_sugerido": so} for c, m, j, so in MOTIVOS],
+             ["categoria", "motivo", "justificada", "soporte_sugerido"])
+    escribir("listas.csv", [{"lista": l, "valor": v} for l, vs in (("tipo_novedad", TIPOS), ("fuente", FUENTES_NOVEDAD), ("medio", MEDIOS)) for v in vs],
+             ["lista", "valor"])
+    mins = lambda t: int(t[:2]) * 60 + int(t[3:])
+    fr = [{"hora": k, "bloque": v[0], "sesion": v[1], "inicio": v[2], "fin": v[3], "inicio_min": mins(v[2]), "fin_min": mins(v[3])} for k, v in SESIONES.items()]
+    escribir("franjas.csv", fr, ["hora", "bloque", "sesion", "inicio", "fin", "inicio_min", "fin_min"])
     print(len(dres), "docentes;", len(h), "filas de horario;", len(gs), "grupos")

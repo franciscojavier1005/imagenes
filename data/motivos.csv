@@ -1,0 +1,16 @@
+﻿categoria,motivo,justificada,soporte_sugerido
+SIN JUSTIFICACIÓN,Sin justificación,NO,
+SALUD,Mal estado de salud,SI,Verbal / incapacidad posterior
+SALUD,Incapacidad Médica,SI,Copia incapacidad/licencia
+SALUD,Exámenes clínicos,SI,Constancia de cita
+PERMISO INSTITUCIONAL,Permiso del rector,SI,Formato Permiso Docente
+EVENTO EXTERNO,Capacitación/Taller,SI,Citación
+EVENTO EXTERNO,Evento Secretaría de Educación,SI,Citación / oficio de la SED
+ACADÉMICO DEL DOCENTE,Tema académico del docente,SI,"Constancia (estudios, posgrado)"
+CALAMIDAD DOMÉSTICA,Calamidad familiar,SI,Verbal / soporte posterior
+CALAMIDAD DOMÉSTICA,Salud de hijo(a) o familiar,SI,Constancia médica
+CALAMIDAD DOMÉSTICA,Traslado hijo(a) a colegio/médico,SI,Verbal
+CALAMIDAD DOMÉSTICA,Tema académico de hijo(a),SI,Citación del colegio
+TRASLADO,Remisión otra ciudad,SI,Formato Permiso Docente
+FORTUITO,Situación fortuita camino al trabajo,SI,Verbal
+OTRO,Otro,SI,Describir en observaciones

@@ -27,6 +27,15 @@ Se reproduce con `python3 scripts/construir_datos.py && python3 scripts/validar.
 - Los énfasis de grado (`D3-8°`, `D5-10°`, `D5-11°`) se asignan al curso del grado que tiene énfasis en esa franja.
 - Equipos: 160 sesiones con **pareja** (alternan por semana) y 288 con **equipo de 4** (D3-8°, D4, D5).
 
+## Cambios confirmados por el coordinador (oct-2026)
+
+- **Orientadoras** (sin grupo, todos los niveles): Casanova Casanova Johana Andrea (entra 7:30, sale ~12:30) y Ponce Moncayo Ángela Paola (entra 8:00, sale hasta las 16:00). Se asignó cada jornada en el orden en que se nombraron; **confirmar que no estén invertidas**. Se registran por sesión de 45 min que se traslape con su jornada; lo posterior a las 13:30 no tiene sesión.
+- **Tutora PTAFI** (Todos a Aprender - Formación Integral): Ortiz Estacio Martha Cecilia, transitoria, apoya preescolar y primaria. Jornada supuesta de primaria (6:30 a 12:00), **por confirmar**.
+- **Armero Dájome Jesús** (OPS) reemplaza a **Terán Guevara Jorge Alberto**: atiende todo su horario (Educación Física, Docente 2). Terán queda como "REEMPLAZADO".
+- **Cambio del rector en Arte:** Prado Genís Maribel atiende ahora el horario de Docente 1 (antes de Puches Ana Milena: sexto y Caminar 1) y Puches el de Docente 2 (séptimo). Se interpretó como un intercambio. Prado reemplaza a la docente Luz María Cortés Tenorio.
+- **Énfasis:** en cada énfasis se muestra el área de cada docente. Los equipos de 4 (octavo a once, CS 2-1, CS 2-2) tienen un grupo de estudiantes por docente, en su área. La alternancia semanal de las parejas no se rastrea: la controla el coordinador internamente.
+- **Primaria y preescolar:** 5°-3 Narváez y 5°-4 Escobar (el PDF de marzo decía lo contrario).
+
 ## Preescolar y primaria (áreas múltiples) y dirección de grupo
 
 Fuente oficial: `fuentes/…DIRECCIÓN_DE_GRUPO_ICET_2026.pdf` (publicaciones del 3 y 10 de marzo de 2026).
@@ -35,9 +44,7 @@ Fuente oficial: `fuentes/…DIRECCIÓN_DE_GRUPO_ICET_2026.pdf` (publicaciones de
 - Modalidad "extra edad": 3°-2 Procesos Básicos; 5°-3 y 5°-4 Aceleración del Aprendizaje.
 - Bachillerato: dirección **dual**, ambos docentes son responsables (sin titular ni suplente). Miriam Lemos Guancha y César Marino Pulgarín no tienen grupo asignado.
 - Los 51 nombres del PDF se cruzaron con el Word sin ambigüedad; solo hay diferencias de escritura (Landázury/Landázuri, Nemecia/Nemesia, Concepción/Ascención, Govea/Gobea, Seneida/Zeneida).
-- **Confirmado por el coordinador:** Escobar dirige 5°-4 y Narváez 5°-3 (el PDF de marzo decía lo contrario, pero los registros de jul-ago y el coordinador lo confirman).
-- Sin nivel definido (3): Casanova Casanova Johana Andrea, Ponce Moncayo Ángela Paola, Ortiz Estacio Martha Cecilia.
-- Armero Dájome Jesús dirige 6°-2 (secundaria) pero no tiene horario en los PDF de asignación.
+- Armero Dájome Jesús dirige 6°-2 y atiende el horario de Terán.
 
 ## Verificaciones de la base de datos (`ICET_Base_Datos_2026.xlsx`, hoja `Controles`)
 
@@ -56,7 +63,5 @@ Catálogo en `data/motivos.csv` (15 motivos en 8 categorías). Parte de los moti
 
 ## Pendientes
 
-1. Cargo de los 3 docentes sin nivel (Casanova Johana, Ponce Moncayo, Ortiz Estacio).
-2. Equipos de 4 docentes en énfasis (octavo a once, CS 2-1 y CS 2-2): ¿reparto o alternancia?
-3. Parejas de énfasis: ¿quién atiende la semana del 2 de febrero?
-4. Correos de directivos (hoy temporales) y de docentes (vacíos).
+1. Confirmar que las jornadas de las dos orientadoras no estén invertidas, y la jornada de la tutora PTAFI.
+2. Correos de directivos (hoy temporales) y de docentes (vacíos).

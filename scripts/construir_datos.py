@@ -52,9 +52,9 @@ def parse_titulo_docente(t):
 # Cruce PDF -> Word (número en la lista oficial). Revisado manualmente.
 # "?" = pendiente de confirmar por el coordinador (ver data/VALIDACION.md).
 MAPA = {
-    "PUCHES ANA": 39, "CUELLAR MARIA": 20, "ARIZALA ROBERTO": 4, "CUERO HERNANDO": 16,
+    "PUCHES ANA": 37, "CUELLAR MARIA": 20, "ARIZALA ROBERTO": 4, "CUERO HERNANDO": 16,
     "LOZANO AMANDA": 26, "QUIÑONES MARCOS": 42,
-    "PRADO MARIBEL": 37, "CASTILLO DAIRA": 10, "ORDOÑEZ JAIME": 34, "TERAN JORGE": 47,
+    "PRADO MARIBEL": 39, "CASTILLO DAIRA": 10, "ORDOÑEZ JAIME": 34, "TERAN JORGE": 57,
     "QUINTERO CARMEN": 41, "CASANOVA YOLI": 8, "VASQUEZ SEGUNDO": 52, "AGUIRRE ANDRES": 1,
     "SAMANIEGO FLOR": 44, "VALVERDE MARIA": 51, "CUERO VERTE LEVI": 15, "CHILLAMBO ROCIO": 12,
     "ORTIZ ADIELA": 35, "CASTILLO MARTHA": 9, "PRECIADO OLEISA": 38, "FERNANDEZ ALFREDO": 19,
@@ -63,7 +63,28 @@ MAPA = {
     "ARBOLEDA AMERICA": 3, "ANCHICO HECTOR": 30, "RAMIREZ JIMMY": 43, "VILLOTA HECTOR": 53,
     "PULGARIN CESAR": 40, "MONTAÑO LEIDY": 31, "VILLOTA RUBIO JANETH": 54, "ANGULO ANDRES": 2,
 }
+# Cambios confirmados por el coordinador (el PDF de asignación del 02-02-2026 aún trae el horario original):
+#  - El rector intercambió el horario de Arte de Docente 1 (antes Puches Ana Milena, #39) con el de Docente 2 (antes Prado Maribel, #37):
+#    hoy Prado (#37) atiende lo que era de Puches y Puches (#39) lo que era de Prado.
+#  - Armero Dájome Jesús (#57, OPS) reemplaza a Terán Guevara Jorge Alberto (#47) y atiende todo su horario.
 PENDIENTES = {}
+NOTAS_DOCENTE = {
+    57: "OPS - reemplaza a Terán Guevara Jorge Alberto: atiende su horario",
+    47: "Reemplazado por Armero Dájome Jesús (OPS): su horario lo atiende Armero",
+    37: "Reemplazo de la docente Luz María Cortés Tenorio. Desde el cambio del rector atiende el horario que tenía Puches (Docente 1)",
+    39: "Desde el cambio del rector atiende el horario que tenía Prado Maribel (Docente 2 de Arte)",
+    7: "Docente orientadora: sin grupos, trabaja con todos los niveles",
+    36: "Docente orientadora: sin grupos, trabaja con todos los niveles",
+    56: "Tutora PTAFI (Todos a Aprender - Formación Integral), transitoria: apoya preescolar y primaria (procesos básicos, centros de interés)",
+}
+# Personal sin grupo: (n, tipo, código de grupo, entrada, salida, área). Jornada: orientadoras según el coordinador (la primera en nombrarse
+# entra 7:30 y sale ~12:30; la segunda entra 8:00 y sale hasta las 16:00). Tutora PTAFI: jornada de primaria (por confirmar).
+ESPECIALES = {
+    7: ("ORIENTACION", "ORIENT", "07:30", "12:30", "ORIENTACIÓN ESCOLAR"),
+    36: ("ORIENTACION", "ORIENT", "08:00", "16:00", "ORIENTACIÓN ESCOLAR"),
+    56: ("TUTORIA", "PTAFI", "06:30", "12:00", "TUTORÍA PTAFI"),
+}
+NIVEL_ESPECIAL = {7: "ORIENTACIÓN", 36: "ORIENTACIÓN", 56: "TUTORA PTAFI", 47: "REEMPLAZADO"}
 CORRECCION_AREA = {"ETI": "ETR", "REL": "ETR"}  # erratas del PDF (DOCENTES-2, Casanova Yoli)
 
 
@@ -76,6 +97,10 @@ def clave_pdf(titulo):
 
 
 def grupo_info(g):
+    if g == "ORIENT":
+        return "TRANSVERSAL", "Todos los niveles", "Orientación escolar (todos los niveles)"
+    if g == "PTAFI":
+        return "TRANSVERSAL", "Preescolar y primaria", "Tutora PTAFI (preescolar y primaria)"
     if g.startswith("CS1"):
         return "CAMINAR EN SECUNDARIA 1", "6°-7°", f"CS 1-{g[-1]}"
     if g.startswith("CS2"):
@@ -155,8 +180,9 @@ def main():
             r["grupos_enfasis"] = "+".join(g for g in cand if (r["dia"], int(r["hora"])) in eg.get(g, set()))
             otros = [o for o in equipo[(ref, r["dia"], r["hora"])] if o["docente_n"] != r["docente_n"]]
             r["equipo_enfasis"] = "; ".join(f'{o["docente"]} ({"/".join(sorted(areas_doc.get(o["docente_n"], [])))})' for o in otros)
-            r["alternancia"] = ("PAREJA: alternan por semana" if len(otros) == 1
-                                else f"EQUIPO DE {len(otros) + 1} docentes (reparto por confirmar)")
+            r["area"] = "/".join(sorted(areas_doc.get(r["docente_n"], [])))  # área del docente en el énfasis
+            r["alternancia"] = ("PAREJA: comparten el énfasis y alternan por semana" if len(otros) == 1
+                                else f"EQUIPO DE {len(otros) + 1}: cada docente atiende un grupo de estudiantes en su área")
         elif r["area"] in ALTERNAN:
             r["alternancia"] = ALTERNAN[r["area"]]
     h.sort(key=lambda r: (r["docente_n"], ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"].index(r["dia"]), r["hora"]))
@@ -218,6 +244,14 @@ if __name__ == "__main__":
                           "inicio": ini, "fin": fin, "tipo": "AREAS_MULTIPLES", "grupo": g, "area": "ÁREAS MÚLTIPLES",
                           "enfasis_ref": "", "grupos_enfasis": "", "equipo_enfasis": "",
                           "alternancia": "Maestro de aula: todas las áreas con su grupo", "celda_original": ""})
+    for n, (tipo, g, ent, sal, area) in ESPECIALES.items():
+        for dia in DIAS_SEM:
+            for hora, (b, ses, ini, fin) in _S.items():
+                if ini < sal and fin > ent:  # la sesión se traslapa con su jornada
+                    h.append({"docente_n": n, "docente": nombre_doc[n], "dia": dia, "hora": hora, "bloque": b, "sesion": ses,
+                              "inicio": ini, "fin": fin, "tipo": tipo, "grupo": g, "area": area, "enfasis_ref": "",
+                              "grupos_enfasis": "", "equipo_enfasis": "", "celda_original": "",
+                              "alternancia": f"Jornada {ent} a {sal}"})
     h.sort(key=lambda r: (["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"].index(r["dia"]), int(r["hora"]),
                           r["grupo"] or "~" + r["grupos_enfasis"], r["docente_n"]))
     con_horario = {r["docente_n"] for r in h}
@@ -232,11 +266,10 @@ if __name__ == "__main__":
     for d in docs:
         dres.append({"codigo": f'D{d["n"]:03d}', "n": d["n"], "apellidos": d["apellidos"], "nombres": d["nombres"],
                      "nombre_completo": f'{d["apellidos"]} {d["nombres"]}',
-                     "nivel": BASICA[d["n"]][0] if d["n"] in BASICA else ("SECUNDARIA" if d["n"] in sec or d["n"] in DIR_BACH else "POR DEFINIR"),
+                     "nivel": (NIVEL_ESPECIAL.get(d["n"]) or BASICA[d["n"]][0]) if (d["n"] in NIVEL_ESPECIAL or d["n"] in BASICA) else ("SECUNDARIA" if d["n"] in sec or d["n"] in DIR_BACH else "POR DEFINIR"),
                      "grupo_titular": BASICA[d["n"]][1] if d["n"] in BASICA else "",
                      "direccion_grupo": "; ".join(grupo_info(g)[2] for g in sorted(DIR_DE.get(d["n"], []))),
-                     "nota": ("Grupo según DIRECCIÓN DE GRUPO 2026" if d["n"] in BASICA else
-                              ("Secundaria sin horario en los PDF de asignación" if d["n"] == 57 else "")),
+                     "nota": NOTAS_DOCENTE.get(d["n"]) or ("Grupo según DIRECCIÓN DE GRUPO 2026" if d["n"] in BASICA else ""),
                      "areas": "/".join(sorted(areas.get(d["n"], []))), "correo": "", "tiene_horario": "SI" if d["n"] in con_horario else "NO"})
     escribir("docentes.csv", dres, ["codigo", "n", "apellidos", "nombres", "nombre_completo", "nivel", "grupo_titular", "direccion_grupo", "areas", "correo", "tiene_horario", "nota"])
     cols = ["docente_n", "docente", "dia", "hora", "bloque", "sesion", "inicio", "fin", "tipo", "grupo", "area", "enfasis_ref", "grupos_enfasis", "equipo_enfasis", "alternancia", "celda_original"]

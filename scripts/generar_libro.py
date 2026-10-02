@@ -195,7 +195,7 @@ cel = {}
 for r in H:
     g = r["grupo"] if r["tipo"] != "ENFASIS" else None
     areas = r["area"]
-    txt = f'{corto(r["docente"])} ({areas})' if g else f'{corto(r["docente"])}'
+    txt = f'{corto(r["docente"])} ({areas})' if areas else f'{corto(r["docente"])}'
     if g:
         cel.setdefault((r["dia"], int(r["hora"]), g), []).append(txt)
     else:

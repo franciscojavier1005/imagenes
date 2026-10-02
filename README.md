@@ -6,6 +6,9 @@
 - `ICET_Control_Asistencia_Docente_2026.xlsx`: libro listo para importar a Google Sheets.
 - `apps_script/`: `Codigo.gs` (formulario + registro automático) y `Consulta.html` (¿quién debe estar dónde ahora?).
 
+## Vista previa (sin instalar nada)
+Abra `ICET_Vista_Previa_Ronda.html` en el celular, tablet o computador: es la misma pantalla de la ronda con todos los datos incluidos. Cambie día y sesión con las flechas; al guardar se descarga un CSV. Se regenera con `python3 scripts/generar_vista_previa.py`.
+
 ## Base de datos aparte (consulta y verificación)
 - `ICET_Base_Datos_2026.xlsx`: tablas (docentes, grupos, direccion_grupo, franjas, horario, motivos), `Horario_Legible` para filtrar por día y sesión, y hojas de verificación `Controles`, `Carga_Docente` y `Cobertura_Grupo`.
 - `ICET_Base_Datos_2026.db` (SQLite): las mismas tablas con vistas `v_horario`, `v_carga_docente` y `v_cobertura_grupo`.

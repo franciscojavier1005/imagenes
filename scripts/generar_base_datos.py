@@ -60,8 +60,9 @@ checks.append(("Sesiones por docente = 'SECCIONES' del título del PDF", "OK" if
                "; ".join(f"{n}: el título dice {v[0]} y la cuadrícula tiene {v[1]}" for n, v in dif) +
                ". La cuadrícula coincide con los PDF por grupo, así que se asume errata en el título.")))
 esperado = lambda g: 25 if g.startswith("00") else (30 if g[:2] in ("01", "02", "03", "04", "05") else 40)
-falt = [(GN[g], sum(len(v) for v in cobert[g].values()), esperado(g)) for g in GN if sum(len(v) for v in cobert[g].values()) != esperado(g)]
-checks.append(("Cada grupo con todas sus sesiones cubiertas (40 bachillerato, 30 primaria, 25 preescolar)", "OK" if not falt else "REVISAR", f"{len(GN)} grupos; incompletos: {len(falt)}"))
+TRANSV = {g["grupo"] for g in grupos if g["tipo"] == "TRANSVERSAL"}  # orientación y tutoría: sin cobertura esperada
+falt = [(GN[g], sum(len(v) for v in cobert[g].values()), esperado(g)) for g in GN if g not in TRANSV and sum(len(v) for v in cobert[g].values()) != esperado(g)]
+checks.append(("Cada grupo con todas sus sesiones cubiertas (40 bachillerato, 30 primaria, 25 preescolar)", "OK" if not falt else "REVISAR", f"{len(GN) - len(TRANSV)} grupos; incompletos: {len(falt)}"))
 doble = defaultdict(int)
 for r in horario:
     doble[(r["docente_n"], r["dia"], r["hora"])] += 1
@@ -75,12 +76,13 @@ c2 = sum(1 for v in gg.values() if len(v) > 1)
 checks.append(("Dos docentes de clase con el mismo grupo a la vez", "OK" if c2 == 0 else "REVISAR", f"{c2} casos"))
 sin_nivel = [d["nombre_completo"] for d in docentes if d["nivel"] == "POR DEFINIR"]
 checks.append(("Docentes con nivel definido", "OK" if not sin_nivel else "PENDIENTE", "; ".join(sin_nivel) or "todos"))
-sin_hor = [d["nombre_completo"] for d in docentes if d["tiene_horario"] == "NO"]
+sin_hor = [d["nombre_completo"] for d in docentes if d["tiene_horario"] == "NO" and d["nivel"] != "REEMPLAZADO"]
 checks.append(("Docentes con horario cargado", "OK" if not sin_hor else "PENDIENTE", f"{len(sin_hor)} sin horario: " + "; ".join(sin_hor)))
 sin_dir = [d["nombre_completo"] for d in docentes if not d["direccion_grupo"]]
 checks.append(("Docentes con dirección de grupo", "INFO", f"{len(sin_dir)} sin dirección: " + "; ".join(sin_dir)))
-checks.append(("Énfasis de equipo de 4 docentes: reparto o alternancia", "PENDIENTE", "Confirmar con el coordinador"))
-checks.append(("Parejas de énfasis: docente de la semana inicial", "PENDIENTE", "Confirmar con el coordinador"))
+checks.append(("Reemplazos y cambios del rector aplicados", "INFO", "Armero Dájome Jesús (OPS) reemplaza a Terán Guevara Jorge Alberto; Prado Genís Maribel y Puches Ana Milena intercambiaron su horario de Arte"))
+checks.append(("Alternancia semanal de énfasis (parejas, Sociales/Inglés, Ética/Religión)", "INFO", "No se hace seguimiento semanal en la base: lo controla internamente el coordinador"))
+checks.append(("Personal sin grupo (orientación y tutoría PTAFI)", "INFO", "Casanova Johana y Ponce Ángela (orientadoras): jornadas 07:30-12:30 y 08:00-16:00; Ortiz Martha (tutora PTAFI): jornada de primaria por confirmar"))
 
 # ------------------------------------------------------------------ SQLite
 DB = os.path.join(RAIZ, "ICET_Base_Datos_2026.db")
@@ -126,7 +128,7 @@ CREATE VIEW v_horario AS
   FROM horario h JOIN franjas f ON f.hora=h.hora JOIN docentes d ON d.n=h.docente_n LEFT JOIN grupos g ON g.grupo=h.grupo;
 CREATE VIEW v_carga_docente AS
   SELECT d.n, d.nombre_completo, d.nivel, COUNT(h.id) AS sesiones_semana, ROUND(COUNT(h.id)*45/60.0,2) AS horas_semana,
-         SUM(h.tipo='CLASE') AS clase, SUM(h.tipo='ENFASIS') AS enfasis, SUM(h.tipo='AREAS_MULTIPLES') AS areas_multiples
+         SUM(h.tipo='CLASE') AS clase, SUM(h.tipo='ENFASIS') AS enfasis, SUM(h.tipo='AREAS_MULTIPLES') AS areas_multiples, SUM(h.tipo IN ('ORIENTACION','TUTORIA')) AS orientacion_tutoria
   FROM docentes d LEFT JOIN horario h ON h.docente_n=d.n GROUP BY d.n;
 CREATE VIEW v_cobertura_grupo AS
   SELECT g.nombre AS grupo, COUNT(*) AS sesiones_cubiertas FROM (
@@ -204,7 +206,7 @@ hoja("Carga_Docente", filas)
 filas = [["grupo", "nombre", "modalidad"] + DIAS + ["sesiones_cubiertas", "esperadas", "completo"]]
 for g in grupos:
     c = {d: len(v) for d, v in cobert[g["grupo"]].items()}; tot = sum(c.values())
-    filas.append([g["grupo"], g["nombre"], g["modalidad"]] + [c.get(x, 0) for x in DIAS] + [tot, esperado(g["grupo"]), "SI" if tot == esperado(g["grupo"]) else "NO"])
+    filas.append([g["grupo"], g["nombre"], g["modalidad"]] + [c.get(x, 0) for x in DIAS] + [tot, "—" if g["grupo"] in TRANSV else esperado(g["grupo"]), ("—" if g["grupo"] in TRANSV else ("SI" if tot == esperado(g["grupo"]) else "NO"))])
 hoja("Cobertura_Grupo", filas)
 
 tabla("Docentes", docentes, ["n", "codigo", "apellidos", "nombres", "nombre_completo", "nivel", "grupo_titular", "direccion_grupo", "areas", "correo", "tiene_horario", "nota"])

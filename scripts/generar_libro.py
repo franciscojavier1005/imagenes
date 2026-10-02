@@ -83,6 +83,7 @@ for t in [
     "  Matriz_Grupos  Para cada día y sesión, quién atiende a cada grupo (consulta rápida o para imprimir).",
     "  Motivos        Catálogo de justificaciones por categoría (salud, permiso, evento externo, calamidad doméstica, etc.).",
     "  Novedades      Mismo esquema de su formulario 'ASISTENCIA DOCENTE ICET (respuestas)' + 3 columnas nuevas.",
+    "  Bandeja_WhatsApp Novedades propuestas desde el chat de WhatsApp: revise, marque SI en confirmar y use el menú para importarlas.",
     "  Registro_Ronda Cada marca de la ronda (presente, no asistió, tarde...).",
     "  Directivos     Quiénes registran. Correos TEMPORALES (@example.com), reemplazar por los reales.",
     "",
@@ -223,10 +224,19 @@ mx.auto_filter.ref = mx.dimensions
 nov = hoja(wb, "Novedades", [["Marca temporal", "Fecha Novedad", "Docente", "Tipo Novedad", "Actividad de Aprendizaje", "Motivo Ausencia",
                               "Descripción", "Fuente Novedad", "Medio Información", "Grado", "Grupo", "Área/Asignatura", "Horario",
                               "Minutos Desatendidos", "Directivo Docente", "Sesiones", "Justificada", "Categoría motivo"]])
+bj = hoja(wb, "Bandeja_WhatsApp", [["fecha", "hora", "remitente", "docente", "tipo_novedad", "motivo", "categoria", "justificada", "confianza", "mensaje", "confirmar", "importado"]])
+dvc = DataValidation(type="list", formula1='"SI,NO"', allow_blank=True)
+dvd2 = DataValidation(type="list", formula1="=Docentes!$E$2:$E$200", allow_blank=True)
+dvm2 = DataValidation(type="list", formula1="=Motivos!$B$2:$B$16", allow_blank=True)
+dvt2 = DataValidation(type="list", formula1="=Listas!$B$2:$B$7", allow_blank=True)
+for v, rng in ((dvc, "K2:K500"), (dvd2, "D2:D500"), (dvm2, "F2:F500"), (dvt2, "E2:E500")):
+    bj.add_data_validation(v); v.add(rng)
+for col, w in zip("ABCDEFGHIJKL", (11, 7, 16, 36, 24, 32, 22, 11, 11, 70, 11, 11)):
+    bj.column_dimensions[col].width = w
 hoja(wb, "Registro_Ronda", [["marca_temporal", "fecha", "dia", "sesion", "franja", "docente", "grupo", "area", "estado", "motivo",
                              "justificada", "minutos", "observaciones", "directivo"]])
 
-orden = ["LEEME", "Ronda", "Docentes", "Horario", "Matriz_Grupos", "Direccion_Grupo", "Motivos", "Novedades", "Registro_Ronda", "Directivos", "Listas", "Franjas", "Grupos"]
+orden = ["LEEME", "Ronda", "Docentes", "Horario", "Matriz_Grupos", "Direccion_Grupo", "Motivos", "Novedades", "Bandeja_WhatsApp", "Registro_Ronda", "Directivos", "Listas", "Franjas", "Grupos"]
 wb._sheets = [wb[n] for n in orden]
 wb.active = 1
 wb.save(OUT)

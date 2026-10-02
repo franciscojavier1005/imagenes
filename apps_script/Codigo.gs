@@ -17,6 +17,7 @@ var FUENTE_RONDA = 'Coordinador(a)';
 function onOpen() {
   SpreadsheetApp.getUi().createMenu('Asistencia ICET')
     .addItem('Crear formulario de novedades (desplegables)', 'crearFormulario')
+    .addItem('Importar bandeja de WhatsApp (filas marcadas SI)', 'importarBandejaWhatsApp')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')
     .addSeparator()
@@ -54,6 +55,8 @@ function mapaDireccion_() {
 /** '0601' -> {grado:'06', grupo:'1'}; 'CS101' -> {grado:'CS1', grupo:'1'} */
 function partesGrupo_(g) {
   g = String(g || '');
+  if (g === 'ORIENT') return { grado: 'ORI', grupo: '0' };
+  if (g === 'PTAFI') return { grado: 'PTA', grupo: '0' };
   if (/^CS\d{3}$/.test(g)) return { grado: g.substr(0, 3), grupo: g.substr(4) };
   if (/^\d{4}$/.test(g)) return { grado: g.substr(0, 2), grupo: String(Number(g.substr(2))) };
   return { grado: 'N/A', grupo: 'N/A' };
@@ -96,6 +99,14 @@ function consultarSesion(dia, sesion) {
   };
   if (!s) return out;
   var nombres = mapaGrupos_(), direccion = mapaDireccion_();
+  var reportes = {};   // novedades de hoy ya registradas (formulario, WhatsApp o ronda anterior)
+  datos_('Novedades').forEach(function (n) {
+    if (fechaIso_(n['Fecha Novedad']) === out.fecha && n['Tipo Novedad'] && n['Tipo Novedad'] !== 'Presente') {
+      var d = n['Docente'], medio = String(n['Medio Información'] || '');
+      reportes[d] = { tipo: n['Tipo Novedad'], motivo: n['Motivo Ausencia'], texto: String(n['Descripción'] || '').slice(0, 160), medio: medio,
+                      jornada: String(n['Sesiones']) === 'JC' };
+    }
+  });
   var yaMarcados = {};
   datos_('Registro_Ronda').forEach(function (r) {
     var f = r.fecha instanceof Date ? ymd_(r.fecha) : String(r.fecha);
@@ -114,6 +125,7 @@ function consultarSesion(dia, sesion) {
       area: h.area || '(énfasis)', tipo: h.tipo, nota: nota,
       dir: h.tipo === 'AREAS_MULTIPLES' ? '' : ((direccion[String(enf ? h.grupos_enfasis : h.grupo).split('+')[0]] || {}).dir || ''),
       modalidad: (direccion[String(enf ? h.grupos_enfasis : h.grupo).split('+')[0]] || {}).modalidad || '',
+      reporte: reportes[h.docente] || null,
       previo: ya ? { estado: ya.estado, motivo: ya.motivo, minutos: ya.minutos, observaciones: ya.observaciones } : null
     };
   });
@@ -160,7 +172,10 @@ function guardarRonda(p) {
           nov.deleteRow(j + 1); novVals.splice(j, 1);
         }
       }
-      if (r.estado !== 'Presente') {
+      var jornada = r.estado === 'No asistió' && novVals.slice(1).some(function (x) {
+        return fechaIso_(x[1]) === fecha && x[2] === r.docente && String(x[novCol]) === 'JC' && /no asisti/i.test(String(x[3]));
+      });  // ya reportado como ausencia de jornada completa: se verifica en Registro_Ronda sin duplicar minutos en Novedades
+      if (r.estado !== 'Presente' && !jornada) {
         var pg = partesGrupo_(String(r.grupoCodigo).split('+')[0]);
         var nf = [ahora, fecha, r.docente, r.estado, r.actividad || 'N/A', r.motivo || '', r.obs || '',
                   r.fuente || FUENTE_RONDA, r.medio || MEDIO_RONDA, pg.grado, pg.grupo, r.area,

@@ -30,6 +30,7 @@
   .nombre{font-weight:600;font-size:16px}
   .meta{font-size:13px;color:#566}
   .nota{font-size:12px;color:#7a5200;margin-top:2px}
+  .reporte{font-size:12.5px;background:#fff3cd;color:#664d03;border-radius:8px;padding:6px 9px;margin-top:6px}
   .previo{font-size:12px;color:#555;margin-top:2px}
   .detalle{margin-top:8px;padding:8px 10px 10px;background:#fff;border:1px dashed var(--borde);border-radius:10px}
   .sel{width:100%;margin-top:8px;padding:12px 10px;font-size:16px;border:2px solid var(--borde);border-radius:10px;background:#fff;min-height:48px}
@@ -153,6 +154,7 @@ function tarjeta(f){
   var h='<div class="doc estado-'+({'Presente':'Presente','No asistió':'No'}[m.estado]||(m.estado?'Tarde':''))+'" id="d_'+id+'">'+
     '<div class="nombre">'+k+'</div><div class="meta">'+esc(f.area)+'</div>'+
     (f.nota?'<div class="nota">'+esc(f.nota)+'</div>':'')+
+    (f.reporte?'<div class="reporte"><b>Reportado hoy:</b> '+esc(f.reporte.tipo)+(f.reporte.motivo?' · '+esc(f.reporte.motivo):'')+(f.reporte.texto?' — “'+esc(f.reporte.texto)+'”':'')+(f.reporte.medio?' ('+esc(f.reporte.medio)+')':'')+(f.reporte.jornada?' · jornada completa':'')+'</div>':'')+
     (f.previo?'<div class="previo">Ya registrado: '+esc(f.previo.estado)+(f.previo.motivo?' · '+esc(f.previo.motivo):'')+'</div>':'')+
     '<select class="sel est" aria-label="Asistencia de '+k+'" onchange="marcar(\''+id+'\',this.value)">'+
       opt('','— Asistencia —',!m.estado)+

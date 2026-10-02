@@ -100,11 +100,13 @@
 <div class="viz-root">
 <div class="wrap">
   <header class="top">
-    <div><h1>Panel de asistencia docente · ICET 2026</h1><div class="sub" id="rango">Cargando…</div></div>
+    <div><h1 id="titulo">Panel de asistencia docente · ICET 2026</h1><div class="sub" id="rango">Cargando…</div></div>
     <div class="enlaces"><a id="irRonda" href="#" target="_top" style="display:none">Ir a la ronda</a><button onclick="window.print()">Imprimir</button></div>
   </header>
 
-  <div class="filtros" role="group" aria-label="Periodo">
+  <div class="filtros" role="group" aria-label="Periodo y filtros">
+    <label id="gVista" style="display:none">Vista
+      <select id="vista" onchange="cambiaVista()"><option value="rector">Rectoría</option><option value="coordinacion">Coordinación</option><option value="docente">Informe del docente</option></select></label>
     <button class="p" data-p="hoy" onclick="preset('hoy')">Hoy</button>
     <button class="p" data-p="semana" onclick="preset('semana')">Esta semana</button>
     <button class="p" data-p="mes" onclick="preset('mes')">Este mes</button>
@@ -113,6 +115,8 @@
       <label>Desde <input type="date" id="desde" onchange="aplicaFechas()"></label>
       <label>Hasta <input type="date" id="hasta" onchange="aplicaFechas()"></label>
     </span>
+    <label id="gNivel" style="display:none">Nivel <select id="nivel" onchange="cambiaFiltro()"><option value="">Todos</option></select></label>
+    <label id="gDocente" style="display:none">Docente <select id="docente" onchange="cambiaFiltro()"><option value="">— elegir —</option></select></label>
   </div>
 
   <div id="contenido">
@@ -158,14 +162,29 @@ function preset(p){
 function aplicaFechas(){var d=el('desde').value,a=el('hasta').value; if(d&&a&&d<=a) cargar(d,a);}
 function marcaBotones(){document.querySelectorAll('.filtros button.p').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.p===periodo?'true':'false');});}
 
+var CTX=null, vista='coordinacion', ultimo=null;
+function filtros(){return {nivel:vista==='docente'?'':el('nivel').value, docente:vista==='rector'?'':(vista==='docente'&&CTX&&CTX.rol==='docente'?CTX.docente:el('docente').value)};}
 function cargar(desde,hasta){
+  ultimo={desde:desde,hasta:hasta};
+  var f=filtros();
+  if(vista==='docente'&&!f.docente){ R=null; el('contenido').replaceChildren(h('div',{class:'vacio',text:'Elija un docente para ver su informe.'})); el('rango').textContent=frango(desde,hasta); return; }
   el('contenido').classList.add('refresco');
   google.script.run.withSuccessHandler(function(r){
     R=r; el('contenido').classList.remove('refresco'); pintar();
   }).withFailureHandler(function(e){
     el('contenido').classList.remove('refresco'); el('contenido').replaceChildren(h('div',{class:'vacio',text:'Error: '+(e.message||e)}));
-  }).datosDashboard(desde,hasta);
+  }).datosDashboard(desde,hasta,f);
 }
+function recarga(){ if(ultimo) cargar(ultimo.desde,ultimo.hasta); }
+function cambiaFiltro(){ recarga(); }
+function ajustaControles(){
+  var dir=CTX&&CTX.rol==='directivo';
+  el('gVista').style.display=dir?'inline':'none';
+  el('gNivel').style.display=(dir&&vista!=='docente')?'inline':'none';
+  el('gDocente').style.display=(dir&&vista!=='rector')?'inline':'none';
+  el('vista').value=vista;
+}
+function cambiaVista(){ vista=el('vista').value; ajustaControles(); recarga(); }
 
 /* ---------- formatos ---------- */
 function cap(t){t=String(t||'');return t.length<=4||t!==t.toUpperCase()?t:t.charAt(0)+t.slice(1).toLowerCase();}
@@ -258,52 +277,81 @@ function ronda(filas){
 }
 
 /* ---------- pintar todo ---------- */
+function fFecha(s){return NOM_DIA[dow(s)]+' '+Number(s.slice(8))+' '+NOM_MES[Number(s.slice(5,7))-1];}
 function pintar(){
   if(!R) return;
   var k=R.kpis, c=el('contenido'); c.replaceChildren();
-  el('rango').textContent=frango(R.desde,R.hasta)+' · '+R.diasHabiles+(R.diasHabiles===1?' día hábil':' días hábiles');
+  var esDoc=vista==='docente';
+  el('titulo').textContent=esDoc?'Informe de asistencia · '+R.filtros.docente:(vista==='rector'?'Panel de asistencia docente · Rectoría':'Panel de asistencia docente · Coordinación');
+  el('rango').textContent=frango(R.desde,R.hasta)+' · '+R.diasHabiles+(R.diasHabiles===1?' día hábil':' días hábiles')+(R.filtros.nivel&&!esDoc?' · '+cap(R.filtros.nivel):'');
   marcaBotones();
 
   c.appendChild(h('div',{class:'heroe'},[
-    h('div',{},[h('div',{class:'et',text:'Horas de clase sin atender'}),h('div',{},[h('span',{class:'valor',text:fmtNum(k.horas)}),h('span',{class:'unidad',text:'horas'})])]),
+    h('div',{},[h('div',{class:'et',text:esDoc?'Horas de clase sin atender en el periodo':'Horas de clase sin atender'}),h('div',{},[h('span',{class:'valor',text:fmtNum(k.horas)}),h('span',{class:'unidad',text:'horas'})])]),
     h('div',{class:'det',text:fmtNum(k.sesiones)+' sesiones de 45 minutos de '+fmtNum(k.programadas)+' programadas · cumplimiento '+fmtPct(k.cumplimiento)})]));
 
-  var tiles=[['Docentes con novedad',fmtNum(k.docentesConNovedad),'en el periodo'],['Ausencias',fmtNum(k.ausencias),'docente-día sin asistir'],
-    ['Llegadas tarde',fmtNum(k.llegadasTarde),'registros'],['Salidas tempranas',fmtNum(k.salidasTempranas),'registros'],
-    ['Novedades justificadas',fmtPct(k.pctJustificadas),fmtNum(k.eventos)+' novedades'],['Sin justificar',fmtMin(k.minutosSinJustificar),'tiempo sin atender']];
+  var tiles=esDoc
+    ?[['Ausencias',fmtNum(k.ausencias),'días sin asistir'],['Llegadas tarde',fmtNum(k.llegadasTarde),'registros'],['Salidas tempranas',fmtNum(k.salidasTempranas),'registros'],
+      ['Novedades justificadas',fmtPct(k.pctJustificadas),fmtNum(k.eventos)+' novedades'],['Sin justificar',fmtMin(k.minutosSinJustificar),'tiempo sin atender']]
+    :[['Docentes con novedad',fmtNum(k.docentesConNovedad),'en el periodo'],['Ausencias',fmtNum(k.ausencias),'docente-día sin asistir'],
+      ['Llegadas tarde',fmtNum(k.llegadasTarde),'registros'],['Salidas tempranas',fmtNum(k.salidasTempranas),'registros'],
+      ['Novedades justificadas',fmtPct(k.pctJustificadas),fmtNum(k.eventos)+' novedades'],['Sin justificar',fmtMin(k.minutosSinJustificar),'tiempo sin atender']];
   c.appendChild(h('div',{class:'tiles'},tiles.map(function(t){return h('div',{class:'tile'},[h('div',{class:'et',text:t[0]}),h('div',{class:'v',text:t[1]}),h('div',{class:'n',text:t[2]})]);})));
 
   var g=h('div',{class:'rejilla'});
-  g.appendChild(tarjeta('tend','Tiempo sin atender por día','Últimos 10 días hábiles hasta '+fcorta(R.hasta),columnas(R.tendencia),
+  g.appendChild(tarjeta('tend',esDoc?'Mi tiempo sin atender por día':'Tiempo sin atender por día','Últimos 10 días hábiles hasta '+fcorta(R.hasta),columnas(R.tendencia),
     tablaSimple(['Fecha','Minutos','Novedades'],R.tendencia.map(function(s){return [frango(s.fecha,s.fecha),s.minutos,s.eventos];}),[1,2]),true));
   g.appendChild(tarjeta('cat','Motivos de las novedades','Tiempo sin atender por categoría',barras(capLista(R.porCategoria)),
     tablaSimple(['Categoría','Minutos'],R.porCategoria.map(function(x){return [cap(x.nombre),x.minutos];}),[1])));
-  g.appendChild(tarjeta('niv','Por nivel','Justificado y sin justificar',apiladas(capLista(R.porNivel)),
-    tablaSimple(['Nivel','Justificadas (min)','Sin justificar (min)'],R.porNivel.map(function(x){return [cap(x.nombre),x.justificada,x.sinJustificar];}),[1,2])));
-  g.appendChild(tarjeta('grp','Grupos más afectados','Estudiantes sin su docente: los 10 grupos con más tiempo',barras(R.porGrupo.slice(0,10)),
-    tablaSimple(['Grupo','Minutos'],R.porGrupo.map(function(x){return [x.nombre,x.minutos];}),[1])));
-  g.appendChild(tarjeta('are','Áreas más afectadas','Las 8 áreas con más tiempo sin atender',barras(capLista(R.porArea.slice(0,8))),
-    tablaSimple(['Área','Minutos'],R.porArea.map(function(x){return [cap(x.nombre),x.minutos];}),[1])));
-  g.appendChild(tarjeta('ron','Ronda de verificación','Docentes verificados por sesión el '+frango(R.hasta,R.hasta),ronda(R.ronda),
-    tablaSimple(['Sesión','Verificados','Esperados'],R.ronda.map(function(x){return [x.sesion,x.marcados,x.esperados];}),[1,2])));
+  if(!esDoc){
+    g.appendChild(tarjeta('niv','Por nivel','Justificado y sin justificar',apiladas(capLista(R.porNivel)),
+      tablaSimple(['Nivel','Justificadas (min)','Sin justificar (min)'],R.porNivel.map(function(x){return [cap(x.nombre),x.justificada,x.sinJustificar];}),[1,2])));
+    g.appendChild(tarjeta('grp','Grupos más afectados',vista==='rector'?'Los 8 grupos con más tiempo sin su docente':'Estudiantes sin su docente: los 10 grupos con más tiempo',
+      barras(R.porGrupo.slice(0,vista==='rector'?8:10)),tablaSimple(['Grupo','Minutos'],R.porGrupo.map(function(x){return [x.nombre,x.minutos];}),[1])));
+  }
+  if(vista==='coordinacion'){
+    g.appendChild(tarjeta('are','Áreas más afectadas','Las 8 áreas con más tiempo sin atender',barras(capLista(R.porArea.slice(0,8))),
+      tablaSimple(['Área','Minutos'],R.porArea.map(function(x){return [cap(x.nombre),x.minutos];}),[1])));
+    g.appendChild(tarjeta('ron','Ronda de verificación','Docentes verificados por sesión el '+frango(R.hasta,R.hasta),ronda(R.ronda),
+      tablaSimple(['Sesión','Verificados','Esperados'],R.ronda.map(function(x){return [x.sesion,x.marcados,x.esperados];}),[1,2])));
+  }
   c.appendChild(g);
 
-  var dia=h('section',{class:'card ancha',style:'margin-top:14px'},[
-    h('h2',{text:'Novedades del '+frango(R.hasta,R.hasta)}),
-    R.dia.length?tablaSimple(['Docente','Grupo','Área','Novedad','Motivo','Minutos','Justificada','Registró'],
-      R.dia.map(function(x){return [x.docente,x.grupo,x.area,x.tipo,x.motivo,x.minutos,x.justificada,x.directivo];}),[5]):h('div',{class:'vacio',text:'Sin novedades registradas ese día.'})]);
-  c.appendChild(dia);
-  var dc=h('section',{class:'card ancha',style:'margin-top:14px'},[
-    h('h2',{text:'Docentes con más tiempo sin atender en el periodo'}),
-    R.porDocente.length?tablaSimple(['Docente','Nivel','Novedades','Días','Minutos','Sin justificar (min)'],
-      R.porDocente.slice(0,15).map(function(x){return [x.docente,x.nivel,x.eventos,x.dias,x.minutos,x.sinJustificar];}),[2,3,4,5]):h('div',{class:'vacio',text:'Sin novedades en este periodo.'})]);
-  c.appendChild(dc);
-  el('pie').textContent='Información confidencial de uso directivo (Ley 1581 de 2012). Actualizado: '+new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})+'.';
+  if(esDoc){
+    c.appendChild(h('section',{class:'card ancha',style:'margin-top:14px'},[h('h2',{text:'Mis novedades del periodo'}),
+      R.lista.length?tablaSimple(['Fecha','Grupo','Área','Novedad','Motivo','Minutos','Justificada'],
+        R.lista.map(function(x){return [fFecha(x.fecha),x.grupo,x.area,x.tipo,x.motivo,x.minutos,x.justificada];}),[5]):h('div',{class:'vacio',text:'Sin novedades en este periodo.'})]));
+  } else {
+    c.appendChild(h('section',{class:'card ancha',style:'margin-top:14px'},[h('h2',{text:'Novedades del '+frango(R.hasta,R.hasta)}),
+      R.dia.length?tablaSimple(['Docente','Grupo','Área','Novedad','Motivo','Minutos','Justificada','Registró'],
+        R.dia.map(function(x){return [x.docente,x.grupo,x.area,x.tipo,x.motivo,x.minutos,x.justificada,x.directivo];}),[5]):h('div',{class:'vacio',text:'Sin novedades registradas ese día.'})]));
+    if(vista==='coordinacion'){
+      c.appendChild(h('section',{class:'card ancha',style:'margin-top:14px'},[h('h2',{text:'Docentes con más tiempo sin atender en el periodo'}),
+        R.porDocente.length?tablaSimple(['Docente','Nivel','Novedades','Días','Minutos','Sin justificar (min)'],
+          R.porDocente.slice(0,15).map(function(x){return [x.docente,cap(x.nivel),x.eventos,x.dias,x.minutos,x.sinJustificar];}),[2,3,4,5]):h('div',{class:'vacio',text:'Sin novedades en este periodo.'})]));
+    }
+  }
+  el('pie').textContent=esDoc?'Este informe muestra solo sus registros. Para aclaraciones o para entregar soportes, comuníquese con coordinación. Actualizado: '+new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})+'.'
+    :'Información confidencial de uso directivo (Ley 1581 de 2012). Actualizado: '+new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})+'.';
+}
+
+/* ---------- arranque: según quién abre el panel ---------- */
+function arranque(){
+  google.script.run.withSuccessHandler(function(ctx){
+    CTX=ctx;
+    if(ctx.rol==='sin_acceso'){ el('contenido').replaceChildren(h('div',{class:'vacio',text:'No tiene acceso a este panel. Pida al coordinador que lo agregue.'})); el('rango').textContent=''; return; }
+    vista=ctx.vistaInicial||'coordinacion';
+    if(ctx.rol==='directivo'){
+      (ctx.niveles||[]).forEach(function(n){el('nivel').appendChild(h('option',{value:n,text:cap(n)}));});
+      (ctx.docentes||[]).forEach(function(d){el('docente').appendChild(h('option',{value:d.nombre,text:d.nombre}));});
+    }
+    ajustaControles(); preset('hoy');
+  }).withFailureHandler(function(e){ el('contenido').replaceChildren(h('div',{class:'vacio',text:'Error: '+(e.message||e)})); }).contextoPanel();
 }
 
 try{ google.script.run.withSuccessHandler(function(u){ if(u){var a=el('irRonda');a.href=u+'?p=ronda';a.style.display='inline';} }).urlBase(); }catch(e){}
 var _t=null; window.addEventListener('resize',function(){clearTimeout(_t);_t=setTimeout(pintar,200);});
-preset('hoy');
+arranque();
 </script>
 </body>
 </html>

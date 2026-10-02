@@ -1,70 +1,77 @@
 {
+ "minutos": 5985,
+ "eventos": 60,
  "programadas": 3118,
- "minutos": 5030,
- "eventos": 66,
- "ausencias": 30,
- "docentesConNovedad": 25,
- "llegadasTarde": 17,
- "salidasTempranas": 16,
- "cumplimiento": 96.4,
- "pctJustificadas": 95.5,
+ "ausencias": 43,
+ "docentesConNovedad": 40,
+ "llegadasTarde": 12,
+ "salidasTempranas": 5,
+ "cumplimiento": 95.7,
+ "pctJustificadas": 91.7,
  "porCategoria": {
-  "CALAMIDAD DOMÉSTICA": 1435,
-  "TRASLADO": 1020,
-  "PERMISO INSTITUCIONAL": 560,
-  "SALUD": 630,
-  "EVENTO EXTERNO": 320,
-  "FORTUITO": 145,
-  "ACADÉMICO DEL DOCENTE": 680,
-  "SIN JUSTIFICACIÓN": 190,
-  "OTRO": 50
+  "CALAMIDAD DOMÉSTICA": 2185,
+  "SIN JUSTIFICACIÓN": 470,
+  "EVENTO EXTERNO": 750,
+  "FORTUITO": 280,
+  "ACADÉMICO DEL DOCENTE": 130,
+  "SALUD": 1600,
+  "TRASLADO": 495,
+  "PERMISO INSTITUCIONAL": 75
  },
  "porNivel": {
   "SECUNDARIA": {
-   "justificada": 2025,
-   "sinJustificar": 190
+   "justificada": 2550,
+   "sinJustificar": 200
   },
-  "PRIMARIA": {
-   "justificada": 2130,
+  "ORIENTACIÓN": {
+   "justificada": 465,
    "sinJustificar": 0
   },
+  "PRIMARIA": {
+   "justificada": 1690,
+   "sinJustificar": 270
+  },
   "PREESCOLAR": {
-   "justificada": 685,
+   "justificada": 630,
+   "sinJustificar": 0
+  },
+  "TUTORA PTAFI": {
+   "justificada": 180,
    "sinJustificar": 0
   }
  },
  "tendencia": {
-  "2026-09-21": 355,
-  "2026-09-22": 195,
-  "2026-09-23": 465,
-  "2026-09-24": 380,
-  "2026-09-25": 840,
-  "2026-09-28": 420,
-  "2026-09-29": 400,
-  "2026-09-30": 460,
-  "2026-10-01": 825,
-  "2026-10-02": 690
+  "2026-09-21": 390,
+  "2026-09-22": 415,
+  "2026-09-23": 1065,
+  "2026-09-24": 355,
+  "2026-09-25": 365,
+  "2026-09-28": 750,
+  "2026-09-29": 910,
+  "2026-09-30": 225,
+  "2026-10-01": 670,
+  "2026-10-02": 840
  },
  "ronda": {
   "1": [
    40,
-   34
+   35
   ],
   "2": [
    43,
-   37
+   33
   ],
   "3": [
    45,
-   44
+   41
   ],
   "4": [
    45,
-   35
+   41
   ],
   "5": [
    45,
-   37
+   39
   ],
   "6": [
    45,
@@ -79,5 +86,53 @@
    0
   ]
  },
- "grupoSinGrupo": 270
+ "grupoSinGrupo": 270,
+ "filtroNivel": {
+  "PRIMARIA": {
+   "minutos": 1960,
+   "eventos": 14,
+   "programadas": 780,
+   "ausencias": 9,
+   "docentesConNovedad": 10,
+   "llegadasTarde": 4,
+   "salidasTempranas": 1,
+   "cumplimiento": 94.4,
+   "pctJustificadas": 92.9
+  },
+  "SECUNDARIA": {
+   "minutos": 2750,
+   "eventos": 34,
+   "programadas": 2048,
+   "ausencias": 25,
+   "docentesConNovedad": 25,
+   "llegadasTarde": 6,
+   "salidasTempranas": 3,
+   "cumplimiento": 97.0,
+   "pctJustificadas": 88.2
+  },
+  "PREESCOLAR": {
+   "minutos": 630,
+   "eventos": 4,
+   "programadas": 100,
+   "ausencias": 4,
+   "docentesConNovedad": 2,
+   "llegadasTarde": 0,
+   "salidasTempranas": 0,
+   "cumplimiento": 86.0,
+   "pctJustificadas": 100.0
+  }
+ },
+ "docenteFiltro": "Docente demo ORI 02",
+ "filtroDocente": {
+  "minutos": 420,
+  "eventos": 6,
+  "programadas": 60,
+  "ausencias": 3,
+  "docentesConNovedad": 1,
+  "llegadasTarde": 2,
+  "salidasTempranas": 1,
+  "cumplimiento": 84.4,
+  "pctJustificadas": 100.0,
+  "lista": 6
+ }
 }

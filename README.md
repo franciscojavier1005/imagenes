@@ -6,14 +6,31 @@
 - `ICET_Control_Asistencia_Docente_2026.xlsx`: libro listo para importar a Google Sheets.
 - `apps_script/`: `Codigo.gs` (formulario + registro automático) y `Consulta.html` (¿quién debe estar dónde ahora?).
 
+## Ubicación de docentes de bachillerato (Excel)
+`ICET_Ubicacion_Docentes_Bachillerato.xlsx`: la hoja **Ubicacion** aplica sola el filtro con la fecha y la hora del dispositivo y muestra quién está en cada grupo y en qué área. Para otro momento: fecha, bloque (1 a 4) o sesión (1 a 8) en las celdas amarillas. **Por_Docente** lista a cada docente de A a Z y dónde está (o "Libre"). Solo bachillerato, sin preescolar ni primaria. Se regenera con `python3 scripts/generar_ubicacion.py`.
+
+## Paneles por rol
+Un solo panel con tres vistas (selector "Vista"; el rol decide qué ve cada persona):
+- **Rectoría:** resumen ejecutivo (horas sin atender, cumplimiento, tendencia, motivos, nivel, 8 grupos más afectados, novedades del día).
+- **Coordinación:** todo lo anterior más áreas, ronda de verificación, docentes con más tiempo sin atender y filtros por nivel y por docente.
+- **Informe del docente:** solo sus propios registros (ausencias, llegadas tarde, justificadas, tendencia, motivos y su lista de novedades), sin compararlo con otros.
+- **Acceso:** editores del libro y las personas de la hoja `Directivos` ven las vistas de directivos; un docente (cuando su correo esté en la hoja `Docentes`) solo recibe su informe, y el servidor lo fuerza aunque pida otro. Cualquier otra persona es rechazada.
+
+## Novedades desde WhatsApp
+No hay acceso directo a WhatsApp. El flujo es: exportar el chat del grupo de directivos (⋮ > Más > Exportar chat > sin archivos) → `python3 scripts/importar_whatsapp.py chat.txt [--fecha 2026-10-02]` → pegar el CSV en la hoja `Bandeja_WhatsApp` → revisar (docente, tipo, motivo) y marcar `SI` en *confirmar* → menú **Asistencia ICET > Importar bandeja de WhatsApp**. Cada fila pasa a `Novedades` como ausencia de jornada completa (minutos = sesiones del horario del día x 45), con el mensaje original en Descripción. En la ronda, el docente muestra "Reportado hoy" para que todos los directivos lo vean, y la ronda no duplica minutos si ya estaba reportado.
+- Es una ayuda por palabras clave: puede equivocarse. Cada fila lleva su confianza (alta, media, baja o sin docente) y nada se importa sin su confirmación.
+- Los chats contienen datos de salud: `importacion/` y los chats están en `.gitignore`; no los suba a ningún repositorio.
+- Prueba (con docentes y mensajes ficticios): `python3 scripts/pruebas_whatsapp.py`.
+
 ## Panel (dashboard) e informe diario al rector
 - **Panel** (`apps_script/Dashboard.html`, se abre con `?p=panel` al final de la URL de la aplicación): horas de clase sin atender, cumplimiento, docentes con novedad, ausencias, llegadas tarde, tendencia de 10 días, motivos, nivel, grupos y áreas más afectados, cobertura de la ronda y novedades del día. Filtros: hoy, semana, mes o fechas a elección. Cada gráfico tiene su tabla; funciona en celular y en modo oscuro.
 - **Informe diario al rector:** correo HTML (lunes a viernes, hacia las 2:30 p. m.). Menú **Asistencia ICET > Informe al rector: programar envío diario**. Mientras el correo del rector en la hoja `Directivos` sea temporal (`@example.com`) **no se envía nada**; cuando se ponga el real, use "enviar prueba ahora".
 - **Vista previa con datos de ejemplo** (docentes ficticios): `ICET_Panel_Vista_Previa.html`, se regenera con `python3 scripts/generar_panel_demo.py`.
-- **Pruebas:** `node apps_script/pruebas/resumen.test.js` compara el cálculo del panel con un cálculo independiente en Python (`python3 scripts/datos_demo.py`).
-- Para activar la aplicación: copiar también `Dashboard.gs`, `Resumen.gs` y `Dashboard.html`, y el manifiesto `appsscript.json` (zona horaria de Bogotá y permisos).
+- **Pruebas:** `python3 scripts/datos_demo.py && node apps_script/pruebas/resumen.test.js` (cálculo del panel y filtros contra un cálculo independiente en Python); `python3 apps_script/pruebas/exportar_hojas.py` y luego `node apps_script/pruebas/servidor.test.js` y `node apps_script/pruebas/whatsapp.test.js` (roles, acceso, importación y ronda, con docentes ficticios).
+- Para activar la aplicación: copiar también `Dashboard.gs`, `Resumen.gs`, `Whatsapp.gs` y `Dashboard.html`, y el manifiesto `appsscript.json` (zona horaria de Bogotá y permisos).
 
 ### Fase siguiente (no implementada)
+- **Firma o huella en el celular:** hoy la ronda del coordinador reemplaza la hoja de firmas. Para que el docente confirme su llegada con la huella del teléfono se usarían llaves de acceso (passkeys/WebAuthn): la huella nunca sale del teléfono y el sistema solo guarda una llave pública asociada al docente. Requiere una página propia con HTTPS (no funciona dentro de Apps Script), cuentas de docentes y autorización expresa, porque los datos biométricos son sensibles (Ley 1581 de 2012).
 Informe para cada docente (sus ausencias y horas sin atender, diario o semanal) y carga virtual de soportes (foto o escaneo de incapacidades, citas, actas, epicrisis). Antes de hacerla conviene definir: acceso individual por docente, carpeta de Drive restringida a directivos, plazo de entrega de soportes y autorización de tratamiento de datos de salud (Ley 1581 de 2012: datos sensibles).
 
 ## Vista previa (sin instalar nada)

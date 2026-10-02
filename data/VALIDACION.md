@@ -61,6 +61,13 @@ Catálogo en `data/motivos.csv` (15 motivos en 8 categorías). Parte de los moti
 - Hoja `Ronda`: fórmulas evaluadas con un motor de cálculo en Python (martes, sesión 1: 34 docentes, 23 grupos). La detección de sesión se probó en 15 horas, con descansos y fuera de jornada. No se pudo probar en Excel ni en Google Sheets.
 - Aplicación web `Consulta.html`: probada en un navegador con tamaño de celular y un servidor simulado (marcar, justificar, tarde con minutos, guardar, cambiar de sesión). El Apps Script solo se revisó en sintaxis; no se ha ejecutado en Google.
 
+## Pruebas del tablero y la bandeja
+
+- Cálculo del panel: 55 comprobaciones contra un cálculo independiente en Python (incluye filtros por nivel y por docente).
+- Servidor (roles, acceso, informe diario): 20 comprobaciones con las hojas reales del libro y servicios de Google simulados.
+- Bandeja de WhatsApp, "Reportado hoy" y ronda: 10 comprobaciones; importador de chats: 12 comprobaciones con datos ficticios.
+- Excel de ubicación: 5 escenarios (ahora, otra fecha con bloque, fecha sin elegir, descanso, fin de semana) evaluados con un motor de cálculo en Python; no se probó en Excel ni en Google Sheets.
+
 ## Pendientes
 
 1. Correos de directivos (temporales por ahora) y de docentes (se dejan vacíos por decisión del coordinador).

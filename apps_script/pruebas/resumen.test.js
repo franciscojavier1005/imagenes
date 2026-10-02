@@ -20,3 +20,13 @@ const vacio=ctxVm.calcular(Object.assign({},ctx,{novedades:[]}));
 ig([vacio.kpis.minutos,vacio.kpis.pctJustificadas,vacio.porDocente.length],[0,null,0],'sin novedades (sin dividir entre cero)');
 const fds=ctxVm.calcular(Object.assign({},ctx,{desde:'2026-10-03',hasta:'2026-10-04'}));
 ig([fds.diasHabiles,fds.kpis.cumplimiento],[0,null],'fin de semana');
+
+// ---- filtros (esperado calculado aparte en Python)
+['PRIMARIA','SECUNDARIA','PREESCOLAR'].forEach(function(niv){
+  var f=ctxVm.calcular(Object.assign({},ctx,{filtros:{nivel:niv}})).kpis, e=exp.filtroNivel[niv];
+  ['minutos','eventos','programadas','ausencias','docentesConNovedad','llegadasTarde','salidasTempranas','cumplimiento','pctJustificadas'].forEach(function(x){ig(f[x],e[x],'filtro nivel '+niv+' · '+x);});
+});
+var rd=ctxVm.calcular(Object.assign({},ctx,{filtros:{docente:exp.docenteFiltro}})), ed=exp.filtroDocente;
+['minutos','eventos','programadas','ausencias','llegadasTarde','salidasTempranas','cumplimiento','pctJustificadas'].forEach(function(x){ig(rd.kpis[x],ed[x],'filtro docente · '+x);});
+ig(rd.lista.length,ed.lista,'lista de novedades del docente');
+ig(rd.porDocente.length,1,'el informe del docente no incluye a otros docentes');

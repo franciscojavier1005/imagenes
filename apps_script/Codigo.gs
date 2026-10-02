@@ -6,7 +6,7 @@
  * Luego: Implementar > Nueva implementación > Aplicación web
  *        (ejecutar como: el usuario que accede; acceso: solo directivos).
  *
- * Hojas que usa: Horario, Franjas, Grupos, Motivos, Listas, Directivos, Registro_Ronda, Novedades.
+ * Hojas que usa: Horario, Franjas, Grupos, Direccion_Grupo, Motivos, Listas, Directivos, Registro_Ronda, Novedades.
  */
 var TZ = 'America/Bogota';
 var DIAS = ['', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
@@ -37,6 +37,13 @@ function ymd_(d) { return Utilities.formatDate(d, TZ, 'yyyy-MM-dd'); }
 function mapaGrupos_() {
   var m = {};
   datos_('Grupos').forEach(function (g) { m[g.grupo] = g.nombre; });
+  return m;
+}
+
+/** {grupo: {dir: 'Quiñones M. / Montaño F.', modalidad: 'ACELERACIÓN DEL APRENDIZAJE'}} */
+function mapaDireccion_() {
+  var m = {};
+  datos_('Direccion_Grupo').forEach(function (g) { m[g.grupo] = { dir: g.dinamizadores, modalidad: g.modalidad }; });
   return m;
 }
 
@@ -81,7 +88,7 @@ function consultarSesion(dia, sesion) {
     nota: s ? '' : (auto ? 'Descanso o fuera de jornada' : 'Sesión no válida')
   };
   if (!s) return out;
-  var nombres = mapaGrupos_();
+  var nombres = mapaGrupos_(), direccion = mapaDireccion_();
   var yaMarcados = {};
   datos_('Registro_Ronda').forEach(function (r) {
     var f = r.fecha instanceof Date ? ymd_(r.fecha) : String(r.fecha);
@@ -98,6 +105,8 @@ function consultarSesion(dia, sesion) {
       grupo: enf ? 'ÉNFASIS ' + String(h.grupos_enfasis).split('+').map(function (g) { return nombres[g] || g; }).join(' + ')
                  : (nombres[h.grupo] || h.grupo),
       area: h.area || '(énfasis)', tipo: h.tipo, nota: nota,
+      dir: h.tipo === 'AREAS_MULTIPLES' ? '' : ((direccion[String(enf ? h.grupos_enfasis : h.grupo).split('+')[0]] || {}).dir || ''),
+      modalidad: (direccion[String(enf ? h.grupos_enfasis : h.grupo).split('+')[0]] || {}).modalidad || '',
       previo: ya ? { estado: ya.estado, motivo: ya.motivo, minutos: ya.minutos, observaciones: ya.observaciones } : null
     };
   });

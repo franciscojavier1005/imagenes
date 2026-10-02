@@ -1,7 +1,7 @@
 # ICET 2026 - Control de asistencia docente
 
-- `fuentes/`: PDF de asignación académica y Word de asistencia (originales).
-- `scripts/`: extracción (`extraer_horarios.py`), datos (`construir_datos.py`), validación (`validar.py`) y libro (`generar_libro.py`).
+- `fuentes/`: PDF de asignación académica, dirección de grupo y Word de asistencia (originales).
+- `scripts/`: extracción (`extraer_horarios.py`), datos (`construir_datos.py`), validación (`validar.py`) y libro (`generar_libro.py`; `direccion_grupo.py` con la dirección de grupo 2026).
 - `data/`: CSV generados (docentes, grupos, franjas, horario maestro) y `VALIDACION.md`.
 - `ICET_Control_Asistencia_Docente_2026.xlsx`: libro listo para importar a Google Sheets.
 - `apps_script/`: `Codigo.gs` (formulario + registro automático) y `Consulta.html` (¿quién debe estar dónde ahora?).

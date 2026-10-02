@@ -25,6 +25,7 @@
   .grupo{background:#fff;border:1px solid var(--borde);border-radius:12px;margin:10px 0;overflow:hidden}
   .grupo>h2{margin:0;padding:9px 12px;background:#e6edf5;font-size:16px;display:flex;justify-content:space-between;align-items:center}
   .grupo>h2 small{font-weight:400;color:#456}
+  .dirgrupo{padding:4px 12px;font-size:12px;color:#456;background:#f4f8fc;border-top:1px solid #e3e9f0}
   .doc{padding:10px 12px;border-top:1px solid #eef1f5;scroll-margin-top:140px;scroll-margin-bottom:100px}
   .detalle label,.seg label{scroll-margin-top:140px;scroll-margin-bottom:100px}
   .doc.estado-No{background:#fdecea} .doc.estado-Tarde{background:#fff6e0} .doc.estado-Presente{background:#edf7ee}
@@ -138,7 +139,9 @@ function pintar(){
   var G=grupos(), h='';
   G.orden.forEach(function(nombre){
     var fs=G.g[nombre], ens=fs[0].tipo==='ENFASIS';
-    h+='<section class="grupo"><h2>'+esc(nombre)+'<small>'+(ens?'equipo de '+fs.length:'')+'</small></h2>';
+    var dr=fs[0].dir?'Dir. de grupo: '+fs[0].dir:'', mod=fs[0].modalidad?' · '+fs[0].modalidad:'';
+    h+='<section class="grupo"><h2>'+esc(nombre)+'<small>'+(ens?'equipo de '+fs.length:'')+'</small></h2>'+
+       ((dr||mod)?'<div class="dirgrupo">'+esc(dr+mod)+'</div>':'');
     fs.forEach(function(f){ h+=tarjeta(f); });
     h+='</section>';
   });

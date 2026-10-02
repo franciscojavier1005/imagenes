@@ -83,6 +83,10 @@ def grupo_info(g):
     return "REGULAR", str(int(g[:2])) + "°", f"{int(g[:2])}°-{g[2:]}"
 
 
+def modalidad(g):
+    return BASICA_PDF.get(g, ("", 0, "", ""))[3]
+
+
 AREA_NOMBRE = {"ART": "Arte y Cultura Afro", "CAS": "Castellano", "CNA": "Ciencias Naturales", "CSI": "Sociales e Inglés",
                "ERD": "Educación Física", "ETR": "Ética y Religión", "MAT": "Matemáticas", "TEI": "Tecnología e Informática"}
 # Áreas que el rector asigna alternando por semana (confirmado por el coordinador)
@@ -159,15 +163,9 @@ def main():
     return docs, h
 
 
-# Docentes de primaria/preescolar. Grupo tomado de los registros del formulario de ausentismo
-# (hoja "ASISTENCIA DOCENTE ICET (respuestas)", jul-ago 2026). Pendiente de confirmar por el coordinador.
-BASICA = {  # n_docente: (nivel, grupo)
-    17: ("PRIMARIA", "0504"),  # Escobar Cortés Liliana        - 05-4
-    32: ("PRIMARIA", "0503"),  # Narváez Sánchez Dora Alejandra - 05-3
-    33: ("PRIMARIA", "0402"),  # Núñez Perlaza Elcy ("Elsy" en el formulario) - 04-2
-    45: ("PRIMARIA", "0102"),  # Sinisterra Ana Lucía           - 01-2
-    48: ("PRIMARIA", "0301"),  # Torres Segura Encarnación      - 03-1
-}
+# Docentes de preescolar y primaria: grupo según el PDF "DIRECCIÓN DE GRUPO ICET 2026" (publicación 3-mar-2026).
+from direccion_grupo import BASICA_PDF, BACHILLERATO_PDF  # noqa: E402
+BASICA = {v[1]: (v[2], g) for g, v in BASICA_PDF.items()}  # n_docente: (nivel, grupo)
 JORNADA_SESIONES = {"PRIMARIA": range(1, 7), "PREESCOLAR": range(2, 7)}  # primaria 6:30-12:00; preescolar 7:30-11:30
 DIAS_SEM = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"]
 
@@ -223,19 +221,40 @@ if __name__ == "__main__":
     h.sort(key=lambda r: (["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"].index(r["dia"]), int(r["hora"]),
                           r["grupo"] or "~" + r["grupos_enfasis"], r["docente_n"]))
     con_horario = {r["docente_n"] for r in h}
+    DIR_DE = {}
+    for g, v in BASICA_PDF.items():
+        DIR_DE.setdefault(v[1], []).append(g)
+    DIR_BACH = set()
+    for g, par in BACHILLERATO_PDF.items():
+        for _, n in par:
+            DIR_DE.setdefault(n, []).append(g); DIR_BACH.add(n)
     dres = []
     for d in docs:
         dres.append({"codigo": f'D{d["n"]:03d}', "n": d["n"], "apellidos": d["apellidos"], "nombres": d["nombres"],
                      "nombre_completo": f'{d["apellidos"]} {d["nombres"]}',
-                     "nivel": BASICA[d["n"]][0] if d["n"] in BASICA else ("SECUNDARIA" if d["n"] in sec else "POR DEFINIR"),
+                     "nivel": BASICA[d["n"]][0] if d["n"] in BASICA else ("SECUNDARIA" if d["n"] in sec or d["n"] in DIR_BACH else "POR DEFINIR"),
                      "grupo_titular": BASICA[d["n"]][1] if d["n"] in BASICA else "",
-                     "nota": "Grupo según formulario de ausentismo; confirmar" if d["n"] in BASICA else "",
+                     "direccion_grupo": "; ".join(grupo_info(g)[2] for g in sorted(DIR_DE.get(d["n"], []))),
+                     "nota": ("Grupo según DIRECCIÓN DE GRUPO 2026" if d["n"] in BASICA else
+                              ("Secundaria sin horario en los PDF de asignación" if d["n"] == 57 else "")),
                      "areas": "/".join(sorted(areas.get(d["n"], []))), "correo": "", "tiene_horario": "SI" if d["n"] in con_horario else "NO"})
-    escribir("docentes.csv", dres, ["codigo", "n", "apellidos", "nombres", "nombre_completo", "nivel", "grupo_titular", "areas", "correo", "tiene_horario", "nota"])
+    escribir("docentes.csv", dres, ["codigo", "n", "apellidos", "nombres", "nombre_completo", "nivel", "grupo_titular", "direccion_grupo", "areas", "correo", "tiene_horario", "nota"])
     cols = ["docente_n", "docente", "dia", "hora", "bloque", "sesion", "inicio", "fin", "tipo", "grupo", "area", "enfasis_ref", "grupos_enfasis", "equipo_enfasis", "alternancia", "celda_original"]
     escribir("horario_maestro.csv", h, cols)
     gs = sorted({r["grupo"] for r in h if r["grupo"]})
-    escribir("grupos.csv", [dict(zip(["grupo", "tipo", "grado", "nombre"], (g,) + grupo_info(g))) for g in gs], ["grupo", "tipo", "grado", "nombre"])
+    escribir("grupos.csv", [dict(zip(["grupo", "tipo", "grado", "nombre"], (g,) + grupo_info(g)), modalidad=modalidad(g)) for g in gs],
+             ["grupo", "tipo", "grado", "nombre", "modalidad"])
+    nom = {d["n"]: f'{d["apellidos"]} {d["nombres"]}' for d in docs}
+    filas_dir = []
+    for g in sorted(set(BASICA_PDF) | set(BACHILLERATO_PDF), key=lambda x: (x.startswith("CS"), x)):
+        if g in BASICA_PDF:
+            ds = [BASICA_PDF[g][1]]
+        else:
+            ds = [n for _, n in BACHILLERATO_PDF[g]]
+        filas_dir.append({"grupo": g, "nombre": grupo_info(g)[2], "tipo_direccion": "DUAL (ambos responsables)" if len(ds) == 2 else "UN DINAMIZADOR(A)",
+                          "docente_1_n": ds[0], "docente_1": nom[ds[0]], "docente_2_n": ds[1] if len(ds) > 1 else "",
+                          "docente_2": nom[ds[1]] if len(ds) > 1 else "", "modalidad": modalidad(g)})
+    escribir("direccion_grupo.csv", filas_dir, ["grupo", "nombre", "tipo_direccion", "docente_1_n", "docente_1", "docente_2_n", "docente_2", "modalidad"])
     escribir("motivos.csv", [{"categoria": c, "motivo": m, "justificada": j, "soporte_sugerido": so} for c, m, j, so in MOTIVOS],
              ["categoria", "motivo", "justificada", "soporte_sugerido"])
     escribir("listas.csv", [{"lista": l, "valor": v} for l, vs in (("tipo_novedad", TIPOS), ("fuente", FUENTES_NOVEDAD), ("medio", MEDIOS)) for v in vs],

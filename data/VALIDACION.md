@@ -27,14 +27,17 @@ Se reproduce con `python3 scripts/construir_datos.py && python3 scripts/validar.
 - Los énfasis de grado (`D3-8°`, `D5-10°`, `D5-11°`) se asignan al curso del grado que tiene énfasis en esa franja.
 - Equipos: 160 sesiones con **pareja** (alternan por semana) y 288 con **equipo de 4** (D3-8°, D4, D5).
 
-## Primaria y preescolar (áreas múltiples)
+## Preescolar y primaria (áreas múltiples) y dirección de grupo
 
-- Los docentes de primaria no tienen horario por áreas: se modelan como **ÁREAS MÚLTIPLES** con su grupo, de lunes a viernes, en las sesiones 1 a 6 (6:30 a 11:40).
-- Preescolar (7:30 a 11:30) usaría las sesiones 2 a 6; todavía no hay docentes identificados en ese nivel.
-- Grupos de 5 docentes tomados de los registros del formulario de ausentismo (hoja "ASISTENCIA DOCENTE ICET (respuestas)", 14/07 a 04/08/2026). **Confirmar:**
-  Escobar Cortés Liliana 5°-4 · Narváez Sánchez Dora Alejandra 5°-3 · Núñez Perlaza Elcy 4°-2 · Sinisterra Ana Lucía 1°-2 · Torres Segura Encarnación 3°-1.
-- El formulario escribe "Elsy" y el Word "Elcy" para #33. Se conservó el del Word.
-- Sin grupo ni nivel (14): Casanova Casanova Johana Andrea, Centeno Zúñiga Claudia Patricia, Cortés Salazar María Ebelice, Cuéllar Gallo Nemesia, Garzón Quiñones Sixta Janina, Landázuri Quiñones María Elia, Landázuri Gallón Teresa, Martínez Álvarez Andrea Ascención, Ponce Moncayo Ángela Paola, Valencia Solís Gloria Alexa, Zamora Ordóñez Celia Pastora, Ortiz Estacio Martha Cecilia, Armero Dájome Jesús, y la fila #56 si es de otro cargo.
+Fuente oficial: `fuentes/…DIRECCIÓN_DE_GRUPO_ICET_2026.pdf` (publicaciones del 3 y 10 de marzo de 2026).
+
+- 15 grupos con su dinamizadora: 2 de preescolar (0°-1, 0°-2) y 13 de primaria. Se modelan como **ÁREAS MÚLTIPLES**, lunes a viernes: primaria en las sesiones 1 a 6 (6:30 a 11:40) y preescolar en las sesiones 2 a 6 (7:30 a 11:30).
+- Modalidad "extra edad": 3°-2 Procesos Básicos; 5°-3 y 5°-4 Aceleración del Aprendizaje.
+- Bachillerato: dirección **dual**, ambos docentes son responsables (sin titular ni suplente). Miriam Lemos Guancha y César Marino Pulgarín no tienen grupo asignado.
+- Los 51 nombres del PDF se cruzaron con el Word sin ambigüedad; solo hay diferencias de escritura (Landázury/Landázuri, Nemecia/Nemesia, Concepción/Ascención, Govea/Gobea, Seneida/Zeneida).
+- **Discrepancia a confirmar:** el PDF dice Escobar 5°-3 y Narváez 5°-4; los registros del formulario de ausentismo (jul-ago) decían Escobar 5°-4 y Narváez 5°-3. Se usó el PDF.
+- Sin nivel definido (3): Casanova Casanova Johana Andrea, Ponce Moncayo Ángela Paola, Ortiz Estacio Martha Cecilia.
+- Armero Dájome Jesús dirige 6°-2 (secundaria) pero no tiene horario en los PDF de asignación.
 
 ## Justificaciones
 
@@ -47,7 +50,7 @@ Catálogo en `data/motivos.csv` (15 motivos en 8 categorías). Parte de los moti
 
 ## Pendientes
 
-1. Confirmar los 5 grupos de primaria y completar los 14 docentes sin nivel o grupo.
+1. Confirmar Escobar / Narváez (5°-3 y 5°-4) y el cargo de los 3 docentes sin nivel; falta el horario de Armero Dájome Jesús.
 2. Equipos de 4 docentes en énfasis (octavo a once, CS 2-1 y CS 2-2): ¿reparto o alternancia?
 3. Parejas de énfasis: ¿quién atiende la semana del 2 de febrero?
 4. Correos de directivos (hoy temporales) y de docentes (vacíos).

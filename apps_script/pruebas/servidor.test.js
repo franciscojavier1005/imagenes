@@ -8,7 +8,7 @@ const g={Utilities:{formatDate:fmt},Logger:{log:m=>logs.push(m)},
   SpreadsheetApp:{getActive:()=>({getEditors:()=>[{getEmail:()=>'dueno@gmail.com'}],getOwner:()=>({getEmail:()=>'dueno@gmail.com'}),getSheetByName:n=>({getDataRange:()=>({getValues:()=>JSON.parse(JSON.stringify(H[n]))})})}),getUi:()=>({alert:()=>{}})},
   ScriptApp:{getService:()=>({getUrl:()=>'https://script.google.com/macros/s/ID/exec'})},MailApp:{sendEmail:o=>correos.push(o)},Session:{getActiveUser:()=>({getEmail:()=>EMAIL})},HtmlService:{},console};
 vm.createContext(g);
-['Codigo.gs','Resumen.gs','Dashboard.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
+['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Soportes.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
 const EXP=H.Horario.slice(1).filter(r=>['JUEVES','VIERNES'].includes(r[H.Horario[0].indexOf('dia')])).length;
 const r=vm.runInContext("datosDashboard('2026-10-01','2026-10-02')",g);
 const ok=(c,m)=>{try{assert.ok(c);console.log('  ok  ',m)}catch(e){console.log('  FALLA',m);process.exitCode=1}};
@@ -43,7 +43,7 @@ const rd=vm.runInContext("datosDashboard('2026-10-01','2026-10-02',{docente:'"+M
 ok(rd.filtros.docente===M.A&&rd.kpis.minutos===270&&rd.porDocente.length===1,'el docente NO puede ver a otro: se fuerza su propio filtro (minutos '+rd.kpis.minutos+')');
 ok(rd.lista.length===1&&rd.lista[0].docente===M.A,'su lista contiene solo sus novedades');
 EMAIL='desconocido@gmail.com'; let fallo=false; try{vm.runInContext("datosDashboard('2026-10-01','2026-10-02',{})",g)}catch(e){fallo=/No tiene acceso/.test(e.message)}
-ok(c=ctx('desconocido@gmail.com').rol==='sin_acceso'&&fallo,'persona sin acceso: rol sin_acceso y el servidor rechaza la consulta');
+ok(c=ctx('desconocido@gmail.com').rol==='sin_registro'&&fallo,'persona desconocida: rol sin_registro y el servidor rechaza la consulta del panel');
 EMAIL='';  // disparador sin sesión: el informe diario sigue funcionando
 const ei=vm.runInContext("enviarInformeDiario(true)",g); ok(ei.enviado===true,'el informe diario funciona sin sesión de usuario (disparador)');
 const rf=(EMAIL='dueno@gmail.com',vm.runInContext("datosDashboard('2026-10-01','2026-10-02',{nivel:'PRIMARIA'})",g)); ok(rf.kpis.eventos===2&&rf.porNivel.length===1,'filtro por nivel PRIMARIA: 2 novedades');

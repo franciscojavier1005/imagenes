@@ -100,7 +100,7 @@ CREATE TABLE franjas(hora INTEGER PRIMARY KEY, bloque INTEGER, sesion INTEGER, i
 CREATE TABLE horario(id INTEGER PRIMARY KEY AUTOINCREMENT, docente_n INTEGER REFERENCES docentes(n), docente TEXT, dia TEXT,
   hora INTEGER REFERENCES franjas(hora), bloque INTEGER, sesion INTEGER, inicio TEXT, fin TEXT, tipo TEXT, grupo TEXT, area TEXT,
   enfasis_ref TEXT, grupos_enfasis TEXT, equipo_enfasis TEXT, alternancia TEXT, celda_original TEXT);
-CREATE TABLE motivos(categoria TEXT, motivo TEXT PRIMARY KEY, justificada TEXT, soporte_sugerido TEXT);
+CREATE TABLE motivos(categoria TEXT, motivo TEXT PRIMARY KEY, justificada TEXT, soporte_sugerido TEXT, requiere_soporte TEXT, plazo_dias INTEGER);
 CREATE TABLE listas(lista TEXT, valor TEXT);
 CREATE TABLE registro_ronda(id INTEGER PRIMARY KEY AUTOINCREMENT, marca_temporal TEXT, fecha TEXT, dia TEXT, sesion INTEGER, franja TEXT,
   docente TEXT, grupo TEXT, area TEXT, estado TEXT, motivo TEXT, justificada TEXT, minutos INTEGER, observaciones TEXT, directivo TEXT);
@@ -116,7 +116,7 @@ ins("direccion_grupo", [{**r, "docente_1_n": r["docente_1_n"] or None, "docente_
 ins("franjas", franjas, ["hora", "bloque", "sesion", "inicio", "fin", "inicio_min", "fin_min"])
 ins("horario", horario, ["docente_n", "docente", "dia", "hora", "bloque", "sesion", "inicio", "fin", "tipo", "grupo", "area", "enfasis_ref",
                          "grupos_enfasis", "equipo_enfasis", "alternancia", "celda_original"])
-ins("motivos", motivos, ["categoria", "motivo", "justificada", "soporte_sugerido"])
+ins("motivos", motivos, ["categoria", "motivo", "justificada", "soporte_sugerido", "requiere_soporte", "plazo_dias"])
 ins("listas", listas, ["lista", "valor"])
 cur.executescript("""
 CREATE INDEX ix_horario_dia_hora ON horario(dia, hora);
@@ -221,7 +221,7 @@ for r in sorted(horario, key=lambda r: (orden[r["dia"]], int(r["hora"]), (GN.get
     gr = ("ÉNFASIS " + " + ".join(GN.get(x, x) for x in r["grupos_enfasis"].split("+"))) if r["tipo"] == "ENFASIS" else GN.get(r["grupo"], r["grupo"])
     leg.append([r["dia"], int(r["hora"]), fr[int(r["hora"])]["inicio"], fr[int(r["hora"])]["fin"], gr, r["docente"], r["area"] or "(énfasis)", r["tipo"], r["alternancia"], r["equipo_enfasis"]])
 hoja("Horario_Legible", leg)
-tabla("Motivos", motivos, ["categoria", "motivo", "justificada", "soporte_sugerido"])
+tabla("Motivos", motivos, ["categoria", "motivo", "justificada", "soporte_sugerido", "requiere_soporte", "plazo_dias"])
 hoja("Novedades", [["Marca temporal", "Fecha Novedad", "Docente", "Tipo Novedad", "Actividad de Aprendizaje", "Motivo Ausencia", "Descripción", "Fuente Novedad",
                     "Medio Información", "Grado", "Grupo", "Área/Asignatura", "Horario", "Minutos Desatendidos", "Directivo Docente", "Sesiones", "Justificada", "Categoría motivo"]])
 wb.save(os.path.join(RAIZ, "ICET_Base_Datos_2026.xlsx"))

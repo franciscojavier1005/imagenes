@@ -11,42 +11,6 @@ function fechaIso_(v) {
   return s.slice(0, 10);
 }
 
-/* ------------------------------ acceso por rol ------------------------------ */
-function emailActual_() { try { return String(Session.getActiveUser().getEmail() || '').toLowerCase(); } catch (e) { return ''; } }
-
-function editoresLibro_() {
-  var out = [];
-  try {
-    var ss = SpreadsheetApp.getActive();
-    ss.getEditors().forEach(function (u) { out.push(String(u.getEmail()).toLowerCase()); });
-    var o = ss.getOwner(); if (o) out.push(String(o.getEmail()).toLowerCase());
-  } catch (e) { /* sin permiso para listar editores */ }
-  return out;
-}
-
-/**
- * Quién es quien abre el panel:
- *  - directivo: editor del libro o listado en la hoja Directivos (rector -> vista rector; los demás -> coordinación)
- *  - docente:   su correo está en la hoja Docentes -> solo ve su propio informe
- *  - sin_acceso: cualquier otra persona
- */
-function contextoPanel() {
-  var email = emailActual_();
-  var docs = datos_('Docentes');
-  var dir = datos_('Directivos').filter(function (d) { return email && String(d.correo_temporal).toLowerCase() === email; })[0];
-  if (email && (editoresLibro_().indexOf(email) >= 0 || dir)) {
-    var niveles = {}; docs.forEach(function (d) { niveles[d.nivel] = 1; });
-    return {
-      rol: 'directivo', vistaInicial: dir && /rector/i.test(String(dir.rol)) ? 'rector' : 'coordinacion',
-      docentes: docs.filter(function (d) { return d.nivel !== 'REEMPLAZADO'; }).map(function (d) { return { nombre: d.nombre_completo, nivel: d.nivel }; }),
-      niveles: Object.keys(niveles).filter(function (n) { return n !== 'REEMPLAZADO'; }).sort()
-    };
-  }
-  var yo = docs.filter(function (d) { return email && d.correo && String(d.correo).toLowerCase() === email; })[0];
-  if (yo) return { rol: 'docente', vistaInicial: 'docente', docente: yo.nombre_completo };
-  return { rol: 'sin_acceso' };
-}
-
 /** Cálculo sin control de acceso (lo usan el informe diario y el panel ya autorizado). */
 function resumenInterno_(desde, hasta, filtros) {
   var nivelDe = {};
@@ -59,19 +23,22 @@ function resumenInterno_(desde, hasta, filtros) {
   });
   var reg = datos_('Registro_Ronda').map(function (r) { return { fecha: fechaIso_(r.fecha), sesion: r.sesion, docente: r.docente, estado: r.estado }; });
   var hz = datos_('Horario').map(function (h) { return { dia: h.dia, hora: Number(h.hora), docente: h.docente, nivel: nivelDe[h.docente] || 'SIN NIVEL' }; });
-  return calcularResumen_({
+  var resumen = calcularResumen_({
     desde: desde, hasta: hasta, filtros: filtros || {}, novedades: nov, registro: reg, horario: hz,
     docentes: docs.map(function (d) { return { nombre_completo: d.nombre_completo, nivel: d.nivel }; }),
     motivos: datos_('Motivos').map(function (m) { return { motivo: m.motivo, categoria: m.categoria, justificada: m.justificada }; })
   });
+  var obl = obligaciones_((filtros && filtros.docente) || '');   // soportes pendientes y vencidos (dentro del filtro de docente)
+  resumen.soportes = { resumen: resumenObligaciones_(obl), vencidos: obl.filter(function (o) { return o.estado === 'Vencido'; }).slice(0, 10) };
+  return resumen;
 }
 
 /** Resumen para el panel (lo llama Dashboard.html). Un docente solo recibe su propio informe. */
 function datosDashboard(desde, hasta, filtros) {
-  var c = contextoPanel();
-  if (c.rol === 'sin_acceso') throw new Error('No tiene acceso a este panel. Pida al coordinador que lo agregue.');
-  if (c.rol === 'docente') filtros = { docente: c.docente };
-  return resumenInterno_(desde, hasta, filtros);
+  var id = identidad_();
+  if (id.rol === 'directivo') return resumenInterno_(desde, hasta, filtros);
+  if (id.rol === 'docente') return resumenInterno_(desde, hasta, { docente: id.docente });
+  throw new Error('No tiene acceso a este panel. Pida al coordinador que lo agregue.');
 }
 
 function urlBase() { return ScriptApp.getService().getUrl(); }

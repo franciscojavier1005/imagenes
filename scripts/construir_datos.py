@@ -195,23 +195,25 @@ BASICA = {v[1]: (v[2], g) for g, v in BASICA_PDF.items()}  # n_docente: (nivel, 
 JORNADA_SESIONES = {"PRIMARIA": range(1, 7), "PREESCOLAR": range(2, 7)}  # primaria 6:30-12:00; preescolar 7:30-11:30
 DIAS_SEM = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"]
 
-MOTIVOS = [  # (categoria, motivo, justificada, soporte)
-    ("SIN JUSTIFICACIÓN", "Sin justificación", "NO", ""),
-    ("SALUD", "Mal estado de salud", "SI", "Verbal / incapacidad posterior"),
-    ("SALUD", "Incapacidad Médica", "SI", "Copia incapacidad/licencia"),
-    ("SALUD", "Exámenes clínicos", "SI", "Constancia de cita"),
-    ("PERMISO INSTITUCIONAL", "Permiso del rector", "SI", "Formato Permiso Docente"),
-    ("EVENTO EXTERNO", "Capacitación/Taller", "SI", "Citación"),
-    ("EVENTO EXTERNO", "Evento Secretaría de Educación", "SI", "Citación / oficio de la SED"),
-    ("ACADÉMICO DEL DOCENTE", "Tema académico del docente", "SI", "Constancia (estudios, posgrado)"),
-    ("CALAMIDAD DOMÉSTICA", "Calamidad familiar", "SI", "Verbal / soporte posterior"),
-    ("CALAMIDAD DOMÉSTICA", "Salud de hijo(a) o familiar", "SI", "Constancia médica"),
-    ("CALAMIDAD DOMÉSTICA", "Traslado hijo(a) a colegio/médico", "SI", "Verbal"),
-    ("CALAMIDAD DOMÉSTICA", "Tema académico de hijo(a)", "SI", "Citación del colegio"),
-    ("TRASLADO", "Remisión otra ciudad", "SI", "Formato Permiso Docente"),
-    ("FORTUITO", "Situación fortuita camino al trabajo", "SI", "Verbal"),
-    ("OTRO", "Otro", "SI", "Describir en observaciones"),
+MOTIVOS = [  # (categoria, motivo, justificada, soporte sugerido, requiere_soporte, plazo_dias hábiles desde el reintegro)
+    # Plazos definidos por el coordinador: 3 días si la ausencia es injustificada (para justificarla); máximo 5 en los demás casos.
+    ("SIN JUSTIFICACIÓN", "Sin justificación", "NO", "Cualquier soporte que la justifique", "SI", 3),
+    ("SALUD", "Mal estado de salud", "SI", "Constancia médica o incapacidad", "SI", 5),
+    ("SALUD", "Incapacidad Médica", "SI", "Copia incapacidad/licencia", "SI", 5),
+    ("SALUD", "Exámenes clínicos", "SI", "Constancia de cita", "SI", 5),
+    ("PERMISO INSTITUCIONAL", "Permiso del rector", "SI", "Formato Permiso Docente (ya está en rectoría)", "NO", 5),
+    ("EVENTO EXTERNO", "Capacitación/Taller", "SI", "Citación o certificado", "SI", 5),
+    ("EVENTO EXTERNO", "Evento Secretaría de Educación", "SI", "Citación / oficio de la SED", "SI", 5),
+    ("ACADÉMICO DEL DOCENTE", "Tema académico del docente", "SI", "Constancia (estudios, posgrado)", "SI", 5),
+    ("CALAMIDAD DOMÉSTICA", "Calamidad familiar", "SI", "Acta de defunción u otro soporte", "SI", 5),
+    ("CALAMIDAD DOMÉSTICA", "Salud de hijo(a) o familiar", "SI", "Constancia médica o epicrisis", "SI", 5),
+    ("CALAMIDAD DOMÉSTICA", "Traslado hijo(a) a colegio/médico", "SI", "Constancia", "SI", 5),
+    ("CALAMIDAD DOMÉSTICA", "Tema académico de hijo(a)", "SI", "Citación del colegio", "SI", 5),
+    ("TRASLADO", "Remisión otra ciudad", "SI", "Remisión o pasajes", "SI", 5),
+    ("FORTUITO", "Situación fortuita camino al trabajo", "SI", "Constancia si la hay", "SI", 5),
+    ("OTRO", "Otro", "SI", "Describir en observaciones", "SI", 5),
 ]
+TIPOS_DOCUMENTO = ["Incapacidad médica", "Constancia o cita médica", "Epicrisis", "Acta de defunción", "Citación o invitación", "Constancia de estudio", "Remisión o pasajes", "Otro soporte"]
 TIPOS = ["Presente", "No asistió", "Llegada tarde", "Llegada tarde informada", "Salida temprana", "Salida temprana informada"]
 FUENTES_NOVEDAD = ["Coordinador(a)", "Docente ausente", "Estudiantes", "Otro docente", "Rector"]
 MEDIOS = ["Inspección ocular/Ronda supervisión", "Reporte/Conversación con estudiantes", "Llamada celular", "WhatsApp directo",
@@ -288,9 +290,9 @@ if __name__ == "__main__":
                           "docente_1_n": ds[0], "docente_1": nom[ds[0]], "docente_2_n": ds[1] if len(ds) > 1 else "",
                           "docente_2": nom[ds[1]] if len(ds) > 1 else "", "modalidad": modalidad(g)})
     escribir("direccion_grupo.csv", filas_dir, ["grupo", "nombre", "tipo_direccion", "docente_1_n", "docente_1", "docente_2_n", "docente_2", "modalidad"])
-    escribir("motivos.csv", [{"categoria": c, "motivo": m, "justificada": j, "soporte_sugerido": so} for c, m, j, so in MOTIVOS],
-             ["categoria", "motivo", "justificada", "soporte_sugerido"])
-    escribir("listas.csv", [{"lista": l, "valor": v} for l, vs in (("tipo_novedad", TIPOS), ("fuente", FUENTES_NOVEDAD), ("medio", MEDIOS)) for v in vs],
+    escribir("motivos.csv", [{"categoria": c, "motivo": m, "justificada": j, "soporte_sugerido": so, "requiere_soporte": rq, "plazo_dias": pl} for c, m, j, so, rq, pl in MOTIVOS],
+             ["categoria", "motivo", "justificada", "soporte_sugerido", "requiere_soporte", "plazo_dias"])
+    escribir("listas.csv", [{"lista": l, "valor": v} for l, vs in (("tipo_novedad", TIPOS), ("fuente", FUENTES_NOVEDAD), ("medio", MEDIOS), ("tipo_documento", TIPOS_DOCUMENTO)) for v in vs],
              ["lista", "valor"])
     mins = lambda t: int(t[:2]) * 60 + int(t[3:])
     fr = [{"hora": k, "bloque": v[0], "sesion": v[1], "inicio": v[2], "fin": v[3], "inicio_min": mins(v[2]), "fin_min": mins(v[3])} for k, v in SESIONES.items()]

@@ -74,6 +74,11 @@ function sesionAhora_(d) {
 /* ------------------------------ ronda (aplicación web) ------------------------------ */
 /** ?p=ronda (por defecto) abre la ronda; ?p=panel abre el panel (dashboard). */
 function doGet(e) {
+  // En el BACK (propiedad MODO_BACK = SI) esta dirección solo responde a la API: no se sirve ninguna pantalla, porque el back se
+  // ejecuta con los permisos del propietario y cualquiera con el enlace podría abrirla.
+  if (PropertiesService.getScriptProperties().getProperty('MODO_BACK') === 'SI') {
+    return ContentService.createTextOutput('ICET API').setMimeType(ContentService.MimeType.TEXT);
+  }
   var panel = e && e.parameter && e.parameter.p === 'panel';
   return HtmlService.createHtmlOutputFromFile(panel ? 'Dashboard' : 'Consulta')
     .setTitle(panel ? 'ICET - Panel de asistencia docente' : 'ICET - Ronda de asistencia docente')
@@ -137,6 +142,10 @@ function consultarSesion(dia, sesion) {
  * p = {directivo, dia, sesion, fecha?, registros:[{docente, grupoCodigo, area, estado, motivo, minutos, obs, fuente, medio}]}
  */
 function guardarRonda(p) {
+  if (REQ_EMAIL !== null) {               // llamada desde el front: el directivo es quien Google identificó, no lo que diga la pantalla
+    var quien = identidad_();
+    if (quien.rol === 'directivo') p.directivo = quien.nombre || quien.email;
+  }
   var lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
@@ -248,6 +257,7 @@ function compartirConDirectivos() {
     var c = String(d.correo_temporal).trim();
     if (!c || /@example\.com$/i.test(c)) { omitidos.push(d.nombre); return; }
     SpreadsheetApp.getActive().addEditor(c); ok.push(d.nombre);
+    try { carpetaRaiz_().addViewer(c); } catch (e) { /* sin carpeta de soportes todavía */ }
   });
   SpreadsheetApp.getUi().alert('Compartido con: ' + (ok.join(', ') || 'nadie') + '\nPendientes (correo temporal): ' + (omitidos.join(', ') || 'ninguno'));
 }

@@ -18,3 +18,11 @@ medio,WhatsApp grupal
 medio,Formato Permiso Docente
 medio,Verbal
 medio,Copia incapacidad/licencia
+tipo_documento,Incapacidad médica
+tipo_documento,Constancia o cita médica
+tipo_documento,Epicrisis
+tipo_documento,Acta de defunción
+tipo_documento,Citación o invitación
+tipo_documento,Constancia de estudio
+tipo_documento,Remisión o pasajes
+tipo_documento,Otro soporte

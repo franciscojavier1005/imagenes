@@ -15,7 +15,7 @@ hojas.Bandeja_WhatsApp=new Hoja([['fecha','hora','remitente','docente','tipo_nov
 const g={Utilities:{formatDate:fmt},Logger:{log(){}},LockService:{getScriptLock:()=>({waitLock(){},releaseLock(){}})},
   SpreadsheetApp:{getActive:()=>({getSheetByName:n=>hojas[n]}),getUi:()=>({alert(){}})},console};
 vm.createContext(g);
-['Codigo.gs','Resumen.gs','Dashboard.gs','Whatsapp.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
+['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
 let fallos=0; const ok=(c,m)=>{console.log((c?'  ok   ':'  FALLA ')+m); if(!c)fallos++;};
 const hi=H.Horario[0].indexOf.bind(H.Horario[0]);
 // un docente de bachillerato con clase el viernes

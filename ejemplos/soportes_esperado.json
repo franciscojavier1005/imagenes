@@ -1,0 +1,90 @@
+{
+ "Docente A|2026-10-05": {
+  "inicio": "2026-10-05",
+  "fin": "2026-10-05",
+  "dias": 1,
+  "reintegro": "2026-10-06",
+  "limite": "2026-10-13",
+  "plazoDias": 5,
+  "estado": "Pendiente",
+  "diasRestantes": 5,
+  "minutos": 270
+ },
+ "Docente B|2026-10-01": {
+  "inicio": "2026-10-01",
+  "fin": "2026-10-05",
+  "dias": 3,
+  "reintegro": "2026-10-06",
+  "limite": "2026-10-13",
+  "plazoDias": 5,
+  "estado": "Entregado",
+  "diasRestantes": 5,
+  "minutos": 135
+ },
+ "Docente C|2026-09-30": {
+  "inicio": "2026-09-30",
+  "fin": "2026-09-30",
+  "dias": 1,
+  "reintegro": "2026-10-01",
+  "limite": "2026-10-06",
+  "plazoDias": 3,
+  "estado": "Pendiente",
+  "diasRestantes": 0,
+  "minutos": 45
+ },
+ "Docente D|2026-09-28": {
+  "inicio": "2026-09-28",
+  "fin": "2026-09-28",
+  "dias": 1,
+  "reintegro": "2026-09-29",
+  "limite": "2026-10-02",
+  "plazoDias": 3,
+  "estado": "Vencido",
+  "diasRestantes": -2,
+  "minutos": 45
+ },
+ "Docente H|2026-10-06": {
+  "inicio": "2026-10-06",
+  "fin": "2026-10-06",
+  "dias": 1,
+  "reintegro": "2026-10-07",
+  "limite": "2026-10-14",
+  "plazoDias": 5,
+  "estado": "En curso",
+  "diasRestantes": 6,
+  "minutos": 45
+ },
+ "Docente I|2026-09-28": {
+  "inicio": "2026-09-28",
+  "fin": "2026-09-30",
+  "dias": 3,
+  "reintegro": "2026-10-01",
+  "limite": "2026-10-08",
+  "plazoDias": 5,
+  "estado": "Rechazado",
+  "diasRestantes": 2,
+  "minutos": 135
+ },
+ "Docente J|2026-10-01": {
+  "inicio": "2026-10-01",
+  "fin": "2026-10-02",
+  "dias": 2,
+  "reintegro": "2026-10-05",
+  "limite": "2026-10-12",
+  "plazoDias": 5,
+  "estado": "Pendiente",
+  "diasRestantes": 4,
+  "minutos": 90
+ },
+ "Docente K|2026-09-29": {
+  "inicio": "2026-09-29",
+  "fin": "2026-09-29",
+  "dias": 1,
+  "reintegro": "2026-09-30",
+  "limite": "2026-10-07",
+  "plazoDias": 5,
+  "estado": "Aceptado",
+  "diasRestantes": 1,
+  "minutos": 45
+ }
+}

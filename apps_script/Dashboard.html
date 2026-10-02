@@ -93,6 +93,24 @@
   #tip{position:fixed;pointer-events:none;background:var(--text-primary);color:var(--surface-1);border-radius:8px;padding:7px 10px;font-size:12.5px;z-index:20;display:none;max-width:260px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
   #tip b{font-size:14px;display:block}
   .pie{margin:24px 0 8px;font-size:12px;color:var(--text-muted)}
+  .aviso-card{max-width:640px;margin:24px auto;background:var(--surface-2);border-radius:12px;padding:18px 20px}
+  .aviso-card h2{margin:0 0 8px;font-size:18px} .aviso-card p{margin:6px 0;color:var(--text-secondary)}
+  .campo{display:block;margin:12px 0 4px;font-size:13px;color:var(--text-secondary)}
+  .campo select,.campo input[type=text],.campo textarea{width:100%;padding:11px;border:1px solid var(--grid);border-radius:8px;background:var(--surface-1);color:var(--text-primary);font:inherit;min-height:44px}
+  .texto-legal{max-height:170px;overflow:auto;font-size:12.5px;line-height:1.45;border:1px solid var(--grid);border-radius:8px;padding:10px;background:var(--surface-1);color:var(--text-secondary)}
+  .check{display:flex;gap:10px;align-items:flex-start;margin:12px 0;font-size:14px}
+  .check input{width:22px;height:22px;flex:none;margin-top:1px}
+  .btn{background:var(--series-1);color:#fff;border:0;border-radius:10px;padding:12px 18px;font:inherit;font-weight:600;min-height:46px;cursor:pointer}
+  .btn.sec{background:var(--surface-1);color:var(--text-primary);border:1px solid var(--grid)}
+  .btn.rojo{background:var(--series-2)} .btn:disabled{opacity:.5}
+  .obl{border:1px solid var(--grid);border-radius:10px;padding:12px 14px;margin:10px 0;background:var(--surface-1)}
+  .obl .cab{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap}
+  .insignia{font-size:12px;font-weight:700;border-radius:12px;padding:3px 10px;border:1px solid var(--grid);color:var(--text-primary);background:var(--surface-2)}
+  .insignia.venc{border-color:var(--series-2)} .insignia.ok{border-color:var(--series-1)}
+  .plazo{font-size:13px;color:var(--text-secondary);margin:4px 0}
+  .obs{font-size:13px;color:var(--text-primary);background:var(--surface-2);border-radius:8px;padding:8px 10px;margin:6px 0}
+  .acciones{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .msg{font-size:13px;margin-top:6px;color:var(--text-secondary)}
   @media print{.filtros,.enlaces,button.vista{display:none}.viz-root{padding:0}}
 </style>
 </head>
@@ -110,6 +128,7 @@
     <button class="p" data-p="hoy" onclick="preset('hoy')">Hoy</button>
     <button class="p" data-p="semana" onclick="preset('semana')">Esta semana</button>
     <button class="p" data-p="mes" onclick="preset('mes')">Este mes</button>
+    <button class="p" data-p="30d" onclick="preset('30d')">Últimos 30 días</button>
     <button class="p" data-p="otro" onclick="preset('otro')">Personalizado</button>
     <span id="fechas" style="display:none;gap:8px;align-items:center">
       <label>Desde <input type="date" id="desde" onchange="aplicaFechas()"></label>
@@ -142,7 +161,7 @@ function hoyBogota(){return window.__HOY||new Date().toLocaleDateString('en-CA',
 function suma(s,n){var d=new Date(s+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);}
 function dow(s){return new Date(s+'T12:00:00Z').getUTCDay();}
 function ultimoHabil(){var f=hoyBogota();while(dow(f)===0||dow(f)===6)f=suma(f,-1);return f;}
-var NOM_DIA=['dom','lun','mar','mié','jue','vie','sáb'], NOM_MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+var INI_DIA=['D','L','M','X','J','V','S'], NOM_DIA=['dom','lun','mar','mié','jue','vie','sáb'], NOM_MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 function fcorta(s){var d=new Date(s+'T12:00:00Z');return d.getUTCDate()+' '+NOM_MES[d.getUTCMonth()];}
 function frango(a,b){return a===b?NOM_DIA[dow(a)]+' '+fcorta(a)+' '+a.slice(0,4):fcorta(a)+' al '+fcorta(b)+' '+b.slice(0,4);}
 
@@ -150,6 +169,7 @@ function rangoPreset(p){
   var hasta=ultimoHabil(), desde=hasta;
   if(p==='semana'){ var d=dow(hasta); desde=suma(hasta,-(d-1)); }
   if(p==='mes'){ desde=hasta.slice(0,8)+'01'; }
+  if(p==='30d'){ desde=suma(hasta,-29); }
   return {desde:desde,hasta:hasta};
 }
 function preset(p){
@@ -259,7 +279,7 @@ function columnas(serie){
     g.appendChild(sv('rect',{class:'gol',x:m.l+banda*i,y:m.t,width:banda,height:ph+m.b-4}));
     if(s.minutos>0){var r=Math.min(4,alto); g.appendChild(sv('path',{class:'col',d:'M'+x+','+(m.t+ph)+'V'+(y+r)+'Q'+x+','+y+' '+(x+r)+','+y+'H'+(x+ancho-r)+'Q'+(x+ancho)+','+y+' '+(x+ancho)+','+(y+r)+'V'+(m.t+ph)+'Z'}));}
     else g.appendChild(sv('rect',{x:x,y:m.t+ph-2,width:ancho,height:2,fill:'var(--grid)'}));
-    g.appendChild(sv('text',{x:x+ancho/2,y:H-10,'text-anchor':'middle',text:NOM_DIA[dow(s.fecha)]+' '+Number(s.fecha.slice(8))}));
+    g.appendChild(sv('text',{x:x+ancho/2,y:H-10,'text-anchor':'middle',text:(banda<46?INI_DIA[dow(s.fecha)]+' ':NOM_DIA[dow(s.fecha)]+' ')+Number(s.fecha.slice(8))}));
     if(i===iMax&&s.minutos>0||i===serie.length-1) g.appendChild(sv('text',{x:x+ancho/2,y:y-5,'text-anchor':'middle',text:fmtMin(s.minutos),style:'fill:var(--text-primary);font-weight:600'}));
     conTip(g.firstChild,frango(s.fecha,s.fecha),fmtMin(s.minutos)+' sin atender · '+s.eventos+' novedades');
     svg.appendChild(g);
@@ -331,21 +351,176 @@ function pintar(){
           R.porDocente.slice(0,15).map(function(x){return [x.docente,cap(x.nivel),x.eventos,x.dias,x.minutos,x.sinJustificar];}),[2,3,4,5]):h('div',{class:'vacio',text:'Sin novedades en este periodo.'})]));
     }
   }
+  if(CTX&&CTX.rol==='docente') cargarSoportes();
+  if(CTX&&CTX.rol==='directivo'&&vista==='coordinacion') cargarGestion();
   el('pie').textContent=esDoc?'Este informe muestra solo sus registros. Para aclaraciones o para entregar soportes, comuníquese con coordinación. Actualizado: '+new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})+'.'
     :'Información confidencial de uso directivo (Ley 1581 de 2012). Actualizado: '+new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})+'.';
+}
+
+/* ---------- pantallas por rol: registro, soportes y gestión ---------- */
+function ocultaFiltros(){ document.querySelector('.filtros').style.display='none'; el('rango').textContent=''; }
+function pantallaMensaje(titulo,parrafos){
+  ocultaFiltros();
+  el('contenido').replaceChildren(h('div',{class:'aviso-card'},[h('h2',{text:titulo})].concat(parrafos.map(function(t){return h('p',{text:t});}))));
+}
+/* Registro de la primera vez: elegir el nombre y aceptar la autorización. Después la cuenta se reconoce sola. */
+function pantallaRegistro(ctx){
+  ocultaFiltros();
+  var sel=h('select',{id:'regNombre'},[h('option',{value:'',text:'— Elija su nombre —'})].concat(ctx.docentes.map(function(n){return h('option',{value:n,text:n});})));
+  var chk=h('input',{type:'checkbox',id:'regAcepto'}), msg=h('div',{class:'msg'});
+  var btn=h('button',{class:'btn',text:'Solicitar acceso',onclick:function(){
+    if(!sel.value){msg.textContent='Elija su nombre de la lista.';return;}
+    if(!chk.checked){msg.textContent='Debe aceptar la autorización para continuar.';return;}
+    btn.disabled=true; msg.textContent='Enviando…';
+    google.script.run.withSuccessHandler(function(){ arranque(); }).withFailureHandler(function(e){btn.disabled=false;msg.textContent=e.message||String(e);})
+      .solicitarAcceso({docente:sel.value,autoriza:true});}});
+  el('contenido').replaceChildren(h('div',{class:'aviso-card'},[
+    h('h2',{text:'Registro de docente'}),
+    h('p',{text:'Solo se hace una vez. Su cuenta ('+ctx.email+') quedará asociada a su nombre y, cuando un directivo la apruebe, el sistema la reconocerá solo desde su celular o su computador.'}),
+    h('label',{class:'campo',text:'Su nombre en la institución'},[sel]),
+    h('label',{class:'campo',text:'Autorización de tratamiento de datos'}),
+    h('div',{class:'texto-legal',text:ctx.textoAutorizacion}),
+    h('label',{class:'check'},[chk,h('span',{text:'He leído y acepto la autorización de tratamiento de datos personales.'})]),
+    btn,msg]));
+}
+
+var MS=null;
+function cargarSoportes(){
+  var sec=h('section',{class:'card ancha',style:'margin-top:14px',id:'secSoportes'},[h('h2',{text:'Mis soportes'}),h('div',{class:'vacio',text:'Cargando…'})]);
+  el('contenido').appendChild(sec);
+  google.script.run.withSuccessHandler(function(ms){ MS=ms; pintarSoportes(sec); })
+    .withFailureHandler(function(e){sec.replaceChildren(h('h2',{text:'Mis soportes'}),h('div',{class:'vacio',text:'Error: '+(e.message||e)}));}).misSoportes();
+}
+function textoPlazo(o){
+  if(o.estado==='En curso') return 'El plazo empieza cuando se reintegre.';
+  if(o.estado==='Entregado') return 'Entregado: un directivo lo revisará.';
+  if(o.estado==='Aceptado') return 'Aceptado.';
+  if(o.estado==='No aplica') return 'No requiere soporte.';
+  var d=o.diasRestantes;
+  var lim='Fecha límite: '+fFecha(o.limite)+' ('+o.plazoDias+' días hábiles desde el reintegro).';
+  if(d<0) return lim+' Venció hace '+(-d)+(d===-1?' día hábil.':' días hábiles.');
+  return lim+(d===0?' Vence hoy.':' Quedan '+d+(d===1?' día hábil.':' días hábiles.'));
+}
+function pintarSoportes(sec){
+  sec.replaceChildren(h('h2',{text:'Mis soportes'}));
+  sec.appendChild(h('div',{class:'nota',text:'Después de una ausencia entregue su soporte (incapacidad, cita, acta, epicrisis, citación…): 3 días hábiles si la ausencia no está justificada y máximo 5 en los demás casos, contados desde que se reintegra.'}));
+  if(!MS.autorizado){
+    var chk=h('input',{type:'checkbox'}), btn=h('button',{class:'btn',text:'Aceptar y continuar',onclick:function(){
+      if(!chk.checked){btn.textContent='Marque la casilla para aceptar';return;}
+      btn.disabled=true; google.script.run.withSuccessHandler(function(){CTX.autorizado=true;cargarSoportesEn(sec);}).withFailureHandler(function(e){btn.disabled=false;btn.textContent=e.message||String(e);}).aceptarAutorizacion();}});
+    sec.appendChild(h('div',{class:'aviso-card',style:'margin:8px 0'},[h('h2',{text:'Autorización de tratamiento de datos'}),h('div',{class:'texto-legal',text:CTX.textoAutorizacion||''}),
+      h('label',{class:'check'},[chk,h('span',{text:'He leído y acepto la autorización.'})]),btn]));
+    return;
+  }
+  if(!MS.obligaciones.length){ sec.appendChild(h('div',{class:'vacio',text:'No tiene ausencias que requieran soporte.'})); return; }
+  MS.obligaciones.forEach(function(o){ sec.appendChild(tarjetaObligacion(o)); });
+}
+function cargarSoportesEn(sec){ google.script.run.withSuccessHandler(function(ms){MS=ms;pintarSoportes(sec);}).misSoportes(); }
+function tarjetaObligacion(o){
+  var mias=MS.cargados.filter(function(c){return c.clave===o.clave;});
+  var rech=mias.filter(function(c){return c.estado==='Rechazado'&&c.observacion;}).slice(-1)[0];
+  var cls=o.estado==='Vencido'?'venc':(o.estado==='Aceptado'||o.estado==='Entregado'?'ok':'');
+  var rango=o.inicio===o.fin?fFecha(o.inicio):fFecha(o.inicio)+' al '+fFecha(o.fin);
+  var card=h('div',{class:'obl'},[
+    h('div',{class:'cab'},[h('div',{},[h('div',{class:'nombre',text:'Ausencia: '+rango}),h('div',{class:'meta',text:o.motivos.join(' · ')+' · '+fmtMin(o.minutos)+' sin atender'})]),
+                          h('span',{class:'insignia '+cls,text:o.estado})]),
+    h('div',{class:'plazo',text:textoPlazo(o)})]);
+  if(rech) card.appendChild(h('div',{class:'obs',text:'Motivo del rechazo: '+rech.observacion}));
+  if(['Pendiente','Vencido','Rechazado','En curso'].indexOf(o.estado)>=0) card.appendChild(formularioSoporte(o));
+  return card;
+}
+function archivoABase64(file,maxMB,ok,fail){
+  if(file.type==='application/pdf'){
+    if(file.size>maxMB*1048576) return fail('El PDF supera '+maxMB+' MB.');
+    var r=new FileReader(); r.onload=function(){ok(r.result.split(',')[1],'application/pdf');}; r.onerror=function(){fail('No se pudo leer el archivo.');}; return r.readAsDataURL(file);
+  }
+  if(!/^image\//.test(file.type)) return fail('Use una foto (JPG, PNG) o un PDF.');
+  var img=new Image(), url=URL.createObjectURL(file);
+  img.onload=function(){ var m=1600, k=Math.min(1,m/Math.max(img.width,img.height)), c=document.createElement('canvas'); c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(url);
+    c.toBlob(function(b){ if(b.size>maxMB*1048576) return fail('La imagen sigue siendo muy grande.'); var r=new FileReader(); r.onload=function(){ok(r.result.split(',')[1],'image/jpeg');}; r.readAsDataURL(b); },'image/jpeg',0.82); };
+  img.onerror=function(){fail('No se pudo abrir la imagen.');}; img.src=url;
+}
+function formularioSoporte(o){
+  var tipo=h('select',{},[h('option',{value:'',text:'— Tipo de documento —'})].concat(MS.tiposDocumento.map(function(t){return h('option',{value:t,text:t});})));
+  var motivo=h('select',{},[h('option',{value:'',text:'— Motivo (si cambia el reportado) —'})].concat(MS.motivos.map(function(m){return h('option',{value:m,text:m});})));
+  var archivo=h('input',{type:'file',accept:'image/*,application/pdf'}), coment=h('input',{type:'text',placeholder:'Comentario (opcional)',maxlength:'300'}), msg=h('div',{class:'msg'});
+  var btn=h('button',{class:'btn',text:'Cargar soporte',onclick:function(){
+    if(!tipo.value){msg.textContent='Elija el tipo de documento.';return;}
+    if(!archivo.files[0]){msg.textContent='Tome una foto o elija un archivo.';return;}
+    btn.disabled=true; msg.textContent='Preparando el archivo…';
+    archivoABase64(archivo.files[0],MS.maxMB,function(b64,mime){
+      msg.textContent='Enviando…';
+      google.script.run.withSuccessHandler(function(r){ msg.textContent='Cargado'+(r.extemporaneo==='SI'?' (fuera de plazo)':'')+'.'; cargarSoportesEn(el('secSoportes')); })
+        .withFailureHandler(function(e){btn.disabled=false;msg.textContent=e.message||String(e);})
+        .subirSoporte({clave:o.clave,tipoDocumento:tipo.value,motivoDeclarado:motivo.value,mime:mime,base64:b64,comentario:coment.value});
+    },function(m){btn.disabled=false;msg.textContent=m;});}});
+  return h('div',{style:'margin-top:8px'},[h('label',{class:'campo',text:'Tipo de documento'},[tipo]),h('label',{class:'campo',text:'Motivo'},[motivo]),
+    h('label',{class:'campo',text:'Foto o PDF'},[archivo]),h('label',{class:'campo',text:'Comentario'},[coment]),h('div',{class:'acciones'},[btn]),msg]);
+}
+
+/* Gestión para coordinación: solicitudes de acceso y soportes */
+function cargarGestion(){
+  var sec=h('section',{class:'card ancha',id:'secGestion',style:'margin-top:14px'},[h('h2',{text:'Gestión: acceso de docentes y soportes'}),h('div',{class:'vacio',text:'Cargando…'})]);
+  el('contenido').insertBefore(sec,el('contenido').querySelector('.rejilla'));
+  var res={};
+  google.script.run.withSuccessHandler(function(a){res.sol=a;
+    google.script.run.withSuccessHandler(function(b){res.sop=b;pintarGestion(sec,res);}).withFailureHandler(function(e){sec.replaceChildren(h('h2',{text:'Gestión'}),h('div',{class:'vacio',text:'Error: '+(e.message||e)}));}).soportesPorRevisar();
+  }).withFailureHandler(function(e){sec.replaceChildren(h('h2',{text:'Gestión'}),h('div',{class:'vacio',text:'Error: '+(e.message||e)}));}).listarSolicitudes();
+}
+function accion(fn,args,sec){
+  google.script.run.withSuccessHandler(function(){ sec.remove(); cargarGestion(); }).withFailureHandler(function(e){alert(e.message||e);})[fn](args);
+}
+function pintarGestion(sec,res){
+  var r=res.sop.resumen;
+  sec.replaceChildren(h('h2',{text:'Gestión: acceso de docentes y soportes'}),
+    h('div',{class:'nota',text:'Soportes: '+r.vencidos+' vencidos · '+r.pendientes+' pendientes · '+r.porRevisar+' por revisar · '+r.rechazados+' rechazados · '+r.aceptados+' aceptados. Accesos: '+res.sol.pendientes.length+' por aprobar, '+res.sol.activos.length+' activos.'}));
+  if(res.sol.pendientes.length){
+    sec.appendChild(h('h3',{text:'Solicitudes de acceso',style:'font-size:14px;margin:12px 0 4px'}));
+    res.sol.pendientes.forEach(function(p){
+      sec.appendChild(h('div',{class:'obl'},[h('div',{class:'nombre',text:p.docente}),h('div',{class:'meta',text:p.email+' · '+p.fecha}),
+        h('div',{class:'acciones'},[h('button',{class:'btn',text:'Aprobar',onclick:function(){accion('resolverSolicitud',{email:p.email,accion:'APROBAR'},sec);}}),
+          h('button',{class:'btn sec',text:'Rechazar',onclick:function(){accion('resolverSolicitud',{email:p.email,accion:'RECHAZAR'},sec);}})])]));
+    });
+  }
+  if(res.sop.porRevisar.length){
+    sec.appendChild(h('h3',{text:'Soportes por revisar',style:'font-size:14px;margin:12px 0 4px'}));
+    res.sop.porRevisar.forEach(function(s){
+      var obs=h('input',{type:'text',placeholder:'Observación (obligatoria para rechazar)',maxlength:'300'});
+      sec.appendChild(h('div',{class:'obl'},[
+        h('div',{class:'cab'},[h('div',{},[h('div',{class:'nombre',text:s.docente}),h('div',{class:'meta',text:'Ausencia '+fFecha(s.inicio)+(s.fin!==s.inicio?' al '+fFecha(s.fin):'')+' · '+s.tipo+(s.motivoDeclarado?' · motivo declarado: '+s.motivoDeclarado:'')})]),
+          h('span',{class:'insignia'+(s.extemporaneo==='SI'?' venc':''),text:s.extemporaneo==='SI'?'Fuera de plazo':'En plazo'})]),
+        s.comentario?h('div',{class:'obs',text:s.comentario}):null,
+        h('div',{class:'acciones'},[h('a',{href:s.url,target:'_blank',rel:'noopener',class:'btn sec',style:'text-decoration:none;display:inline-flex;align-items:center',text:'Ver archivo'}),
+          h('button',{class:'btn',text:'Aceptar',onclick:function(){accion('revisarSoporte',{id:s.id,accion:'ACEPTAR',observacion:obs.value},sec);}}),
+          h('button',{class:'btn rojo',text:'Rechazar',onclick:function(){ if(!obs.value.trim()){alert('Escriba por qué se rechaza.');return;} accion('revisarSoporte',{id:s.id,accion:'RECHAZAR',observacion:obs.value},sec);}}),
+          h('button',{class:'btn sec',text:'No aplica',onclick:function(){accion('revisarSoporte',{id:s.id,accion:'NO_APLICA',observacion:obs.value},sec);}})]),
+        h('label',{class:'campo',text:'Observación'},[obs])]));
+    });
+  }
+  if(res.sop.vencidos.length){
+    sec.appendChild(h('h3',{text:'Plazo vencido sin soporte',style:'font-size:14px;margin:12px 0 4px'}));
+    sec.appendChild(tablaSimple(['Docente','Ausencia','Motivo','Venció','Días hábiles'],res.sop.vencidos.map(function(o){return [o.docente,fFecha(o.inicio)+(o.fin!==o.inicio?' al '+fFecha(o.fin):''),o.motivos.join(', '),fFecha(o.limite),-o.diasRestantes];}),[4]));
+  }
+  if(!res.sol.pendientes.length&&!res.sop.porRevisar.length&&!res.sop.vencidos.length) sec.appendChild(h('div',{class:'vacio',text:'Nada pendiente por gestionar.'}));
 }
 
 /* ---------- arranque: según quién abre el panel ---------- */
 function arranque(){
   google.script.run.withSuccessHandler(function(ctx){
     CTX=ctx;
-    if(ctx.rol==='sin_acceso'){ el('contenido').replaceChildren(h('div',{class:'vacio',text:'No tiene acceso a este panel. Pida al coordinador que lo agregue.'})); el('rango').textContent=''; return; }
+    if(ctx.rol==='sin_registro') return pantallaRegistro(ctx);
+    if(ctx.rol==='pendiente') return pantallaMensaje('Solicitud enviada',['Su solicitud de acceso está pendiente de aprobación por un directivo.','Cuando la aprueben, abra de nuevo este enlace: el sistema reconocerá su cuenta automáticamente.']);
+    if(ctx.rol==='bloqueado') return pantallaMensaje('Acceso no activo',['Su acceso no está activo. Comuníquese con coordinación.']);
+    if(ctx.rol==='anonimo') return pantallaMensaje('Inicie sesión',['No se pudo identificar su cuenta. Inicie sesión con su cuenta de Google y abra de nuevo el enlace.']);
+    document.querySelector('.filtros').style.display='';
     vista=ctx.vistaInicial||'coordinacion';
     if(ctx.rol==='directivo'){
+      el('nivel').replaceChildren(h('option',{value:'',text:'Todos'})); el('docente').replaceChildren(h('option',{value:'',text:'— elegir —'}));
       (ctx.niveles||[]).forEach(function(n){el('nivel').appendChild(h('option',{value:n,text:cap(n)}));});
       (ctx.docentes||[]).forEach(function(d){el('docente').appendChild(h('option',{value:d.nombre,text:d.nombre}));});
     }
-    ajustaControles(); preset('hoy');
+    ajustaControles(); preset(ctx.rol==='docente'?'30d':'hoy');   // el docente abre con sus últimos 30 días
   }).withFailureHandler(function(e){ el('contenido').replaceChildren(h('div',{class:'vacio',text:'Error: '+(e.message||e)})); }).contextoPanel();
 }
 

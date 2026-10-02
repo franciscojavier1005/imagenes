@@ -66,6 +66,9 @@ Catálogo en `data/motivos.csv` (15 motivos en 8 categorías). Parte de los moti
 - Cálculo del panel: 55 comprobaciones contra un cálculo independiente en Python (incluye filtros por nivel y por docente).
 - Servidor (roles, acceso, informe diario): 20 comprobaciones con las hojas reales del libro y servicios de Google simulados.
 - Bandeja de WhatsApp, "Reportado hoy" y ronda: 10 comprobaciones; importador de chats: 12 comprobaciones con datos ficticios.
+- Plazos de soportes: 14 comprobaciones contra un cálculo independiente en Python (rachas, fines de semana, 3 o 5 días, estados).
+- Acceso, registro, carga y revisión de soportes: 45 comprobaciones con hojas y Drive simulados (matriz de permisos, un docente no ve a otro, validaciones del archivo, la aceptación corrige la novedad).
+- Front y back: 14 comprobaciones (secreto, correo verificado, errores, el back no sirve pantallas).
 - Excel de ubicación: 5 escenarios (ahora, otra fecha con bloque, fecha sin elegir, descanso, fin de semana) evaluados con un motor de cálculo en Python; no se probó en Excel ni en Google Sheets.
 
 ## Pendientes

@@ -1,0 +1,58 @@
+﻿codigo,n,apellidos,nombres,nombre_completo,nivel,areas,correo,tiene_horario
+D001,1,Aguirre Riascos,Jorge Andrés,Aguirre Riascos Jorge Andrés,SECUNDARIA,TEI,,SI
+D002,2,Angulo Lucero,Andrés Mauricio,Angulo Lucero Andrés Mauricio,SECUNDARIA,TEI,,SI
+D003,3,Arboleda Ortiz,Luz América,Arboleda Ortiz Luz América,SECUNDARIA,ART,,SI
+D004,4,Arizala Castro,Roberto Carlos,Arizala Castro Roberto Carlos,SECUNDARIA,CNA/ERD,,SI
+D005,5,Bastidas Valencia,Zeneida Judith,Bastidas Valencia Zeneida Judith,SECUNDARIA,MAT,,SI
+D006,6,Betancourth Ocampo,Yohana Patricia,Betancourth Ocampo Yohana Patricia,SECUNDARIA,CSI,,SI
+D007,7,Casanova Casanova,Johana Andrea,Casanova Casanova Johana Andrea,POR DEFINIR,,,NO
+D008,8,Casanova Quiñones,Yoli del Carmen,Casanova Quiñones Yoli del Carmen,SECUNDARIA,ETR,,SI
+D009,9,Castillo Angulo,Martha Cecilia,Castillo Angulo Martha Cecilia,SECUNDARIA,ETR,,SI
+D010,10,Castillo Cuero,Daira Eneida,Castillo Cuero Daira Eneida,SECUNDARIA,CAS,,SI
+D011,11,Centeno Zúñiga,Claudia Patricia,Centeno Zúñiga Claudia Patricia,POR DEFINIR,,,NO
+D012,12,Chillambo Quiñones,María Rocío,Chillambo Quiñones María Rocío,SECUNDARIA,CNA,,SI
+D013,13,Cortés Salazar,María Ebelice,Cortés Salazar María Ebelice,POR DEFINIR,,,NO
+D014,14,Cuéllar Gallo,Nemesia,Cuéllar Gallo Nemesia,SECUNDARIA,CSI,,SI
+D015,15,Cuero Bamba,Berte Levi,Cuero Bamba Berte Levi,SECUNDARIA,ERD,,SI
+D016,16,Cuero Rincón,Hernando Jesús,Cuero Rincón Hernando Jesús,SECUNDARIA,CAS/TEI,,SI
+D017,17,Escobar Cortés,Liliana,Escobar Cortés Liliana,POR DEFINIR,,,NO
+D018,18,Estacio Estupiñán,Rosario,Estacio Estupiñán Rosario,SECUNDARIA,ETR,,SI
+D019,19,Fernández Vélez,Alfredo Enrique,Fernández Vélez Alfredo Enrique,SECUNDARIA,TEI,,SI
+D020,20,García Gobea,Saydi Magali,García Gobea Saydi Magali,POR DEFINIR,,,NO
+D021,21,Garzón Quiñones,Sixta Janina,Garzón Quiñones Sixta Janina,POR DEFINIR,,,NO
+D022,22,González Castillo,Jólmer Jimy,González Castillo Jólmer Jimy,SECUNDARIA,ERD,,SI
+D023,23,Landázuri Quiñones,María Elia,Landázuri Quiñones María Elia,POR DEFINIR,,,NO
+D024,24,Landázuri Gallón,Teresa,Landázuri Gallón Teresa,POR DEFINIR,,,NO
+D025,25,Lemos Guancha,Miriam,Lemos Guancha Miriam,SECUNDARIA,CNA,,SI
+D026,26,Lozano Torres,Amanda Inés,Lozano Torres Amanda Inés,SECUNDARIA,ETR,,SI
+D027,27,Martínez Álvarez,Andrea Ascención,Martínez Álvarez Andrea Ascención,POR DEFINIR,,,NO
+D028,28,Meza Banguera,Gladys Alicia,Meza Banguera Gladys Alicia,SECUNDARIA,CAS,,SI
+D029,29,Mindineros Satizábal,John Jáver,Mindineros Satizábal John Jáver,SECUNDARIA,TEI,,SI
+D030,30,Montaño Anchico,Favio Héctor,Montaño Anchico Favio Héctor,SECUNDARIA,CAS,,SI
+D031,31,Montaño Arizala,Leidis Claudina,Montaño Arizala Leidis Claudina,SECUNDARIA,ETR,,SI
+D032,32,Narváez Sánchez,Dora Alejandra,Narváez Sánchez Dora Alejandra,POR DEFINIR,,,NO
+D033,33,Núñez Perlaza,Elcy,Núñez Perlaza Elcy,POR DEFINIR,,,NO
+D034,34,Ordóñez Tenorio,Jaime Marcial,Ordóñez Tenorio Jaime Marcial,SECUNDARIA,CNA,,SI
+D035,35,Ortiz Araujo,Adiela Carlota,Ortiz Araujo Adiela Carlota,SECUNDARIA,CSI,,SI
+D036,36,Ponce Moncayo,Ángela Paola,Ponce Moncayo Ángela Paola,POR DEFINIR,,,NO
+D037,37,Prado Quiñones,Genís Maribel,Prado Quiñones Genís Maribel,SECUNDARIA,ART,,SI
+D038,38,Preciado Torres,Oleisa,Preciado Torres Oleisa,SECUNDARIA,MAT,,SI
+D039,39,Puches,Ana Milena,Puches Ana Milena,SECUNDARIA,ART/CNA,,SI
+D040,40,Pulgarín Ortiz,César Marino,Pulgarín Ortiz César Marino,SECUNDARIA,CSI,,SI
+D041,41,Quintero Ramírez,María del Carmen,Quintero Ramírez María del Carmen,SECUNDARIA,CSI,,SI
+D042,42,Quiñones Cabezas,Marcos Vidal,Quiñones Cabezas Marcos Vidal,SECUNDARIA,MAT/TEI,,SI
+D043,43,Ramírez Guerra,Jimmy Eduardo,Ramírez Guerra Jimmy Eduardo,SECUNDARIA,ERD,,SI
+D044,44,Samaniego Angulo,Flor Mireya,Samaniego Angulo Flor Mireya,SECUNDARIA,ART,,SI
+D045,45,Sinisterra,Ana Lucía,Sinisterra Ana Lucía,POR DEFINIR,,,NO
+D046,46,Tenorio Cuero,Lucy Bivian,Tenorio Cuero Lucy Bivian,POR DEFINIR,,,NO
+D047,47,Terán Guevara,Jorge Alberto,Terán Guevara Jorge Alberto,SECUNDARIA,ERD,,SI
+D048,48,Torres Segura,Encarnación,Torres Segura Encarnación,POR DEFINIR,,,NO
+D049,49,Valencia Marínez,Saidy Eufemia,Valencia Marínez Saidy Eufemia,SECUNDARIA,ART,,SI
+D050,50,Valencia Solís,Gloria Alexa,Valencia Solís Gloria Alexa,POR DEFINIR,,,NO
+D051,51,Valverde Montaño,María Teresa,Valverde Montaño María Teresa,SECUNDARIA,CAS,,SI
+D052,52,Vásquez Valencia,Segundo Leoncio,Vásquez Valencia Segundo Leoncio,SECUNDARIA,MAT,,SI
+D053,53,Villota Rubio,Héctor Hugo,Villota Rubio Héctor Hugo,SECUNDARIA,CNA,,SI
+D054,54,Villota Rubio,Janeth del Carmen,Villota Rubio Janeth del Carmen,SECUNDARIA,MAT,,SI
+D055,55,Zamora Ordóñez,Celia Pastora,Zamora Ordóñez Celia Pastora,POR DEFINIR,,,NO
+D056,56,Ortiz Estacio,Martha Cecilia,Ortiz Estacio Martha Cecilia,POR DEFINIR,,,NO
+D057,57,Armero Dájome,Jesús,Armero Dájome Jesús,POR DEFINIR,,,NO

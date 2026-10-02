@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+  body{font-family:system-ui,sans-serif;margin:0;background:#f4f6f8;color:#1b2430}
+  header{background:#1F4E78;color:#fff;padding:12px 16px}
+  h1{font-size:18px;margin:0} #sub{font-size:13px;opacity:.9}
+  main{padding:12px}
+  input,button{font-size:16px;padding:8px;border-radius:6px;border:1px solid #bbb}
+  button{background:#1F4E78;color:#fff;border:0}
+  table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff}
+  th,td{padding:7px 8px;border-bottom:1px solid #e3e7eb;text-align:left;font-size:14px}
+  th{background:#e8eef4;position:sticky;top:0}
+  .ens{color:#8a5a00} .nov{background:#fde8e8;font-weight:600}
+</style>
+</head>
+<body>
+<header><h1>¿Quién debe estar dónde?</h1><div id="sub">Cargando…</div></header>
+<main>
+  <input id="q" placeholder="Filtrar por docente o grupo"> <button onclick="cargar()">Actualizar</button>
+  <div id="nota"></div>
+  <table><thead><tr><th>Grupo</th><th>Docente</th><th>Área</th><th>Novedad hoy</th></tr></thead><tbody id="t"></tbody></table>
+</main>
+<script>
+var datos=[];
+function pintar(){
+  var q=document.getElementById('q').value.toLowerCase();
+  document.getElementById('t').innerHTML=datos.filter(function(f){
+    return (f.docente+f.grupo).toLowerCase().indexOf(q)>=0;
+  }).map(function(f){
+    return '<tr class="'+(f.novedad?'nov':'')+'"><td class="'+(f.tipo=='ENFASIS'?'ens':'')+'">'+f.grupo+'</td><td>'+f.docente+
+           '</td><td>'+f.area+'</td><td>'+f.novedad+'</td></tr>';
+  }).join('');
+}
+function cargar(){
+  google.script.run.withSuccessHandler(function(r){
+    document.getElementById('sub').textContent=r.dia+' '+r.hora+(r.sesion?' · sesión '+r.sesion:'');
+    document.getElementById('nota').textContent=r.nota||'';
+    datos=r.filas; pintar();
+  }).consultarAhora();
+}
+document.getElementById('q').addEventListener('input',pintar);
+cargar();
+</script>
+</body>
+</html>

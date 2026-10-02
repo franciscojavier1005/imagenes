@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+"""Construye data/*.csv a partir de los PDF de asignación y el Word de docentes."""
+import csv
+import glob
+import os
+import re
+import sys
+import unicodedata
+import zipfile
+
+sys.path.insert(0, os.path.dirname(__file__))
+from extraer_horarios import SESIONES, extraer_pagina  # noqa: E402
+import pdfplumber  # noqa: E402
+
+FUENTES = os.path.join(os.path.dirname(__file__), "..", "fuentes")
+DATA = os.path.join(os.path.dirname(__file__), "..", "data")
+
+
+def norm(s):
+    s = unicodedata.normalize("NFD", s.upper())
+    return re.sub(r"[^A-Z ]", "", "".join(c for c in s if unicodedata.category(c) != "Mn")).strip()
+
+
+def docentes_docx(path):
+    z = zipfile.ZipFile(path)
+    x = z.read("word/document.xml").decode()
+    filas = re.findall(r"<w:tr[ >].*?</w:tr>", x, flags=re.S)
+    res = []
+    for f in filas:
+        cel = [re.sub(r"<[^>]+>", "", c).strip() for c in re.findall(r"<w:tc>.*?</w:tc>", f, flags=re.S)]
+        if len(cel) >= 3 and re.fullmatch(r"\d+", cel[0]):
+            res.append({"n": int(cel[0]), "apellidos": " ".join(cel[1].split()), "nombres": " ".join(cel[2].split())})
+    return res
+
+
+def limpiar_titulo(t):
+    partes = [p.strip() for p in t.split("|")]
+    for p in partes:
+        if re.search(r"\d+ ?S(ECCIONES)?\b", p) and "ASIGNACION" not in p:
+            return re.sub(r"\s*CICLO/HORA\s*", " ", p).strip()
+    return partes[0]
+
+
+def parse_titulo_docente(t):
+    """'ARTE Y CULT-ART DOC-ARBOLEDA AMERICA - 28 SECCIONES' -> (area_texto, nombre_texto)."""
+    t = re.sub(r"\s*-\s*\d+\s*S(ECCIONES)?\s*$", "", t)
+    m = re.match(r"(.*?[A-Z]{3}(?:-[A-Z]{3})?(?:\s+DOC)?[- ]?(?:D-?\d)?)[\s-]+([A-ZÁÉÍÓÚÑ ]+)$", t)
+    return t
+
+
+
+# Cruce PDF -> Word (número en la lista oficial). Revisado manualmente.
+# "?" = pendiente de confirmar por el coordinador (ver data/VALIDACION.md).
+MAPA = {
+    "PUCHES ANA": 39, "CUELLAR MARIA": 14, "ARIZALA ROBERTO": 4, "CUERO HERNANDO": 16,
+    "LOZANO AMANDA": 26, "QUIÑONES MARCOS": 42,
+    "PRADO MARIBEL": 37, "CASTILLO DAIRA": 10, "ORDOÑEZ JAIME": 34, "TERAN JORGE": 47,
+    "QUINTERO CARMEN": 41, "CASANOVA YOLI": 8, "VASQUEZ SEGUNDO": 52, "AGUIRRE ANDRES": 1,
+    "SAMANIEGO FLOR": 44, "VALVERDE MARIA": 51, "CUERO VERTE LEVI": 15, "CHILLAMBO ROCIO": 12,
+    "ORTIZ ADIELA": 35, "CASTILLO MARTHA": 9, "PRECIADO OLEISA": 38, "FERNANDEZ ALFREDO": 19,
+    "VALENCIA SAIDY": 49, "MEZA GLADYS": 28, "GONZALEZ JIMMY": 22, "LEMOS MIRIAN": 25,
+    "BETANCOURT JOHANA": 6, "ESTACIO ESTUPIÑAN ROSARIO": 18, "BASTIDAS SENEIDA": 5, "MINDINEROS JOHN": 29,
+    "ARBOLEDA AMERICA": 3, "ANCHICO HECTOR": 30, "RAMIREZ JIMMY": 43, "VILLOTA HECTOR": 53,
+    "PULGARIN CESAR": 40, "MONTAÑO LEIDY": 31, "VILLOTA RUBIO JANETH": 54, "ANGULO ANDRES": 2,
+}
+PENDIENTES = {"CUELLAR MARIA": "En el PDF dice 'CUELLAR MARIA'; en la lista del Word solo existe 'Cuéllar Gallo, Nemesia' (#14).",
+              "BETANCOURT JOHANA": "Se asignó a 'Betancourth Ocampo, Yohana Patricia' (#6); también existe 'Casanova Casanova, Johana Andrea' (#7)."}
+CORRECCION_AREA = {"ETI": "ETR", "REL": "ETR"}  # erratas del PDF (DOCENTES-2, Casanova Yoli)
+
+
+def clave_pdf(titulo):
+    t = norm(titulo)
+    for k in sorted(MAPA, key=len, reverse=True):
+        if norm(k) in t:
+            return k
+    return None
+
+
+def grupo_info(g):
+    if g.startswith("CS1"):
+        return "CAMINAR EN SECUNDARIA 1", "6°-7°", f"CS 1-{g[-1]}"
+    if g.startswith("CS2"):
+        return "CAMINAR EN SECUNDARIA 2", "8°-9°", f"CS 2-{g[-1]}"
+    return "REGULAR", str(int(g[:2])) + "°", f"{int(g[:2])}°-{g[2:]}"
+
+
+def main():
+    docs = docentes_docx(glob.glob(os.path.join(FUENTES, "*ASISTENCIA*.docx"))[0])
+    por_n = {d["n"]: d for d in docs}
+    filas = []
+    for pdf in sorted(glob.glob(os.path.join(FUENTES, "*ASIG_ACAD_DOC-*.pdf"))):
+        with pdfplumber.open(pdf) as d:
+            for p in d.pages:
+                for f in extraer_pagina(p):
+                    f["titulo"] = limpiar_titulo(f["titulo"])
+                    k = clave_pdf(f["titulo"])
+                    if not k:
+                        sys.exit("Sin mapa: " + f["titulo"])
+                    f["docente_n"] = MAPA[k]
+                    filas.append(f)
+    # --- horario maestro
+    h = []
+    for f in filas:
+        n = f["docente_n"]
+        bloque, ses, ini, fin = SESIONES[f["hora"]]
+        celda = f["celda"].strip()
+        if celda.startswith("ENFASIS-"):
+            tipo, ref, area = "ENFASIS", celda[len("ENFASIS-"):], ""
+            grupo = ""
+        else:
+            g, a = celda.split("-")
+            tipo, ref, area, grupo = "CLASE", "", CORRECCION_AREA.get(a, a), g
+        h.append({"docente_n": n, "docente": f'{por_n[n]["apellidos"]} {por_n[n]["nombres"]}',
+                  "dia": f["dia"], "hora": f["hora"], "bloque": bloque, "sesion": ses,
+                  "inicio": ini, "fin": fin, "tipo": tipo, "grupo": grupo, "area": area,
+                  "enfasis_ref": ref, "celda_original": celda})
+    h.sort(key=lambda r: (r["docente_n"], ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"].index(r["dia"]), r["hora"]))
+    return docs, h
+
+
+def escribir(nombre, filas, cols):
+    with open(os.path.join(DATA, nombre), "w", newline="", encoding="utf-8-sig") as f:
+        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
+        w.writeheader()
+        w.writerows(filas)
+
+
+if __name__ == "__main__":
+    docs, h = main()
+    os.makedirs(DATA, exist_ok=True)
+    con_horario = {r["docente_n"] for r in h}
+    areas = {}
+    for r in h:
+        if r["area"]:
+            areas.setdefault(r["docente_n"], set()).add(r["area"])
+    dres = []
+    for d in docs:
+        dres.append({"codigo": f'D{d["n"]:03d}', "n": d["n"], "apellidos": d["apellidos"], "nombres": d["nombres"],
+                     "nombre_completo": f'{d["apellidos"]} {d["nombres"]}',
+                     "nivel": "SECUNDARIA" if d["n"] in con_horario else "POR DEFINIR",
+                     "areas": "/".join(sorted(areas.get(d["n"], []))), "correo": "", "tiene_horario": "SI" if d["n"] in con_horario else "NO"})
+    escribir("docentes.csv", dres, ["codigo", "n", "apellidos", "nombres", "nombre_completo", "nivel", "areas", "correo", "tiene_horario"])
+    cols = ["docente_n", "docente", "dia", "hora", "bloque", "sesion", "inicio", "fin", "tipo", "grupo", "area", "enfasis_ref", "celda_original"]
+    escribir("horario_maestro.csv", h, cols)
+    gs = sorted({r["grupo"] for r in h if r["grupo"]})
+    escribir("grupos.csv", [dict(zip(["grupo", "tipo", "grado", "nombre"], (g,) + grupo_info(g))) for g in gs], ["grupo", "tipo", "grado", "nombre"])
+    fr = [{"hora": k, "bloque": v[0], "sesion": v[1], "inicio": v[2], "fin": v[3]} for k, v in SESIONES.items()]
+    escribir("franjas.csv", fr, ["hora", "bloque", "sesion", "inicio", "fin"])
+    print(len(dres), "docentes;", len(h), "filas de horario;", len(gs), "grupos")

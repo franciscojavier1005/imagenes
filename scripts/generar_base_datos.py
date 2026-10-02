@@ -82,7 +82,7 @@ sin_dir = [d["nombre_completo"] for d in docentes if not d["direccion_grupo"]]
 checks.append(("Docentes con dirección de grupo", "INFO", f"{len(sin_dir)} sin dirección: " + "; ".join(sin_dir)))
 checks.append(("Reemplazos y cambios del rector aplicados", "INFO", "Armero Dájome Jesús (OPS) reemplaza a Terán Guevara Jorge Alberto; Prado Genís Maribel y Puches Ana Milena intercambiaron su horario de Arte"))
 checks.append(("Alternancia semanal de énfasis (parejas, Sociales/Inglés, Ética/Religión)", "INFO", "No se hace seguimiento semanal en la base: lo controla internamente el coordinador"))
-checks.append(("Personal sin grupo (orientación y tutoría PTAFI)", "INFO", "Casanova Johana y Ponce Ángela (orientadoras): jornadas 07:30-12:30 y 08:00-16:00; Ortiz Martha (tutora PTAFI): jornada de primaria por confirmar"))
+checks.append(("Personal sin grupo (orientación y tutoría PTAFI)", "INFO", "Casanova Johana (orientadora): 07:30-14:30; Ponce Ángela (orientadora): 08:30-13:30; Ortiz Martha (tutora PTAFI): jornada de primaria 06:30-12:00"))
 
 # ------------------------------------------------------------------ SQLite
 DB = os.path.join(RAIZ, "ICET_Base_Datos_2026.db")

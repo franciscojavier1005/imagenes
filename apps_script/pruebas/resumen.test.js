@@ -1,0 +1,22 @@
+const fs=require('fs'), vm=require('vm'), assert=require('assert');
+const src=fs.readFileSync(require('path').join(__dirname,'..','Resumen.gs'),'utf8');
+const ctxVm={}; vm.createContext(ctxVm); vm.runInContext(src+';this.calcular=calcularResumen_;',ctxVm);
+const ctx=JSON.parse(fs.readFileSync(require('path').join(__dirname,'..','..','ejemplos','demo_ctx.json'),'utf8'));
+const exp=JSON.parse(fs.readFileSync(require('path').join(__dirname,'..','..','ejemplos','demo_esperado.json'),'utf8'));
+const r=ctxVm.calcular(ctx);
+const ig=(a,b,m)=>{try{assert.deepStrictEqual(a,b);console.log('  ok  ',m)}catch(e){console.log('  FALLA',m,JSON.stringify(a),'!=',JSON.stringify(b));process.exitCode=1}};
+const k=r.kpis;
+['programadas','minutos','eventos','ausencias','docentesConNovedad','llegadasTarde','salidasTempranas','cumplimiento','pctJustificadas'].forEach(x=>ig(k[x],exp[x],x));
+ig(Object.fromEntries(r.porCategoria.map(x=>[x.nombre,x.minutos])),exp.porCategoria,'porCategoria');
+ig(Object.fromEntries(r.porNivel.map(x=>[x.nombre,{justificada:x.justificada,sinJustificar:x.sinJustificar}])),exp.porNivel,'porNivel (justificadas vs sin justificar)');
+ig(Object.fromEntries(r.tendencia.map(x=>[x.fecha,x.minutos])),exp.tendencia,'tendencia 10 días hábiles');
+ig(Object.fromEntries(r.ronda.map(x=>[String(x.sesion),[x.esperados,x.marcados]])),exp.ronda,'ronda por sesión');
+ig((r.porGrupo.find(x=>x.nombre==='Sin grupo')||{}).minutos,exp.grupoSinGrupo,'grado/grupo mal escritos -> "Sin grupo"');
+ig(r.diasHabiles,10,'días hábiles del rango');
+// rango de un solo día y rango vacío
+const uno=ctxVm.calcular(Object.assign({},ctx,{desde:'2026-10-02'}));
+ig(uno.diasHabiles,1,'rango de un día');
+const vacio=ctxVm.calcular(Object.assign({},ctx,{novedades:[]}));
+ig([vacio.kpis.minutos,vacio.kpis.pctJustificadas,vacio.porDocente.length],[0,null,0],'sin novedades (sin dividir entre cero)');
+const fds=ctxVm.calcular(Object.assign({},ctx,{desde:'2026-10-03',hasta:'2026-10-04'}));
+ig([fds.diasHabiles,fds.kpis.cumplimiento],[0,null],'fin de semana');

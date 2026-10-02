@@ -67,6 +67,7 @@ var DATOS = %s;
   }
   var api=function(){var ok=null,fail=null,self={
     withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
+    urlBase:function(){setTimeout(function(){ok('');},0);},
     consultarSesion:function(d,s){setTimeout(function(){ok(consultar(d,s));},20);},
     guardarRonda:function(p){setTimeout(function(){
       var blob=new Blob(['\\ufeff'+csv(p)],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');

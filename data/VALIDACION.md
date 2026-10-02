@@ -29,8 +29,8 @@ Se reproduce con `python3 scripts/construir_datos.py && python3 scripts/validar.
 
 ## Cambios confirmados por el coordinador (oct-2026)
 
-- **Orientadoras** (sin grupo, todos los niveles): Casanova Casanova Johana Andrea (entra 7:30, sale ~12:30) y Ponce Moncayo Ángela Paola (entra 8:00, sale hasta las 16:00). Se asignó cada jornada en el orden en que se nombraron; **confirmar que no estén invertidas**. Se registran por sesión de 45 min que se traslape con su jornada; lo posterior a las 13:30 no tiene sesión.
-- **Tutora PTAFI** (Todos a Aprender - Formación Integral): Ortiz Estacio Martha Cecilia, transitoria, apoya preescolar y primaria. Jornada supuesta de primaria (6:30 a 12:00), **por confirmar**.
+- **Orientadoras** (sin grupo, todos los niveles), confirmadas por el coordinador: Casanova Casanova Johana Andrea 7:30 a 14:30 y Ponce Moncayo Ángela Paola 8:30 a 13:30 (a veces llega más tarde o se queda más). Se registran por cada sesión de 45 min que se traslape con su jornada; lo posterior a las 13:30 no tiene sesión de clase.
+- **Tutora PTAFI** (Todos a Aprender - Formación Integral): Ortiz Estacio Martha Cecilia, transitoria, apoya preescolar y primaria. Jornada de primaria (6:30 a 12:00), confirmada por el coordinador.
 - **Armero Dájome Jesús** (OPS) reemplaza a **Terán Guevara Jorge Alberto**: atiende todo su horario (Educación Física, Docente 2). Terán queda como "REEMPLAZADO".
 - **Cambio del rector en Arte:** Prado Genís Maribel atiende ahora el horario de Docente 1 (antes de Puches Ana Milena: sexto y Caminar 1) y Puches el de Docente 2 (séptimo). Se interpretó como un intercambio. Prado reemplaza a la docente Luz María Cortés Tenorio.
 - **Énfasis:** en cada énfasis se muestra el área de cada docente. Los equipos de 4 (octavo a once, CS 2-1, CS 2-2) tienen un grupo de estudiantes por docente, en su área. La alternancia semanal de las parejas no se rastrea: la controla el coordinador internamente.
@@ -63,5 +63,5 @@ Catálogo en `data/motivos.csv` (15 motivos en 8 categorías). Parte de los moti
 
 ## Pendientes
 
-1. Confirmar que las jornadas de las dos orientadoras no estén invertidas, y la jornada de la tutora PTAFI.
-2. Correos de directivos (hoy temporales) y de docentes (vacíos).
+1. Correos de directivos (temporales por ahora) y de docentes (se dejan vacíos por decisión del coordinador).
+2. Fase siguiente: informe para cada docente y carga virtual de soportes (ver README).

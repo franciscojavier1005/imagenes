@@ -6,6 +6,7 @@
  * Luego: Implementar > Nueva implementación > Aplicación web
  *        (ejecutar como: el usuario que accede; acceso: solo directivos).
  *
+ * Panel: Dashboard.gs + Dashboard.html. Informe al rector: Dashboard.gs. Cálculo del resumen: Resumen.gs.
  * Hojas que usa: Horario, Franjas, Grupos, Direccion_Grupo, Motivos, Listas, Directivos, Registro_Ronda, Novedades.
  */
 var TZ = 'America/Bogota';
@@ -18,6 +19,9 @@ function onOpen() {
     .addItem('Crear formulario de novedades (desplegables)', 'crearFormulario')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')
+    .addSeparator()
+    .addItem('Informe al rector: enviar prueba ahora', 'probarInformeDiario')
+    .addItem('Informe al rector: programar envío diario', 'programarInformeDiario')
     .addToUi();
 }
 
@@ -65,8 +69,11 @@ function sesionAhora_(d) {
 }
 
 /* ------------------------------ ronda (aplicación web) ------------------------------ */
-function doGet() {
-  return HtmlService.createHtmlOutputFromFile('Consulta').setTitle('ICET - Ronda de asistencia docente')
+/** ?p=ronda (por defecto) abre la ronda; ?p=panel abre el panel (dashboard). */
+function doGet(e) {
+  var panel = e && e.parameter && e.parameter.p === 'panel';
+  return HtmlService.createHtmlOutputFromFile(panel ? 'Dashboard' : 'Consulta')
+    .setTitle(panel ? 'ICET - Panel de asistencia docente' : 'ICET - Ronda de asistencia docente')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
@@ -231,6 +238,6 @@ function compartirConDirectivos() {
 }
 
 function mostrarUrlConsulta() {
-  SpreadsheetApp.getUi().alert('Para la ronda en el celular:\nImplementar > Nueva implementación > Aplicación web.\n' +
-    'Ejecutar como: el usuario que accede. Quién tiene acceso: solo directivos.\nAbra la URL y agréguela a la pantalla de inicio.');
+  SpreadsheetApp.getUi().alert('Para la ronda y el panel:\nImplementar > Nueva implementación > Aplicación web.\n' +
+    'Ejecutar como: el usuario que accede. Quién tiene acceso: solo directivos.\nRonda: la URL. Panel: la URL con ?p=panel al final. Agréguelas a la pantalla de inicio.');
 }

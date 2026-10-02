@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="es" data-theme-auto>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ICET - Panel de asistencia docente</title>
+<style>
+  .viz-root{
+    color-scheme:light;
+    --surface-1:#fcfcfb; --surface-2:#f3f3f0; --grid:#e6e5e0; --track:#ecebe6;
+    --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#74736d;
+    --series-1:#2a78d6; --series-2:#eb6834; --accent:#1c5cab; --focus:#2a78d6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:where(:not([data-theme="light"])) .viz-root{
+      color-scheme:dark;
+      --surface-1:#1a1a19; --surface-2:#242423; --grid:#33332f; --track:#2b2b29;
+      --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#9a998f;
+      --series-1:#3987e5; --series-2:#d95926; --accent:#6da7ec; --focus:#6da7ec;
+    }
+  }
+  :root[data-theme="dark"] .viz-root{
+    color-scheme:dark;
+    --surface-1:#1a1a19; --surface-2:#242423; --grid:#33332f; --track:#2b2b29;
+    --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#9a998f;
+    --series-1:#3987e5; --series-2:#d95926; --accent:#6da7ec; --focus:#6da7ec;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--surface-1);color:var(--text-primary);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.4}
+  .viz-root{min-height:100vh;background:var(--surface-1);color:var(--text-primary);padding:16px}
+  .wrap{max-width:1200px;margin:0 auto}
+  header.top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
+  h1{margin:0;font-size:20px;font-weight:600}
+  .sub{color:var(--text-secondary);font-size:13px}
+  .enlaces a,.enlaces button{color:var(--accent);font-size:13px;margin-left:12px;background:none;border:0;cursor:pointer;text-decoration:underline;font-family:inherit}
+  /* filtros: una fila sobre el contenido */
+  .filtros{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 18px;padding-bottom:14px;border-bottom:1px solid var(--grid)}
+  .filtros button.p{border:1px solid var(--grid);background:var(--surface-1);color:var(--text-primary);border-radius:8px;padding:9px 14px;font:inherit;min-height:40px;cursor:pointer}
+  .filtros button.p[aria-pressed=true]{background:var(--surface-2);border-color:var(--text-secondary);font-weight:600}
+  .filtros button.p[aria-pressed=true]::before{content:"✓ ";font-weight:700}
+  .filtros input[type=date]{border:1px solid var(--grid);background:var(--surface-1);color:var(--text-primary);border-radius:8px;padding:8px;font:inherit;min-height:40px}
+  .filtros label{font-size:13px;color:var(--text-secondary)}
+  .refresco{opacity:.5;transition:opacity .15s}
+  /* héroe + tarjetas de cifras */
+  .heroe{display:flex;flex-wrap:wrap;gap:16px 40px;align-items:flex-end;margin-bottom:14px}
+  .heroe .valor{font-size:56px;font-weight:600;line-height:1;letter-spacing:-.02em}
+  .heroe .unidad{font-size:18px;color:var(--text-secondary);font-weight:500;margin-left:6px}
+  .heroe .et{color:var(--text-secondary);font-size:14px;margin-bottom:6px}
+  .heroe .det{color:var(--text-secondary);font-size:14px}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+  .tile{background:var(--surface-2);border-radius:10px;padding:12px 14px}
+  .tile .et{font-size:12.5px;color:var(--text-secondary)}
+  .tile .v{font-size:26px;font-weight:600;margin-top:2px}
+  .tile .n{font-size:12px;color:var(--text-muted)}
+  /* tarjetas de gráficos */
+  .rejilla{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px}
+  .card{background:var(--surface-1);border:1px solid var(--grid);border-radius:12px;padding:14px 16px}
+  .card.ancha{grid-column:1/-1}
+  .card h2{margin:0;font-size:15px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .card .nota{font-size:12.5px;color:var(--text-secondary);margin:2px 0 10px}
+  .card button.vista{font:inherit;font-size:12px;border:1px solid var(--grid);background:var(--surface-1);color:var(--text-secondary);border-radius:6px;padding:4px 9px;cursor:pointer;min-height:28px}
+  .vacio{color:var(--text-muted);font-size:13px;padding:16px 0}
+  /* barras horizontales: <=16px de grosor, extremo redondeado de 4px, base cuadrada */
+  .fila{display:grid;grid-template-columns:minmax(96px,40%) 1fr;gap:10px;align-items:center;padding:4px 0;border-radius:6px}
+  .fila:hover,.fila:focus-visible{background:var(--surface-2);outline:none}
+  .fila:focus-visible{box-shadow:0 0 0 2px var(--focus)}
+  .fila .nom{font-size:13px;color:var(--text-primary);overflow-wrap:anywhere;line-height:1.25}
+  .fila .pista{display:flex;align-items:center;gap:8px;min-width:0}
+  .fila .barra{height:16px;border-radius:0 4px 4px 0;background:var(--series-1);min-width:2px;flex:none}
+  .fila .seg{height:16px;flex:none;min-width:0}
+  .fila .seg.j{background:var(--series-1)} .fila .seg.s{background:var(--series-2)}
+  .fila .seg:first-child{margin-right:2px} .fila .segs{display:flex;gap:0;flex:none}
+  .fila .seg.ult{border-radius:0 4px 4px 0}
+  .fila .val{font-size:12.5px;color:var(--text-secondary);white-space:nowrap}
+  .leyenda{display:flex;gap:16px;font-size:12.5px;color:var(--text-secondary);margin:0 0 8px}
+  .leyenda i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+  /* medidor de la ronda */
+  .medidor .carril{height:12px;background:var(--track);border-radius:0 4px 4px 0;overflow:hidden;flex:1}
+  .medidor .rell{height:12px;background:var(--series-1)}
+  /* tablas */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{font-weight:600;text-align:left;color:var(--text-secondary);border-bottom:1px solid var(--grid);padding:6px 8px;font-size:12.5px;position:sticky;top:0;background:var(--surface-1)}
+  td{border-bottom:1px solid var(--grid);padding:6px 8px;vertical-align:top}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .tabla-scroll{max-height:420px;overflow:auto}
+  .si{color:var(--text-primary)} .no{font-weight:600}
+  svg text{fill:var(--text-secondary);font-size:11px;font-family:inherit}
+  svg .rejilla-y{stroke:var(--grid);stroke-width:1}
+  svg .col{fill:var(--series-1)} svg .col.max{fill:var(--series-1)}
+  svg .gol:hover+.col,svg .gol:focus+.col{opacity:.8}
+  svg .gol{fill:transparent;outline:none}
+  svg .gol:focus-visible{stroke:var(--focus);stroke-width:2}
+  #tip{position:fixed;pointer-events:none;background:var(--text-primary);color:var(--surface-1);border-radius:8px;padding:7px 10px;font-size:12.5px;z-index:20;display:none;max-width:260px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  #tip b{font-size:14px;display:block}
+  .pie{margin:24px 0 8px;font-size:12px;color:var(--text-muted)}
+  @media print{.filtros,.enlaces,button.vista{display:none}.viz-root{padding:0}}
+</style>
+</head>
+<body>
+<div class="viz-root">
+<div class="wrap">
+  <header class="top">
+    <div><h1>Panel de asistencia docente · ICET 2026</h1><div class="sub" id="rango">Cargando…</div></div>
+    <div class="enlaces"><a id="irRonda" href="#" target="_top" style="display:none">Ir a la ronda</a><button onclick="window.print()">Imprimir</button></div>
+  </header>
+
+  <div class="filtros" role="group" aria-label="Periodo">
+    <button class="p" data-p="hoy" onclick="preset('hoy')">Hoy</button>
+    <button class="p" data-p="semana" onclick="preset('semana')">Esta semana</button>
+    <button class="p" data-p="mes" onclick="preset('mes')">Este mes</button>
+    <button class="p" data-p="otro" onclick="preset('otro')">Personalizado</button>
+    <span id="fechas" style="display:none;gap:8px;align-items:center">
+      <label>Desde <input type="date" id="desde" onchange="aplicaFechas()"></label>
+      <label>Hasta <input type="date" id="hasta" onchange="aplicaFechas()"></label>
+    </span>
+  </div>
+
+  <div id="contenido">
+    <div class="vacio">Cargando…</div>
+  </div>
+  <div class="pie" id="pie"></div>
+</div>
+</div>
+<div id="tip" role="tooltip"></div>
+
+<script>
+var R=null, periodo='hoy', vistaTabla={};
+function el(id){return document.getElementById(id);}
+function h(tag,attrs,hijos){var e=document.createElement(tag);
+  Object.keys(attrs||{}).forEach(function(k){ if(k==='class')e.className=attrs[k]; else if(k==='text')e.textContent=attrs[k]; else if(k.slice(0,2)==='on')e[k]=attrs[k]; else e.setAttribute(k,attrs[k]); });
+  (hijos||[]).forEach(function(c){ if(c!=null) e.appendChild(typeof c==='string'?document.createTextNode(c):c); }); return e;}
+function sv(tag,attrs,hijos){var e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  Object.keys(attrs||{}).forEach(function(k){ if(k==='text')e.textContent=attrs[k]; else e.setAttribute(k,attrs[k]); });
+  (hijos||[]).forEach(function(c){e.appendChild(c);}); return e;}
+
+/* ---------- fechas ---------- */
+function hoyBogota(){return window.__HOY||new Date().toLocaleDateString('en-CA',{timeZone:'America/Bogota'});}
+function suma(s,n){var d=new Date(s+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);}
+function dow(s){return new Date(s+'T12:00:00Z').getUTCDay();}
+function ultimoHabil(){var f=hoyBogota();while(dow(f)===0||dow(f)===6)f=suma(f,-1);return f;}
+var NOM_DIA=['dom','lun','mar','mié','jue','vie','sáb'], NOM_MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function fcorta(s){var d=new Date(s+'T12:00:00Z');return d.getUTCDate()+' '+NOM_MES[d.getUTCMonth()];}
+function frango(a,b){return a===b?NOM_DIA[dow(a)]+' '+fcorta(a)+' '+a.slice(0,4):fcorta(a)+' al '+fcorta(b)+' '+b.slice(0,4);}
+
+function rangoPreset(p){
+  var hasta=ultimoHabil(), desde=hasta;
+  if(p==='semana'){ var d=dow(hasta); desde=suma(hasta,-(d-1)); }
+  if(p==='mes'){ desde=hasta.slice(0,8)+'01'; }
+  return {desde:desde,hasta:hasta};
+}
+function preset(p){
+  periodo=p; marcaBotones();
+  el('fechas').style.display=(p==='otro')?'flex':'none';
+  var r=rangoPreset(p==='otro'?'hoy':p);
+  if(p==='otro'){ if(!el('desde').value){el('desde').value=r.desde;el('hasta').value=r.hasta;} aplicaFechas(); }
+  else cargar(r.desde,r.hasta);
+}
+function aplicaFechas(){var d=el('desde').value,a=el('hasta').value; if(d&&a&&d<=a) cargar(d,a);}
+function marcaBotones(){document.querySelectorAll('.filtros button.p').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.p===periodo?'true':'false');});}
+
+function cargar(desde,hasta){
+  el('contenido').classList.add('refresco');
+  google.script.run.withSuccessHandler(function(r){
+    R=r; el('contenido').classList.remove('refresco'); pintar();
+  }).withFailureHandler(function(e){
+    el('contenido').classList.remove('refresco'); el('contenido').replaceChildren(h('div',{class:'vacio',text:'Error: '+(e.message||e)}));
+  }).datosDashboard(desde,hasta);
+}
+
+/* ---------- formatos ---------- */
+function cap(t){t=String(t||'');return t.length<=4||t!==t.toUpperCase()?t:t.charAt(0)+t.slice(1).toLowerCase();}
+function capLista(l){return l.map(function(x){return Object.assign({},x,{nombre:cap(x.nombre)});});}
+function fmtMin(m){ if(m<60) return Math.round(m)+' min'; var hh=m/60; return (Math.round(hh*10)/10).toLocaleString('es-CO')+' h'; }
+function fmtPct(v){return v==null?'—':(Math.round(v*10)/10).toLocaleString('es-CO')+'%';}
+function fmtNum(v){return v==null?'—':Number(v).toLocaleString('es-CO');}
+
+/* ---------- información al pasar el cursor (nunca es la única vía: hay tabla) ---------- */
+var tip=el('tip');
+function conTip(nodo,titulo,detalle){
+  nodo.setAttribute('tabindex','0');
+  function mostrar(x,y){tip.replaceChildren(h('b',{text:titulo}),document.createTextNode(detalle)); tip.style.display='block';
+    var w=tip.offsetWidth; tip.style.left=Math.max(8,Math.min(innerWidth-w-8,x+12))+'px'; tip.style.top=Math.min(innerHeight-60,y+14)+'px';}
+  nodo.addEventListener('pointermove',function(e){mostrar(e.clientX,e.clientY);});
+  nodo.addEventListener('pointerleave',function(){tip.style.display='none';});
+  nodo.addEventListener('focus',function(){var r=nodo.getBoundingClientRect();mostrar(r.left+r.width/2,r.top);});
+  nodo.addEventListener('blur',function(){tip.style.display='none';});
+}
+
+/* ---------- componentes ---------- */
+function tarjeta(id,titulo,nota,grafico,tabla,ancha){
+  var t=vistaTabla[id];
+  var c=h('section',{class:'card'+(ancha?' ancha':'')},[
+    h('h2',{},[h('span',{text:titulo}),h('button',{class:'vista','aria-pressed':t?'true':'false',text:t?'Ver gráfico':'Ver tabla',onclick:function(){vistaTabla[id]=!vistaTabla[id];pintar();}})]),
+    nota?h('div',{class:'nota',text:nota}):null,
+    t?tabla:grafico]);
+  return c;
+}
+function tablaSimple(cols,filas,clsNum){
+  return h('div',{class:'tabla-scroll'},[h('table',{},[
+    h('thead',{},[h('tr',{},cols.map(function(c,i){return h('th',{class:clsNum&&clsNum.indexOf(i)>=0?'num':'',text:c});}))]),
+    h('tbody',{},filas.map(function(f){return h('tr',{},f.map(function(v,i){return h('td',{class:clsNum&&clsNum.indexOf(i)>=0?'num':'',text:String(v==null?'':v)});}));}))])]);
+}
+
+function barras(items,max,etiquetaTip){
+  if(!items.length) return h('div',{class:'vacio',text:'Sin novedades en este periodo.'});
+  var tope=max||Math.max.apply(null,items.map(function(i){return i.minutos;}))||1;
+  return h('div',{},items.map(function(it){
+    var f=h('div',{class:'fila'},[h('div',{class:'nom',text:it.nombre}),
+      h('div',{class:'pista'},[h('div',{class:'barra',style:'width:'+Math.max(0.8,it.minutos/tope*80)+'%'}),h('span',{class:'val',text:fmtMin(it.minutos)})])]);
+    conTip(f,it.nombre,fmtMin(it.minutos)+' sin atender ('+(Math.round(it.minutos/45*10)/10)+' sesiones de 45 min)');
+    return f;}));
+}
+
+function apiladas(items){
+  if(!items.length) return h('div',{class:'vacio',text:'Sin novedades en este periodo.'});
+  var tope=Math.max.apply(null,items.map(function(i){return i.justificada+i.sinJustificar;}))||1;
+  var ley=h('div',{class:'leyenda'},[h('span',{},[h('i',{style:'background:var(--series-1)'}),'Justificadas']),h('span',{},[h('i',{style:'background:var(--series-2)'}),'Sin justificar'])]);
+  return h('div',{},[ley].concat(items.map(function(it){
+    var tot=it.justificada+it.sinJustificar, ancho=(tot/tope*100);
+    var segs=[];
+    if(it.justificada>0) segs.push(h('div',{class:'seg j'+(it.sinJustificar>0?'':' ult'),style:'width:'+(it.justificada/tot*100)+'%'}));
+    if(it.sinJustificar>0) segs.push(h('div',{class:'seg s ult',style:'width:'+(it.sinJustificar/tot*100)+'%'}));
+    var f=h('div',{class:'fila'},[h('div',{class:'nom',text:it.nombre}),
+      h('div',{class:'pista'},[h('div',{class:'segs',style:'width:'+Math.max(0.8,ancho*0.8)+'%;gap:2px'},segs),h('span',{class:'val',text:fmtMin(tot)})])]);
+    conTip(f,it.nombre,'Justificadas: '+fmtMin(it.justificada)+' · Sin justificar: '+fmtMin(it.sinJustificar));
+    return f;})));
+}
+
+function columnas(serie){
+  var W=Math.max(300,Math.floor(el('contenido').clientWidth-36)),H=210,m={l:38,r:8,t:14,b:30}, pw=W-m.l-m.r, ph=H-m.t-m.b;
+  var max=Math.max.apply(null,serie.map(function(s){return s.minutos;}))||1;
+  var paso=[30,60,120,180,240,300,480,600,900,1200,1800,2400,3000].filter(function(p){return max/p<=4;})[0]||Math.ceil(max/4/60)*60;
+  var tope=Math.ceil(max/paso)*paso||paso;
+  var svg=sv('svg',{viewBox:'0 0 '+W+' '+H,width:W,height:H,role:'img','aria-label':'Minutos sin atender por día hábil'});
+  for(var v=0;v<=tope;v+=paso){var y=m.t+ph-(v/tope*ph); svg.appendChild(sv('line',{x1:m.l,x2:W-m.r,y1:y,y2:y,class:'rejilla-y'})); svg.appendChild(sv('text',{x:m.l-6,y:y+4,'text-anchor':'end',text:v>=60?(v/60)+' h':v}));}
+  var banda=pw/serie.length, ancho=Math.min(24,banda*0.6), iMax=serie.reduce(function(a,s,i){return s.minutos>serie[a].minutos?i:a;},0);
+  serie.forEach(function(s,i){
+    var x=m.l+banda*i+(banda-ancho)/2, alto=s.minutos/tope*ph, y=m.t+ph-alto;
+    var g=sv('g');
+    g.appendChild(sv('rect',{class:'gol',x:m.l+banda*i,y:m.t,width:banda,height:ph+m.b-4}));
+    if(s.minutos>0){var r=Math.min(4,alto); g.appendChild(sv('path',{class:'col',d:'M'+x+','+(m.t+ph)+'V'+(y+r)+'Q'+x+','+y+' '+(x+r)+','+y+'H'+(x+ancho-r)+'Q'+(x+ancho)+','+y+' '+(x+ancho)+','+(y+r)+'V'+(m.t+ph)+'Z'}));}
+    else g.appendChild(sv('rect',{x:x,y:m.t+ph-2,width:ancho,height:2,fill:'var(--grid)'}));
+    g.appendChild(sv('text',{x:x+ancho/2,y:H-10,'text-anchor':'middle',text:NOM_DIA[dow(s.fecha)]+' '+Number(s.fecha.slice(8))}));
+    if(i===iMax&&s.minutos>0||i===serie.length-1) g.appendChild(sv('text',{x:x+ancho/2,y:y-5,'text-anchor':'middle',text:fmtMin(s.minutos),style:'fill:var(--text-primary);font-weight:600'}));
+    conTip(g.firstChild,frango(s.fecha,s.fecha),fmtMin(s.minutos)+' sin atender · '+s.eventos+' novedades');
+    svg.appendChild(g);
+  });
+  return svg;
+}
+
+function ronda(filas){
+  return h('div',{class:'medidor'},filas.map(function(r){
+    var pct=r.esperados?Math.min(100,r.marcados/r.esperados*100):0;
+    var f=h('div',{class:'fila'},[h('div',{class:'nom',text:'Sesión '+r.sesion}),
+      h('div',{class:'pista'},[h('div',{class:'carril'},[h('div',{class:'rell',style:'width:'+pct+'%'})]),h('span',{class:'val',text:r.marcados+' de '+r.esperados})])]);
+    conTip(f,'Sesión '+r.sesion,r.marcados+' de '+r.esperados+' docentes verificados en la ronda');
+    return f;}));
+}
+
+/* ---------- pintar todo ---------- */
+function pintar(){
+  if(!R) return;
+  var k=R.kpis, c=el('contenido'); c.replaceChildren();
+  el('rango').textContent=frango(R.desde,R.hasta)+' · '+R.diasHabiles+(R.diasHabiles===1?' día hábil':' días hábiles');
+  marcaBotones();
+
+  c.appendChild(h('div',{class:'heroe'},[
+    h('div',{},[h('div',{class:'et',text:'Horas de clase sin atender'}),h('div',{},[h('span',{class:'valor',text:fmtNum(k.horas)}),h('span',{class:'unidad',text:'horas'})])]),
+    h('div',{class:'det',text:fmtNum(k.sesiones)+' sesiones de 45 minutos de '+fmtNum(k.programadas)+' programadas · cumplimiento '+fmtPct(k.cumplimiento)})]));
+
+  var tiles=[['Docentes con novedad',fmtNum(k.docentesConNovedad),'en el periodo'],['Ausencias',fmtNum(k.ausencias),'docente-día sin asistir'],
+    ['Llegadas tarde',fmtNum(k.llegadasTarde),'registros'],['Salidas tempranas',fmtNum(k.salidasTempranas),'registros'],
+    ['Novedades justificadas',fmtPct(k.pctJustificadas),fmtNum(k.eventos)+' novedades'],['Sin justificar',fmtMin(k.minutosSinJustificar),'tiempo sin atender']];
+  c.appendChild(h('div',{class:'tiles'},tiles.map(function(t){return h('div',{class:'tile'},[h('div',{class:'et',text:t[0]}),h('div',{class:'v',text:t[1]}),h('div',{class:'n',text:t[2]})]);})));
+
+  var g=h('div',{class:'rejilla'});
+  g.appendChild(tarjeta('tend','Tiempo sin atender por día','Últimos 10 días hábiles hasta '+fcorta(R.hasta),columnas(R.tendencia),
+    tablaSimple(['Fecha','Minutos','Novedades'],R.tendencia.map(function(s){return [frango(s.fecha,s.fecha),s.minutos,s.eventos];}),[1,2]),true));
+  g.appendChild(tarjeta('cat','Motivos de las novedades','Tiempo sin atender por categoría',barras(capLista(R.porCategoria)),
+    tablaSimple(['Categoría','Minutos'],R.porCategoria.map(function(x){return [cap(x.nombre),x.minutos];}),[1])));
+  g.appendChild(tarjeta('niv','Por nivel','Justificado y sin justificar',apiladas(capLista(R.porNivel)),
+    tablaSimple(['Nivel','Justificadas (min)','Sin justificar (min)'],R.porNivel.map(function(x){return [cap(x.nombre),x.justificada,x.sinJustificar];}),[1,2])));
+  g.appendChild(tarjeta('grp','Grupos más afectados','Estudiantes sin su docente: los 10 grupos con más tiempo',barras(R.porGrupo.slice(0,10)),
+    tablaSimple(['Grupo','Minutos'],R.porGrupo.map(function(x){return [x.nombre,x.minutos];}),[1])));
+  g.appendChild(tarjeta('are','Áreas más afectadas','Las 8 áreas con más tiempo sin atender',barras(capLista(R.porArea.slice(0,8))),
+    tablaSimple(['Área','Minutos'],R.porArea.map(function(x){return [cap(x.nombre),x.minutos];}),[1])));
+  g.appendChild(tarjeta('ron','Ronda de verificación','Docentes verificados por sesión el '+frango(R.hasta,R.hasta),ronda(R.ronda),
+    tablaSimple(['Sesión','Verificados','Esperados'],R.ronda.map(function(x){return [x.sesion,x.marcados,x.esperados];}),[1,2])));
+  c.appendChild(g);
+
+  var dia=h('section',{class:'card ancha',style:'margin-top:14px'},[
+    h('h2',{text:'Novedades del '+frango(R.hasta,R.hasta)}),
+    R.dia.length?tablaSimple(['Docente','Grupo','Área','Novedad','Motivo','Minutos','Justificada','Registró'],
+      R.dia.map(function(x){return [x.docente,x.grupo,x.area,x.tipo,x.motivo,x.minutos,x.justificada,x.directivo];}),[5]):h('div',{class:'vacio',text:'Sin novedades registradas ese día.'})]);
+  c.appendChild(dia);
+  var dc=h('section',{class:'card ancha',style:'margin-top:14px'},[
+    h('h2',{text:'Docentes con más tiempo sin atender en el periodo'}),
+    R.porDocente.length?tablaSimple(['Docente','Nivel','Novedades','Días','Minutos','Sin justificar (min)'],
+      R.porDocente.slice(0,15).map(function(x){return [x.docente,x.nivel,x.eventos,x.dias,x.minutos,x.sinJustificar];}),[2,3,4,5]):h('div',{class:'vacio',text:'Sin novedades en este periodo.'})]);
+  c.appendChild(dc);
+  el('pie').textContent='Información confidencial de uso directivo (Ley 1581 de 2012). Actualizado: '+new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})+'.';
+}
+
+try{ google.script.run.withSuccessHandler(function(u){ if(u){var a=el('irRonda');a.href=u+'?p=ronda';a.style.display='inline';} }).urlBase(); }catch(e){}
+var _t=null; window.addEventListener('resize',function(){clearTimeout(_t);_t=setTimeout(pintar,200);});
+preset('hoy');
+</script>
+</body>
+</html>

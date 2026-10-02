@@ -6,6 +6,16 @@
 - `ICET_Control_Asistencia_Docente_2026.xlsx`: libro listo para importar a Google Sheets.
 - `apps_script/`: `Codigo.gs` (formulario + registro automático) y `Consulta.html` (¿quién debe estar dónde ahora?).
 
+## Panel (dashboard) e informe diario al rector
+- **Panel** (`apps_script/Dashboard.html`, se abre con `?p=panel` al final de la URL de la aplicación): horas de clase sin atender, cumplimiento, docentes con novedad, ausencias, llegadas tarde, tendencia de 10 días, motivos, nivel, grupos y áreas más afectados, cobertura de la ronda y novedades del día. Filtros: hoy, semana, mes o fechas a elección. Cada gráfico tiene su tabla; funciona en celular y en modo oscuro.
+- **Informe diario al rector:** correo HTML (lunes a viernes, hacia las 2:30 p. m.). Menú **Asistencia ICET > Informe al rector: programar envío diario**. Mientras el correo del rector en la hoja `Directivos` sea temporal (`@example.com`) **no se envía nada**; cuando se ponga el real, use "enviar prueba ahora".
+- **Vista previa con datos de ejemplo** (docentes ficticios): `ICET_Panel_Vista_Previa.html`, se regenera con `python3 scripts/generar_panel_demo.py`.
+- **Pruebas:** `node apps_script/pruebas/resumen.test.js` compara el cálculo del panel con un cálculo independiente en Python (`python3 scripts/datos_demo.py`).
+- Para activar la aplicación: copiar también `Dashboard.gs`, `Resumen.gs` y `Dashboard.html`, y el manifiesto `appsscript.json` (zona horaria de Bogotá y permisos).
+
+### Fase siguiente (no implementada)
+Informe para cada docente (sus ausencias y horas sin atender, diario o semanal) y carga virtual de soportes (foto o escaneo de incapacidades, citas, actas, epicrisis). Antes de hacerla conviene definir: acceso individual por docente, carpeta de Drive restringida a directivos, plazo de entrega de soportes y autorización de tratamiento de datos de salud (Ley 1581 de 2012: datos sensibles).
+
 ## Vista previa (sin instalar nada)
 Abra `ICET_Vista_Previa_Ronda.html` en el celular, tablet o computador: es la misma pantalla de la ronda con todos los datos incluidos. Cambie día y sesión con las flechas; al guardar se descarga un CSV. Se regenera con `python3 scripts/generar_vista_previa.py`.
 

@@ -1,0 +1,83 @@
+{
+ "programadas": 3118,
+ "minutos": 5030,
+ "eventos": 66,
+ "ausencias": 30,
+ "docentesConNovedad": 25,
+ "llegadasTarde": 17,
+ "salidasTempranas": 16,
+ "cumplimiento": 96.4,
+ "pctJustificadas": 95.5,
+ "porCategoria": {
+  "CALAMIDAD DOMÉSTICA": 1435,
+  "TRASLADO": 1020,
+  "PERMISO INSTITUCIONAL": 560,
+  "SALUD": 630,
+  "EVENTO EXTERNO": 320,
+  "FORTUITO": 145,
+  "ACADÉMICO DEL DOCENTE": 680,
+  "SIN JUSTIFICACIÓN": 190,
+  "OTRO": 50
+ },
+ "porNivel": {
+  "SECUNDARIA": {
+   "justificada": 2025,
+   "sinJustificar": 190
+  },
+  "PRIMARIA": {
+   "justificada": 2130,
+   "sinJustificar": 0
+  },
+  "PREESCOLAR": {
+   "justificada": 685,
+   "sinJustificar": 0
+  }
+ },
+ "tendencia": {
+  "2026-09-21": 355,
+  "2026-09-22": 195,
+  "2026-09-23": 465,
+  "2026-09-24": 380,
+  "2026-09-25": 840,
+  "2026-09-28": 420,
+  "2026-09-29": 400,
+  "2026-09-30": 460,
+  "2026-10-01": 825,
+  "2026-10-02": 690
+ },
+ "ronda": {
+  "1": [
+   40,
+   34
+  ],
+  "2": [
+   43,
+   37
+  ],
+  "3": [
+   45,
+   44
+  ],
+  "4": [
+   45,
+   35
+  ],
+  "5": [
+   45,
+   37
+  ],
+  "6": [
+   45,
+   0
+  ],
+  "7": [
+   22,
+   0
+  ],
+  "8": [
+   22,
+   0
+  ]
+ },
+ "grupoSinGrupo": 270
+}

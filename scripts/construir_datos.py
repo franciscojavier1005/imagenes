@@ -77,11 +77,11 @@ NOTAS_DOCENTE = {
     36: "Docente orientadora: sin grupos, trabaja con todos los niveles",
     56: "Tutora PTAFI (Todos a Aprender - Formación Integral), transitoria: apoya preescolar y primaria (procesos básicos, centros de interés)",
 }
-# Personal sin grupo: (n, tipo, código de grupo, entrada, salida, área). Jornada: orientadoras según el coordinador (la primera en nombrarse
-# entra 7:30 y sale ~12:30; la segunda entra 8:00 y sale hasta las 16:00). Tutora PTAFI: jornada de primaria (por confirmar).
+# Personal sin grupo: (n, tipo, código de grupo, entrada, salida, área). Jornada confirmada por el coordinador: Casanova 7:30 a 14:30;
+# Ponce 8:30 a 13:30 (a veces llega más tarde o se queda más). Tutora PTAFI: jornada de primaria (confirmada: se deja así).
 ESPECIALES = {
-    7: ("ORIENTACION", "ORIENT", "07:30", "12:30", "ORIENTACIÓN ESCOLAR"),
-    36: ("ORIENTACION", "ORIENT", "08:00", "16:00", "ORIENTACIÓN ESCOLAR"),
+    7: ("ORIENTACION", "ORIENT", "07:30", "14:30", "ORIENTACIÓN ESCOLAR"),
+    36: ("ORIENTACION", "ORIENT", "08:30", "13:30", "ORIENTACIÓN ESCOLAR"),
     56: ("TUTORIA", "PTAFI", "06:30", "12:00", "TUTORÍA PTAFI"),
 }
 NIVEL_ESPECIAL = {7: "ORIENTACIÓN", 36: "ORIENTACIÓN", 56: "TUTORA PTAFI", 47: "REEMPLAZADO"}

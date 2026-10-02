@@ -52,7 +52,7 @@
 </head>
 <body>
 <header>
-  <h1>Ronda docente · ICET 2026</h1>
+  <h1>Ronda docente · ICET 2026 <a id="irPanel" href="#" target="_top" style="display:none;color:#ffd54f;font-size:13px;margin-left:10px">Ver panel</a></h1>
   <div class="fila">
     <button class="nav" onclick="mover(-1)" aria-label="Sesión anterior">◀</button>
     <span class="sesion" id="sesion">…</span>
@@ -230,6 +230,7 @@ function guardar(){
   }).withFailureHandler(function(e){el('btnGuardar').disabled=false;toast('Error: '+(e.message||e));})
   .guardarRonda({directivo:dir,dia:S.dia,sesion:S.sesion,fecha:S.fecha,registros:regs});
 }
+try{ google.script.run.withSuccessHandler(function(u){ if(u){var a=el('irPanel');a.href=u+'?p=panel';a.style.display='inline';} }).urlBase(); }catch(e){}
 ahora();
 </script>
 </body>

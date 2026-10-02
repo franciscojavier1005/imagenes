@@ -66,7 +66,7 @@
 42,Quiñones Cabezas Marcos Vidal,LUNES,2,1,2,07:15,08:00,CLASE,CS102,TEI,,,,,CS102-TEI
 19,Fernández Vélez Alfredo Enrique,LUNES,2,1,2,07:15,08:00,CLASE,CS201,TEI,,,,,CS201-TEI
 12,Chillambo Quiñones María Rocío,LUNES,2,1,2,07:15,08:00,CLASE,CS202,CNA,,,,,CS202-CNA
-7,Casanova Casanova Johana Andrea,LUNES,2,1,2,07:15,08:00,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
+7,Casanova Casanova Johana Andrea,LUNES,2,1,2,07:15,08:00,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
 56,Ortiz Estacio Martha Cecilia,LUNES,2,1,2,07:15,08:00,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 44,Samaniego Angulo Flor Mireya,LUNES,2,1,2,07:15,08:00,ENFASIS,,ART,0701,0701,Valverde Montaño María Teresa (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0701
 51,Valverde Montaño María Teresa,LUNES,2,1,2,07:15,08:00,ENFASIS,,CAS,0701,0701,Samaniego Angulo Flor Mireya (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0701
@@ -109,8 +109,8 @@
 4,Arizala Castro Roberto Carlos,LUNES,3,2,1,08:20,09:05,CLASE,CS102,ERD,,,,,CS102-ERD
 44,Samaniego Angulo Flor Mireya,LUNES,3,2,1,08:20,09:05,CLASE,CS201,ART,,,,,CS201-ART
 38,Preciado Torres Oleisa,LUNES,3,2,1,08:20,09:05,CLASE,CS202,MAT,,,,,CS202-MAT
-7,Casanova Casanova Johana Andrea,LUNES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,LUNES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,LUNES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,LUNES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,LUNES,3,2,1,08:20,09:05,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 22,González Castillo Jólmer Jimy,LUNES,3,2,1,08:20,09:05,ENFASIS,,ERD,0901,0901,Valencia Marínez Saidy Eufemia (ART); Meza Banguera Gladys Alicia (CAS); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0901
 25,Lemos Guancha Miriam,LUNES,3,2,1,08:20,09:05,ENFASIS,,CNA,0901,0901,Valencia Marínez Saidy Eufemia (ART); Meza Banguera Gladys Alicia (CAS); González Castillo Jólmer Jimy (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0901
@@ -151,8 +151,8 @@
 4,Arizala Castro Roberto Carlos,LUNES,4,2,2,09:05,09:50,CLASE,CS102,ERD,,,,,CS102-ERD
 44,Samaniego Angulo Flor Mireya,LUNES,4,2,2,09:05,09:50,CLASE,CS201,ART,,,,,CS201-ART
 38,Preciado Torres Oleisa,LUNES,4,2,2,09:05,09:50,CLASE,CS202,MAT,,,,,CS202-MAT
-7,Casanova Casanova Johana Andrea,LUNES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,LUNES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,LUNES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,LUNES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,LUNES,4,2,2,09:05,09:50,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 22,González Castillo Jólmer Jimy,LUNES,4,2,2,09:05,09:50,ENFASIS,,ERD,0901,0901,Valencia Marínez Saidy Eufemia (ART); Meza Banguera Gladys Alicia (CAS); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0901
 25,Lemos Guancha Miriam,LUNES,4,2,2,09:05,09:50,ENFASIS,,CNA,0901,0901,Valencia Marínez Saidy Eufemia (ART); Meza Banguera Gladys Alicia (CAS); González Castillo Jólmer Jimy (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0901
@@ -191,8 +191,8 @@
 16,Cuero Rincón Hernando Jesús,LUNES,5,3,1,10:10,10:55,CLASE,CS102,CAS,,,,,CS102-CAS
 12,Chillambo Quiñones María Rocío,LUNES,5,3,1,10:10,10:55,CLASE,CS201,CNA,,,,,CS201-CNA
 44,Samaniego Angulo Flor Mireya,LUNES,5,3,1,10:10,10:55,CLASE,CS202,ART,,,,,CS202-ART
-7,Casanova Casanova Johana Andrea,LUNES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,LUNES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,LUNES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,LUNES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,LUNES,5,3,1,10:10,10:55,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 1,Aguirre Riascos Jorge Andrés,LUNES,5,3,1,10:10,10:55,ENFASIS,,TEI,0704,0704,Vásquez Valencia Segundo Leoncio (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0704
 52,Vásquez Valencia Segundo Leoncio,LUNES,5,3,1,10:10,10:55,ENFASIS,,MAT,0704,0704,Aguirre Riascos Jorge Andrés (TEI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0704
@@ -237,8 +237,8 @@
 16,Cuero Rincón Hernando Jesús,LUNES,6,3,2,10:55,11:40,CLASE,CS102,CAS,,,,,CS102-CAS
 12,Chillambo Quiñones María Rocío,LUNES,6,3,2,10:55,11:40,CLASE,CS201,CNA,,,,,CS201-CNA
 44,Samaniego Angulo Flor Mireya,LUNES,6,3,2,10:55,11:40,CLASE,CS202,ART,,,,,CS202-ART
-7,Casanova Casanova Johana Andrea,LUNES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,LUNES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,LUNES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,LUNES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,LUNES,6,3,2,10:55,11:40,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 1,Aguirre Riascos Jorge Andrés,LUNES,6,3,2,10:55,11:40,ENFASIS,,TEI,0704,0704,Vásquez Valencia Segundo Leoncio (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0704
 52,Vásquez Valencia Segundo Leoncio,LUNES,6,3,2,10:55,11:40,ENFASIS,,MAT,0704,0704,Aguirre Riascos Jorge Andrés (TEI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0704
@@ -270,8 +270,8 @@
 4,Arizala Castro Roberto Carlos,LUNES,7,4,1,12:00,12:45,CLASE,CS101,ERD,,,,,CS101-ERD
 42,Quiñones Cabezas Marcos Vidal,LUNES,7,4,1,12:00,12:45,CLASE,CS102,MAT,,,,,CS102-MAT
 51,Valverde Montaño María Teresa,LUNES,7,4,1,12:00,12:45,CLASE,CS202,CAS,,,,,CS202-CAS
-7,Casanova Casanova Johana Andrea,LUNES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,LUNES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,LUNES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,LUNES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 3,Arboleda Ortiz Luz América,LUNES,7,4,1,12:00,12:45,ENFASIS,,ART,D5-11°,1101,Montaño Anchico Favio Héctor (CAS); Ramírez Guerra Jimmy Eduardo (ERD); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
 30,Montaño Anchico Favio Héctor,LUNES,7,4,1,12:00,12:45,ENFASIS,,CAS,D5-11°,1101,Arboleda Ortiz Luz América (ART); Ramírez Guerra Jimmy Eduardo (ERD); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
 43,Ramírez Guerra Jimmy Eduardo,LUNES,7,4,1,12:00,12:45,ENFASIS,,ERD,D5-11°,1101,Arboleda Ortiz Luz América (ART); Montaño Anchico Favio Héctor (CAS); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
@@ -296,7 +296,8 @@
 4,Arizala Castro Roberto Carlos,LUNES,8,4,2,12:45,13:30,CLASE,CS101,ERD,,,,,CS101-ERD
 42,Quiñones Cabezas Marcos Vidal,LUNES,8,4,2,12:45,13:30,CLASE,CS102,MAT,,,,,CS102-MAT
 51,Valverde Montaño María Teresa,LUNES,8,4,2,12:45,13:30,CLASE,CS202,CAS,,,,,CS202-CAS
-36,Ponce Moncayo Ángela Paola,LUNES,8,4,2,12:45,13:30,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,LUNES,8,4,2,12:45,13:30,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,LUNES,8,4,2,12:45,13:30,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 3,Arboleda Ortiz Luz América,LUNES,8,4,2,12:45,13:30,ENFASIS,,ART,D5-11°,1101,Montaño Anchico Favio Héctor (CAS); Ramírez Guerra Jimmy Eduardo (ERD); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
 30,Montaño Anchico Favio Héctor,LUNES,8,4,2,12:45,13:30,ENFASIS,,CAS,D5-11°,1101,Arboleda Ortiz Luz América (ART); Ramírez Guerra Jimmy Eduardo (ERD); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
 43,Ramírez Guerra Jimmy Eduardo,LUNES,8,4,2,12:45,13:30,ENFASIS,,ERD,D5-11°,1101,Arboleda Ortiz Luz América (ART); Montaño Anchico Favio Héctor (CAS); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
@@ -374,7 +375,7 @@
 43,Ramírez Guerra Jimmy Eduardo,MARTES,2,1,2,07:15,08:00,CLASE,1101,ERD,,,,,1101-ERD
 35,Ortiz Araujo Adiela Carlota,MARTES,2,1,2,07:15,08:00,CLASE,CS201,CSI,,,,Sociales / Inglés (alternan cada semana),CS201-CSI
 19,Fernández Vélez Alfredo Enrique,MARTES,2,1,2,07:15,08:00,CLASE,CS202,TEI,,,,,CS202-TEI
-7,Casanova Casanova Johana Andrea,MARTES,2,1,2,07:15,08:00,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
+7,Casanova Casanova Johana Andrea,MARTES,2,1,2,07:15,08:00,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
 56,Ortiz Estacio Martha Cecilia,MARTES,2,1,2,07:15,08:00,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 10,Castillo Cuero Daira Eneida,MARTES,2,1,2,07:15,08:00,ENFASIS,,CAS,0701,0701,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0701
 39,Puches Ana Milena,MARTES,2,1,2,07:15,08:00,ENFASIS,,ART,0701,0701,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0701
@@ -424,8 +425,8 @@
 42,Quiñones Cabezas Marcos Vidal,MARTES,3,2,1,08:20,09:05,CLASE,CS101,MAT,,,,,CS101-MAT
 26,Lozano Torres Amanda Inés,MARTES,3,2,1,08:20,09:05,CLASE,CS102,ETR,,,,Ética / Religión (alternan cada semana),CS102-ETR
 35,Ortiz Araujo Adiela Carlota,MARTES,3,2,1,08:20,09:05,CLASE,CS202,CSI,,,,Sociales / Inglés (alternan cada semana),CS202-CSI
-7,Casanova Casanova Johana Andrea,MARTES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,MARTES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,MARTES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,MARTES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,MARTES,3,2,1,08:20,09:05,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 12,Chillambo Quiñones María Rocío,MARTES,3,2,1,08:20,09:05,ENFASIS,,CNA,0801,0801,Samaniego Angulo Flor Mireya (ART); Valverde Montaño María Teresa (CAS); Cuero Bamba Berte Levi (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0801
 15,Cuero Bamba Berte Levi,MARTES,3,2,1,08:20,09:05,ENFASIS,,ERD,0801,0801,Samaniego Angulo Flor Mireya (ART); Valverde Montaño María Teresa (CAS); Chillambo Quiñones María Rocío (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0801
@@ -469,8 +470,8 @@
 42,Quiñones Cabezas Marcos Vidal,MARTES,4,2,2,09:05,09:50,CLASE,CS101,MAT,,,,,CS101-MAT
 26,Lozano Torres Amanda Inés,MARTES,4,2,2,09:05,09:50,CLASE,CS102,ETR,,,,Ética / Religión (alternan cada semana),CS102-ETR
 35,Ortiz Araujo Adiela Carlota,MARTES,4,2,2,09:05,09:50,CLASE,CS202,CSI,,,,Sociales / Inglés (alternan cada semana),CS202-CSI
-7,Casanova Casanova Johana Andrea,MARTES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,MARTES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,MARTES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,MARTES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,MARTES,4,2,2,09:05,09:50,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 12,Chillambo Quiñones María Rocío,MARTES,4,2,2,09:05,09:50,ENFASIS,,CNA,0801,0801,Samaniego Angulo Flor Mireya (ART); Valverde Montaño María Teresa (CAS); Cuero Bamba Berte Levi (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0801
 15,Cuero Bamba Berte Levi,MARTES,4,2,2,09:05,09:50,ENFASIS,,ERD,0801,0801,Samaniego Angulo Flor Mireya (ART); Valverde Montaño María Teresa (CAS); Chillambo Quiñones María Rocío (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0801
@@ -514,8 +515,8 @@
 20,García Gobea Saydi Magali,MARTES,5,3,1,10:10,10:55,CLASE,CS101,CSI,,,,Sociales / Inglés (alternan cada semana),CS101-CSI
 4,Arizala Castro Roberto Carlos,MARTES,5,3,1,10:10,10:55,CLASE,CS102,ERD,,,,,CS102-ERD
 51,Valverde Montaño María Teresa,MARTES,5,3,1,10:10,10:55,CLASE,CS201,CAS,,,,,CS201-CAS
-7,Casanova Casanova Johana Andrea,MARTES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,MARTES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,MARTES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,MARTES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,MARTES,5,3,1,10:10,10:55,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 19,Fernández Vélez Alfredo Enrique,MARTES,5,3,1,10:10,10:55,ENFASIS,,TEI,0704,0704,Preciado Torres Oleisa (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0704
 38,Preciado Torres Oleisa,MARTES,5,3,1,10:10,10:55,ENFASIS,,MAT,0704,0704,Fernández Vélez Alfredo Enrique (TEI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0704
@@ -557,8 +558,8 @@
 20,García Gobea Saydi Magali,MARTES,6,3,2,10:55,11:40,CLASE,CS101,CSI,,,,Sociales / Inglés (alternan cada semana),CS101-CSI
 4,Arizala Castro Roberto Carlos,MARTES,6,3,2,10:55,11:40,CLASE,CS102,ERD,,,,,CS102-ERD
 51,Valverde Montaño María Teresa,MARTES,6,3,2,10:55,11:40,CLASE,CS201,CAS,,,,,CS201-CAS
-7,Casanova Casanova Johana Andrea,MARTES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,MARTES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,MARTES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,MARTES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,MARTES,6,3,2,10:55,11:40,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 19,Fernández Vélez Alfredo Enrique,MARTES,6,3,2,10:55,11:40,ENFASIS,,TEI,0704,0704,Preciado Torres Oleisa (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0704
 38,Preciado Torres Oleisa,MARTES,6,3,2,10:55,11:40,ENFASIS,,MAT,0704,0704,Fernández Vélez Alfredo Enrique (TEI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0704
@@ -584,8 +585,8 @@
 4,Arizala Castro Roberto Carlos,MARTES,7,4,1,12:00,12:45,CLASE,CS102,CNA,,,,,CS102-CNA
 38,Preciado Torres Oleisa,MARTES,7,4,1,12:00,12:45,CLASE,CS201,MAT,,,,,CS201-MAT
 9,Castillo Angulo Martha Cecilia,MARTES,7,4,1,12:00,12:45,CLASE,CS202,ETR,,,,Ética / Religión (alternan cada semana),CS202-ETR
-7,Casanova Casanova Johana Andrea,MARTES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,MARTES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,MARTES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,MARTES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 10,Castillo Cuero Daira Eneida,MARTES,7,4,1,12:00,12:45,ENFASIS,,CAS,0601,0601,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 39,Puches Ana Milena,MARTES,7,4,1,12:00,12:45,ENFASIS,,ART,0601,0601,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 34,Ordóñez Tenorio Jaime Marcial,MARTES,7,4,1,12:00,12:45,ENFASIS,,CNA,0602,0602,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
@@ -612,7 +613,8 @@
 4,Arizala Castro Roberto Carlos,MARTES,8,4,2,12:45,13:30,CLASE,CS102,CNA,,,,,CS102-CNA
 38,Preciado Torres Oleisa,MARTES,8,4,2,12:45,13:30,CLASE,CS201,MAT,,,,,CS201-MAT
 9,Castillo Angulo Martha Cecilia,MARTES,8,4,2,12:45,13:30,CLASE,CS202,ETR,,,,Ética / Religión (alternan cada semana),CS202-ETR
-36,Ponce Moncayo Ángela Paola,MARTES,8,4,2,12:45,13:30,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,MARTES,8,4,2,12:45,13:30,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,MARTES,8,4,2,12:45,13:30,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 10,Castillo Cuero Daira Eneida,MARTES,8,4,2,12:45,13:30,ENFASIS,,CAS,0601,0601,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 39,Puches Ana Milena,MARTES,8,4,2,12:45,13:30,ENFASIS,,ART,0601,0601,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 34,Ordóñez Tenorio Jaime Marcial,MARTES,8,4,2,12:45,13:30,ENFASIS,,CNA,0602,0602,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
@@ -690,7 +692,7 @@
 3,Arboleda Ortiz Luz América,MIERCOLES,2,1,2,07:15,08:00,CLASE,1102,ART,,,,,1102-ART
 44,Samaniego Angulo Flor Mireya,MIERCOLES,2,1,2,07:15,08:00,CLASE,CS201,ART,,,,,CS201-ART
 35,Ortiz Araujo Adiela Carlota,MIERCOLES,2,1,2,07:15,08:00,CLASE,CS202,CSI,,,,Sociales / Inglés (alternan cada semana),CS202-CSI
-7,Casanova Casanova Johana Andrea,MIERCOLES,2,1,2,07:15,08:00,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
+7,Casanova Casanova Johana Andrea,MIERCOLES,2,1,2,07:15,08:00,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
 56,Ortiz Estacio Martha Cecilia,MIERCOLES,2,1,2,07:15,08:00,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 10,Castillo Cuero Daira Eneida,MIERCOLES,2,1,2,07:15,08:00,ENFASIS,,CAS,0701,0701,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0701
 39,Puches Ana Milena,MIERCOLES,2,1,2,07:15,08:00,ENFASIS,,ART,0701,0701,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0701
@@ -732,8 +734,8 @@
 4,Arizala Castro Roberto Carlos,MIERCOLES,3,2,1,08:20,09:05,CLASE,CS101,CNA,,,,,CS101-CNA
 20,García Gobea Saydi Magali,MIERCOLES,3,2,1,08:20,09:05,CLASE,CS102,CSI,,,,Sociales / Inglés (alternan cada semana),CS102-CSI
 9,Castillo Angulo Martha Cecilia,MIERCOLES,3,2,1,08:20,09:05,CLASE,CS201,ETR,,,,Ética / Religión (alternan cada semana),CS201-ETR
-7,Casanova Casanova Johana Andrea,MIERCOLES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,MIERCOLES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,MIERCOLES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,MIERCOLES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,MIERCOLES,3,2,1,08:20,09:05,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 12,Chillambo Quiñones María Rocío,MIERCOLES,3,2,1,08:20,09:05,ENFASIS,,CNA,0801,0801,Samaniego Angulo Flor Mireya (ART); Valverde Montaño María Teresa (CAS); Cuero Bamba Berte Levi (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0801
 15,Cuero Bamba Berte Levi,MIERCOLES,3,2,1,08:20,09:05,ENFASIS,,ERD,0801,0801,Samaniego Angulo Flor Mireya (ART); Valverde Montaño María Teresa (CAS); Chillambo Quiñones María Rocío (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0801
@@ -777,8 +779,8 @@
 4,Arizala Castro Roberto Carlos,MIERCOLES,4,2,2,09:05,09:50,CLASE,CS101,CNA,,,,,CS101-CNA
 20,García Gobea Saydi Magali,MIERCOLES,4,2,2,09:05,09:50,CLASE,CS102,CSI,,,,Sociales / Inglés (alternan cada semana),CS102-CSI
 9,Castillo Angulo Martha Cecilia,MIERCOLES,4,2,2,09:05,09:50,CLASE,CS201,ETR,,,,Ética / Religión (alternan cada semana),CS201-ETR
-7,Casanova Casanova Johana Andrea,MIERCOLES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,MIERCOLES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,MIERCOLES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,MIERCOLES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,MIERCOLES,4,2,2,09:05,09:50,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 12,Chillambo Quiñones María Rocío,MIERCOLES,4,2,2,09:05,09:50,ENFASIS,,CNA,0801,0801,Samaniego Angulo Flor Mireya (ART); Valverde Montaño María Teresa (CAS); Cuero Bamba Berte Levi (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0801
 15,Cuero Bamba Berte Levi,MIERCOLES,4,2,2,09:05,09:50,ENFASIS,,ERD,0801,0801,Samaniego Angulo Flor Mireya (ART); Valverde Montaño María Teresa (CAS); Chillambo Quiñones María Rocío (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0801
@@ -822,8 +824,8 @@
 37,Prado Quiñones Genís Maribel,MIERCOLES,5,3,1,10:10,10:55,CLASE,CS102,ART,,,,,CS102-ART
 51,Valverde Montaño María Teresa,MIERCOLES,5,3,1,10:10,10:55,CLASE,CS201,CAS,,,,,CS201-CAS
 12,Chillambo Quiñones María Rocío,MIERCOLES,5,3,1,10:10,10:55,CLASE,CS202,CNA,,,,,CS202-CNA
-7,Casanova Casanova Johana Andrea,MIERCOLES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,MIERCOLES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,MIERCOLES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,MIERCOLES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,MIERCOLES,5,3,1,10:10,10:55,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 1,Aguirre Riascos Jorge Andrés,MIERCOLES,5,3,1,10:10,10:55,ENFASIS,,TEI,0704,0704,Vásquez Valencia Segundo Leoncio (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0704
 52,Vásquez Valencia Segundo Leoncio,MIERCOLES,5,3,1,10:10,10:55,ENFASIS,,MAT,0704,0704,Aguirre Riascos Jorge Andrés (TEI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0704
@@ -865,8 +867,8 @@
 37,Prado Quiñones Genís Maribel,MIERCOLES,6,3,2,10:55,11:40,CLASE,CS102,ART,,,,,CS102-ART
 51,Valverde Montaño María Teresa,MIERCOLES,6,3,2,10:55,11:40,CLASE,CS201,CAS,,,,,CS201-CAS
 12,Chillambo Quiñones María Rocío,MIERCOLES,6,3,2,10:55,11:40,CLASE,CS202,CNA,,,,,CS202-CNA
-7,Casanova Casanova Johana Andrea,MIERCOLES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,MIERCOLES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,MIERCOLES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,MIERCOLES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,MIERCOLES,6,3,2,10:55,11:40,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 1,Aguirre Riascos Jorge Andrés,MIERCOLES,6,3,2,10:55,11:40,ENFASIS,,TEI,0704,0704,Vásquez Valencia Segundo Leoncio (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0704
 52,Vásquez Valencia Segundo Leoncio,MIERCOLES,6,3,2,10:55,11:40,ENFASIS,,MAT,0704,0704,Aguirre Riascos Jorge Andrés (TEI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0704
@@ -891,8 +893,8 @@
 26,Lozano Torres Amanda Inés,MIERCOLES,7,4,1,12:00,12:45,CLASE,CS102,ETR,,,,Ética / Religión (alternan cada semana),CS102-ETR
 15,Cuero Bamba Berte Levi,MIERCOLES,7,4,1,12:00,12:45,CLASE,CS201,ERD,,,,,CS201-ERD
 38,Preciado Torres Oleisa,MIERCOLES,7,4,1,12:00,12:45,CLASE,CS202,MAT,,,,,CS202-MAT
-7,Casanova Casanova Johana Andrea,MIERCOLES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,MIERCOLES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,MIERCOLES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,MIERCOLES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 10,Castillo Cuero Daira Eneida,MIERCOLES,7,4,1,12:00,12:45,ENFASIS,,CAS,0601,0601,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 39,Puches Ana Milena,MIERCOLES,7,4,1,12:00,12:45,ENFASIS,,ART,0601,0601,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 34,Ordóñez Tenorio Jaime Marcial,MIERCOLES,7,4,1,12:00,12:45,ENFASIS,,CNA,0602,0602,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
@@ -922,7 +924,8 @@
 26,Lozano Torres Amanda Inés,MIERCOLES,8,4,2,12:45,13:30,CLASE,CS102,ETR,,,,Ética / Religión (alternan cada semana),CS102-ETR
 15,Cuero Bamba Berte Levi,MIERCOLES,8,4,2,12:45,13:30,CLASE,CS201,ERD,,,,,CS201-ERD
 38,Preciado Torres Oleisa,MIERCOLES,8,4,2,12:45,13:30,CLASE,CS202,MAT,,,,,CS202-MAT
-36,Ponce Moncayo Ángela Paola,MIERCOLES,8,4,2,12:45,13:30,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,MIERCOLES,8,4,2,12:45,13:30,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,MIERCOLES,8,4,2,12:45,13:30,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 10,Castillo Cuero Daira Eneida,MIERCOLES,8,4,2,12:45,13:30,ENFASIS,,CAS,0601,0601,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 39,Puches Ana Milena,MIERCOLES,8,4,2,12:45,13:30,ENFASIS,,ART,0601,0601,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 34,Ordóñez Tenorio Jaime Marcial,MIERCOLES,8,4,2,12:45,13:30,ENFASIS,,CNA,0602,0602,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
@@ -1006,7 +1009,7 @@
 53,Villota Rubio Héctor Hugo,JUEVES,2,1,2,07:15,08:00,CLASE,1102,CNA,,,,,1102-CNA
 38,Preciado Torres Oleisa,JUEVES,2,1,2,07:15,08:00,CLASE,CS201,MAT,,,,,CS201-MAT
 9,Castillo Angulo Martha Cecilia,JUEVES,2,1,2,07:15,08:00,CLASE,CS202,ETR,,,,Ética / Religión (alternan cada semana),CS202-ETR
-7,Casanova Casanova Johana Andrea,JUEVES,2,1,2,07:15,08:00,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
+7,Casanova Casanova Johana Andrea,JUEVES,2,1,2,07:15,08:00,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
 56,Ortiz Estacio Martha Cecilia,JUEVES,2,1,2,07:15,08:00,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 44,Samaniego Angulo Flor Mireya,JUEVES,2,1,2,07:15,08:00,ENFASIS,,ART,0701,0701,Valverde Montaño María Teresa (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0701
 51,Valverde Montaño María Teresa,JUEVES,2,1,2,07:15,08:00,ENFASIS,,CAS,0701,0701,Samaniego Angulo Flor Mireya (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0701
@@ -1054,8 +1057,8 @@
 42,Quiñones Cabezas Marcos Vidal,JUEVES,3,2,1,08:20,09:05,CLASE,CS102,TEI,,,,,CS102-TEI
 9,Castillo Angulo Martha Cecilia,JUEVES,3,2,1,08:20,09:05,CLASE,CS201,ETR,,,,Ética / Religión (alternan cada semana),CS201-ETR
 51,Valverde Montaño María Teresa,JUEVES,3,2,1,08:20,09:05,CLASE,CS202,CAS,,,,,CS202-CAS
-7,Casanova Casanova Johana Andrea,JUEVES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,JUEVES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,JUEVES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,JUEVES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,JUEVES,3,2,1,08:20,09:05,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 3,Arboleda Ortiz Luz América,JUEVES,3,2,1,08:20,09:05,ENFASIS,,ART,D5-11°,1101,Montaño Anchico Favio Héctor (CAS); Ramírez Guerra Jimmy Eduardo (ERD); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
 30,Montaño Anchico Favio Héctor,JUEVES,3,2,1,08:20,09:05,ENFASIS,,CAS,D5-11°,1101,Arboleda Ortiz Luz América (ART); Ramírez Guerra Jimmy Eduardo (ERD); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
@@ -1093,8 +1096,8 @@
 42,Quiñones Cabezas Marcos Vidal,JUEVES,4,2,2,09:05,09:50,CLASE,CS102,TEI,,,,,CS102-TEI
 9,Castillo Angulo Martha Cecilia,JUEVES,4,2,2,09:05,09:50,CLASE,CS201,ETR,,,,Ética / Religión (alternan cada semana),CS201-ETR
 51,Valverde Montaño María Teresa,JUEVES,4,2,2,09:05,09:50,CLASE,CS202,CAS,,,,,CS202-CAS
-7,Casanova Casanova Johana Andrea,JUEVES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,JUEVES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,JUEVES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,JUEVES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,JUEVES,4,2,2,09:05,09:50,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 3,Arboleda Ortiz Luz América,JUEVES,4,2,2,09:05,09:50,ENFASIS,,ART,D5-11°,1101,Montaño Anchico Favio Héctor (CAS); Ramírez Guerra Jimmy Eduardo (ERD); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
 30,Montaño Anchico Favio Héctor,JUEVES,4,2,2,09:05,09:50,ENFASIS,,CAS,D5-11°,1101,Arboleda Ortiz Luz América (ART); Ramírez Guerra Jimmy Eduardo (ERD); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
@@ -1129,8 +1132,8 @@
 16,Cuero Rincón Hernando Jesús,JUEVES,5,3,1,10:10,10:55,CLASE,CS101,CAS,,,,,CS101-CAS
 4,Arizala Castro Roberto Carlos,JUEVES,5,3,1,10:10,10:55,CLASE,CS102,CNA,,,,,CS102-CNA
 35,Ortiz Araujo Adiela Carlota,JUEVES,5,3,1,10:10,10:55,CLASE,CS201,CSI,,,,Sociales / Inglés (alternan cada semana),CS201-CSI
-7,Casanova Casanova Johana Andrea,JUEVES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,JUEVES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,JUEVES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,JUEVES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,JUEVES,5,3,1,10:10,10:55,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 19,Fernández Vélez Alfredo Enrique,JUEVES,5,3,1,10:10,10:55,ENFASIS,,TEI,0704,0704,Preciado Torres Oleisa (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0704
 38,Preciado Torres Oleisa,JUEVES,5,3,1,10:10,10:55,ENFASIS,,MAT,0704,0704,Fernández Vélez Alfredo Enrique (TEI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0704
@@ -1175,8 +1178,8 @@
 16,Cuero Rincón Hernando Jesús,JUEVES,6,3,2,10:55,11:40,CLASE,CS101,CAS,,,,,CS101-CAS
 4,Arizala Castro Roberto Carlos,JUEVES,6,3,2,10:55,11:40,CLASE,CS102,CNA,,,,,CS102-CNA
 35,Ortiz Araujo Adiela Carlota,JUEVES,6,3,2,10:55,11:40,CLASE,CS201,CSI,,,,Sociales / Inglés (alternan cada semana),CS201-CSI
-7,Casanova Casanova Johana Andrea,JUEVES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,JUEVES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,JUEVES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,JUEVES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,JUEVES,6,3,2,10:55,11:40,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 19,Fernández Vélez Alfredo Enrique,JUEVES,6,3,2,10:55,11:40,ENFASIS,,TEI,0704,0704,Preciado Torres Oleisa (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0704
 38,Preciado Torres Oleisa,JUEVES,6,3,2,10:55,11:40,ENFASIS,,MAT,0704,0704,Fernández Vélez Alfredo Enrique (TEI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0704
@@ -1206,8 +1209,8 @@
 20,García Gobea Saydi Magali,JUEVES,7,4,1,12:00,12:45,CLASE,CS101,CSI,,,,Sociales / Inglés (alternan cada semana),CS101-CSI
 37,Prado Quiñones Genís Maribel,JUEVES,7,4,1,12:00,12:45,CLASE,CS102,ART,,,,,CS102-ART
 15,Cuero Bamba Berte Levi,JUEVES,7,4,1,12:00,12:45,CLASE,CS202,ERD,,,,,CS202-ERD
-7,Casanova Casanova Johana Andrea,JUEVES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,JUEVES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,JUEVES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,JUEVES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 10,Castillo Cuero Daira Eneida,JUEVES,7,4,1,12:00,12:45,ENFASIS,,CAS,0601,0601,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 39,Puches Ana Milena,JUEVES,7,4,1,12:00,12:45,ENFASIS,,ART,0601,0601,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 34,Ordóñez Tenorio Jaime Marcial,JUEVES,7,4,1,12:00,12:45,ENFASIS,,CNA,0602,0602,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
@@ -1234,7 +1237,8 @@
 20,García Gobea Saydi Magali,JUEVES,8,4,2,12:45,13:30,CLASE,CS101,CSI,,,,Sociales / Inglés (alternan cada semana),CS101-CSI
 37,Prado Quiñones Genís Maribel,JUEVES,8,4,2,12:45,13:30,CLASE,CS102,ART,,,,,CS102-ART
 15,Cuero Bamba Berte Levi,JUEVES,8,4,2,12:45,13:30,CLASE,CS202,ERD,,,,,CS202-ERD
-36,Ponce Moncayo Ángela Paola,JUEVES,8,4,2,12:45,13:30,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,JUEVES,8,4,2,12:45,13:30,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,JUEVES,8,4,2,12:45,13:30,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 10,Castillo Cuero Daira Eneida,JUEVES,8,4,2,12:45,13:30,ENFASIS,,CAS,0601,0601,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 39,Puches Ana Milena,JUEVES,8,4,2,12:45,13:30,ENFASIS,,ART,0601,0601,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 34,Ordóñez Tenorio Jaime Marcial,JUEVES,8,4,2,12:45,13:30,ENFASIS,,CNA,0602,0602,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
@@ -1316,7 +1320,7 @@
 3,Arboleda Ortiz Luz América,VIERNES,2,1,2,07:15,08:00,CLASE,1002,ART,,,,,1002-ART
 43,Ramírez Guerra Jimmy Eduardo,VIERNES,2,1,2,07:15,08:00,CLASE,1101,ERD,,,,,1101-ERD
 15,Cuero Bamba Berte Levi,VIERNES,2,1,2,07:15,08:00,CLASE,CS202,ERD,,,,,CS202-ERD
-7,Casanova Casanova Johana Andrea,VIERNES,2,1,2,07:15,08:00,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
+7,Casanova Casanova Johana Andrea,VIERNES,2,1,2,07:15,08:00,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
 56,Ortiz Estacio Martha Cecilia,VIERNES,2,1,2,07:15,08:00,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 2,Angulo Lucero Andrés Mauricio,VIERNES,2,1,2,07:15,08:00,ENFASIS,,TEI,D5-11°,1102,Pulgarín Ortiz César Marino (CSI); Montaño Arizala Leidis Claudina (ETR); Villota Rubio Janeth del Carmen (MAT),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
 31,Montaño Arizala Leidis Claudina,VIERNES,2,1,2,07:15,08:00,ENFASIS,,ETR,D5-11°,1102,Pulgarín Ortiz César Marino (CSI); Villota Rubio Janeth del Carmen (MAT); Angulo Lucero Andrés Mauricio (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
@@ -1360,8 +1364,8 @@
 20,García Gobea Saydi Magali,VIERNES,3,2,1,08:20,09:05,CLASE,CS102,CSI,,,,Sociales / Inglés (alternan cada semana),CS102-CSI
 12,Chillambo Quiñones María Rocío,VIERNES,3,2,1,08:20,09:05,CLASE,CS201,CNA,,,,,CS201-CNA
 44,Samaniego Angulo Flor Mireya,VIERNES,3,2,1,08:20,09:05,CLASE,CS202,ART,,,,,CS202-ART
-7,Casanova Casanova Johana Andrea,VIERNES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,VIERNES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,VIERNES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,VIERNES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,VIERNES,3,2,1,08:20,09:05,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 9,Castillo Angulo Martha Cecilia,VIERNES,3,2,1,08:20,09:05,ENFASIS,,ETR,0802,0802,Ortiz Araujo Adiela Carlota (CSI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0802
 19,Fernández Vélez Alfredo Enrique,VIERNES,3,2,1,08:20,09:05,ENFASIS,,TEI,D3-8°,0802,Preciado Torres Oleisa (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-D3-8°
@@ -1405,8 +1409,8 @@
 20,García Gobea Saydi Magali,VIERNES,4,2,2,09:05,09:50,CLASE,CS102,CSI,,,,Sociales / Inglés (alternan cada semana),CS102-CSI
 12,Chillambo Quiñones María Rocío,VIERNES,4,2,2,09:05,09:50,CLASE,CS201,CNA,,,,,CS201-CNA
 44,Samaniego Angulo Flor Mireya,VIERNES,4,2,2,09:05,09:50,CLASE,CS202,ART,,,,,CS202-ART
-7,Casanova Casanova Johana Andrea,VIERNES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,VIERNES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,VIERNES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,VIERNES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,VIERNES,4,2,2,09:05,09:50,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 9,Castillo Angulo Martha Cecilia,VIERNES,4,2,2,09:05,09:50,ENFASIS,,ETR,0802,0802,Ortiz Araujo Adiela Carlota (CSI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0802
 19,Fernández Vélez Alfredo Enrique,VIERNES,4,2,2,09:05,09:50,ENFASIS,,TEI,D3-8°,0802,Preciado Torres Oleisa (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-D3-8°
@@ -1450,8 +1454,8 @@
 42,Quiñones Cabezas Marcos Vidal,VIERNES,5,3,1,10:10,10:55,CLASE,CS101,MAT,,,,,CS101-MAT
 16,Cuero Rincón Hernando Jesús,VIERNES,5,3,1,10:10,10:55,CLASE,CS102,CAS,,,,,CS102-CAS
 19,Fernández Vélez Alfredo Enrique,VIERNES,5,3,1,10:10,10:55,CLASE,CS201,TEI,,,,,CS201-TEI
-7,Casanova Casanova Johana Andrea,VIERNES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,VIERNES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,VIERNES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,VIERNES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,VIERNES,5,3,1,10:10,10:55,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 12,Chillambo Quiñones María Rocío,VIERNES,5,3,1,10:10,10:55,ENFASIS,,CNA,0801,0801,Samaniego Angulo Flor Mireya (ART); Valverde Montaño María Teresa (CAS); Cuero Bamba Berte Levi (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0801
 15,Cuero Bamba Berte Levi,VIERNES,5,3,1,10:10,10:55,ENFASIS,,ERD,0801,0801,Samaniego Angulo Flor Mireya (ART); Valverde Montaño María Teresa (CAS); Chillambo Quiñones María Rocío (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0801
@@ -1495,8 +1499,8 @@
 42,Quiñones Cabezas Marcos Vidal,VIERNES,6,3,2,10:55,11:40,CLASE,CS101,MAT,,,,,CS101-MAT
 16,Cuero Rincón Hernando Jesús,VIERNES,6,3,2,10:55,11:40,CLASE,CS102,CAS,,,,,CS102-CAS
 19,Fernández Vélez Alfredo Enrique,VIERNES,6,3,2,10:55,11:40,CLASE,CS201,TEI,,,,,CS201-TEI
-7,Casanova Casanova Johana Andrea,VIERNES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,VIERNES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,VIERNES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,VIERNES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 56,Ortiz Estacio Martha Cecilia,VIERNES,6,3,2,10:55,11:40,TUTORIA,PTAFI,TUTORÍA PTAFI,,,,Jornada 06:30 a 12:00,
 12,Chillambo Quiñones María Rocío,VIERNES,6,3,2,10:55,11:40,ENFASIS,,CNA,0801,0801,Samaniego Angulo Flor Mireya (ART); Valverde Montaño María Teresa (CAS); Cuero Bamba Berte Levi (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0801
 15,Cuero Bamba Berte Levi,VIERNES,6,3,2,10:55,11:40,ENFASIS,,ERD,0801,0801,Samaniego Angulo Flor Mireya (ART); Valverde Montaño María Teresa (CAS); Chillambo Quiñones María Rocío (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0801
@@ -1526,8 +1530,8 @@
 42,Quiñones Cabezas Marcos Vidal,VIERNES,7,4,1,12:00,12:45,CLASE,CS102,MAT,,,,,CS102-MAT
 15,Cuero Bamba Berte Levi,VIERNES,7,4,1,12:00,12:45,CLASE,CS201,ERD,,,,,CS201-ERD
 19,Fernández Vélez Alfredo Enrique,VIERNES,7,4,1,12:00,12:45,CLASE,CS202,TEI,,,,,CS202-TEI
-7,Casanova Casanova Johana Andrea,VIERNES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 12:30,
-36,Ponce Moncayo Ángela Paola,VIERNES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,VIERNES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,VIERNES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 10,Castillo Cuero Daira Eneida,VIERNES,7,4,1,12:00,12:45,ENFASIS,,CAS,0601,0601,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 39,Puches Ana Milena,VIERNES,7,4,1,12:00,12:45,ENFASIS,,ART,0601,0601,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 34,Ordóñez Tenorio Jaime Marcial,VIERNES,7,4,1,12:00,12:45,ENFASIS,,CNA,0602,0602,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
@@ -1548,7 +1552,8 @@
 42,Quiñones Cabezas Marcos Vidal,VIERNES,8,4,2,12:45,13:30,CLASE,CS102,MAT,,,,,CS102-MAT
 15,Cuero Bamba Berte Levi,VIERNES,8,4,2,12:45,13:30,CLASE,CS201,ERD,,,,,CS201-ERD
 19,Fernández Vélez Alfredo Enrique,VIERNES,8,4,2,12:45,13:30,CLASE,CS202,TEI,,,,,CS202-TEI
-36,Ponce Moncayo Ángela Paola,VIERNES,8,4,2,12:45,13:30,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:00 a 16:00,
+7,Casanova Casanova Johana Andrea,VIERNES,8,4,2,12:45,13:30,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
+36,Ponce Moncayo Ángela Paola,VIERNES,8,4,2,12:45,13:30,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
 10,Castillo Cuero Daira Eneida,VIERNES,8,4,2,12:45,13:30,ENFASIS,,CAS,0601,0601,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 39,Puches Ana Milena,VIERNES,8,4,2,12:45,13:30,ENFASIS,,ART,0601,0601,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 34,Ordóñez Tenorio Jaime Marcial,VIERNES,8,4,2,12:45,13:30,ENFASIS,,CNA,0602,0602,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602

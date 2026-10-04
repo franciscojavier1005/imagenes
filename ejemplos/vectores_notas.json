@@ -1,0 +1,417 @@
+{
+ "roster": [
+  {
+   "apellidos": "Rojas Mendoza",
+   "nombres": "Clara Inés",
+   "nombre_completo": "Rojas Mendoza Clara Inés"
+  },
+  {
+   "apellidos": "Vega Torres",
+   "nombres": "Luis Fernando",
+   "nombre_completo": "Vega Torres Luis Fernando"
+  },
+  {
+   "apellidos": "Castaño Díaz",
+   "nombres": "Ana María",
+   "nombre_completo": "Castaño Díaz Ana María"
+  },
+  {
+   "apellidos": "Díaz Pérez",
+   "nombres": "María Elena",
+   "nombre_completo": "Díaz Pérez María Elena"
+  },
+  {
+   "apellidos": "Mosquera Cuero",
+   "nombres": "Yadira",
+   "nombre_completo": "Mosquera Cuero Yadira"
+  },
+  {
+   "apellidos": "Cuero Bonilla",
+   "nombres": "Hernán",
+   "nombre_completo": "Cuero Bonilla Hernán"
+  },
+  {
+   "apellidos": "Obando",
+   "nombres": "Zoila",
+   "nombre_completo": "Obando Zoila"
+  },
+  {
+   "apellidos": "Rojas Ibarra",
+   "nombres": "Pedro",
+   "nombre_completo": "Rojas Ibarra Pedro"
+  },
+  {
+   "apellidos": "Quiñones Pérez",
+   "nombres": "Marcos Vidal",
+   "nombre_completo": "Quiñones Pérez Marcos Vidal"
+  },
+  {
+   "apellidos": "Núñez Perlaza",
+   "nombres": "Elcy",
+   "nombre_completo": "Núñez Perlaza Elcy"
+  }
+ ],
+ "casos": [
+  {
+   "frase": "La profe Clara Rojas informa que amaneció enferma y hoy no viene",
+   "tipo": "No asistió",
+   "motivo": "Mal estado de salud",
+   "categoria": "SALUD",
+   "menciones": [
+    [
+     3,
+     "Rojas Mendoza Clara Inés"
+    ]
+   ]
+  },
+  {
+   "frase": "Luis Fernando Vega presentó incapacidad médica por 3 días",
+   "tipo": "",
+   "motivo": "Incapacidad Médica",
+   "categoria": "SALUD",
+   "menciones": [
+    [
+     3,
+     "Vega Torres Luis Fernando"
+    ]
+   ]
+  },
+  {
+   "frase": "Zoila Obando llega tarde, se le varó la lancha",
+   "tipo": "Llegada tarde informada",
+   "motivo": "Situación fortuita camino al trabajo",
+   "categoria": "FORTUITO",
+   "menciones": [
+    [
+     3,
+     "Obando Zoila"
+    ]
+   ]
+  },
+  {
+   "frase": "La profe Ana María Castaño tiene calamidad, falleció su papá",
+   "tipo": "",
+   "motivo": "Calamidad familiar",
+   "categoria": "CALAMIDAD DOMÉSTICA",
+   "menciones": [
+    [
+     3,
+     "Castaño Díaz Ana María"
+    ]
+   ]
+  },
+  {
+   "frase": "Yadira Mosquera sale temprano por cita médica",
+   "tipo": "Salida temprana informada",
+   "motivo": "Exámenes clínicos",
+   "categoria": "SALUD",
+   "menciones": [
+    [
+     3,
+     "Mosquera Cuero Yadira"
+    ]
+   ]
+  },
+  {
+   "frase": "Hernán Cuero y Yadira Mosquera están en capacitación de la SED",
+   "tipo": "",
+   "motivo": "Evento Secretaría de Educación",
+   "categoria": "EVENTO EXTERNO",
+   "menciones": [
+    [
+     3,
+     "Cuero Bonilla Hernán"
+    ],
+    [
+     3,
+     "Mosquera Cuero Yadira"
+    ]
+   ]
+  },
+  {
+   "frase": "Se informa que Díaz no asistió porque llevó a su hijo al médico",
+   "tipo": "No asistió",
+   "motivo": "Traslado hijo(a) a colegio/médico",
+   "categoria": "CALAMIDAD DOMÉSTICA",
+   "menciones": [
+    [
+     1,
+     "Castaño Díaz Ana María"
+    ],
+    [
+     1,
+     "Díaz Pérez María Elena"
+    ]
+   ]
+  },
+  {
+   "frase": "La profe Clara Rojas no estaba en el aula en la tercera hora",
+   "tipo": "No asistió",
+   "motivo": "",
+   "categoria": "",
+   "menciones": [
+    [
+     3,
+     "Rojas Mendoza Clara Inés"
+    ]
+   ]
+  },
+  {
+   "frase": "Pedro Rojas no se presentó y el grupo estaba solo",
+   "tipo": "No asistió",
+   "motivo": "",
+   "categoria": "",
+   "menciones": [
+    [
+     3,
+     "Rojas Ibarra Pedro"
+    ]
+   ]
+  },
+  {
+   "frase": "Marcos Quiñones no vino por permiso del rector",
+   "tipo": "No asistió",
+   "motivo": "Permiso del rector",
+   "categoria": "PERMISO INSTITUCIONAL",
+   "menciones": [
+    [
+     3,
+     "Quiñones Pérez Marcos Vidal"
+    ]
+   ]
+  },
+  {
+   "frase": "Elcy Núñez se retiró antes por examen de laboratorio",
+   "tipo": "Salida temprana informada",
+   "motivo": "Exámenes clínicos",
+   "categoria": "SALUD",
+   "menciones": [
+    [
+     3,
+     "Núñez Perlaza Elcy"
+    ]
+   ]
+  },
+  {
+   "frase": "Obando llegó con retraso por el tráfico",
+   "tipo": "Llegada tarde informada",
+   "motivo": "Situación fortuita camino al trabajo",
+   "categoria": "FORTUITO",
+   "menciones": [
+    [
+     2,
+     "Obando Zoila"
+    ]
+   ]
+  },
+  {
+   "frase": "Zoila no vino, tiene fiebre y dolor de cabeza",
+   "tipo": "No asistió",
+   "motivo": "Mal estado de salud",
+   "categoria": "SALUD",
+   "menciones": [
+    [
+     1,
+     "Obando Zoila"
+    ]
+   ]
+  },
+  {
+   "frase": "Mosquera salió antes por incapacidad",
+   "tipo": "Salida temprana informada",
+   "motivo": "Incapacidad Médica",
+   "categoria": "SALUD",
+   "menciones": [
+    [
+     2,
+     "Mosquera Cuero Yadira"
+    ]
+   ]
+  },
+  {
+   "frase": "Vega no la vi en el salón",
+   "tipo": "No asistió",
+   "motivo": "",
+   "categoria": "",
+   "menciones": [
+    [
+     1,
+     "Vega Torres Luis Fernando"
+    ]
+   ]
+  },
+  {
+   "frase": "Pedro viajó a Cali por una remisión",
+   "tipo": "",
+   "motivo": "Remisión otra ciudad",
+   "categoria": "TRASLADO",
+   "menciones": [
+    [
+     1,
+     "Rojas Ibarra Pedro"
+    ]
+   ]
+  },
+  {
+   "frase": "Hernán tiene maestría y debe asistir a la universidad",
+   "tipo": "",
+   "motivo": "Tema académico del docente",
+   "categoria": "ACADÉMICO DEL DOCENTE",
+   "menciones": [
+    [
+     1,
+     "Cuero Bonilla Hernán"
+    ]
+   ]
+  },
+  {
+   "frase": "Ana María Castaño llevó a su hija al médico",
+   "tipo": "",
+   "motivo": "Traslado hijo(a) a colegio/médico",
+   "categoria": "CALAMIDAD DOMÉSTICA",
+   "menciones": [
+    [
+     3,
+     "Castaño Díaz Ana María"
+    ]
+   ]
+  },
+  {
+   "frase": "La profe Elena Díaz tiene reunión de padres de su hijo en el colegio",
+   "tipo": "",
+   "motivo": "Tema académico de hijo(a)",
+   "categoria": "CALAMIDAD DOMÉSTICA",
+   "menciones": [
+    [
+     3,
+     "Díaz Pérez María Elena"
+    ]
+   ]
+  },
+  {
+   "frase": "Todo estuvo normal en la ronda",
+   "tipo": "",
+   "motivo": "",
+   "categoria": "",
+   "menciones": []
+  },
+  {
+   "frase": "Recuerden la reunión de área del viernes",
+   "tipo": "",
+   "motivo": "",
+   "categoria": "",
+   "menciones": []
+  },
+  {
+   "frase": "Rojas no estaba",
+   "tipo": "No asistió",
+   "motivo": "",
+   "categoria": "",
+   "menciones": [
+    [
+     1,
+     "Rojas Ibarra Pedro"
+    ],
+    [
+     1,
+     "Rojas Mendoza Clara Inés"
+    ]
+   ]
+  },
+  {
+   "frase": "El grupo estaba sin profesor desde temprano",
+   "tipo": "No asistió",
+   "motivo": "",
+   "categoria": "",
+   "menciones": []
+  },
+  {
+   "frase": "Clara Rojas está en taller de formación en la Secretaría de Educación",
+   "tipo": "",
+   "motivo": "Evento Secretaría de Educación",
+   "categoria": "EVENTO EXTERNO",
+   "menciones": [
+    [
+     3,
+     "Rojas Mendoza Clara Inés"
+    ]
+   ]
+  },
+  {
+   "frase": "Luis Vega se fue antes por una calamidad familiar",
+   "tipo": "Salida temprana informada",
+   "motivo": "Calamidad familiar",
+   "categoria": "CALAMIDAD DOMÉSTICA",
+   "menciones": [
+    [
+     3,
+     "Vega Torres Luis Fernando"
+    ]
+   ]
+  },
+  {
+   "frase": "Marcos Vidal Quiñones llegará tarde por un accidente de tránsito",
+   "tipo": "Llegada tarde informada",
+   "motivo": "Situación fortuita camino al trabajo",
+   "categoria": "FORTUITO",
+   "menciones": [
+    [
+     3,
+     "Quiñones Pérez Marcos Vidal"
+    ]
+   ]
+  },
+  {
+   "frase": "Yadira no estaba y los estudiantes solos en el salón",
+   "tipo": "No asistió",
+   "motivo": "",
+   "categoria": "",
+   "menciones": [
+    [
+     1,
+     "Mosquera Cuero Yadira"
+    ]
+   ]
+  },
+  {
+   "frase": "María Elena Díaz Pérez no se presentó, está incapacitada",
+   "tipo": "No asistió",
+   "motivo": "",
+   "categoria": "",
+   "menciones": [
+    [
+     3,
+     "Castaño Díaz Ana María"
+    ],
+    [
+     3,
+     "Díaz Pérez María Elena"
+    ]
+   ]
+  },
+  {
+   "frase": "La profe Zoila Obando no asistió, mal estado de salud",
+   "tipo": "No asistió",
+   "motivo": "Mal estado de salud",
+   "categoria": "SALUD",
+   "menciones": [
+    [
+     3,
+     "Obando Zoila"
+    ]
+   ]
+  },
+  {
+   "frase": "Pedro Rojas Ibarra salió temprano permiso de rectoría",
+   "tipo": "Salida temprana informada",
+   "motivo": "Permiso del rector",
+   "categoria": "PERMISO INSTITUCIONAL",
+   "menciones": [
+    [
+     3,
+     "Rojas Ibarra Pedro"
+    ]
+   ]
+  }
+ ]
+}

@@ -43,3 +43,6 @@ function misSoportes() { return llamar_('misSoportes', []); }
 function subirSoporte(p) { return llamar_('subirSoporte', [p]); }
 function soportesPorRevisar() { return llamar_('soportesPorRevisar', []); }
 function revisarSoporte(p) { return llamar_('revisarSoporte', [p]); }
+function guardarNotaRonda(p) { return llamar_('guardarNotaRonda', [p]); }
+function listarPropuestas() { return llamar_('listarPropuestas', []); }
+function resolverPropuesta(p) { return llamar_('resolverPropuesta', [p]); }

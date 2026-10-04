@@ -31,6 +31,22 @@ No hay acceso directo a WhatsApp. El flujo es: exportar el chat del grupo de dir
 - Los chats contienen datos de salud: `importacion/` y los chats están en `.gitignore`; no los suba a ningún repositorio.
 - Prueba (con docentes y mensajes ficticios): `python3 scripts/pruebas_whatsapp.py`.
 
+## Observación de la ronda por voz o texto
+Al terminar la ronda, el botón **🎙 Observación** (barra inferior de la ronda) permite escribir, dictar (micrófono del teclado), grabar con el navegador
+(con transcripción automática si el navegador la ofrece, p. ej. Chrome en Android) o elegir un audio. El sistema (`Notas.gs`, mismas reglas de `data/patrones_novedades.json`
+que el importador de WhatsApp) **propone** novedades: detecta tipo, motivo, grupo ("8-1", "octavo uno"), sesión ("tercera hora", "a las 8:30") y docente (por nombre o,
+si solo se nombra el grupo, por el horario). Cada propuesta aparece con su nivel de confianza; usted elige/corrige docente y motivo y pulsa **Registrar novedad** o **Descartar**.
+Nada pasa a `Novedades` sin esa confirmación y no se duplica una ausencia ya registrada.
+- El audio es opcional y se guarda en una subcarpeta privada de Drive ("Audios de ronda"); se borra a los 30 días (parámetro `audio_conservar_dias`, menú *Borrar audios de ronda antiguos*).
+  No grabe nombres de estudiantes ni más datos de salud de los necesarios (datos sensibles, Ley 1581).
+- El navegador solo transcribe en el momento; si graba sin transcripción, el audio queda guardado pero **sin analizar** hasta que usted lo transcriba. Para eso, sin enviar nada a terceros:
+  `pip install faster-whisper` y `python3 scripts/transcribir_audio.py ronda.m4a --analizar 2026-10-02` (usa `scripts/analizar_nota.js`; el texto resultante se puede pegar en el cuadro de observación).
+- Vista previa funcional en `ICET_Vista_Previa_Ronda.html` (el análisis corre de verdad en el navegador; no guarda nada).
+
+## Ingreso de docentes
+El docente entra con una **cuenta de Google** (Gmail o un correo cualquiera vinculado a una cuenta Google). El ingreso con Facebook **no es posible** en Google Apps Script. Los correos de los docentes se
+dejan vacíos por ahora (se registran ellos mismos al ingresar y el directivo aprueba); los de los directivos siguen siendo temporales (`@example.com`). La huella/firma queda pospuesta.
+
 ## Panel (dashboard) e informe diario al rector
 - **Panel** (`apps_script/Dashboard.html`, se abre con `?p=panel` al final de la URL de la aplicación): horas de clase sin atender, cumplimiento, docentes con novedad, ausencias, llegadas tarde, tendencia de 10 días, motivos, nivel, grupos y áreas más afectados, cobertura de la ronda y novedades del día. Filtros: hoy, semana, mes o fechas a elección. Cada gráfico tiene su tabla; funciona en celular y en modo oscuro.
 - **Informe diario al rector:** correo HTML (lunes a viernes, hacia las 2:30 p. m.). Menú **Asistencia ICET > Informe al rector: programar envío diario**. Mientras el correo del rector en la hoja `Directivos` sea temporal (`@example.com`) **no se envía nada**; cuando se ponga el real, use "enviar prueba ahora".

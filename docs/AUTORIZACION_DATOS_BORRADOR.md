@@ -16,3 +16,8 @@ Autorizo a la Institución Educativa [NOMBRE DE LA INSTITUCIÓN], como responsab
 
 ## Cómo queda registrada la aceptación
 En la hoja `Usuarios`: correo, docente, fecha y hora de la autorización, versión del texto (`version_texto`), quién aprobó la cuenta y cuándo. Si cambia el texto, cambie también `TEXTO_AUTORIZACION_VERSION` para que quede constancia de qué versión aceptó cada persona.
+
+## Audios de observación de la ronda (uso de directivos)
+- Son opcionales, los usan solo los directivos y se guardan en una subcarpeta privada de Drive; se borran a los 30 días (ajustable en `Parametros`).
+- Pueden mencionar a docentes y, por ejemplo, su salud: son datos sensibles. Confirme con asesoría jurídica la finalidad, el tiempo de conservación y que la política de tratamiento de datos lo contemple.
+- Recomendación: no grabar a estudiantes ni nombrar a menores; guardar el audio solo cuando haga falta (por defecto la casilla viene sin marcar si hay texto).

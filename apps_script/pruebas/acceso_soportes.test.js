@@ -27,7 +27,7 @@ const raices=[]; const g={Utilities:{formatDate:fmt,base64Decode:b=>Array.from(B
      Access:{PRIVATE:'p'},Permission:{NONE:'n'}},
   PropertiesService:{getScriptProperties:()=>({getProperty:()=>'secreto-de-prueba'})},ContentService:{},console};
 vm.createContext(g);
-['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
+['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
 let fallos=0; const ok=(c,m)=>{console.log((c?'  ok   ':'  FALLA ')+m); if(!c)fallos++;};
 const api=(fn,args,email,secret='secreto-de-prueba')=>vm.runInContext(`apiEjecutar_(${JSON.stringify({secret,email,fn,args:args||[]})},'secreto-de-prueba')`,g);
 const DUENO='dueno@gmail.com', DOC='docente.a@correo.com';
@@ -64,7 +64,7 @@ ok(/Sin permiso/.test(api('consultarSesion',['VIERNES',3],DOC).error)&&/Sin perm
 
 // ---- 5) una ausencia con soporte pendiente
 const hoy=fmt(new Date(),'America/Bogota','yyyy-MM-dd'); const habilAtras=(f,n)=>{let d=new Date(f+'T12:00:00Z');let c=0;while(c<n){d.setUTCDate(d.getUTCDate()-1);if(d.getUTCDay()>=1&&d.getUTCDay()<=5)c++;}return d.toISOString().slice(0,10)};
-const F=habilAtras(hoy,2);
+const F=habilAtras(hoy,2)>='2026-10-01'&&habilAtras(hoy,2)<='2026-10-02'?'2026-09-16':habilAtras(hoy,2);   // evita chocar con las novedades del 1 y 2 de oct. de la hoja de ejemplo
 hojas.Novedades.v.push([new Date(),F,M.A,'No asistió','N/A','Sin justificación','Amaneció enferma','Coordinador(a)','WhatsApp grupal','N/A','N/A','Todas','Jornada completa',180,'Francisco Cortés','JC','No','SIN JUSTIFICACIÓN']);
 let ms=api('misSoportes',[],DOC).data; const ob=ms.obligaciones.find(o=>o.inicio===F);
 ok(ob&&['Pendiente','Vencido','En curso'].includes(ob.estado)&&ob.plazoDias===3,`obligación de la ausencia del ${F}: ${ob&&ob.estado}, plazo ${ob&&ob.plazoDias} días (injustificada = 3)`);

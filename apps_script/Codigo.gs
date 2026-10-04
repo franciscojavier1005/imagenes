@@ -18,6 +18,7 @@ function onOpen() {
   SpreadsheetApp.getUi().createMenu('Asistencia ICET')
     .addItem('Crear formulario de novedades (desplegables)', 'crearFormulario')
     .addItem('Importar bandeja de WhatsApp (filas marcadas SI)', 'importarBandejaWhatsApp')
+    .addItem('Borrar audios de ronda antiguos', 'purgarAudios')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')
     .addSeparator()

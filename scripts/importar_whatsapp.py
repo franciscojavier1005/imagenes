@@ -12,7 +12,7 @@ se revisan y se marca "SI" en la columna confirmar para importarlas (menú Asist
 
 Es una ayuda por palabras clave: acierta lo habitual, pero puede equivocarse. Cada fila lleva su nivel de confianza y el mensaje original.
 """
-import argparse, csv, datetime as dt, os, re, sys, unicodedata
+import argparse, csv, datetime as dt, json, os, re, sys, unicodedata
 
 RAIZ = os.path.join(os.path.dirname(__file__), "..")
 
@@ -97,26 +97,9 @@ def menciones(texto, docentes, cont):
 
 
 # ------------------------------------------------------------------ tipo y motivo
-TIPOS = [
-    ("Llegada tarde informada", r"llega(ra|rá)? tarde|llegar(a|á) tarde|llego tarde|se va a demorar|retraso|llegara mas tarde"),
-    ("Salida temprana informada", r"(salir|sale|salio|se retira|retirara|se va|se fue)\s+(mas\s+)?(temprano|antes)|salida temprana|permiso para salir"),
-    ("No asistió", r"no (asisti|vien[e]|vendr|va a (venir|asistir)|puede (venir|asistir)|pudo (venir|asistir)|se present|estara|podra|puede ir|fue)|falt(a|o|ara)|ausent|incapacitad|amaneci|no hay clase"),
-]
-MOTIVOS = [  # (motivo, categoría, patrón) — el primero que coincide gana
-    ("Incapacidad Médica", "SALUD", r"incapacid|licencia (medica|de maternidad|de paternidad)"),
-    ("Calamidad familiar", "CALAMIDAD DOMÉSTICA", r"calamidad|falleci|murio|fallecimiento|velorio|sepelio|luto|defuncion|se murio"),
-    ("Traslado hijo(a) a colegio/médico", "CALAMIDAD DOMÉSTICA", r"llev(ar|o|a|ara)\s+a\s+(su|la|el)\s+(hij|ni)|trasladar a su hij|traslado a su hij"),
-    ("Salud de hijo(a) o familiar", "CALAMIDAD DOMÉSTICA", r"(hij[oa]s?|esposo|esposa|mama|papa|madre|padre|familiar|nieto|nieta|abuel[oa]).{0,45}(enferm|hospital|urgencia|cirug|medico|clinica|fiebre|accidente|cita)"),
-    ("Tema académico de hijo(a)", "CALAMIDAD DOMÉSTICA", r"reunion de padres|entrega de boletin|citacion del colegio|hij[oa]s?.{0,30}(colegio|escuela|reunion|matricula|examen|graduacion)"),
-    ("Exámenes clínicos", "SALUD", r"examen(es)? (medic|clinic)|examenes de laboratorio|laboratorio|resonancia|ecograf|cita medica|cita con (el |la )?(medico|especialista|odontolog)|odontolog|control medico|toma de muestra|rayos x"),
-    ("Mal estado de salud", "SALUD", r"enferm|malestar|gripa|gripe|fiebre|dolor|vomit|diarrea|mareo|mal de salud|mal estado de salud|problemas? de salud|quebranto|amaneci mal|se siente mal|migra[nñ]a|covid|dengue|alergia|infeccion|se sintio mal"),
-    ("Permiso del rector", "PERMISO INSTITUCIONAL", r"permiso.{0,30}(rector|rectoria)|(rector|rectoria).{0,30}(autoriz|permiso|aprob)|autorizo el rector"),
-    ("Evento Secretaría de Educación", "EVENTO EXTERNO", r"secretaria de educacion|\bsed\b|comision de servicio|mesa de trabajo|reunion en la secretaria"),
-    ("Capacitación/Taller", "EVENTO EXTERNO", r"capacitacion|taller|formacion|seminario|diplomado|\bforo\b|jornada pedagogica|encuentro"),
-    ("Tema académico del docente", "ACADÉMICO DEL DOCENTE", r"universidad|doctorado|maestria|posgrado|sustentacion|clase presencial|tutoria de tesis|encuentro tutorial"),
-    ("Remisión otra ciudad", "TRASLADO", r"remision|remitid|remiti|\bcali\b|\bpasto\b|bogota|medellin|viaje|otra ciudad|se traslado a|desplaz"),
-    ("Situación fortuita camino al trabajo", "FORTUITO", r"camino al (trabajo|colegio)|se vario|se varo|llanta|pinch|accidente de transito|trancon|trafico|lancha|marea|derrumbe|lluvia|inundacion|aguacero"),
-]
+_PAT = json.load(open(os.path.join(RAIZ, "data", "patrones_novedades.json"), encoding="utf-8"))
+TIPOS = [(n, p) for n, p in _PAT["tipos"]]
+MOTIVOS = [(m, c, p) for m, c, p in _PAT["motivos"]]  # (motivo, categoría, patrón) — el primero que coincide gana
 JUSTIF = {"SIN JUSTIFICACIÓN": "No"}
 
 

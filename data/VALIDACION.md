@@ -69,6 +69,7 @@ Catálogo en `data/motivos.csv` (15 motivos en 8 categorías). Parte de los moti
 - Plazos de soportes: 14 comprobaciones contra un cálculo independiente en Python (rachas, fines de semana, 3 o 5 días, estados).
 - Acceso, registro, carga y revisión de soportes: 45 comprobaciones con hojas y Drive simulados (matriz de permisos, un docente no ve a otro, validaciones del archivo, la aceptación corrige la novedad).
 - Front y back: 14 comprobaciones (secreto, correo verificado, errores, el back no sirve pantallas).
+- Observaciones de la ronda: analizador (`Notas.gs`) con 30 frases ficticias coincidiendo con el importador de Python (tipo, motivo, docentes) y pruebas de grupo, sesión y deducción por horario; servidor (`NotasRonda.gs`): guardar, proponer, confirmar/descartar, sin duplicados, audio privado, purga y permisos. Pantalla probada con Chromium y micrófono simulado. Transcripción local probada con voz sintética en español (faster-whisper): "8-1" sale como "8 uno" y los nombres con errores de ortografía bajan la confianza, por eso siempre se confirma a mano.
 - Excel de ubicación: 5 escenarios (ahora, otra fecha con bloque, fecha sin elegir, descanso, fin de semana) evaluados con un motor de cálculo en Python; no se probó en Excel ni en Google Sheets.
 
 ## Pendientes

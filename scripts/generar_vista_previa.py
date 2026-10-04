@@ -65,10 +65,26 @@ var DATOS = %s;
       .map(function(x){return '"'+String(x==null?'':x).replace(/"/g,'""')+'"';}).join(','));});
     return c.join('\\n');
   }
+  var PROP=[], NOTAS_N=0;
+  function mins(hm){var a=hm.split(':');return Number(a[0])*60+Number(a[1]);}
+  function ctxNota(texto,fecha){
+    var nombres={}; DATOS.horario.forEach(function(h){nombres[h.docente]=1;});
+    return {texto:texto,fecha:fecha,docentes:Object.keys(nombres).map(function(n){return {nombre_completo:n,apellidos:n,nombres:''};}),
+      grupos:Object.keys(DATOS.grupos).map(function(g){return {grupo:g};}),
+      franjas:DATOS.franjas.map(function(f){return {hora:f.hora,inicio_min:mins(f.inicio),fin_min:mins(f.fin)};}),horario:DATOS.horario};
+  }
   var api=function(){var ok=null,fail=null,self={
     withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
     urlBase:function(){setTimeout(function(){ok('');},0);},
     consultarSesion:function(d,s){setTimeout(function(){ok(consultar(d,s));},20);},
+    guardarNotaRonda:function(p){setTimeout(function(){
+      if(!String(p.texto||'').trim()){ok({id:'n',propuestas:[],audioGuardado:false});return;}
+      var a=analizarNota_(ctxNota(p.texto,p.fecha||bogota().fecha)), nuevas=a.propuestas.map(function(x,i){
+        return {id:'p'+(++NOTAS_N),fecha:p.fecha||bogota().fecha,docente:x.docente,tipo_novedad:x.tipo_novedad,motivo:x.motivo,categoria:x.categoria,confianza:x.confianza,mensaje:x.mensaje,sesion:x.sesion||p.sesion||'',grupo:x.grupo||''};});
+      PROP=PROP.concat(nuevas); ok({id:'n',propuestas:nuevas,audioGuardado:false});},20);},
+    listarPropuestas:function(){setTimeout(function(){var n={};DATOS.horario.forEach(function(h){n[h.docente]=1;});
+      ok({propuestas:PROP.slice(),docentes:Object.keys(n).sort(),motivos:DATOS.motivos.map(function(m){return m.motivo;})});},20);},
+    resolverPropuesta:function(p){setTimeout(function(){PROP=PROP.filter(function(x){return x.id!==p.id;});ok({estado:p.accion==='descartar'?'descartada':'registrada (vista previa: no se guarda)'});},20);},
     guardarRonda:function(p){setTimeout(function(){
       var blob=new Blob(['\\ufeff'+csv(p)],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');
       a.href=URL.createObjectURL(blob);a.download='ronda_'+p.fecha+'_S'+p.sesion+'.csv';document.body.appendChild(a);a.click();a.remove();
@@ -79,7 +95,8 @@ var DATOS = %s;
 """ % json.dumps(datos, ensure_ascii=False, separators=(",", ":"))
 
 html = open(os.path.join(RAIZ, "apps_script", "Consulta.html"), encoding="utf-8").read()
-html = html.replace("<script>\nvar S = null;", mock + "<script>\nvar S = null;", 1)
+analizador = "<script>\n" + open(os.path.join(RAIZ, "apps_script", "Patrones.gs"), encoding="utf-8").read() + "\n" + open(os.path.join(RAIZ, "apps_script", "Notas.gs"), encoding="utf-8").read() + "\n</script>\n"
+html = html.replace("<script>\nvar S = null;", analizador + mock + "<script>\nvar S = null;", 1)
 html = html.replace("<main>", '<div style="background:#fff3cd;color:#664d03;padding:6px 12px;font-size:13px;border-bottom:1px solid #ffe69c">'
                     "<b>VISTA PREVIA:</b> así se verá la ronda. Los registros no se envían a ningún sitio: al guardar se descarga un archivo CSV."
                     "</div>\n<main>", 1)

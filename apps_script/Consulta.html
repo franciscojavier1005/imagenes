@@ -49,6 +49,20 @@
   .guardar:disabled{opacity:.5}
   .aviso{padding:30px 14px;text-align:center;color:#456;font-size:16px}
   .toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#263238;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;z-index:9;display:none}
+  .obsbtn{background:#fff3e0;color:#8a4b00}
+  .hoja{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:none;align-items:flex-end;justify-content:center}
+  .hoja.abierta{display:flex}
+  .hoja .panel{background:#fff;width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:14px}
+  .hoja h3{margin:0 0 4px;font-size:17px} .hoja p{margin:4px 0;font-size:13px;color:#456}
+  .hoja textarea{width:100%;min-height:110px;padding:10px;border:2px solid var(--borde);border-radius:10px;font:inherit;font-size:16px;margin-top:6px}
+  .hoja .acciones{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center}
+  .hoja button{border:0;border-radius:10px;padding:11px 14px;font-weight:700;font-size:15px;min-height:44px}
+  .grab{background:#fdecea;color:var(--no)} .grab.activa{background:var(--no);color:#fff}
+  .sec{background:#eceff3;color:#263238} .prim{background:var(--azul);color:#fff}
+  .prop{border:1px solid var(--borde);border-radius:10px;padding:8px 10px;margin-top:8px;font-size:14px}
+  .prop .t{font-weight:600} .prop .m{font-size:12.5px;color:#566;margin-top:2px}
+  .prop select{width:100%;margin-top:6px;padding:10px;border:2px solid var(--borde);border-radius:8px;font-size:15px;background:#fff}
+  .conf-baja,.conf-sin{color:var(--no)} .conf-media{color:var(--tarde)} .conf-alta{color:var(--ok)}
 </style>
 </head>
 <body>
@@ -72,8 +86,31 @@
 </main>
 <div class="barra">
   <div class="cuenta" id="cuenta"></div>
+  <button class="todos obsbtn" onclick="abrirObs()">🎙 Observación</button>
   <button class="todos" onclick="todosPresentes()">Todos presentes</button>
   <button class="guardar" id="btnGuardar" onclick="guardar()">Guardar ronda</button>
+</div>
+<div class="hoja" id="hojaObs" role="dialog" aria-modal="true" aria-label="Observación de la ronda">
+ <div class="panel">
+  <h3>Observación de la ronda</h3>
+  <p>Cuente en voz alta o por escrito lo que vio (quién no estaba, qué grupo quedó solo, motivos). El sistema <b>propone</b> novedades y usted confirma cada una. No grabe nombres de estudiantes.</p>
+  <textarea id="obsTexto" placeholder="Ej.: En la tercera hora el 8-1 estaba solo; la profe de matemáticas tenía cita médica." aria-label="Texto de la observación"></textarea>
+  <div class="acciones">
+    <button class="grab" id="btnGrab" onclick="grabar()">● Grabar</button>
+    <span id="estGrab" style="font-size:13px"></span>
+  </div>
+  <audio id="vistaAudio" controls style="display:none;width:100%;margin-top:8px"></audio>
+  <div class="acciones">
+    <label class="sec" style="padding:11px 14px;border-radius:10px;font-weight:700;font-size:15px">Elegir audio<input type="file" id="archAudio" accept="audio/*" capture style="display:none" onchange="elegirAudio(this)"></label>
+    <label style="font-size:13px"><input type="checkbox" id="guardaAudio"> Guardar también el audio (se borra a los 30 días)</label>
+  </div>
+  <p id="avisoDict" style="display:none">Si no ve el micrófono para transcribir, use el del teclado del celular para dictar dentro del cuadro de texto.</p>
+  <div class="acciones">
+    <button class="prim" id="btnObs" onclick="enviarObs()">Analizar y guardar</button>
+    <button class="sec" onclick="cerrarObs()">Cerrar</button>
+  </div>
+  <div id="propuestas"></div>
+ </div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -231,6 +268,67 @@ function guardar(){
     el('btnGuardar').disabled=false; toast('Guardado: '+r.guardados+' registros'); cargar(diaSel,sesSel);
   }).withFailureHandler(function(e){el('btnGuardar').disabled=false;toast('Error: '+(e.message||e));})
   .guardarRonda({directivo:dir,dia:S.dia,sesion:S.sesion,fecha:S.fecha,registros:regs});
+}
+
+/* ---------- observación de la ronda (voz o texto) ---------- */
+var grab=null, trozos=[], audioBlob=null, reco=null, listaDocs=[], listaMotivos=[];
+function abrirObs(){ el('hojaObs').classList.add('abierta'); cargarPropuestas(); try{ if(!(window.SpeechRecognition||window.webkitSpeechRecognition)) el('avisoDict').style.display='block'; }catch(e){} }
+function cerrarObs(){ detener(); el('hojaObs').classList.remove('abierta'); }
+function grabar(){
+  if(grab){ detener(); return; }
+  if(!navigator.mediaDevices||!window.MediaRecorder){ toast('Este navegador no graba: use el micrófono del teclado o elija un audio'); return; }
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(st){
+    trozos=[]; audioBlob=null; grab=new MediaRecorder(st);
+    grab.ondataavailable=function(e){ if(e.data&&e.data.size) trozos.push(e.data); };
+    grab.onstop=function(){ st.getTracks().forEach(function(t){t.stop();}); audioBlob=new Blob(trozos,{type:(grab&&grab.mimeType)||'audio/webm'}); grab=null;
+      var a=el('vistaAudio'); a.src=URL.createObjectURL(audioBlob); a.style.display='block'; el('btnGrab').classList.remove('activa'); el('btnGrab').textContent='● Grabar de nuevo'; el('estGrab').textContent=''; };
+    grab.start(); el('btnGrab').classList.add('activa'); el('btnGrab').textContent='■ Detener'; el('estGrab').textContent='Grabando…';
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(SR){ try{ reco=new SR(); reco.lang='es-CO'; reco.continuous=true; reco.interimResults=false;
+      reco.onresult=function(e){ var t=''; for(var i=e.resultIndex;i<e.results.length;i++) if(e.results[i].isFinal) t+=e.results[i][0].transcript+'. '; if(t){var x=el('obsTexto'); x.value=(x.value?x.value+' ':'')+t.trim();} };
+      reco.onerror=function(){}; reco.start(); }catch(e){ reco=null; } }
+  }).catch(function(){ toast('No se pudo usar el micrófono (revise el permiso del navegador)'); });
+}
+function detener(){ try{ if(reco){reco.stop();reco=null;} }catch(e){} try{ if(grab&&grab.state!=='inactive') grab.stop(); }catch(e){} }
+function elegirAudio(inp){ var f=inp.files&&inp.files[0]; if(!f) return; audioBlob=f; var a=el('vistaAudio'); a.src=URL.createObjectURL(f); a.style.display='block'; el('estGrab').textContent=f.name; }
+function aBase64(blob,cb){ var r=new FileReader(); r.onload=function(){ cb(String(r.result).split(',')[1]||''); }; r.readAsDataURL(blob); }
+function enviarObs(){
+  var texto=el('obsTexto').value.trim(), conAudio=audioBlob&&(el('guardaAudio').checked||!texto);
+  if(!texto&&!audioBlob){ toast('Escriba, dicte o grabe la observación'); return; }
+  if(conAudio&&audioBlob.size>8*1024*1024){ toast('El audio supera 8 MB: grabe algo más corto'); return; }
+  el('btnObs').disabled=true;
+  var enviar=function(b64,mime){
+    google.script.run.withSuccessHandler(function(r){
+      el('btnObs').disabled=false; el('obsTexto').value=''; audioBlob=null; el('vistaAudio').style.display='none'; el('estGrab').textContent='';
+      toast(r.propuestas.length?('Propuestas: '+r.propuestas.length):(texto?'Guardada: no se detectaron novedades':'Audio guardado (sin texto para analizar)')); cargarPropuestas();
+    }).withFailureHandler(function(e){el('btnObs').disabled=false;toast('Error: '+(e.message||e));})
+    .guardarNotaRonda({fecha:S&&S.fecha,sesion:S&&S.sesion,texto:texto,mime:mime||'',base64:b64||''});
+  };
+  if(conAudio) aBase64(audioBlob,function(b){ enviar(b,audioBlob.type||'audio/webm'); }); else enviar('','');
+}
+function cargarPropuestas(){
+  google.script.run.withSuccessHandler(function(r){ listaDocs=r.docentes; listaMotivos=r.motivos; pintarPropuestas(r.propuestas); })
+  .withFailureHandler(function(e){toast('Error: '+(e.message||e));}).listarPropuestas();
+}
+function pintarPropuestas(ps){
+  var h=ps.length?'<h3 style="margin-top:12px">Por confirmar ('+ps.length+')</h3>':'';
+  ps.forEach(function(p,i){
+    var sinDoc=!p.docente;
+    h+='<div class="prop" id="pr'+i+'"><div class="t">'+esc(p.docente||'(elija el docente)')+' · '+esc(p.tipo_novedad)+'</div>'
+     +'<div class="m">'+esc(p.fecha)+(p.sesion?' · sesión '+esc(p.sesion):' · jornada completa')+(p.grupo?' · grupo '+esc(p.grupo):'')+' · '+esc(p.motivo)+' · confianza <span class="conf-'+esc(String(p.confianza).split(' ')[0])+'">'+esc(p.confianza)+'</span></div>'
+     +'<div class="m">“'+esc(p.mensaje)+'”</div>';
+    if(sinDoc||p.confianza!=='alta') h+='<select id="pd'+i+'" aria-label="Docente"><option value="">Docente…</option>'+listaDocs.map(function(d){return opt(d,d,d===p.docente);}).join('')+'</select>';
+    h+='<select id="pm'+i+'" aria-label="Motivo">'+listaMotivos.map(function(m){return opt(m,m,m===p.motivo);}).join('')+'</select>'
+     +'<div class="acciones"><button class="prim" onclick="resolver('+i+',\'confirmar\')">Registrar novedad</button><button class="sec" onclick="resolver('+i+',\'descartar\')">Descartar</button></div></div>';
+  });
+  el('propuestas').innerHTML=h; window._ps=ps;
+}
+function resolver(i,accion){
+  var p=window._ps[i], d=el('pd'+i), m=el('pm'+i);
+  var arg={id:p.id,accion:accion,docente:d?d.value:p.docente,motivo:m?m.value:''};
+  if(accion==='confirmar'&&!arg.docente){ toast('Elija el docente'); return; }
+  google.script.run.withSuccessHandler(function(r){ toast(accion==='descartar'?'Descartada':'Novedad '+r.estado); cargarPropuestas(); })
+  .withFailureHandler(function(e){toast('Error: '+(e.message||e));}).resolverPropuesta(arg);
 }
 try{ google.script.run.withSuccessHandler(function(u){ if(u){var a=el('irPanel');a.href=u+'?p=panel';a.style.display='inline';} }).urlBase(); }catch(e){}
 ahora();

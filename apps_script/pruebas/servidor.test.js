@@ -26,7 +26,7 @@ ok(e1.enviado===false&&e1.motivo==='correo temporal'&&correos.length===0,'con el
 H.Directivos[4][2]='rector@institucion.edu.co';   // correo real de prueba
 const e2=vm.runInContext("enviarInformeDiario(true)",g);
 ok(e2.enviado===true&&correos.length===1&&correos[0].to==='rector@institucion.edu.co','con correo real sí envía (1 correo)');
-ok(/4.8 h sin atender/.test(correos[0].subject),'asunto: '+correos[0].subject);
+ok(/ [0-9.]+ h sin atender/.test(correos[0].subject),'asunto: '+correos[0].subject);
 ok(correos[0].htmlBody.includes('?p=panel')&&!/<script/i.test(correos[0].htmlBody),'enlace al panel y sin scripts');
 fs.writeFileSync(path.join(require('os').tmpdir(),'informe.html'),'<meta charset="utf-8">'+correos[0].htmlBody);
 

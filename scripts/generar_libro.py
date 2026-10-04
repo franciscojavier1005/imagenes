@@ -86,6 +86,7 @@ for t in [
     "  Bandeja_WhatsApp Novedades propuestas desde el chat de WhatsApp: revise, marque SI en confirmar y use el menú para importarlas.",
     "  Usuarios       Cuentas de docentes (correo): se registran una vez y un directivo las aprueba.",
     "  Soportes       Soportes de ausencias cargados por los docentes (archivos en una carpeta privada de Drive).",
+    "  Notas_Ronda    Observaciones (voz o texto) al terminar la ronda; sus propuestas van a la bandeja y requieren su confirmación.",
     "  Parametros     soportes_desde (las ausencias anteriores no exigen soporte) y la carpeta de soportes.",
     "  Registro_Ronda Cada marca de la ronda (presente, no asistió, tarde...).",
     "  Directivos     Quiénes registran. Correos TEMPORALES (@example.com), reemplazar por los reales.",
@@ -227,7 +228,7 @@ mx.auto_filter.ref = mx.dimensions
 nov = hoja(wb, "Novedades", [["Marca temporal", "Fecha Novedad", "Docente", "Tipo Novedad", "Actividad de Aprendizaje", "Motivo Ausencia",
                               "Descripción", "Fuente Novedad", "Medio Información", "Grado", "Grupo", "Área/Asignatura", "Horario",
                               "Minutos Desatendidos", "Directivo Docente", "Sesiones", "Justificada", "Categoría motivo"]])
-bj = hoja(wb, "Bandeja_WhatsApp", [["fecha", "hora", "remitente", "docente", "tipo_novedad", "motivo", "categoria", "justificada", "confianza", "mensaje", "confirmar", "importado"]])
+bj = hoja(wb, "Bandeja_WhatsApp", [["fecha", "hora", "remitente", "docente", "tipo_novedad", "motivo", "categoria", "justificada", "confianza", "mensaje", "confirmar", "importado", "id", "origen", "sesion", "grupo"]])
 dvc = DataValidation(type="list", formula1='"SI,NO"', allow_blank=True)
 dvd2 = DataValidation(type="list", formula1="=Docentes!$E$2:$E$200", allow_blank=True)
 dvm2 = DataValidation(type="list", formula1="=Motivos!$B$2:$B$16", allow_blank=True)
@@ -239,11 +240,12 @@ for col, w in zip("ABCDEFGHIJKL", (11, 7, 16, 36, 24, 32, 22, 11, 11, 70, 11, 11
 hoja(wb, "Usuarios", [["email", "docente", "estado", "fecha_solicitud", "autoriza_datos", "fecha_autorizacion", "version_texto", "aprobado_por", "fecha_aprobacion"]])
 hoja(wb, "Soportes", [["id", "fecha_carga", "docente", "clave", "inicio", "fin", "motivo_declarado", "tipo_documento", "archivo_id", "archivo_url",
                        "estado", "extemporaneo", "comentario", "revisado_por", "fecha_revision", "observacion_revision"]])
-hoja(wb, "Parametros", [["clave", "valor"], ["soportes_desde", "2026-10-05"], ["carpeta_soportes_id", ""]])
+hoja(wb, "Parametros", [["clave", "valor"], ["soportes_desde", "2026-10-05"], ["carpeta_soportes_id", ""], ["audio_conservar_dias", "30"]])
+hoja(wb, "Notas_Ronda", [["id", "fecha_registro", "fecha", "directivo", "sesion", "texto", "audio_id", "audio_url", "duracion_seg", "propuestas"]])
 hoja(wb, "Registro_Ronda", [["marca_temporal", "fecha", "dia", "sesion", "franja", "docente", "grupo", "area", "estado", "motivo",
                              "justificada", "minutos", "observaciones", "directivo"]])
 
-orden = ["LEEME", "Ronda", "Docentes", "Horario", "Matriz_Grupos", "Direccion_Grupo", "Motivos", "Novedades", "Bandeja_WhatsApp", "Usuarios", "Soportes", "Parametros", "Registro_Ronda", "Directivos", "Listas", "Franjas", "Grupos"]
+orden = ["LEEME", "Ronda", "Docentes", "Horario", "Matriz_Grupos", "Direccion_Grupo", "Motivos", "Novedades", "Bandeja_WhatsApp", "Notas_Ronda", "Usuarios", "Soportes", "Parametros", "Registro_Ronda", "Directivos", "Listas", "Franjas", "Grupos"]
 wb._sheets = [wb[n] for n in orden]
 wb.active = 1
 wb.save(OUT)

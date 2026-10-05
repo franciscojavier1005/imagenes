@@ -1,58 +1,58 @@
 ﻿codigo,n,apellidos,nombres,nombre_completo,nivel,grupo_titular,direccion_grupo,areas,correo,tiene_horario,nota
-D001,1,Aguirre Riascos,Jorge Andrés,Aguirre Riascos Jorge Andrés,SECUNDARIA,,7°-03,TEI,,SI,
-D002,2,Angulo Lucero,Andrés Mauricio,Angulo Lucero Andrés Mauricio,SECUNDARIA,,11°-01,TEI,,SI,
-D003,3,Arboleda Ortiz,Luz América,Arboleda Ortiz Luz América,SECUNDARIA,,11°-02,ART,,SI,
-D004,4,Arizala Castro,Roberto Carlos,Arizala Castro Roberto Carlos,SECUNDARIA,,7°-04,CNA/ERD,,SI,
-D005,5,Bastidas Valencia,Zeneida Judith,Bastidas Valencia Zeneida Judith,SECUNDARIA,,9°-02,MAT,,SI,
-D006,6,Betancourth Ocampo,Yohana Patricia,Betancourth Ocampo Yohana Patricia,SECUNDARIA,,10°-02,CSI,,SI,
+D001,1,Aguirre Riascos,Jorge Andrés,Aguirre Riascos Jorge Andrés,SECUNDARIA,,7°-3,TEI,,SI,
+D002,2,Angulo Lucero,Andrés Mauricio,Angulo Lucero Andrés Mauricio,SECUNDARIA,,11°-1,TEI,,SI,
+D003,3,Arboleda Ortiz,Luz América,Arboleda Ortiz Luz América,SECUNDARIA,,11°-2,ART,,SI,
+D004,4,Arizala Castro,Roberto Carlos,Arizala Castro Roberto Carlos,SECUNDARIA,,7°-4,CNA/ERD,,SI,
+D005,5,Bastidas Valencia,Zeneida Judith,Bastidas Valencia Zeneida Judith,SECUNDARIA,,9°-2,MAT,,SI,
+D006,6,Betancourth Ocampo,Yohana Patricia,Betancourth Ocampo Yohana Patricia,SECUNDARIA,,10°-2,CSI,,SI,
 D007,7,Casanova Casanova,Johana Andrea,Casanova Casanova Johana Andrea,ORIENTACIÓN,,,,,SI,"Docente orientadora: sin grupos, trabaja con todos los niveles"
-D008,8,Casanova Quiñones,Yoli del Carmen,Casanova Quiñones Yoli del Carmen,SECUNDARIA,,8°-02,ETR,,SI,
-D009,9,Castillo Angulo,Martha Cecilia,Castillo Angulo Martha Cecilia,SECUNDARIA,,7°-03,ETR,,SI,
-D010,10,Castillo Cuero,Daira Eneida,Castillo Cuero Daira Eneida,SECUNDARIA,,7°-01,CAS,,SI,
-D011,11,Centeno Zúñiga,Claudia Patricia,Centeno Zúñiga Claudia Patricia,PRIMARIA,0502,5°-02,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
-D012,12,Chillambo Quiñones,María Rocío,Chillambo Quiñones María Rocío,SECUNDARIA,,8°-02,CNA,,SI,
-D013,13,Cortés Salazar,María Ebelice,Cortés Salazar María Ebelice,PRIMARIA,0201,2°-01,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
-D014,14,Cuéllar Gallo,Nemesia,Cuéllar Gallo Nemesia,PRIMARIA,0501,5°-01,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
-D015,15,Cuero Bamba,Berte Levi,Cuero Bamba Berte Levi,SECUNDARIA,,CS 2-2,ERD,,SI,
-D016,16,Cuero Rincón,Hernando Jesús,Cuero Rincón Hernando Jesús,SECUNDARIA,,CS 1-1,CAS/TEI,,SI,
-D017,17,Escobar Cortés,Liliana,Escobar Cortés Liliana,PRIMARIA,0504,5°-04,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
-D018,18,Estacio Estupiñán,Rosario,Estacio Estupiñán Rosario,SECUNDARIA,,9°-01,ETR,,SI,
-D019,19,Fernández Vélez,Alfredo Enrique,Fernández Vélez Alfredo Enrique,SECUNDARIA,,8°-01,TEI,,SI,
-D020,20,García Gobea,Saydi Magali,García Gobea Saydi Magali,SECUNDARIA,,CS 1-1,CSI,,SI,
-D021,21,Garzón Quiñones,Sixta Janina,Garzón Quiñones Sixta Janina,PRIMARIA,0202,2°-02,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
-D022,22,González Castillo,Jólmer Jimy,González Castillo Jólmer Jimy,SECUNDARIA,,9°-01,ERD,,SI,
-D023,23,Landázuri Quiñones,María Elia,Landázuri Quiñones María Elia,PRIMARIA,0101,1°-01,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
-D024,24,Landázuri Gallón,Teresa,Landázuri Gallón Teresa,PRIMARIA,0302,3°-02,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
+D008,8,Casanova Quiñones,Yoli del Carmen,Casanova Quiñones Yoli del Carmen,SECUNDARIA,,8°-2,ETR,,SI,
+D009,9,Castillo Angulo,Martha Cecilia,Castillo Angulo Martha Cecilia,SECUNDARIA,,7°-3,ETR,,SI,
+D010,10,Castillo Cuero,Daira Eneida,Castillo Cuero Daira Eneida,SECUNDARIA,,7°-1,CAS,,SI,
+D011,11,Centeno Zúñiga,Claudia Patricia,Centeno Zúñiga Claudia Patricia,PRIMARIA,0502,5°-2,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
+D012,12,Chillambo Quiñones,María Rocío,Chillambo Quiñones María Rocío,SECUNDARIA,,8°-2,CNA,,SI,
+D013,13,Cortés Salazar,María Ebelice,Cortés Salazar María Ebelice,PRIMARIA,0201,2°-1,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
+D014,14,Cuéllar Gallo,Nemesia,Cuéllar Gallo Nemesia,PRIMARIA,0501,5°-1,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
+D015,15,Cuero Bamba,Berte Levi,Cuero Bamba Berte Levi,SECUNDARIA,,Caminar en Secundaria 2-2,ERD,,SI,
+D016,16,Cuero Rincón,Hernando Jesús,Cuero Rincón Hernando Jesús,SECUNDARIA,,Caminar en Secundaria 1-1,CAS/TEI,,SI,
+D017,17,Escobar Cortés,Liliana,Escobar Cortés Liliana,PRIMARIA,0504,5°-4,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
+D018,18,Estacio Estupiñán,Rosario,Estacio Estupiñán Rosario,SECUNDARIA,,9°-1,ETR,,SI,
+D019,19,Fernández Vélez,Alfredo Enrique,Fernández Vélez Alfredo Enrique,SECUNDARIA,,8°-1,TEI,,SI,
+D020,20,García Gobea,Saydi Magali,García Gobea Saydi Magali,SECUNDARIA,,Caminar en Secundaria 1-1,CSI,,SI,
+D021,21,Garzón Quiñones,Sixta Janina,Garzón Quiñones Sixta Janina,PRIMARIA,0202,2°-2,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
+D022,22,González Castillo,Jólmer Jimy,González Castillo Jólmer Jimy,SECUNDARIA,,9°-1,ERD,,SI,
+D023,23,Landázuri Quiñones,María Elia,Landázuri Quiñones María Elia,PRIMARIA,0101,1°-1,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
+D024,24,Landázuri Gallón,Teresa,Landázuri Gallón Teresa,PRIMARIA,0302,3°-2,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
 D025,25,Lemos Guancha,Miriam,Lemos Guancha Miriam,SECUNDARIA,,,CNA,,SI,
-D026,26,Lozano Torres,Amanda Inés,Lozano Torres Amanda Inés,SECUNDARIA,,6°-02,ETR,,SI,
-D027,27,Martínez Álvarez,Andrea Ascención,Martínez Álvarez Andrea Ascención,PREESCOLAR,0002,0°-02,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
-D028,28,Meza Banguera,Gladys Alicia,Meza Banguera Gladys Alicia,SECUNDARIA,,10°-01,CAS,,SI,
-D029,29,Mindineros Satizábal,John Jáver,Mindineros Satizábal John Jáver,SECUNDARIA,,10°-01,TEI,,SI,
-D030,30,Montaño Anchico,Favio Héctor,Montaño Anchico Favio Héctor,SECUNDARIA,,6°-01,CAS,,SI,
-D031,31,Montaño Arizala,Leidis Claudina,Montaño Arizala Leidis Claudina,SECUNDARIA,,11°-02,ETR,,SI,
-D032,32,Narváez Sánchez,Dora Alejandra,Narváez Sánchez Dora Alejandra,PRIMARIA,0503,5°-03,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
-D033,33,Núñez Perlaza,Elcy,Núñez Perlaza Elcy,PRIMARIA,0402,4°-02,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
-D034,34,Ordóñez Tenorio,Jaime Marcial,Ordóñez Tenorio Jaime Marcial,SECUNDARIA,,7°-01,CNA,,SI,
-D035,35,Ortiz Araujo,Adiela Carlota,Ortiz Araujo Adiela Carlota,SECUNDARIA,,CS 2-1,CSI,,SI,
+D026,26,Lozano Torres,Amanda Inés,Lozano Torres Amanda Inés,SECUNDARIA,,6°-2,ETR,,SI,
+D027,27,Martínez Álvarez,Andrea Ascención,Martínez Álvarez Andrea Ascención,PREESCOLAR,0002,0°-2,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
+D028,28,Meza Banguera,Gladys Alicia,Meza Banguera Gladys Alicia,SECUNDARIA,,10°-1,CAS,,SI,
+D029,29,Mindineros Satizábal,John Jáver,Mindineros Satizábal John Jáver,SECUNDARIA,,10°-1,TEI,,SI,
+D030,30,Montaño Anchico,Favio Héctor,Montaño Anchico Favio Héctor,SECUNDARIA,,6°-1,CAS,,SI,
+D031,31,Montaño Arizala,Leidis Claudina,Montaño Arizala Leidis Claudina,SECUNDARIA,,11°-2,ETR,,SI,
+D032,32,Narváez Sánchez,Dora Alejandra,Narváez Sánchez Dora Alejandra,PRIMARIA,0503,5°-3,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
+D033,33,Núñez Perlaza,Elcy,Núñez Perlaza Elcy,PRIMARIA,0402,4°-2,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
+D034,34,Ordóñez Tenorio,Jaime Marcial,Ordóñez Tenorio Jaime Marcial,SECUNDARIA,,7°-1,CNA,,SI,
+D035,35,Ortiz Araujo,Adiela Carlota,Ortiz Araujo Adiela Carlota,SECUNDARIA,,Caminar en Secundaria 2-1,CSI,,SI,
 D036,36,Ponce Moncayo,Ángela Paola,Ponce Moncayo Ángela Paola,ORIENTACIÓN,,,,,SI,"Docente orientadora: sin grupos, trabaja con todos los niveles"
-D037,37,Prado Quiñones,Genís Maribel,Prado Quiñones Genís Maribel,SECUNDARIA,,7°-02,ART/CNA,,SI,Reemplazo de la docente Luz María Cortés Tenorio. Desde el cambio del rector atiende el horario que tenía Puches (Docente 1)
-D038,38,Preciado Torres,Oleisa,Preciado Torres Oleisa,SECUNDARIA,,CS 2-1,MAT,,SI,
-D039,39,Puches,Ana Milena,Puches Ana Milena,SECUNDARIA,,CS 1-2,ART,,SI,Desde el cambio del rector atiende el horario que tenía Prado Maribel (Docente 2 de Arte)
+D037,37,Prado Quiñones,Genís Maribel,Prado Quiñones Genís Maribel,SECUNDARIA,,7°-2,ART/CNA,,SI,Reemplazo de la docente Luz María Cortés Tenorio. Desde el cambio del rector atiende el horario que tenía Puches (Docente 1)
+D038,38,Preciado Torres,Oleisa,Preciado Torres Oleisa,SECUNDARIA,,Caminar en Secundaria 2-1,MAT,,SI,
+D039,39,Puches,Ana Milena,Puches Ana Milena,SECUNDARIA,,Caminar en Secundaria 1-2,ART,,SI,Desde el cambio del rector atiende el horario que tenía Prado Maribel (Docente 2 de Arte)
 D040,40,Pulgarín Ortiz,César Marino,Pulgarín Ortiz César Marino,SECUNDARIA,,,CSI,,SI,
-D041,41,Quintero Ramírez,María del Carmen,Quintero Ramírez María del Carmen,SECUNDARIA,,7°-02,CSI,,SI,
-D042,42,Quiñones Cabezas,Marcos Vidal,Quiñones Cabezas Marcos Vidal,SECUNDARIA,,6°-01,MAT/TEI,,SI,
-D043,43,Ramírez Guerra,Jimmy Eduardo,Ramírez Guerra Jimmy Eduardo,SECUNDARIA,,7°-04,ERD,,SI,
-D044,44,Samaniego Angulo,Flor Mireya,Samaniego Angulo Flor Mireya,SECUNDARIA,,CS 2-2,ART,,SI,
-D045,45,Sinisterra,Ana Lucía,Sinisterra Ana Lucía,PRIMARIA,0102,1°-02,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
-D046,46,Tenorio Cuero,Lucy Bivian,Tenorio Cuero Lucy Bivian,PRIMARIA,0203,2°-03,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
+D041,41,Quintero Ramírez,María del Carmen,Quintero Ramírez María del Carmen,SECUNDARIA,,7°-2,CSI,,SI,
+D042,42,Quiñones Cabezas,Marcos Vidal,Quiñones Cabezas Marcos Vidal,SECUNDARIA,,6°-1,MAT/TEI,,SI,
+D043,43,Ramírez Guerra,Jimmy Eduardo,Ramírez Guerra Jimmy Eduardo,SECUNDARIA,,7°-4,ERD,,SI,
+D044,44,Samaniego Angulo,Flor Mireya,Samaniego Angulo Flor Mireya,SECUNDARIA,,Caminar en Secundaria 2-2,ART,,SI,
+D045,45,Sinisterra,Ana Lucía,Sinisterra Ana Lucía,PRIMARIA,0102,1°-2,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
+D046,46,Tenorio Cuero,Lucy Bivian,Tenorio Cuero Lucy Bivian,PRIMARIA,0203,2°-3,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
 D047,47,Terán Guevara,Jorge Alberto,Terán Guevara Jorge Alberto,REEMPLAZADO,,,,,NO,Reemplazado por Armero Dájome Jesús (OPS): su horario lo atiende Armero
-D048,48,Torres Segura,Encarnación,Torres Segura Encarnación,PRIMARIA,0301,3°-01,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
-D049,49,Valencia Marínez,Saidy Eufemia,Valencia Marínez Saidy Eufemia,SECUNDARIA,,11°-01,ART,,SI,
-D050,50,Valencia Solís,Gloria Alexa,Valencia Solís Gloria Alexa,PREESCOLAR,0001,0°-01,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
-D051,51,Valverde Montaño,María Teresa,Valverde Montaño María Teresa,SECUNDARIA,,8°-01,CAS,,SI,
-D052,52,Vásquez Valencia,Segundo Leoncio,Vásquez Valencia Segundo Leoncio,SECUNDARIA,,CS 1-2,MAT,,SI,
-D053,53,Villota Rubio,Héctor Hugo,Villota Rubio Héctor Hugo,SECUNDARIA,,9°-02,CNA,,SI,
-D054,54,Villota Rubio,Janeth del Carmen,Villota Rubio Janeth del Carmen,SECUNDARIA,,10°-02,MAT,,SI,
-D055,55,Zamora Ordóñez,Celia Pastora,Zamora Ordóñez Celia Pastora,PRIMARIA,0401,4°-01,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
+D048,48,Torres Segura,Encarnación,Torres Segura Encarnación,PRIMARIA,0301,3°-1,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
+D049,49,Valencia Marínez,Saidy Eufemia,Valencia Marínez Saidy Eufemia,SECUNDARIA,,11°-1,ART,,SI,
+D050,50,Valencia Solís,Gloria Alexa,Valencia Solís Gloria Alexa,PREESCOLAR,0001,0°-1,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
+D051,51,Valverde Montaño,María Teresa,Valverde Montaño María Teresa,SECUNDARIA,,8°-1,CAS,,SI,
+D052,52,Vásquez Valencia,Segundo Leoncio,Vásquez Valencia Segundo Leoncio,SECUNDARIA,,Caminar en Secundaria 1-2,MAT,,SI,
+D053,53,Villota Rubio,Héctor Hugo,Villota Rubio Héctor Hugo,SECUNDARIA,,9°-2,CNA,,SI,
+D054,54,Villota Rubio,Janeth del Carmen,Villota Rubio Janeth del Carmen,SECUNDARIA,,10°-2,MAT,,SI,
+D055,55,Zamora Ordóñez,Celia Pastora,Zamora Ordóñez Celia Pastora,PRIMARIA,0401,4°-1,,,SI,Grupo según DIRECCIÓN DE GRUPO 2026
 D056,56,Ortiz Estacio,Martha Cecilia,Ortiz Estacio Martha Cecilia,TUTORA PTAFI,,,,,SI,"Tutora PTAFI (Todos a Aprender - Formación Integral), transitoria: apoya preescolar y primaria (procesos básicos, centros de interés)"
-D057,57,Armero Dájome,Jesús,Armero Dájome Jesús,SECUNDARIA,,6°-02,ERD,,SI,OPS - reemplaza a Terán Guevara Jorge Alberto: atiende su horario
+D057,57,Armero Dájome,Jesús,Armero Dájome Jesús,SECUNDARIA,,6°-2,ERD,,SI,OPS - reemplaza a Terán Guevara Jorge Alberto: atiende su horario

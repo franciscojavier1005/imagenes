@@ -28,7 +28,7 @@ datos = {
     "motivos": rd("motivos.csv"),
     "listas": rd("listas.csv"),
     "directivos": [d["nombre"] for d in csv.DictReader(open(os.path.join(D, "directivos.csv"), encoding="utf-8-sig"))]
-                  if os.path.exists(os.path.join(D, "directivos.csv")) else ["Francisco Javier Cortés", "Carmen Verónica Barreiro Caicedo", "Harold Wilson Angulo Merchancano", "Jorge Enrique Hernández Cortés"],
+                  if os.path.exists(os.path.join(D, "directivos.csv")) else ["Francisco Javier Cortés", "Verónica Barreiro", "Harold Angulo", "Jorge Hernández"],
 }
 
 mock = """<script>
@@ -57,6 +57,8 @@ var DATOS = %s;
         nota:[h.alternancia,h.equipo_enfasis?'Con: '+h.equipo_enfasis:''].filter(Boolean).join(' · '),
         dir:h.tipo==='AREAS_MULTIPLES'?'':(d.dir||''),modalidad:d.modalidad||'',previo:null};
     });
+    function ck(c){var g=String(c).split('+')[0],m=g.match(/^CS([12])0?(\\d)$/);if(m)return(m[1]==='1'?6:9)*1000+500+Number(m[2]);m=g.match(/^(\\d\\d)(\\d\\d)$/);return m?Number(m[1])*1000+Number(m[2]):99000;}
+    out.filas.sort(function(a,b){return ck(a.grupoCodigo)-ck(b.grupoCodigo);});
     return out;
   }
   function csv(p){

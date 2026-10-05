@@ -236,6 +236,7 @@ function marcar(id,estado){
   if(estado==='Presente'){ m={estado:'Presente'}; }
   else { m.motivo=m.motivo||'Sin justificación'; if(estado==='No asistió') m.minutos=45; else if(Number(m.minutos)===45&&m.estado!=='No asistió') m.minutos=''; }
   marcas[d]=m; pintar();
+  if(m.estado&&m.estado!=='Presente'){ var c=el('d_'+id); if(c&&c.scrollIntoView) c.scrollIntoView({block:'center',behavior:'smooth'}); }   // se despliegan las opciones de la novedad
 }
 function campo(id,k,v,repintar){
   var d=nombrePorId(id), m=marcas[d]||{}; m[k]=v;

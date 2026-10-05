@@ -104,9 +104,9 @@ gr = hoja(wb, "Grupos", leer("grupos.csv"))
 mot = hoja(wb, "Motivos", leer("motivos.csv"))
 dir_ = hoja(wb, "Directivos", [["nombre", "rol", "correo_temporal"],
     ["Francisco Javier Cortés", "Coordinador académico", "coordinador.academico.temporal@example.com"],
-    ["Carmen Verónica Barreiro Caicedo", "Coordinadora de redes de apoyo", "coordinadora.redes.temporal@example.com"],
-    ["Harold Wilson Angulo Merchancano", "Coordinador de convivencia", "coordinador.convivencia.temporal@example.com"],
-    ["Jorge Enrique Hernández Cortés", "Rector", "rector.temporal@example.com"]])
+    ["Verónica Barreiro", "Coordinadora de redes de apoyo", "coordinadora.redes.temporal@example.com"],
+    ["Harold Angulo", "Coordinador de convivencia", "coordinador.convivencia.temporal@example.com"],
+    ["Jorge Hernández", "Rector", "rector.temporal@example.com"]])
 lis = hoja(wb, "Listas", leer("listas.csv"))
 
 # ------------------------------------------------------------------ Dirección de grupo
@@ -192,7 +192,7 @@ for c in ("K", "L"):
     ro.column_dimensions[c].hidden = True
 
 # ------------------------------------------------------------------ Matriz_Grupos (quién atiende a cada grupo, por día y sesión)
-grupos = sorted(GR, key=lambda g: (g.startswith("CS"), g))
+grupos = list(GR)   # el orden de grupos.csv: preescolar a 11°, con Caminar en Secundaria 1 tras los sextos y el 2 tras los novenos
 mx = wb.create_sheet("Matriz_Grupos")
 mx.append(["día", "sesión", "franja"] + [GR[g]["nombre"] for g in grupos])
 fr_txt = {int(r[0]): f"{r[3]}-{r[4]}" for r in leer("franjas.csv")[1:]}

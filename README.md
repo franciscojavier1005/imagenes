@@ -47,7 +47,7 @@ Nada pasa a `Novedades` sin esa confirmación y no se duplica una ausencia ya re
 - Un solo selector **Motivo** (empieza en "Sin justificación"); ya no hay un selector aparte de "Justificación" que repetía lo mismo. Si el motivo es "Sin justificación" la ausencia cuenta como injustificada.
 - **¿Quién atendió al grupo?** (nadie / reemplazo / practicante / otro docente o directivo): se anota, pero **no cambia** que el docente no asistió.
 - Imagen institucional: escudo de ICET (recortado de `LOGO ORIENTACIÓN ESCOLAR ICET 40.jpg`, copia en `apps_script/recursos/`), azul marino y dorado.
-- Directivos: Francisco Javier Cortés (coordinador académico), Carmen Verónica Barreiro Caicedo (coordinadora de redes de apoyo), Harold Wilson Angulo Merchancano (coordinador de convivencia) y Jorge Enrique Hernández Cortés (rector); correos aún temporales.
+- Directivos: Francisco Javier Cortés (coordinador académico), Verónica Barreiro (coordinadora de redes de apoyo), Harold Angulo (coordinador de convivencia) y Jorge Hernández (rector); correos aún temporales.
 
 ## Ingreso de docentes
 El docente entra con una **cuenta de Google** (Gmail o un correo cualquiera vinculado a una cuenta Google). El ingreso con Facebook **no es posible** en Google Apps Script. Los correos de los docentes se

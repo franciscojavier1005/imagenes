@@ -102,10 +102,21 @@ def grupo_info(g):
     if g == "PTAFI":
         return "TRANSVERSAL", "Preescolar y primaria", "Tutora PTAFI (preescolar y primaria)"
     if g.startswith("CS1"):
-        return "CAMINAR EN SECUNDARIA 1", "6°-7°", f"CS 1-{g[-1]}"
+        return "CAMINAR EN SECUNDARIA 1", "6°-7°", f"Caminar en Secundaria 1-{g[-1]}"
     if g.startswith("CS2"):
-        return "CAMINAR EN SECUNDARIA 2", "8°-9°", f"CS 2-{g[-1]}"
-    return "REGULAR", str(int(g[:2])) + "°", f"{int(g[:2])}°-{g[2:]}"
+        return "CAMINAR EN SECUNDARIA 2", "8°-9°", f"Caminar en Secundaria 2-{g[-1]}"
+    return "REGULAR", str(int(g[:2])) + "°", f"{int(g[:2])}°-{int(g[2:])}"
+
+
+def clave_grupo(g):
+    """Orden de lista: preescolar, 1° ... 11°; Caminar en Secundaria 1 va justo después de los sextos y el 2 justo después de los novenos."""
+    if g.startswith("CS1"):
+        return (6, 5, int(g[-1]))
+    if g.startswith("CS2"):
+        return (9, 5, int(g[-1]))
+    if g[:2].isdigit():
+        return (int(g[:2]), 0, int(g[2:]))
+    return (99, 0, 0 if g == "ORIENT" else 1)
 
 
 def modalidad(g):
@@ -270,18 +281,18 @@ if __name__ == "__main__":
                      "nombre_completo": f'{d["apellidos"]} {d["nombres"]}',
                      "nivel": (NIVEL_ESPECIAL.get(d["n"]) or BASICA[d["n"]][0]) if (d["n"] in NIVEL_ESPECIAL or d["n"] in BASICA) else ("SECUNDARIA" if d["n"] in sec or d["n"] in DIR_BACH else "POR DEFINIR"),
                      "grupo_titular": BASICA[d["n"]][1] if d["n"] in BASICA else "",
-                     "direccion_grupo": "; ".join(grupo_info(g)[2] for g in sorted(DIR_DE.get(d["n"], []))),
+                     "direccion_grupo": "; ".join(grupo_info(g)[2] for g in sorted(DIR_DE.get(d["n"], []), key=clave_grupo)),
                      "nota": NOTAS_DOCENTE.get(d["n"]) or ("Grupo según DIRECCIÓN DE GRUPO 2026" if d["n"] in BASICA else ""),
                      "areas": "/".join(sorted(areas.get(d["n"], []))), "correo": "", "tiene_horario": "SI" if d["n"] in con_horario else "NO"})
     escribir("docentes.csv", dres, ["codigo", "n", "apellidos", "nombres", "nombre_completo", "nivel", "grupo_titular", "direccion_grupo", "areas", "correo", "tiene_horario", "nota"])
     cols = ["docente_n", "docente", "dia", "hora", "bloque", "sesion", "inicio", "fin", "tipo", "grupo", "area", "enfasis_ref", "grupos_enfasis", "equipo_enfasis", "alternancia", "celda_original"]
     escribir("horario_maestro.csv", h, cols)
-    gs = sorted({r["grupo"] for r in h if r["grupo"]})
+    gs = sorted({r["grupo"] for r in h if r["grupo"]}, key=clave_grupo)
     escribir("grupos.csv", [dict(zip(["grupo", "tipo", "grado", "nombre"], (g,) + grupo_info(g)), modalidad=modalidad(g)) for g in gs],
              ["grupo", "tipo", "grado", "nombre", "modalidad"])
     nom = {d["n"]: f'{d["apellidos"]} {d["nombres"]}' for d in docs}
     filas_dir = []
-    for g in sorted(set(BASICA_PDF) | set(BACHILLERATO_PDF), key=lambda x: (x.startswith("CS"), x)):
+    for g in sorted(set(BASICA_PDF) | set(BACHILLERATO_PDF), key=clave_grupo):
         if g in BASICA_PDF:
             ds = [BASICA_PDF[g][1]]
         else:

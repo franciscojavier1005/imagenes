@@ -75,4 +75,13 @@ const perm=run('API_PERMISOS');
 ok(['guardarNotaRonda','listarPropuestas','resolverPropuesta'].every(k=>JSON.stringify(perm[k])==='["directivo"]'),'API: solo directivos');
 EMAIL='nadie@gmail.com'; e=null; try{run('guardarNotaRonda({texto:"hola mundo"})')}catch(x){e=x}
 ok(e&&/Solo un directivo/.test(e.message),'una persona sin rol directivo no puede registrar notas');
+// ronda: quién atendió al grupo (no cambia que el docente no asistió)
+EMAIL='dueno@gmail.com'; const reg0=hojas.Registro_Ronda.v.length, nv0=hojas.Novedades.v.length;
+const fr=filasV[0];
+run(`guardarRonda({dia:'VIERNES',sesion:3,fecha:'2026-10-02',registros:[{docente:${JSON.stringify(doc)},grupoCodigo:${JSON.stringify(grupo)},area:'X',estado:'No asistió',motivo:'Sin justificación',atiende:'Practicante'},{docente:'Otro',grupoCodigo:'0701',area:'X',estado:'Presente',atiende:'Practicante'}]})`);
+const rr=hojas.Registro_Ronda.v, rh=rr[0], rf=rr[rr.length-2], rp=rr[rr.length-1];
+ok(rr.length===reg0+2&&rf[rh.indexOf('estado')]==='No asistió'&&rf[rh.indexOf('atendido_por')]==='Practicante','ronda: la ausencia queda "No asistió" y se anota "Practicante" como quien atendió');
+ok(rp[rh.indexOf('atendido_por')]==='','un docente presente no lleva "atendido por"');
+const nf2=hojas.Novedades.v[hojas.Novedades.v.length-1];
+ok(hojas.Novedades.v.length>=nv0&&nf2[H.Novedades[0].indexOf('Grupo atendido por')]==='Practicante'&&nf2[H.Novedades[0].indexOf('Minutos Desatendidos')]===45,'Novedades: 45 min de ausencia y columna "Grupo atendido por"');
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

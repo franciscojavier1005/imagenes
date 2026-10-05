@@ -28,7 +28,7 @@ datos = {
     "motivos": rd("motivos.csv"),
     "listas": rd("listas.csv"),
     "directivos": [d["nombre"] for d in csv.DictReader(open(os.path.join(D, "directivos.csv"), encoding="utf-8-sig"))]
-                  if os.path.exists(os.path.join(D, "directivos.csv")) else ["Francisco Cortés", "Coordinador 2", "Coordinador 3", "Rector"],
+                  if os.path.exists(os.path.join(D, "directivos.csv")) else ["Francisco Javier Cortés", "Carmen Verónica Barreiro Caicedo", "Harold Wilson Angulo Merchancano", "Jorge Enrique Hernández Cortés"],
 }
 
 mock = """<script>

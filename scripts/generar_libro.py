@@ -103,10 +103,10 @@ fr = hoja(wb, "Franjas", [[c for c in leer("franjas.csv")[0]]] + [[int(x) if x.i
 gr = hoja(wb, "Grupos", leer("grupos.csv"))
 mot = hoja(wb, "Motivos", leer("motivos.csv"))
 dir_ = hoja(wb, "Directivos", [["nombre", "rol", "correo_temporal"],
-    ["Francisco Cortés", "Coordinador académico", "coordinador1.temporal@example.com"],
-    ["Coordinador 2", "Coordinador", "coordinador2.temporal@example.com"],
-    ["Coordinador 3", "Coordinador", "coordinador3.temporal@example.com"],
-    ["Rector", "Rector", "rector.temporal@example.com"]])
+    ["Francisco Javier Cortés", "Coordinador académico", "coordinador.academico.temporal@example.com"],
+    ["Carmen Verónica Barreiro Caicedo", "Coordinadora de redes de apoyo", "coordinadora.redes.temporal@example.com"],
+    ["Harold Wilson Angulo Merchancano", "Coordinador de convivencia", "coordinador.convivencia.temporal@example.com"],
+    ["Jorge Enrique Hernández Cortés", "Rector", "rector.temporal@example.com"]])
 lis = hoja(wb, "Listas", leer("listas.csv"))
 
 # ------------------------------------------------------------------ Dirección de grupo
@@ -227,7 +227,7 @@ mx.auto_filter.ref = mx.dimensions
 # ------------------------------------------------------------------ Novedades (esquema del formulario actual) y Registro_Ronda
 nov = hoja(wb, "Novedades", [["Marca temporal", "Fecha Novedad", "Docente", "Tipo Novedad", "Actividad de Aprendizaje", "Motivo Ausencia",
                               "Descripción", "Fuente Novedad", "Medio Información", "Grado", "Grupo", "Área/Asignatura", "Horario",
-                              "Minutos Desatendidos", "Directivo Docente", "Sesiones", "Justificada", "Categoría motivo"]])
+                              "Minutos Desatendidos", "Directivo Docente", "Sesiones", "Justificada", "Categoría motivo", "Grupo atendido por"]])
 bj = hoja(wb, "Bandeja_WhatsApp", [["fecha", "hora", "remitente", "docente", "tipo_novedad", "motivo", "categoria", "justificada", "confianza", "mensaje", "confirmar", "importado", "id", "origen", "sesion", "grupo"]])
 dvc = DataValidation(type="list", formula1='"SI,NO"', allow_blank=True)
 dvd2 = DataValidation(type="list", formula1="=Docentes!$E$2:$E$200", allow_blank=True)
@@ -243,7 +243,7 @@ hoja(wb, "Soportes", [["id", "fecha_carga", "docente", "clave", "inicio", "fin",
 hoja(wb, "Parametros", [["clave", "valor"], ["soportes_desde", "2026-10-05"], ["carpeta_soportes_id", ""], ["audio_conservar_dias", "30"]])
 hoja(wb, "Notas_Ronda", [["id", "fecha_registro", "fecha", "directivo", "sesion", "texto", "audio_id", "audio_url", "duracion_seg", "propuestas"]])
 hoja(wb, "Registro_Ronda", [["marca_temporal", "fecha", "dia", "sesion", "franja", "docente", "grupo", "area", "estado", "motivo",
-                             "justificada", "minutos", "observaciones", "directivo"]])
+                             "justificada", "minutos", "observaciones", "directivo", "atendido_por"]])
 
 orden = ["LEEME", "Ronda", "Docentes", "Horario", "Matriz_Grupos", "Direccion_Grupo", "Motivos", "Novedades", "Bandeja_WhatsApp", "Notas_Ronda", "Usuarios", "Soportes", "Parametros", "Registro_Ronda", "Directivos", "Listas", "Franjas", "Grupos"]
 wb._sheets = [wb[n] for n in orden]

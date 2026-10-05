@@ -28,7 +28,7 @@ H = rd("horario_maestro.csv")
 reales = rd("docentes.csv")
 motivos = rd("motivos.csv")
 mot = {m["motivo"]: m for m in motivos}
-directivos = ["Francisco Cortés", "Coordinador 2", "Coordinador 3"]
+directivos = ["Francisco Javier Cortés", "Carmen Verónica Barreiro Caicedo", "Harold Wilson Angulo Merchancano"]
 
 # ---- anonimización: n real -> nombre ficticio y nivel
 cont = defaultdict(int)

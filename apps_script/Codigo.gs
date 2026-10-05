@@ -132,7 +132,7 @@ function consultarSesion(dia, sesion) {
       dir: h.tipo === 'AREAS_MULTIPLES' ? '' : ((direccion[String(enf ? h.grupos_enfasis : h.grupo).split('+')[0]] || {}).dir || ''),
       modalidad: (direccion[String(enf ? h.grupos_enfasis : h.grupo).split('+')[0]] || {}).modalidad || '',
       reporte: reportes[h.docente] || null,
-      previo: ya ? { estado: ya.estado, motivo: ya.motivo, minutos: ya.minutos, observaciones: ya.observaciones } : null
+      previo: ya ? { estado: ya.estado, motivo: ya.motivo, minutos: ya.minutos, observaciones: ya.observaciones, atendidoPor: ya.atendido_por || '' } : null
     };
   });
   return out;
@@ -142,6 +142,8 @@ function consultarSesion(dia, sesion) {
  * Guarda las marcas de la ronda.
  * p = {directivo, dia, sesion, fecha?, registros:[{docente, grupoCodigo, area, estado, motivo, minutos, obs, fuente, medio}]}
  */
+var ATIENDE_GRUPO = ['Nadie (grupo solo)', 'Reemplazo (docente)', 'Practicante', 'Otro docente o directivo'];
+
 function guardarRonda(p) {
   if (REQ_EMAIL !== null) {               // llamada desde el front: el directivo es quien Google identificó, no lo que diga la pantalla
     var quien = identidad_();
@@ -163,10 +165,11 @@ function guardarRonda(p) {
     (p.registros || []).forEach(function (r) {
       var m = motivos[r.motivo] || {};
       var just = r.estado === 'Presente' ? '' : (m.justificada === 'SI' ? 'Sí' : 'No');
+      var atiende = r.estado === 'Presente' ? '' : (ATIENDE_GRUPO.indexOf(r.atiende) >= 0 ? r.atiende : '');   // quién cubrió el grupo; NO cuenta como asistencia del docente
       var minutos = r.estado === 'No asistió' ? 45 : (Number(r.minutos) || '');
       // 1) Registro_Ronda: una fila por docente-fecha-sesión (se reemplaza si ya existía)
       var fila = [ahora, fecha, p.dia, sesion, franja, r.docente, r.grupoCodigo, r.area, r.estado,
-                  r.motivo || '', just, minutos, r.obs || '', p.directivo || ''];
+                  r.motivo || '', just, minutos, r.obs || '', p.directivo || '', atiende];
       var idx = -1;
       for (var i = 1; i < regVals.length; i++) {
         var f = regVals[i][1] instanceof Date ? ymd_(regVals[i][1]) : String(regVals[i][1]);
@@ -190,7 +193,7 @@ function guardarRonda(p) {
         var nf = [ahora, fecha, r.docente, r.estado, r.actividad || 'N/A', r.motivo || '', r.obs || '',
                   r.fuente || FUENTE_RONDA, r.medio || MEDIO_RONDA, pg.grado, pg.grupo, r.area,
                   'H' + sesion + ' ' + franja + ' Bloque ' + Math.ceil(sesion / 2), minutos, p.directivo || '',
-                  'S' + sesion, just, m.categoria || ''];
+                  'S' + sesion, just, m.categoria || '', atiende];
         nov.appendRow(nf); novVals.push(nf);
       }
       guardados++;

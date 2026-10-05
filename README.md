@@ -43,6 +43,12 @@ Nada pasa a `Novedades` sin esa confirmación y no se duplica una ausencia ya re
   `pip install faster-whisper` y `python3 scripts/transcribir_audio.py ronda.m4a --analizar 2026-10-02` (usa `scripts/analizar_nota.js`; el texto resultante se puede pegar en el cuadro de observación).
 - Vista previa funcional en `ICET_Vista_Previa_Ronda.html` (el análisis corre de verdad en el navegador; no guarda nada).
 
+## Cambios de la ronda (última versión)
+- Un solo selector **Motivo** (empieza en "Sin justificación"); ya no hay un selector aparte de "Justificación" que repetía lo mismo. Si el motivo es "Sin justificación" la ausencia cuenta como injustificada.
+- **¿Quién atendió al grupo?** (nadie / reemplazo / practicante / otro docente o directivo): se anota, pero **no cambia** que el docente no asistió.
+- Imagen institucional: escudo de ICET (recortado de `LOGO ORIENTACIÓN ESCOLAR ICET 40.jpg`, copia en `apps_script/recursos/`), azul marino y dorado.
+- Directivos: Francisco Javier Cortés (coordinador académico), Carmen Verónica Barreiro Caicedo (coordinadora de redes de apoyo), Harold Wilson Angulo Merchancano (coordinador de convivencia) y Jorge Enrique Hernández Cortés (rector); correos aún temporales.
+
 ## Ingreso de docentes
 El docente entra con una **cuenta de Google** (Gmail o un correo cualquiera vinculado a una cuenta Google). El ingreso con Facebook **no es posible** en Google Apps Script. Los correos de los docentes se
 dejan vacíos por ahora (se registran ellos mismos al ingresar y el directivo aprueba); los de los directivos siguen siendo temporales (`@example.com`). La huella/firma queda pospuesta.

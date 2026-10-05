@@ -84,4 +84,28 @@ ok(rr.length===reg0+2&&rf[rh.indexOf('estado')]==='No asistió'&&rf[rh.indexOf('
 ok(rp[rh.indexOf('atendido_por')]==='','un docente presente no lleva "atendido por"');
 const nf2=hojas.Novedades.v[hojas.Novedades.v.length-1];
 ok(hojas.Novedades.v.length>=nv0&&nf2[H.Novedades[0].indexOf('Grupo atendido por')]==='Practicante'&&nf2[H.Novedades[0].indexOf('Minutos Desatendidos')]===45,'Novedades: 45 min de ausencia y columna "Grupo atendido por"');
+// ---- ausencia de toda la jornada: se registra una sola vez
+const nh3=H.Novedades[0], cc=k=>nh3.indexOf(k);
+const del=(d)=>hojas.Novedades.v.slice(1).filter(r=>r[cc('Docente')]===d&&r[cc('Tipo Novedad')]==='No asistió'&&String(r[cc('Fecha Novedad')]).slice(0,10)==='2026-10-02');
+const filasDoc=H.Horario.slice(1).filter(r=>r[hi('dia')]==='VIERNES'&&r[hi('docente')]===doc);
+const reg=(d,g,ses,extra)=>run(`guardarRonda({dia:'VIERNES',sesion:${ses},fecha:'2026-10-02',registros:[Object.assign({docente:${JSON.stringify(d)},grupoCodigo:${JSON.stringify(g)},area:'X',estado:'No asistió',motivo:'Mal estado de salud'},${JSON.stringify(extra||{})})]})`);
+reg(doc,grupo,3,{});                       // primero solo la sesión 3
+reg(doc,grupo,4,{alcance:'JC'});           // otro directivo la marca toda la jornada
+const filas=del(doc);
+ok(filas.length===1&&filas[0][cc('Sesiones')]==='JC'&&filas[0][cc('Minutos Desatendidos')]===filasDoc.length*45,`toda la jornada: una sola novedad JC que reemplaza las de sesión (${filas.length} fila, ${filas[0]&&filas[0][cc('Minutos Desatendidos')]} min = ${filasDoc.length} sesiones x 45)`);
+const nJ=hojas.Novedades.v.length; reg(doc,grupo,5,{});
+ok(hojas.Novedades.v.length===nJ,'una marca posterior "No asistió" del mismo docente no suma más tiempo');
+ok(hojas.Registro_Ronda.v.slice(1).filter(r=>r[5]===doc&&r[8]==='No asistió'&&String(r[1]).slice(0,10)==='2026-10-02').length>=3,'pero cada ronda queda verificada en Registro_Ronda');
+// preescolar: 4 periodos de 60 min entre 7:30 y 11:30
+const pre=H.Horario.slice(1).filter(r=>String(r[hi('grupo')]).startsWith('00')&&r[hi('dia')]==='VIERNES');
+const dp=pre[0][hi('docente')], gp=pre[0][hi('grupo')], mias=pre.filter(r=>r[hi('docente')]===dp);
+ok(mias.length===4&&mias[0][hi('inicio')]==='07:30'&&mias[3][hi('fin')]==='11:30','preescolar: 4 periodos, de 07:30 a 11:30 ('+mias.map(r=>r[hi('inicio')]+'-'+r[hi('fin')]).join(', ')+')');
+reg(dp,gp,3,{});
+let fp=hojas.Novedades.v[hojas.Novedades.v.length-1];
+ok(fp[cc('Minutos Desatendidos')]===60&&/07:30 - 08:30/.test(fp[cc('Horario')]),'preescolar: una sesión ausente = 60 min, periodo 07:30 - 08:30');
+reg(dp,gp,4,{alcance:'JC'});
+fp=hojas.Novedades.v[hojas.Novedades.v.length-1];
+ok(fp[cc('Sesiones')]==='JC'&&fp[cc('Minutos Desatendidos')]===240,'preescolar: toda la jornada = 240 min (4 horas)');
+reg(doc,grupo,6,{atiende:'Sin clase: los niños no asistieron (padres avisados)'});
+ok(hojas.Registro_Ronda.v[hojas.Registro_Ronda.v.length-1][14]==='Sin clase: los niños no asistieron (padres avisados)','opción "los niños no asistieron" se guarda');
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

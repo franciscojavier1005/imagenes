@@ -46,7 +46,7 @@ function importarBandeja_() {
       pg = gtxt ? partesGrupo_(String(gtxt).split('+')[0]) : { grado: 'N/A', grupo: 'N/A' };
       area = fs1 && fs1.area ? fs1.area : (fs1 ? '(énfasis)' : 'N/A');
       jornadaTxt = 'H' + ses; codSes = 'S' + ses;
-      minutos = noAsistio ? 45 : '';
+      minutos = noAsistio ? (fs1 ? minutosSesion_(fs1.tipo === 'ENFASIS' ? fs1.grupos_enfasis : fs1.grupo) : 45) : '';
     } else {
       var gr = {}, ar = {};
       mias.forEach(function (x) { gr[x.tipo === 'ENFASIS' ? x.grupos_enfasis : x.grupo] = 1; ar[x.area || '(énfasis)'] = 1; });
@@ -54,7 +54,7 @@ function importarBandeja_() {
       pg = grupos.length === 1 ? partesGrupo_(String(grupos[0]).split('+')[0]) : { grado: 'N/A', grupo: 'N/A' };
       area = areas.length === 1 ? areas[0] : (mias.length ? 'Todas' : 'N/A');
       jornadaTxt = 'Jornada completa'; codSes = 'JC';
-      minutos = noAsistio && mias.length ? mias.length * 45 : '';
+      minutos = noAsistio && mias.length ? mias.reduce(function (t, x) { return t + minutosSesion_(x.tipo === 'ENFASIS' ? x.grupos_enfasis : x.grupo); }, 0) : '';
     }
     var m = motivos[f[col.motivo]] || {};
     var fila = [new Date(), fecha, doc, tipo, 'N/A', f[col.motivo], String(f[col.mensaje] || '').slice(0, 300), 'Coordinador(a)', origen,

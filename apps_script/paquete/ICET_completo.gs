@@ -123,7 +123,7 @@ function consultarSesion(dia, sesion) {
     return h.dia === dia && Number(h.hora) === s;
   }).map(function (h) {
     var enf = h.tipo === 'ENFASIS';
-    var nota = [h.alternancia, h.equipo_enfasis ? 'Con: ' + h.equipo_enfasis : ''].filter(String).join(' · ');
+    var nota = [/^00/.test(String(h.grupo)) ? 'Preescolar ' + hhmm_(h.inicio) + ' - ' + hhmm_(h.fin) : '', h.alternancia, h.equipo_enfasis ? 'Con: ' + h.equipo_enfasis : ''].filter(String).join(' · ');
     var ya = yaMarcados[h.docente];
     return {
       docente: h.docente, grupoCodigo: enf ? h.grupos_enfasis : h.grupo,
@@ -152,7 +152,10 @@ function claveGrupo_(codigo) {
  * Guarda las marcas de la ronda.
  * p = {directivo, dia, sesion, fecha?, registros:[{docente, grupoCodigo, area, estado, motivo, minutos, obs, fuente, medio}]}
  */
-var ATIENDE_GRUPO = ['Nadie (grupo solo)', 'Reemplazo (docente)', 'Practicante', 'Otro docente o directivo'];
+var ATIENDE_GRUPO = ['Nadie (grupo solo)', 'Sin clase: los niños no asistieron (padres avisados)', 'Reemplazo (docente)', 'Practicante', 'Otro docente o directivo'];
+
+/** Minutos de una sesión: 45 en general; 60 en preescolar (4 horas de clase entre 7:30 y 11:30). */
+function minutosSesion_(grupoCodigo) { return /^00/.test(String(grupoCodigo).split('+')[0]) ? 60 : 45; }
 
 function guardarRonda(p) {
   if (REQ_EMAIL !== null) {               // llamada desde el front: el directivo es quien Google identificó, no lo que diga la pantalla
@@ -164,7 +167,8 @@ function guardarRonda(p) {
   try {
     var ahora = new Date(), fecha = p.fecha || ymd_(ahora), sesion = Number(p.sesion);
     var fr = datos_('Franjas').filter(function (f) { return Number(f.hora) === sesion; })[0];
-    var franja = hhmm_(fr.inicio) + ' - ' + hhmm_(fr.fin);
+    var franjaBase = hhmm_(fr.inicio) + ' - ' + hhmm_(fr.fin);
+    var hz = datos_('Horario');
     var motivos = {};
     datos_('Motivos').forEach(function (m) { motivos[m.motivo] = m; });
     var reg = hoja_('Registro_Ronda'), nov = hoja_('Novedades');
@@ -176,7 +180,10 @@ function guardarRonda(p) {
       var m = motivos[r.motivo] || {};
       var just = r.estado === 'Presente' ? '' : (m.justificada === 'SI' ? 'Sí' : 'No');
       var atiende = r.estado === 'Presente' ? '' : (ATIENDE_GRUPO.indexOf(r.atiende) >= 0 ? r.atiende : '');   // quién cubrió el grupo; NO cuenta como asistencia del docente
-      var minutos = r.estado === 'No asistió' ? 45 : (Number(r.minutos) || '');
+      var pre = /^00/.test(String(r.grupoCodigo));
+      var hrow = pre ? hz.filter(function (h) { return h.docente === r.docente && h.dia === p.dia && Number(h.hora) === sesion; })[0] : null;
+      var franja = hrow ? hhmm_(hrow.inicio) + ' - ' + hhmm_(hrow.fin) : franjaBase;   // preescolar tiene sus propios periodos
+      var minutos = r.estado === 'No asistió' ? minutosSesion_(r.grupoCodigo) : (Number(r.minutos) || '');
       // 1) Registro_Ronda: una fila por docente-fecha-sesión (se reemplaza si ya existía)
       var fila = [ahora, fecha, p.dia, sesion, franja, r.docente, r.grupoCodigo, r.area, r.estado,
                   r.motivo || '', just, minutos, r.obs || '', p.directivo || '', atiende];
@@ -195,6 +202,25 @@ function guardarRonda(p) {
           nov.deleteRow(j + 1); novVals.splice(j, 1);
         }
       }
+      var completa = r.estado === 'No asistió' && r.alcance === 'JC';
+      if (completa) {   // ausente toda la jornada: UNA sola novedad con el total de minutos; reemplaza las de sesiones y cualquier jornada ya registrada
+        var mias = hz.filter(function (h) { return h.docente === r.docente && h.dia === p.dia; });
+        var total = 0; mias.forEach(function (h) { total += minutosSesion_(h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo); });
+        for (var q = novVals.length - 1; q >= 1; q--) {
+          if (fechaIso_(novVals[q][1]) === fecha && novVals[q][2] === r.docente && /no asisti/i.test(String(novVals[q][3])) &&
+              (String(novVals[q][novCol]) === 'JC' || /^S\d$/.test(String(novVals[q][novCol])))) { nov.deleteRow(q + 1); novVals.splice(q, 1); }
+        }
+        var gs = {}, as = {};
+        mias.forEach(function (h) { gs[h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo] = 1; as[h.area || '(énfasis)'] = 1; });
+        var gk = Object.keys(gs), ak = Object.keys(as);
+        var pj = gk.length === 1 ? partesGrupo_(String(gk[0]).split('+')[0]) : { grado: 'N/A', grupo: 'N/A' };
+        var nj = [ahora, fecha, r.docente, r.estado, r.actividad || 'N/A', r.motivo || '', r.obs || '', r.fuente || FUENTE_RONDA, r.medio || MEDIO_RONDA,
+                  pj.grado, pj.grupo, ak.length === 1 ? ak[0] : (mias.length ? 'Todas' : r.area), 'Jornada completa', total || minutos, p.directivo || '',
+                  'JC', just, m.categoria || '', atiende];
+        nov.appendRow(nj); novVals.push(nj);
+        guardados++;
+        return;
+      }
       var jornada = r.estado === 'No asistió' && novVals.slice(1).some(function (x) {
         return fechaIso_(x[1]) === fecha && x[2] === r.docente && String(x[novCol]) === 'JC' && /no asisti/i.test(String(x[3]));
       });  // ya reportado como ausencia de jornada completa: se verifica en Registro_Ronda sin duplicar minutos en Novedades
@@ -202,7 +228,7 @@ function guardarRonda(p) {
         var pg = partesGrupo_(String(r.grupoCodigo).split('+')[0]);
         var nf = [ahora, fecha, r.docente, r.estado, r.actividad || 'N/A', r.motivo || '', r.obs || '',
                   r.fuente || FUENTE_RONDA, r.medio || MEDIO_RONDA, pg.grado, pg.grupo, r.area,
-                  'H' + sesion + ' ' + franja + ' Bloque ' + Math.ceil(sesion / 2), minutos, p.directivo || '',
+                  'H' + sesion + ' ' + franja + (pre ? '' : ' Bloque ' + Math.ceil(sesion / 2)), minutos, p.directivo || '',
                   'S' + sesion, just, m.categoria || '', atiende];
         nov.appendRow(nf); novVals.push(nf);
       }
@@ -829,7 +855,7 @@ function importarBandeja_() {
       pg = gtxt ? partesGrupo_(String(gtxt).split('+')[0]) : { grado: 'N/A', grupo: 'N/A' };
       area = fs1 && fs1.area ? fs1.area : (fs1 ? '(énfasis)' : 'N/A');
       jornadaTxt = 'H' + ses; codSes = 'S' + ses;
-      minutos = noAsistio ? 45 : '';
+      minutos = noAsistio ? (fs1 ? minutosSesion_(fs1.tipo === 'ENFASIS' ? fs1.grupos_enfasis : fs1.grupo) : 45) : '';
     } else {
       var gr = {}, ar = {};
       mias.forEach(function (x) { gr[x.tipo === 'ENFASIS' ? x.grupos_enfasis : x.grupo] = 1; ar[x.area || '(énfasis)'] = 1; });
@@ -837,7 +863,7 @@ function importarBandeja_() {
       pg = grupos.length === 1 ? partesGrupo_(String(grupos[0]).split('+')[0]) : { grado: 'N/A', grupo: 'N/A' };
       area = areas.length === 1 ? areas[0] : (mias.length ? 'Todas' : 'N/A');
       jornadaTxt = 'Jornada completa'; codSes = 'JC';
-      minutos = noAsistio && mias.length ? mias.length * 45 : '';
+      minutos = noAsistio && mias.length ? mias.reduce(function (t, x) { return t + minutosSesion_(x.tipo === 'ENFASIS' ? x.grupos_enfasis : x.grupo); }, 0) : '';
     }
     var m = motivos[f[col.motivo]] || {};
     var fila = [new Date(), fecha, doc, tipo, 'N/A', f[col.motivo], String(f[col.mensaje] || '').slice(0, 300), 'Coordinador(a)', origen,

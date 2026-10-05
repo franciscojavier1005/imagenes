@@ -37,8 +37,6 @@
 30,Montaño Anchico Favio Héctor,LUNES,1,1,1,06:30,07:15,ENFASIS,,CAS,D5-10°,1001,Arboleda Ortiz Luz América (ART); Ramírez Guerra Jimmy Eduardo (ERD); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-10°
 43,Ramírez Guerra Jimmy Eduardo,LUNES,1,1,1,06:30,07:15,ENFASIS,,ERD,D5-10°,1001,Arboleda Ortiz Luz América (ART); Montaño Anchico Favio Héctor (CAS); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-10°
 53,Villota Rubio Héctor Hugo,LUNES,1,1,1,06:30,07:15,ENFASIS,,CNA,D5-10°,1001,Arboleda Ortiz Luz América (ART); Montaño Anchico Favio Héctor (CAS); Ramírez Guerra Jimmy Eduardo (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-10°
-50,Valencia Solís Gloria Alexa,LUNES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,LUNES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,LUNES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,LUNES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,LUNES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -78,8 +76,8 @@
 30,Montaño Anchico Favio Héctor,LUNES,2,1,2,07:15,08:00,ENFASIS,,CAS,D5-10°,1001,Arboleda Ortiz Luz América (ART); Ramírez Guerra Jimmy Eduardo (ERD); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-10°
 43,Ramírez Guerra Jimmy Eduardo,LUNES,2,1,2,07:15,08:00,ENFASIS,,ERD,D5-10°,1001,Arboleda Ortiz Luz América (ART); Montaño Anchico Favio Héctor (CAS); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-10°
 53,Villota Rubio Héctor Hugo,LUNES,2,1,2,07:15,08:00,ENFASIS,,CNA,D5-10°,1001,Arboleda Ortiz Luz América (ART); Montaño Anchico Favio Héctor (CAS); Ramírez Guerra Jimmy Eduardo (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-10°
-50,Valencia Solís Gloria Alexa,LUNES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,LUNES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,LUNES,3,2,1,07:30,08:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,LUNES,3,2,1,07:30,08:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,LUNES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,LUNES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,LUNES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -120,8 +118,8 @@
 31,Montaño Arizala Leidis Claudina,LUNES,3,2,1,08:20,09:05,ENFASIS,,ETR,D5-11°,1102,Pulgarín Ortiz César Marino (CSI); Villota Rubio Janeth del Carmen (MAT); Angulo Lucero Andrés Mauricio (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
 40,Pulgarín Ortiz César Marino,LUNES,3,2,1,08:20,09:05,ENFASIS,,CSI,D5-11°,1102,Montaño Arizala Leidis Claudina (ETR); Villota Rubio Janeth del Carmen (MAT); Angulo Lucero Andrés Mauricio (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
 54,Villota Rubio Janeth del Carmen,LUNES,3,2,1,08:20,09:05,ENFASIS,,MAT,D5-11°,1102,Pulgarín Ortiz César Marino (CSI); Montaño Arizala Leidis Claudina (ETR); Angulo Lucero Andrés Mauricio (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
-50,Valencia Solís Gloria Alexa,LUNES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,LUNES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,LUNES,4,2,2,08:30,09:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,LUNES,4,2,2,08:30,09:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,LUNES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,LUNES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,LUNES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -162,8 +160,8 @@
 31,Montaño Arizala Leidis Claudina,LUNES,4,2,2,09:05,09:50,ENFASIS,,ETR,D5-11°,1102,Pulgarín Ortiz César Marino (CSI); Villota Rubio Janeth del Carmen (MAT); Angulo Lucero Andrés Mauricio (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
 40,Pulgarín Ortiz César Marino,LUNES,4,2,2,09:05,09:50,ENFASIS,,CSI,D5-11°,1102,Montaño Arizala Leidis Claudina (ETR); Villota Rubio Janeth del Carmen (MAT); Angulo Lucero Andrés Mauricio (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
 54,Villota Rubio Janeth del Carmen,LUNES,4,2,2,09:05,09:50,ENFASIS,,MAT,D5-11°,1102,Pulgarín Ortiz César Marino (CSI); Montaño Arizala Leidis Claudina (ETR); Angulo Lucero Andrés Mauricio (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
-50,Valencia Solís Gloria Alexa,LUNES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,LUNES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,LUNES,5,3,1,09:30,10:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,LUNES,5,3,1,09:30,10:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,LUNES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,LUNES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,LUNES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -208,8 +206,8 @@
 31,Montaño Arizala Leidis Claudina,LUNES,5,3,1,10:10,10:55,ENFASIS,,ETR,D5-10°,1002,Pulgarín Ortiz César Marino (CSI); Villota Rubio Janeth del Carmen (MAT); Angulo Lucero Andrés Mauricio (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-10°
 40,Pulgarín Ortiz César Marino,LUNES,5,3,1,10:10,10:55,ENFASIS,,CSI,D5-10°,1002,Montaño Arizala Leidis Claudina (ETR); Villota Rubio Janeth del Carmen (MAT); Angulo Lucero Andrés Mauricio (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-10°
 54,Villota Rubio Janeth del Carmen,LUNES,5,3,1,10:10,10:55,ENFASIS,,MAT,D5-10°,1002,Pulgarín Ortiz César Marino (CSI); Montaño Arizala Leidis Claudina (ETR); Angulo Lucero Andrés Mauricio (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-10°
-50,Valencia Solís Gloria Alexa,LUNES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,LUNES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,LUNES,6,3,2,10:30,11:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,LUNES,6,3,2,10:30,11:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,LUNES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,LUNES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,LUNES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -349,8 +347,6 @@
 26,Lozano Torres Amanda Inés,MARTES,1,1,1,06:30,07:15,ENFASIS,,ETR,CS101,CS101,García Gobea Saydi Magali (CSI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS101
 1,Aguirre Riascos Jorge Andrés,MARTES,1,1,1,06:30,07:15,ENFASIS,,TEI,CS102,CS102,Vásquez Valencia Segundo Leoncio (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS102
 52,Vásquez Valencia Segundo Leoncio,MARTES,1,1,1,06:30,07:15,ENFASIS,,MAT,CS102,CS102,Aguirre Riascos Jorge Andrés (TEI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS102
-50,Valencia Solís Gloria Alexa,MARTES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,MARTES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,MARTES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,MARTES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,MARTES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -395,8 +391,8 @@
 26,Lozano Torres Amanda Inés,MARTES,2,1,2,07:15,08:00,ENFASIS,,ETR,CS101,CS101,García Gobea Saydi Magali (CSI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS101
 1,Aguirre Riascos Jorge Andrés,MARTES,2,1,2,07:15,08:00,ENFASIS,,TEI,CS102,CS102,Vásquez Valencia Segundo Leoncio (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS102
 52,Vásquez Valencia Segundo Leoncio,MARTES,2,1,2,07:15,08:00,ENFASIS,,MAT,CS102,CS102,Aguirre Riascos Jorge Andrés (TEI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS102
-50,Valencia Solís Gloria Alexa,MARTES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,MARTES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,MARTES,3,2,1,07:30,08:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,MARTES,3,2,1,07:30,08:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,MARTES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,MARTES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,MARTES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -440,8 +436,8 @@
 25,Lemos Guancha Miriam,MARTES,3,2,1,08:20,09:05,ENFASIS,,CNA,CS201,CS201,Valencia Marínez Saidy Eufemia (ART); Meza Banguera Gladys Alicia (CAS); González Castillo Jólmer Jimy (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS201
 28,Meza Banguera Gladys Alicia,MARTES,3,2,1,08:20,09:05,ENFASIS,,CAS,CS201,CS201,Valencia Marínez Saidy Eufemia (ART); González Castillo Jólmer Jimy (ERD); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS201
 49,Valencia Marínez Saidy Eufemia,MARTES,3,2,1,08:20,09:05,ENFASIS,,ART,CS201,CS201,Meza Banguera Gladys Alicia (CAS); González Castillo Jólmer Jimy (ERD); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS201
-50,Valencia Solís Gloria Alexa,MARTES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,MARTES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,MARTES,4,2,2,08:30,09:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,MARTES,4,2,2,08:30,09:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,MARTES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,MARTES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,MARTES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -485,8 +481,8 @@
 25,Lemos Guancha Miriam,MARTES,4,2,2,09:05,09:50,ENFASIS,,CNA,CS201,CS201,Valencia Marínez Saidy Eufemia (ART); Meza Banguera Gladys Alicia (CAS); González Castillo Jólmer Jimy (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS201
 28,Meza Banguera Gladys Alicia,MARTES,4,2,2,09:05,09:50,ENFASIS,,CAS,CS201,CS201,Valencia Marínez Saidy Eufemia (ART); González Castillo Jólmer Jimy (ERD); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS201
 49,Valencia Marínez Saidy Eufemia,MARTES,4,2,2,09:05,09:50,ENFASIS,,ART,CS201,CS201,Meza Banguera Gladys Alicia (CAS); González Castillo Jólmer Jimy (ERD); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS201
-50,Valencia Solís Gloria Alexa,MARTES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,MARTES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,MARTES,5,3,1,09:30,10:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,MARTES,5,3,1,09:30,10:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,MARTES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,MARTES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,MARTES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -528,8 +524,8 @@
 6,Betancourth Ocampo Yohana Patricia,MARTES,5,3,1,10:10,10:55,ENFASIS,,CSI,CS202,CS202,Estacio Estupiñán Rosario (ETR); Bastidas Valencia Zeneida Judith (MAT); Mindineros Satizábal John Jáver (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS202
 18,Estacio Estupiñán Rosario,MARTES,5,3,1,10:10,10:55,ENFASIS,,ETR,CS202,CS202,Betancourth Ocampo Yohana Patricia (CSI); Bastidas Valencia Zeneida Judith (MAT); Mindineros Satizábal John Jáver (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS202
 29,Mindineros Satizábal John Jáver,MARTES,5,3,1,10:10,10:55,ENFASIS,,TEI,CS202,CS202,Betancourth Ocampo Yohana Patricia (CSI); Estacio Estupiñán Rosario (ETR); Bastidas Valencia Zeneida Judith (MAT),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS202
-50,Valencia Solís Gloria Alexa,MARTES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,MARTES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,MARTES,6,3,2,10:30,11:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,MARTES,6,3,2,10:30,11:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,MARTES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,MARTES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,MARTES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -664,8 +660,6 @@
 26,Lozano Torres Amanda Inés,MIERCOLES,1,1,1,06:30,07:15,ENFASIS,,ETR,CS101,CS101,García Gobea Saydi Magali (CSI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS101
 1,Aguirre Riascos Jorge Andrés,MIERCOLES,1,1,1,06:30,07:15,ENFASIS,,TEI,CS102,CS102,Vásquez Valencia Segundo Leoncio (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS102
 52,Vásquez Valencia Segundo Leoncio,MIERCOLES,1,1,1,06:30,07:15,ENFASIS,,MAT,CS102,CS102,Aguirre Riascos Jorge Andrés (TEI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS102
-50,Valencia Solís Gloria Alexa,MIERCOLES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,MIERCOLES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,MIERCOLES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,MIERCOLES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,MIERCOLES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -704,8 +698,8 @@
 26,Lozano Torres Amanda Inés,MIERCOLES,2,1,2,07:15,08:00,ENFASIS,,ETR,CS101,CS101,García Gobea Saydi Magali (CSI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS101
 1,Aguirre Riascos Jorge Andrés,MIERCOLES,2,1,2,07:15,08:00,ENFASIS,,TEI,CS102,CS102,Vásquez Valencia Segundo Leoncio (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS102
 52,Vásquez Valencia Segundo Leoncio,MIERCOLES,2,1,2,07:15,08:00,ENFASIS,,MAT,CS102,CS102,Aguirre Riascos Jorge Andrés (TEI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS102
-50,Valencia Solís Gloria Alexa,MIERCOLES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,MIERCOLES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,MIERCOLES,3,2,1,07:30,08:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,MIERCOLES,3,2,1,07:30,08:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,MIERCOLES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,MIERCOLES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,MIERCOLES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -749,8 +743,8 @@
 6,Betancourth Ocampo Yohana Patricia,MIERCOLES,3,2,1,08:20,09:05,ENFASIS,,CSI,CS202,CS202,Estacio Estupiñán Rosario (ETR); Bastidas Valencia Zeneida Judith (MAT); Mindineros Satizábal John Jáver (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS202
 18,Estacio Estupiñán Rosario,MIERCOLES,3,2,1,08:20,09:05,ENFASIS,,ETR,CS202,CS202,Betancourth Ocampo Yohana Patricia (CSI); Bastidas Valencia Zeneida Judith (MAT); Mindineros Satizábal John Jáver (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS202
 29,Mindineros Satizábal John Jáver,MIERCOLES,3,2,1,08:20,09:05,ENFASIS,,TEI,CS202,CS202,Betancourth Ocampo Yohana Patricia (CSI); Estacio Estupiñán Rosario (ETR); Bastidas Valencia Zeneida Judith (MAT),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS202
-50,Valencia Solís Gloria Alexa,MIERCOLES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,MIERCOLES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,MIERCOLES,4,2,2,08:30,09:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,MIERCOLES,4,2,2,08:30,09:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,MIERCOLES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,MIERCOLES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,MIERCOLES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -794,8 +788,8 @@
 6,Betancourth Ocampo Yohana Patricia,MIERCOLES,4,2,2,09:05,09:50,ENFASIS,,CSI,CS202,CS202,Estacio Estupiñán Rosario (ETR); Bastidas Valencia Zeneida Judith (MAT); Mindineros Satizábal John Jáver (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS202
 18,Estacio Estupiñán Rosario,MIERCOLES,4,2,2,09:05,09:50,ENFASIS,,ETR,CS202,CS202,Betancourth Ocampo Yohana Patricia (CSI); Bastidas Valencia Zeneida Judith (MAT); Mindineros Satizábal John Jáver (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS202
 29,Mindineros Satizábal John Jáver,MIERCOLES,4,2,2,09:05,09:50,ENFASIS,,TEI,CS202,CS202,Betancourth Ocampo Yohana Patricia (CSI); Estacio Estupiñán Rosario (ETR); Bastidas Valencia Zeneida Judith (MAT),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS202
-50,Valencia Solís Gloria Alexa,MIERCOLES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,MIERCOLES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,MIERCOLES,5,3,1,09:30,10:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,MIERCOLES,5,3,1,09:30,10:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,MIERCOLES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,MIERCOLES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,MIERCOLES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -837,8 +831,8 @@
 30,Montaño Anchico Favio Héctor,MIERCOLES,5,3,1,10:10,10:55,ENFASIS,,CAS,D5-11°,1101,Arboleda Ortiz Luz América (ART); Ramírez Guerra Jimmy Eduardo (ERD); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
 43,Ramírez Guerra Jimmy Eduardo,MIERCOLES,5,3,1,10:10,10:55,ENFASIS,,ERD,D5-11°,1101,Arboleda Ortiz Luz América (ART); Montaño Anchico Favio Héctor (CAS); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
 53,Villota Rubio Héctor Hugo,MIERCOLES,5,3,1,10:10,10:55,ENFASIS,,CNA,D5-11°,1101,Arboleda Ortiz Luz América (ART); Montaño Anchico Favio Héctor (CAS); Ramírez Guerra Jimmy Eduardo (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
-50,Valencia Solís Gloria Alexa,MIERCOLES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,MIERCOLES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,MIERCOLES,6,3,2,10:30,11:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,MIERCOLES,6,3,2,10:30,11:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,MIERCOLES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,MIERCOLES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,MIERCOLES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -982,8 +976,6 @@
 26,Lozano Torres Amanda Inés,JUEVES,1,1,1,06:30,07:15,ENFASIS,,ETR,CS101,CS101,García Gobea Saydi Magali (CSI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS101
 1,Aguirre Riascos Jorge Andrés,JUEVES,1,1,1,06:30,07:15,ENFASIS,,TEI,CS102,CS102,Vásquez Valencia Segundo Leoncio (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS102
 52,Vásquez Valencia Segundo Leoncio,JUEVES,1,1,1,06:30,07:15,ENFASIS,,MAT,CS102,CS102,Aguirre Riascos Jorge Andrés (TEI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS102
-50,Valencia Solís Gloria Alexa,JUEVES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,JUEVES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,JUEVES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,JUEVES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,JUEVES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -1025,8 +1017,8 @@
 26,Lozano Torres Amanda Inés,JUEVES,2,1,2,07:15,08:00,ENFASIS,,ETR,CS101,CS101,García Gobea Saydi Magali (CSI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS101
 1,Aguirre Riascos Jorge Andrés,JUEVES,2,1,2,07:15,08:00,ENFASIS,,TEI,CS102,CS102,Vásquez Valencia Segundo Leoncio (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS102
 52,Vásquez Valencia Segundo Leoncio,JUEVES,2,1,2,07:15,08:00,ENFASIS,,MAT,CS102,CS102,Aguirre Riascos Jorge Andrés (TEI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-CS102
-50,Valencia Solís Gloria Alexa,JUEVES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,JUEVES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,JUEVES,3,2,1,07:30,08:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,JUEVES,3,2,1,07:30,08:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,JUEVES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,JUEVES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,JUEVES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -1064,8 +1056,8 @@
 30,Montaño Anchico Favio Héctor,JUEVES,3,2,1,08:20,09:05,ENFASIS,,CAS,D5-11°,1101,Arboleda Ortiz Luz América (ART); Ramírez Guerra Jimmy Eduardo (ERD); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
 43,Ramírez Guerra Jimmy Eduardo,JUEVES,3,2,1,08:20,09:05,ENFASIS,,ERD,D5-11°,1101,Arboleda Ortiz Luz América (ART); Montaño Anchico Favio Héctor (CAS); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
 53,Villota Rubio Héctor Hugo,JUEVES,3,2,1,08:20,09:05,ENFASIS,,CNA,D5-11°,1101,Arboleda Ortiz Luz América (ART); Montaño Anchico Favio Héctor (CAS); Ramírez Guerra Jimmy Eduardo (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
-50,Valencia Solís Gloria Alexa,JUEVES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,JUEVES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,JUEVES,4,2,2,08:30,09:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,JUEVES,4,2,2,08:30,09:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,JUEVES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,JUEVES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,JUEVES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -1103,8 +1095,8 @@
 30,Montaño Anchico Favio Héctor,JUEVES,4,2,2,09:05,09:50,ENFASIS,,CAS,D5-11°,1101,Arboleda Ortiz Luz América (ART); Ramírez Guerra Jimmy Eduardo (ERD); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
 43,Ramírez Guerra Jimmy Eduardo,JUEVES,4,2,2,09:05,09:50,ENFASIS,,ERD,D5-11°,1101,Arboleda Ortiz Luz América (ART); Montaño Anchico Favio Héctor (CAS); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
 53,Villota Rubio Héctor Hugo,JUEVES,4,2,2,09:05,09:50,ENFASIS,,CNA,D5-11°,1101,Arboleda Ortiz Luz América (ART); Montaño Anchico Favio Héctor (CAS); Ramírez Guerra Jimmy Eduardo (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-11°
-50,Valencia Solís Gloria Alexa,JUEVES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,JUEVES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,JUEVES,5,3,1,09:30,10:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,JUEVES,5,3,1,09:30,10:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,JUEVES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,JUEVES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,JUEVES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -1149,8 +1141,8 @@
 6,Betancourth Ocampo Yohana Patricia,JUEVES,5,3,1,10:10,10:55,ENFASIS,,CSI,CS202,CS202,Estacio Estupiñán Rosario (ETR); Bastidas Valencia Zeneida Judith (MAT); Mindineros Satizábal John Jáver (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS202
 18,Estacio Estupiñán Rosario,JUEVES,5,3,1,10:10,10:55,ENFASIS,,ETR,CS202,CS202,Betancourth Ocampo Yohana Patricia (CSI); Bastidas Valencia Zeneida Judith (MAT); Mindineros Satizábal John Jáver (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS202
 29,Mindineros Satizábal John Jáver,JUEVES,5,3,1,10:10,10:55,ENFASIS,,TEI,CS202,CS202,Betancourth Ocampo Yohana Patricia (CSI); Estacio Estupiñán Rosario (ETR); Bastidas Valencia Zeneida Judith (MAT),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS202
-50,Valencia Solís Gloria Alexa,JUEVES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,JUEVES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,JUEVES,6,3,2,10:30,11:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,JUEVES,6,3,2,10:30,11:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,JUEVES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,JUEVES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,JUEVES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -1291,8 +1283,6 @@
 25,Lemos Guancha Miriam,VIERNES,1,1,1,06:30,07:15,ENFASIS,,CNA,CS201,CS201,Valencia Marínez Saidy Eufemia (ART); Meza Banguera Gladys Alicia (CAS); González Castillo Jólmer Jimy (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS201
 28,Meza Banguera Gladys Alicia,VIERNES,1,1,1,06:30,07:15,ENFASIS,,CAS,CS201,CS201,Valencia Marínez Saidy Eufemia (ART); González Castillo Jólmer Jimy (ERD); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS201
 49,Valencia Marínez Saidy Eufemia,VIERNES,1,1,1,06:30,07:15,ENFASIS,,ART,CS201,CS201,Meza Banguera Gladys Alicia (CAS); González Castillo Jólmer Jimy (ERD); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS201
-50,Valencia Solís Gloria Alexa,VIERNES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,VIERNES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,VIERNES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,VIERNES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,VIERNES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -1334,8 +1324,8 @@
 25,Lemos Guancha Miriam,VIERNES,2,1,2,07:15,08:00,ENFASIS,,CNA,CS201,CS201,Valencia Marínez Saidy Eufemia (ART); Meza Banguera Gladys Alicia (CAS); González Castillo Jólmer Jimy (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS201
 28,Meza Banguera Gladys Alicia,VIERNES,2,1,2,07:15,08:00,ENFASIS,,CAS,CS201,CS201,Valencia Marínez Saidy Eufemia (ART); González Castillo Jólmer Jimy (ERD); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS201
 49,Valencia Marínez Saidy Eufemia,VIERNES,2,1,2,07:15,08:00,ENFASIS,,ART,CS201,CS201,Meza Banguera Gladys Alicia (CAS); González Castillo Jólmer Jimy (ERD); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS201
-50,Valencia Solís Gloria Alexa,VIERNES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,VIERNES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,VIERNES,3,2,1,07:30,08:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,VIERNES,3,2,1,07:30,08:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,VIERNES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,VIERNES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,VIERNES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -1379,8 +1369,8 @@
 31,Montaño Arizala Leidis Claudina,VIERNES,3,2,1,08:20,09:05,ENFASIS,,ETR,D5-10°,1002,Pulgarín Ortiz César Marino (CSI); Villota Rubio Janeth del Carmen (MAT); Angulo Lucero Andrés Mauricio (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-10°
 40,Pulgarín Ortiz César Marino,VIERNES,3,2,1,08:20,09:05,ENFASIS,,CSI,D5-10°,1002,Montaño Arizala Leidis Claudina (ETR); Villota Rubio Janeth del Carmen (MAT); Angulo Lucero Andrés Mauricio (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-10°
 54,Villota Rubio Janeth del Carmen,VIERNES,3,2,1,08:20,09:05,ENFASIS,,MAT,D5-10°,1002,Pulgarín Ortiz César Marino (CSI); Montaño Arizala Leidis Claudina (ETR); Angulo Lucero Andrés Mauricio (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-10°
-50,Valencia Solís Gloria Alexa,VIERNES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,VIERNES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,VIERNES,4,2,2,08:30,09:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,VIERNES,4,2,2,08:30,09:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,VIERNES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,VIERNES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,VIERNES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -1424,8 +1414,8 @@
 31,Montaño Arizala Leidis Claudina,VIERNES,4,2,2,09:05,09:50,ENFASIS,,ETR,D5-10°,1002,Pulgarín Ortiz César Marino (CSI); Villota Rubio Janeth del Carmen (MAT); Angulo Lucero Andrés Mauricio (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-10°
 40,Pulgarín Ortiz César Marino,VIERNES,4,2,2,09:05,09:50,ENFASIS,,CSI,D5-10°,1002,Montaño Arizala Leidis Claudina (ETR); Villota Rubio Janeth del Carmen (MAT); Angulo Lucero Andrés Mauricio (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-10°
 54,Villota Rubio Janeth del Carmen,VIERNES,4,2,2,09:05,09:50,ENFASIS,,MAT,D5-10°,1002,Pulgarín Ortiz César Marino (CSI); Montaño Arizala Leidis Claudina (ETR); Angulo Lucero Andrés Mauricio (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-10°
-50,Valencia Solís Gloria Alexa,VIERNES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,VIERNES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,VIERNES,5,3,1,09:30,10:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,VIERNES,5,3,1,09:30,10:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,VIERNES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,VIERNES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,VIERNES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
@@ -1469,8 +1459,8 @@
 6,Betancourth Ocampo Yohana Patricia,VIERNES,5,3,1,10:10,10:55,ENFASIS,,CSI,CS202,CS202,Estacio Estupiñán Rosario (ETR); Bastidas Valencia Zeneida Judith (MAT); Mindineros Satizábal John Jáver (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS202
 18,Estacio Estupiñán Rosario,VIERNES,5,3,1,10:10,10:55,ENFASIS,,ETR,CS202,CS202,Betancourth Ocampo Yohana Patricia (CSI); Bastidas Valencia Zeneida Judith (MAT); Mindineros Satizábal John Jáver (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS202
 29,Mindineros Satizábal John Jáver,VIERNES,5,3,1,10:10,10:55,ENFASIS,,TEI,CS202,CS202,Betancourth Ocampo Yohana Patricia (CSI); Estacio Estupiñán Rosario (ETR); Bastidas Valencia Zeneida Judith (MAT),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-CS202
-50,Valencia Solís Gloria Alexa,VIERNES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-27,Martínez Álvarez Andrea Ascención,VIERNES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+50,Valencia Solís Gloria Alexa,VIERNES,6,3,2,10:30,11:30,AREAS_MULTIPLES,0001,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
+27,Martínez Álvarez Andrea Ascención,VIERNES,6,3,2,10:30,11:30,AREAS_MULTIPLES,0002,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 23,Landázuri Quiñones María Elia,VIERNES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0101,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 45,Sinisterra Ana Lucía,VIERNES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0102,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 13,Cortés Salazar María Ebelice,VIERNES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0201,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,

@@ -203,7 +203,9 @@ def main():
 # Docentes de preescolar y primaria: grupo según el PDF "DIRECCIÓN DE GRUPO ICET 2026" (publicación 3-mar-2026).
 from direccion_grupo import BASICA_PDF, BACHILLERATO_PDF  # noqa: E402
 BASICA = {v[1]: (v[2], g) for g, v in BASICA_PDF.items()}  # n_docente: (nivel, grupo)
-JORNADA_SESIONES = {"PRIMARIA": range(1, 7), "PREESCOLAR": range(2, 7)}  # primaria 6:30-12:00; preescolar 7:30-11:30
+JORNADA_SESIONES = {"PRIMARIA": range(1, 7), "PREESCOLAR": range(3, 7)}  # primaria 6:30-11:40
+# Preescolar: 4 horas de clase de 60 min entre 7:30 y 11:30, sin descanso propio. Cada periodo se muestra en la sesión de la ronda donde empieza.
+PERIODOS_PREESCOLAR = {3: ("07:30", "08:30"), 4: ("08:30", "09:30"), 5: ("09:30", "10:30"), 6: ("10:30", "11:30")}
 DIAS_SEM = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"]
 
 MOTIVOS = [  # (categoria, motivo, justificada, soporte sugerido, requiere_soporte, plazo_dias hábiles desde el reintegro)
@@ -253,6 +255,8 @@ if __name__ == "__main__":
         for dia in DIAS_SEM:
             for hora in JORNADA_SESIONES[nivel]:
                 b, ses, ini, fin = _S[hora]
+                if nivel == "PREESCOLAR":
+                    ini, fin = PERIODOS_PREESCOLAR[hora]
                 h.append({"docente_n": n, "docente": nombre_doc[n], "dia": dia, "hora": hora, "bloque": b, "sesion": ses,
                           "inicio": ini, "fin": fin, "tipo": "AREAS_MULTIPLES", "grupo": g, "area": "ÁREAS MÚLTIPLES",
                           "enfasis_ref": "", "grupos_enfasis": "", "equipo_enfasis": "",

@@ -313,7 +313,7 @@ function resGrupo_(grado, grupo) {
   grado = String(grado || '').trim(); grupo = String(grupo || '').trim();
   if (grado === 'ORI') return 'Orientación';
   if (grado === 'PTA') return 'Tutoría PTAFI';
-  if (/^CS\d$/.test(grado) && /^\d$/.test(grupo)) return 'Caminar en Secundaria ' + grado.charAt(2) + '-' + grupo;
+  if (/^CS\d$/.test(grado) && /^\d$/.test(grupo)) return 'CS ' + grado.charAt(2) + '-' + grupo;
   if (/^\d{1,2}$/.test(grado) && /^\d$/.test(grupo)) return Number(grado) + '°-' + grupo;
   return 'Sin grupo';
 }

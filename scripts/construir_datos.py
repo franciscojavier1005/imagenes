@@ -102,9 +102,9 @@ def grupo_info(g):
     if g == "PTAFI":
         return "TRANSVERSAL", "Preescolar y primaria", "Tutora PTAFI (preescolar y primaria)"
     if g.startswith("CS1"):
-        return "CAMINAR EN SECUNDARIA 1", "6°-7°", f"Caminar en Secundaria 1-{g[-1]}"
+        return "CAMINAR EN SECUNDARIA 1", "6°-7°", f"CS 1-{g[-1]}"
     if g.startswith("CS2"):
-        return "CAMINAR EN SECUNDARIA 2", "8°-9°", f"Caminar en Secundaria 2-{g[-1]}"
+        return "CAMINAR EN SECUNDARIA 2", "8°-9°", f"CS 2-{g[-1]}"
     return "REGULAR", str(int(g[:2])) + "°", f"{int(g[:2])}°-{int(g[2:])}"
 
 

@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="es" data-theme-auto>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ICET - Panel de asistencia docente</title>
+<link rel="icon" href="data:image/jpeg;base64,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">
+<style>
+  .viz-root{
+    color-scheme:light;
+    --surface-1:#fcfcfb; --surface-2:#f3f3f0; --grid:#e6e5e0; --track:#ecebe6;
+    --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#74736d;
+    --series-1:#2a78d6; --series-2:#eb6834; --accent:#1c5cab; --focus:#2a78d6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:where(:not([data-theme="light"])) .viz-root{
+      color-scheme:dark;
+      --surface-1:#1a1a19; --surface-2:#242423; --grid:#33332f; --track:#2b2b29;
+      --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#9a998f;
+      --series-1:#3987e5; --series-2:#d95926; --accent:#6da7ec; --focus:#6da7ec;
+    }
+  }
+  :root[data-theme="dark"] .viz-root{
+    color-scheme:dark;
+    --surface-1:#1a1a19; --surface-2:#242423; --grid:#33332f; --track:#2b2b29;
+    --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#9a998f;
+    --series-1:#3987e5; --series-2:#d95926; --accent:#6da7ec; --focus:#6da7ec;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--surface-1);color:var(--text-primary);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.4}
+  .viz-root{min-height:100vh;background:var(--surface-1);color:var(--text-primary);padding:16px}
+  .wrap{max-width:1200px;margin:0 auto}
+  header.top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;background:#0f2a5c;color:#fff;border-bottom:3px solid #f0c000;border-radius:10px;padding:10px 14px}
+  .marca{display:flex;align-items:center;gap:12px}
+  .marca img{width:46px;height:45px;border-radius:8px}
+  h1{margin:0;font-size:20px;font-weight:600}
+  .sub{color:var(--text-secondary);font-size:13px}
+  header.top .sub{color:#d6deee}
+  header.top .enlaces a,header.top .enlaces button{color:#f0c000}
+  .enlaces a,.enlaces button{color:var(--accent);font-size:13px;margin-left:12px;background:none;border:0;cursor:pointer;text-decoration:underline;font-family:inherit}
+  /* filtros: una fila sobre el contenido */
+  .filtros{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 18px;padding-bottom:14px;border-bottom:1px solid var(--grid)}
+  .filtros button.p{border:1px solid var(--grid);background:var(--surface-1);color:var(--text-primary);border-radius:8px;padding:9px 14px;font:inherit;min-height:40px;cursor:pointer}
+  .filtros button.p[aria-pressed=true]{background:var(--surface-2);border-color:var(--text-secondary);font-weight:600}
+  .filtros button.p[aria-pressed=true]::before{content:"✓ ";font-weight:700}
+  .filtros input[type=date]{border:1px solid var(--grid);background:var(--surface-1);color:var(--text-primary);border-radius:8px;padding:8px;font:inherit;min-height:40px}
+  .filtros label{font-size:13px;color:var(--text-secondary)}
+  .refresco{opacity:.5;transition:opacity .15s}
+  /* héroe + tarjetas de cifras */
+  .heroe{display:flex;flex-wrap:wrap;gap:16px 40px;align-items:flex-end;margin-bottom:14px}
+  .heroe .valor{font-size:56px;font-weight:600;line-height:1;letter-spacing:-.02em}
+  .heroe .unidad{font-size:18px;color:var(--text-secondary);font-weight:500;margin-left:6px}
+  .heroe .et{color:var(--text-secondary);font-size:14px;margin-bottom:6px}
+  .heroe .det{color:var(--text-secondary);font-size:14px}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+  .tile{background:var(--surface-2);border-radius:10px;padding:12px 14px}
+  .tile .et{font-size:12.5px;color:var(--text-secondary)}
+  .tile .v{font-size:26px;font-weight:600;margin-top:2px}
+  .tile .n{font-size:12px;color:var(--text-muted)}
+  /* tarjetas de gráficos */
+  .rejilla{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px}
+  .card{background:var(--surface-1);border:1px solid var(--grid);border-radius:12px;padding:14px 16px}
+  .card.ancha{grid-column:1/-1}
+  .card h2{margin:0;font-size:15px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .card .nota{font-size:12.5px;color:var(--text-secondary);margin:2px 0 10px}
+  .card button.vista{font:inherit;font-size:12px;border:1px solid var(--grid);background:var(--surface-1);color:var(--text-secondary);border-radius:6px;padding:4px 9px;cursor:pointer;min-height:28px}
+  .vacio{color:var(--text-muted);font-size:13px;padding:16px 0}
+  /* barras horizontales: <=16px de grosor, extremo redondeado de 4px, base cuadrada */
+  .fila{display:grid;grid-template-columns:minmax(96px,40%) 1fr;gap:10px;align-items:center;padding:4px 0;border-radius:6px}
+  .fila:hover,.fila:focus-visible{background:var(--surface-2);outline:none}
+  .fila:focus-visible{box-shadow:0 0 0 2px var(--focus)}
+  .fila .nom{font-size:13px;color:var(--text-primary);overflow-wrap:anywhere;line-height:1.25}
+  .fila .pista{display:flex;align-items:center;gap:8px;min-width:0}
+  .fila .barra{height:16px;border-radius:0 4px 4px 0;background:var(--series-1);min-width:2px;flex:none}
+  .fila .seg{height:16px;flex:none;min-width:0}
+  .fila .seg.j{background:var(--series-1)} .fila .seg.s{background:var(--series-2)}
+  .fila .seg:first-child{margin-right:2px} .fila .segs{display:flex;gap:0;flex:none}
+  .fila .seg.ult{border-radius:0 4px 4px 0}
+  .fila .val{font-size:12.5px;color:var(--text-secondary);white-space:nowrap}
+  .leyenda{display:flex;gap:16px;font-size:12.5px;color:var(--text-secondary);margin:0 0 8px}
+  .leyenda i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+  /* medidor de la ronda */
+  .medidor .carril{height:12px;background:var(--track);border-radius:0 4px 4px 0;overflow:hidden;flex:1}
+  .medidor .rell{height:12px;background:var(--series-1)}
+  /* tablas */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{font-weight:600;text-align:left;color:var(--text-secondary);border-bottom:1px solid var(--grid);padding:6px 8px;font-size:12.5px;position:sticky;top:0;background:var(--surface-1)}
+  td{border-bottom:1px solid var(--grid);padding:6px 8px;vertical-align:top}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .tabla-scroll{max-height:420px;overflow:auto}
+  .si{color:var(--text-primary)} .no{font-weight:600}
+  svg text{fill:var(--text-secondary);font-size:11px;font-family:inherit}
+  svg .rejilla-y{stroke:var(--grid);stroke-width:1}
+  svg .col{fill:var(--series-1)} svg .col.max{fill:var(--series-1)}
+  svg .gol:hover+.col,svg .gol:focus+.col{opacity:.8}
+  svg .gol{fill:transparent;outline:none}
+  svg .gol:focus-visible{stroke:var(--focus);stroke-width:2}
+  #tip{position:fixed;pointer-events:none;background:var(--text-primary);color:var(--surface-1);border-radius:8px;padding:7px 10px;font-size:12.5px;z-index:20;display:none;max-width:260px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  #tip b{font-size:14px;display:block}
+  .pie{margin:24px 0 8px;font-size:12px;color:var(--text-muted)}
+  .aviso-card{max-width:640px;margin:24px auto;background:var(--surface-2);border-radius:12px;padding:18px 20px}
+  .aviso-card h2{margin:0 0 8px;font-size:18px} .aviso-card p{margin:6px 0;color:var(--text-secondary)}
+  .campo{display:block;margin:12px 0 4px;font-size:13px;color:var(--text-secondary)}
+  .campo select,.campo input[type=text],.campo textarea{width:100%;padding:11px;border:1px solid var(--grid);border-radius:8px;background:var(--surface-1);color:var(--text-primary);font:inherit;min-height:44px}
+  .texto-legal{max-height:170px;overflow:auto;font-size:12.5px;line-height:1.45;border:1px solid var(--grid);border-radius:8px;padding:10px;background:var(--surface-1);color:var(--text-secondary)}
+  .check{display:flex;gap:10px;align-items:flex-start;margin:12px 0;font-size:14px}
+  .check input{width:22px;height:22px;flex:none;margin-top:1px}
+  .btn{background:var(--series-1);color:#fff;border:0;border-radius:10px;padding:12px 18px;font:inherit;font-weight:600;min-height:46px;cursor:pointer}
+  .btn.sec{background:var(--surface-1);color:var(--text-primary);border:1px solid var(--grid)}
+  .btn.rojo{background:var(--series-2)} .btn:disabled{opacity:.5}
+  .obl{border:1px solid var(--grid);border-radius:10px;padding:12px 14px;margin:10px 0;background:var(--surface-1)}
+  .obl .cab{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap}
+  .insignia{font-size:12px;font-weight:700;border-radius:12px;padding:3px 10px;border:1px solid var(--grid);color:var(--text-primary);background:var(--surface-2)}
+  .insignia.venc{border-color:var(--series-2)} .insignia.ok{border-color:var(--series-1)}
+  .plazo{font-size:13px;color:var(--text-secondary);margin:4px 0}
+  .obs{font-size:13px;color:var(--text-primary);background:var(--surface-2);border-radius:8px;padding:8px 10px;margin:6px 0}
+  .acciones{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .msg{font-size:13px;margin-top:6px;color:var(--text-secondary)}
+  @media print{.filtros,.enlaces,button.vista{display:none}.viz-root{padding:0}}
+</style>
+</head>
+<body>
+<div class="viz-root">
+<div class="wrap">
+  <header class="top">
+    <div class="marca"><img src="data:image/jpeg;base64,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" alt="Escudo ICET"><div><h1 id="titulo">Control de asistencia docente · ICET 2026</h1><div class="sub" id="rango">Cargando…</div></div></div>
+    <div class="enlaces"><a id="irRonda" href="#" target="_top" style="display:none">Ir a la ronda</a><button onclick="window.print()">Imprimir</button></div>
+  </header>
+
+  <div class="filtros" role="group" aria-label="Periodo y filtros">
+    <label id="gVista" style="display:none">Vista
+      <select id="vista" onchange="cambiaVista()"><option value="rector">Rectoría</option><option value="coordinacion">Coordinación</option><option value="docente">Informe del docente</option></select></label>
+    <button class="p" data-p="hoy" onclick="preset('hoy')">Hoy</button>
+    <button class="p" data-p="semana" onclick="preset('semana')">Esta semana</button>
+    <button class="p" data-p="mes" onclick="preset('mes')">Este mes</button>
+    <button class="p" data-p="30d" onclick="preset('30d')">Últimos 30 días</button>
+    <button class="p" data-p="otro" onclick="preset('otro')">Personalizado</button>
+    <span id="fechas" style="display:none;gap:8px;align-items:center">
+      <label>Desde <input type="date" id="desde" onchange="aplicaFechas()"></label>
+      <label>Hasta <input type="date" id="hasta" onchange="aplicaFechas()"></label>
+    </span>
+    <label id="gNivel" style="display:none">Nivel <select id="nivel" onchange="cambiaFiltro()"><option value="">Todos</option></select></label>
+    <label id="gDocente" style="display:none">Docente <select id="docente" onchange="cambiaFiltro()"><option value="">— elegir —</option></select></label>
+  </div>
+
+  <div id="contenido">
+    <div class="vacio">Cargando…</div>
+  </div>
+  <div class="pie" id="pie"></div>
+</div>
+</div>
+<div id="tip" role="tooltip"></div>
+
+<script>
+var R=null, periodo='hoy', vistaTabla={};
+function el(id){return document.getElementById(id);}
+function h(tag,attrs,hijos){var e=document.createElement(tag);
+  Object.keys(attrs||{}).forEach(function(k){ if(k==='class')e.className=attrs[k]; else if(k==='text')e.textContent=attrs[k]; else if(k.slice(0,2)==='on')e[k]=attrs[k]; else e.setAttribute(k,attrs[k]); });
+  (hijos||[]).forEach(function(c){ if(c!=null) e.appendChild(typeof c==='string'?document.createTextNode(c):c); }); return e;}
+function sv(tag,attrs,hijos){var e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  Object.keys(attrs||{}).forEach(function(k){ if(k==='text')e.textContent=attrs[k]; else e.setAttribute(k,attrs[k]); });
+  (hijos||[]).forEach(function(c){e.appendChild(c);}); return e;}
+
+/* ---------- fechas ---------- */
+function hoyBogota(){return window.__HOY||new Date().toLocaleDateString('en-CA',{timeZone:'America/Bogota'});}
+function suma(s,n){var d=new Date(s+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);}
+function dow(s){return new Date(s+'T12:00:00Z').getUTCDay();}
+function ultimoHabil(){var f=hoyBogota();while(dow(f)===0||dow(f)===6)f=suma(f,-1);return f;}
+var INI_DIA=['D','L','M','X','J','V','S'], NOM_DIA=['dom','lun','mar','mié','jue','vie','sáb'], NOM_MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function fcorta(s){var d=new Date(s+'T12:00:00Z');return d.getUTCDate()+' '+NOM_MES[d.getUTCMonth()];}
+function frango(a,b){return a===b?NOM_DIA[dow(a)]+' '+fcorta(a)+' '+a.slice(0,4):fcorta(a)+' al '+fcorta(b)+' '+b.slice(0,4);}
+
+function rangoPreset(p){
+  var hasta=ultimoHabil(), desde=hasta;
+  if(p==='semana'){ var d=dow(hasta); desde=suma(hasta,-(d-1)); }
+  if(p==='mes'){ desde=hasta.slice(0,8)+'01'; }
+  if(p==='30d'){ desde=suma(hasta,-29); }
+  return {desde:desde,hasta:hasta};
+}
+function preset(p){
+  periodo=p; marcaBotones();
+  el('fechas').style.display=(p==='otro')?'flex':'none';
+  var r=rangoPreset(p==='otro'?'hoy':p);
+  if(p==='otro'){ if(!el('desde').value){el('desde').value=r.desde;el('hasta').value=r.hasta;} aplicaFechas(); }
+  else cargar(r.desde,r.hasta);
+}
+function aplicaFechas(){var d=el('desde').value,a=el('hasta').value; if(d&&a&&d<=a) cargar(d,a);}
+function marcaBotones(){document.querySelectorAll('.filtros button.p').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.p===periodo?'true':'false');});}
+
+var CTX=null, vista='coordinacion', ultimo=null;
+function filtros(){return {nivel:vista==='docente'?'':el('nivel').value, docente:vista==='rector'?'':(vista==='docente'&&CTX&&CTX.rol==='docente'?CTX.docente:el('docente').value)};}
+function cargar(desde,hasta){
+  ultimo={desde:desde,hasta:hasta};
+  var f=filtros();
+  if(vista==='docente'&&!f.docente){ R=null; el('contenido').replaceChildren(h('div',{class:'vacio',text:'Elija un docente para ver su informe.'})); el('rango').textContent=frango(desde,hasta); return; }
+  el('contenido').classList.add('refresco');
+  google.script.run.withSuccessHandler(function(r){
+    R=r; el('contenido').classList.remove('refresco'); pintar();
+  }).withFailureHandler(function(e){
+    el('contenido').classList.remove('refresco'); el('contenido').replaceChildren(h('div',{class:'vacio',text:'Error: '+(e.message||e)}));
+  }).datosDashboard(desde,hasta,f);
+}
+function recarga(){ if(ultimo) cargar(ultimo.desde,ultimo.hasta); }
+function cambiaFiltro(){ recarga(); }
+function ajustaControles(){
+  var dir=CTX&&CTX.rol==='directivo';
+  el('gVista').style.display=dir?'inline':'none';
+  el('gNivel').style.display=(dir&&vista!=='docente')?'inline':'none';
+  el('gDocente').style.display=(dir&&vista!=='rector')?'inline':'none';
+  el('vista').value=vista;
+}
+function cambiaVista(){ vista=el('vista').value; ajustaControles(); recarga(); }
+
+/* ---------- formatos ---------- */
+function cap(t){t=String(t||'');return t.length<=4||t!==t.toUpperCase()?t:t.charAt(0)+t.slice(1).toLowerCase();}
+function capLista(l){return l.map(function(x){return Object.assign({},x,{nombre:cap(x.nombre)});});}
+function fmtMin(m){ if(m<60) return Math.round(m)+' min'; var hh=m/60; return (Math.round(hh*10)/10).toLocaleString('es-CO')+' h'; }
+function fmtPct(v){return v==null?'—':(Math.round(v*10)/10).toLocaleString('es-CO')+'%';}
+function fmtNum(v){return v==null?'—':Number(v).toLocaleString('es-CO');}
+
+/* ---------- información al pasar el cursor (nunca es la única vía: hay tabla) ---------- */
+var tip=el('tip');
+function conTip(nodo,titulo,detalle){
+  nodo.setAttribute('tabindex','0');
+  function mostrar(x,y){tip.replaceChildren(h('b',{text:titulo}),document.createTextNode(detalle)); tip.style.display='block';
+    var w=tip.offsetWidth; tip.style.left=Math.max(8,Math.min(innerWidth-w-8,x+12))+'px'; tip.style.top=Math.min(innerHeight-60,y+14)+'px';}
+  nodo.addEventListener('pointermove',function(e){mostrar(e.clientX,e.clientY);});
+  nodo.addEventListener('pointerleave',function(){tip.style.display='none';});
+  nodo.addEventListener('focus',function(){var r=nodo.getBoundingClientRect();mostrar(r.left+r.width/2,r.top);});
+  nodo.addEventListener('blur',function(){tip.style.display='none';});
+}
+
+/* ---------- componentes ---------- */
+function tarjeta(id,titulo,nota,grafico,tabla,ancha){
+  var t=vistaTabla[id];
+  var c=h('section',{class:'card'+(ancha?' ancha':'')},[
+    h('h2',{},[h('span',{text:titulo}),h('button',{class:'vista','aria-pressed':t?'true':'false',text:t?'Ver gráfico':'Ver tabla',onclick:function(){vistaTabla[id]=!vistaTabla[id];pintar();}})]),
+    nota?h('div',{class:'nota',text:nota}):null,
+    t?tabla:grafico]);
+  return c;
+}
+function tablaSimple(cols,filas,clsNum){
+  return h('div',{class:'tabla-scroll'},[h('table',{},[
+    h('thead',{},[h('tr',{},cols.map(function(c,i){return h('th',{class:clsNum&&clsNum.indexOf(i)>=0?'num':'',text:c});}))]),
+    h('tbody',{},filas.map(function(f){return h('tr',{},f.map(function(v,i){return h('td',{class:clsNum&&clsNum.indexOf(i)>=0?'num':'',text:String(v==null?'':v)});}));}))])]);
+}
+
+function barras(items,max,etiquetaTip){
+  if(!items.length) return h('div',{class:'vacio',text:'Sin novedades en este periodo.'});
+  var tope=max||Math.max.apply(null,items.map(function(i){return i.minutos;}))||1;
+  return h('div',{},items.map(function(it){
+    var f=h('div',{class:'fila'},[h('div',{class:'nom',text:it.nombre}),
+      h('div',{class:'pista'},[h('div',{class:'barra',style:'width:'+Math.max(0.8,it.minutos/tope*80)+'%'}),h('span',{class:'val',text:fmtMin(it.minutos)})])]);
+    conTip(f,it.nombre,fmtMin(it.minutos)+' sin atender ('+(Math.round(it.minutos/45*10)/10)+' sesiones de 45 min)');
+    return f;}));
+}
+
+function apiladas(items){
+  if(!items.length) return h('div',{class:'vacio',text:'Sin novedades en este periodo.'});
+  var tope=Math.max.apply(null,items.map(function(i){return i.justificada+i.sinJustificar;}))||1;
+  var ley=h('div',{class:'leyenda'},[h('span',{},[h('i',{style:'background:var(--series-1)'}),'Justificadas']),h('span',{},[h('i',{style:'background:var(--series-2)'}),'Sin justificar'])]);
+  return h('div',{},[ley].concat(items.map(function(it){
+    var tot=it.justificada+it.sinJustificar, ancho=(tot/tope*100);
+    var segs=[];
+    if(it.justificada>0) segs.push(h('div',{class:'seg j'+(it.sinJustificar>0?'':' ult'),style:'width:'+(it.justificada/tot*100)+'%'}));
+    if(it.sinJustificar>0) segs.push(h('div',{class:'seg s ult',style:'width:'+(it.sinJustificar/tot*100)+'%'}));
+    var f=h('div',{class:'fila'},[h('div',{class:'nom',text:it.nombre}),
+      h('div',{class:'pista'},[h('div',{class:'segs',style:'width:'+Math.max(0.8,ancho*0.8)+'%;gap:2px'},segs),h('span',{class:'val',text:fmtMin(tot)})])]);
+    conTip(f,it.nombre,'Justificadas: '+fmtMin(it.justificada)+' · Sin justificar: '+fmtMin(it.sinJustificar));
+    return f;})));
+}
+
+function columnas(serie){
+  var W=Math.max(300,Math.floor(el('contenido').clientWidth-36)),H=210,m={l:38,r:8,t:14,b:30}, pw=W-m.l-m.r, ph=H-m.t-m.b;
+  var max=Math.max.apply(null,serie.map(function(s){return s.minutos;}))||1;
+  var paso=[30,60,120,180,240,300,480,600,900,1200,1800,2400,3000].filter(function(p){return max/p<=4;})[0]||Math.ceil(max/4/60)*60;
+  var tope=Math.ceil(max/paso)*paso||paso;
+  var svg=sv('svg',{viewBox:'0 0 '+W+' '+H,width:W,height:H,role:'img','aria-label':'Minutos sin atender por día hábil'});
+  for(var v=0;v<=tope;v+=paso){var y=m.t+ph-(v/tope*ph); svg.appendChild(sv('line',{x1:m.l,x2:W-m.r,y1:y,y2:y,class:'rejilla-y'})); svg.appendChild(sv('text',{x:m.l-6,y:y+4,'text-anchor':'end',text:v>=60?(v/60)+' h':v}));}
+  var banda=pw/serie.length, ancho=Math.min(24,banda*0.6), iMax=serie.reduce(function(a,s,i){return s.minutos>serie[a].minutos?i:a;},0);
+  serie.forEach(function(s,i){
+    var x=m.l+banda*i+(banda-ancho)/2, alto=s.minutos/tope*ph, y=m.t+ph-alto;
+    var g=sv('g');
+    g.appendChild(sv('rect',{class:'gol',x:m.l+banda*i,y:m.t,width:banda,height:ph+m.b-4}));
+    if(s.minutos>0){var r=Math.min(4,alto); g.appendChild(sv('path',{class:'col',d:'M'+x+','+(m.t+ph)+'V'+(y+r)+'Q'+x+','+y+' '+(x+r)+','+y+'H'+(x+ancho-r)+'Q'+(x+ancho)+','+y+' '+(x+ancho)+','+(y+r)+'V'+(m.t+ph)+'Z'}));}
+    else g.appendChild(sv('rect',{x:x,y:m.t+ph-2,width:ancho,height:2,fill:'var(--grid)'}));
+    g.appendChild(sv('text',{x:x+ancho/2,y:H-10,'text-anchor':'middle',text:(banda<46?INI_DIA[dow(s.fecha)]+' ':NOM_DIA[dow(s.fecha)]+' ')+Number(s.fecha.slice(8))}));
+    if(i===iMax&&s.minutos>0||i===serie.length-1) g.appendChild(sv('text',{x:x+ancho/2,y:y-5,'text-anchor':'middle',text:fmtMin(s.minutos),style:'fill:var(--text-primary);font-weight:600'}));
+    conTip(g.firstChild,frango(s.fecha,s.fecha),fmtMin(s.minutos)+' sin atender · '+s.eventos+' novedades');
+    svg.appendChild(g);
+  });
+  return svg;
+}
+
+function ronda(filas){
+  return h('div',{class:'medidor'},filas.map(function(r){
+    var pct=r.esperados?Math.min(100,r.marcados/r.esperados*100):0;
+    var f=h('div',{class:'fila'},[h('div',{class:'nom',text:'Sesión '+r.sesion}),
+      h('div',{class:'pista'},[h('div',{class:'carril'},[h('div',{class:'rell',style:'width:'+pct+'%'})]),h('span',{class:'val',text:r.marcados+' de '+r.esperados})])]);
+    conTip(f,'Sesión '+r.sesion,r.marcados+' de '+r.esperados+' docentes verificados en la ronda');
+    return f;}));
+}
+
+/* ---------- pintar todo ---------- */
+function fFecha(s){return NOM_DIA[dow(s)]+' '+Number(s.slice(8))+' '+NOM_MES[Number(s.slice(5,7))-1];}
+function pintar(){
+  if(!R) return;
+  var k=R.kpis, c=el('contenido'); c.replaceChildren();
+  var esDoc=vista==='docente';
+  el('titulo').textContent=esDoc?'Informe de asistencia · '+R.filtros.docente:(vista==='rector'?'Panel de asistencia docente · Rectoría':'Panel de asistencia docente · Coordinación');
+  el('rango').textContent=frango(R.desde,R.hasta)+' · '+R.diasHabiles+(R.diasHabiles===1?' día hábil':' días hábiles')+(R.filtros.nivel&&!esDoc?' · '+cap(R.filtros.nivel):'');
+  marcaBotones();
+
+  c.appendChild(h('div',{class:'heroe'},[
+    h('div',{},[h('div',{class:'et',text:esDoc?'Horas de clase sin atender en el periodo':'Horas de clase sin atender'}),h('div',{},[h('span',{class:'valor',text:fmtNum(k.horas)}),h('span',{class:'unidad',text:'horas'})])]),
+    h('div',{class:'det',text:fmtNum(k.sesiones)+' sesiones de 45 minutos de '+fmtNum(k.programadas)+' programadas · cumplimiento '+fmtPct(k.cumplimiento)})]));
+
+  var tiles=esDoc
+    ?[['Ausencias',fmtNum(k.ausencias),'días sin asistir'],['Llegadas tarde',fmtNum(k.llegadasTarde),'registros'],['Salidas tempranas',fmtNum(k.salidasTempranas),'registros'],
+      ['Novedades justificadas',fmtPct(k.pctJustificadas),fmtNum(k.eventos)+' novedades'],['Sin justificar',fmtMin(k.minutosSinJustificar),'tiempo sin atender']]
+    :[['Docentes con novedad',fmtNum(k.docentesConNovedad),'en el periodo'],['Ausencias',fmtNum(k.ausencias),'docente-día sin asistir'],
+      ['Llegadas tarde',fmtNum(k.llegadasTarde),'registros'],['Salidas tempranas',fmtNum(k.salidasTempranas),'registros'],
+      ['Novedades justificadas',fmtPct(k.pctJustificadas),fmtNum(k.eventos)+' novedades'],['Sin justificar',fmtMin(k.minutosSinJustificar),'tiempo sin atender']];
+  c.appendChild(h('div',{class:'tiles'},tiles.map(function(t){return h('div',{class:'tile'},[h('div',{class:'et',text:t[0]}),h('div',{class:'v',text:t[1]}),h('div',{class:'n',text:t[2]})]);})));
+
+  var g=h('div',{class:'rejilla'});
+  g.appendChild(tarjeta('tend',esDoc?'Mi tiempo sin atender por día':'Tiempo sin atender por día','Últimos 10 días hábiles hasta '+fcorta(R.hasta),columnas(R.tendencia),
+    tablaSimple(['Fecha','Minutos','Novedades'],R.tendencia.map(function(s){return [frango(s.fecha,s.fecha),s.minutos,s.eventos];}),[1,2]),true));
+  g.appendChild(tarjeta('cat','Motivos de las novedades','Tiempo sin atender por categoría',barras(capLista(R.porCategoria)),
+    tablaSimple(['Categoría','Minutos'],R.porCategoria.map(function(x){return [cap(x.nombre),x.minutos];}),[1])));
+  if(!esDoc){
+    g.appendChild(tarjeta('niv','Por nivel','Justificado y sin justificar',apiladas(capLista(R.porNivel)),
+      tablaSimple(['Nivel','Justificadas (min)','Sin justificar (min)'],R.porNivel.map(function(x){return [cap(x.nombre),x.justificada,x.sinJustificar];}),[1,2])));
+    g.appendChild(tarjeta('grp','Grupos más afectados',vista==='rector'?'Los 8 grupos con más tiempo sin su docente':'Estudiantes sin su docente: los 10 grupos con más tiempo',
+      barras(R.porGrupo.slice(0,vista==='rector'?8:10)),tablaSimple(['Grupo','Minutos'],R.porGrupo.map(function(x){return [x.nombre,x.minutos];}),[1])));
+  }
+  if(vista==='coordinacion'){
+    g.appendChild(tarjeta('are','Áreas más afectadas','Las 8 áreas con más tiempo sin atender',barras(capLista(R.porArea.slice(0,8))),
+      tablaSimple(['Área','Minutos'],R.porArea.map(function(x){return [cap(x.nombre),x.minutos];}),[1])));
+    g.appendChild(tarjeta('ron','Ronda de verificación','Docentes verificados por sesión el '+frango(R.hasta,R.hasta),ronda(R.ronda),
+      tablaSimple(['Sesión','Verificados','Esperados'],R.ronda.map(function(x){return [x.sesion,x.marcados,x.esperados];}),[1,2])));
+  }
+  c.appendChild(g);
+
+  if(esDoc){
+    c.appendChild(h('section',{class:'card ancha',style:'margin-top:14px'},[h('h2',{text:'Mis novedades del periodo'}),
+      R.lista.length?tablaSimple(['Fecha','Grupo','Área','Novedad','Motivo','Minutos','Justificada'],
+        R.lista.map(function(x){return [fFecha(x.fecha),x.grupo,x.area,x.tipo,x.motivo,x.minutos,x.justificada];}),[5]):h('div',{class:'vacio',text:'Sin novedades en este periodo.'})]));
+  } else {
+    c.appendChild(h('section',{class:'card ancha',style:'margin-top:14px'},[h('h2',{text:'Novedades del '+frango(R.hasta,R.hasta)}),
+      R.dia.length?tablaSimple(['Docente','Grupo','Área','Novedad','Motivo','Minutos','Justificada','Registró'],
+        R.dia.map(function(x){return [x.docente,x.grupo,x.area,x.tipo,x.motivo,x.minutos,x.justificada,x.directivo];}),[5]):h('div',{class:'vacio',text:'Sin novedades registradas ese día.'})]));
+    if(vista==='coordinacion'){
+      c.appendChild(h('section',{class:'card ancha',style:'margin-top:14px'},[h('h2',{text:'Docentes con más tiempo sin atender en el periodo'}),
+        R.porDocente.length?tablaSimple(['Docente','Nivel','Novedades','Días','Minutos','Sin justificar (min)'],
+          R.porDocente.slice(0,15).map(function(x){return [x.docente,cap(x.nivel),x.eventos,x.dias,x.minutos,x.sinJustificar];}),[2,3,4,5]):h('div',{class:'vacio',text:'Sin novedades en este periodo.'})]));
+    }
+  }
+  if(CTX&&CTX.rol==='docente') cargarSoportes();
+  if(CTX&&CTX.rol==='directivo'&&vista==='coordinacion') cargarGestion();
+  el('pie').textContent=esDoc?'Este informe muestra solo sus registros. Para aclaraciones o para entregar soportes, comuníquese con coordinación. Actualizado: '+new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})+'.'
+    :'Información confidencial de uso directivo (Ley 1581 de 2012). Actualizado: '+new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})+'.';
+}
+
+/* ---------- pantallas por rol: registro, soportes y gestión ---------- */
+function ocultaFiltros(){ document.querySelector('.filtros').style.display='none'; el('rango').textContent=''; }
+function pantallaMensaje(titulo,parrafos){
+  ocultaFiltros();
+  el('contenido').replaceChildren(h('div',{class:'aviso-card'},[h('h2',{text:titulo})].concat(parrafos.map(function(t){return h('p',{text:t});}))));
+}
+/* Registro de la primera vez: elegir el nombre y aceptar la autorización. Después la cuenta se reconoce sola. */
+function pantallaRegistro(ctx){
+  ocultaFiltros();
+  var sel=h('select',{id:'regNombre'},[h('option',{value:'',text:'— Elija su nombre —'})].concat(ctx.docentes.map(function(n){return h('option',{value:n,text:n});})));
+  var chk=h('input',{type:'checkbox',id:'regAcepto'}), msg=h('div',{class:'msg'});
+  var btn=h('button',{class:'btn',text:'Solicitar acceso',onclick:function(){
+    if(!sel.value){msg.textContent='Elija su nombre de la lista.';return;}
+    if(!chk.checked){msg.textContent='Debe aceptar la autorización para continuar.';return;}
+    btn.disabled=true; msg.textContent='Enviando…';
+    google.script.run.withSuccessHandler(function(){ arranque(); }).withFailureHandler(function(e){btn.disabled=false;msg.textContent=e.message||String(e);})
+      .solicitarAcceso({docente:sel.value,autoriza:true});}});
+  el('contenido').replaceChildren(h('div',{class:'aviso-card'},[
+    h('h2',{text:'Registro de docente'}),
+    h('p',{text:'Solo se hace una vez. Su cuenta ('+ctx.email+') quedará asociada a su nombre y, cuando un directivo la apruebe, el sistema la reconocerá solo desde su celular o su computador.'}),
+    h('label',{class:'campo',text:'Su nombre en la institución'},[sel]),
+    h('label',{class:'campo',text:'Autorización de tratamiento de datos'}),
+    h('div',{class:'texto-legal',text:ctx.textoAutorizacion}),
+    h('label',{class:'check'},[chk,h('span',{text:'He leído y acepto la autorización de tratamiento de datos personales.'})]),
+    btn,msg]));
+}
+
+var MS=null;
+function cargarSoportes(){
+  var sec=h('section',{class:'card ancha',style:'margin-top:14px',id:'secSoportes'},[h('h2',{text:'Mis soportes'}),h('div',{class:'vacio',text:'Cargando…'})]);
+  el('contenido').appendChild(sec);
+  google.script.run.withSuccessHandler(function(ms){ MS=ms; pintarSoportes(sec); })
+    .withFailureHandler(function(e){sec.replaceChildren(h('h2',{text:'Mis soportes'}),h('div',{class:'vacio',text:'Error: '+(e.message||e)}));}).misSoportes();
+}
+function textoPlazo(o){
+  if(o.estado==='En curso') return 'El plazo empieza cuando se reintegre.';
+  if(o.estado==='Entregado') return 'Entregado: un directivo lo revisará.';
+  if(o.estado==='Aceptado') return 'Aceptado.';
+  if(o.estado==='No aplica') return 'No requiere soporte.';
+  var d=o.diasRestantes;
+  var lim='Fecha límite: '+fFecha(o.limite)+' ('+o.plazoDias+' días hábiles desde el reintegro).';
+  if(d<0) return lim+' Venció hace '+(-d)+(d===-1?' día hábil.':' días hábiles.');
+  return lim+(d===0?' Vence hoy.':' Quedan '+d+(d===1?' día hábil.':' días hábiles.'));
+}
+function pintarSoportes(sec){
+  sec.replaceChildren(h('h2',{text:'Mis soportes'}));
+  sec.appendChild(h('div',{class:'nota',text:'Después de una ausencia entregue su soporte (incapacidad, cita, acta, epicrisis, citación…): 3 días hábiles si la ausencia no está justificada y máximo 5 en los demás casos, contados desde que se reintegra.'}));
+  if(!MS.autorizado){
+    var chk=h('input',{type:'checkbox'}), btn=h('button',{class:'btn',text:'Aceptar y continuar',onclick:function(){
+      if(!chk.checked){btn.textContent='Marque la casilla para aceptar';return;}
+      btn.disabled=true; google.script.run.withSuccessHandler(function(){CTX.autorizado=true;cargarSoportesEn(sec);}).withFailureHandler(function(e){btn.disabled=false;btn.textContent=e.message||String(e);}).aceptarAutorizacion();}});
+    sec.appendChild(h('div',{class:'aviso-card',style:'margin:8px 0'},[h('h2',{text:'Autorización de tratamiento de datos'}),h('div',{class:'texto-legal',text:CTX.textoAutorizacion||''}),
+      h('label',{class:'check'},[chk,h('span',{text:'He leído y acepto la autorización.'})]),btn]));
+    return;
+  }
+  if(!MS.obligaciones.length){ sec.appendChild(h('div',{class:'vacio',text:'No tiene ausencias que requieran soporte.'})); return; }
+  MS.obligaciones.forEach(function(o){ sec.appendChild(tarjetaObligacion(o)); });
+}
+function cargarSoportesEn(sec){ google.script.run.withSuccessHandler(function(ms){MS=ms;pintarSoportes(sec);}).misSoportes(); }
+function tarjetaObligacion(o){
+  var mias=MS.cargados.filter(function(c){return c.clave===o.clave;});
+  var rech=mias.filter(function(c){return c.estado==='Rechazado'&&c.observacion;}).slice(-1)[0];
+  var cls=o.estado==='Vencido'?'venc':(o.estado==='Aceptado'||o.estado==='Entregado'?'ok':'');
+  var rango=o.inicio===o.fin?fFecha(o.inicio):fFecha(o.inicio)+' al '+fFecha(o.fin);
+  var card=h('div',{class:'obl'},[
+    h('div',{class:'cab'},[h('div',{},[h('div',{class:'nombre',text:'Ausencia: '+rango}),h('div',{class:'meta',text:o.motivos.join(' · ')+' · '+fmtMin(o.minutos)+' sin atender'})]),
+                          h('span',{class:'insignia '+cls,text:o.estado})]),
+    h('div',{class:'plazo',text:textoPlazo(o)})]);
+  if(rech) card.appendChild(h('div',{class:'obs',text:'Motivo del rechazo: '+rech.observacion}));
+  if(['Pendiente','Vencido','Rechazado','En curso'].indexOf(o.estado)>=0) card.appendChild(formularioSoporte(o));
+  return card;
+}
+function archivoABase64(file,maxMB,ok,fail){
+  if(file.type==='application/pdf'){
+    if(file.size>maxMB*1048576) return fail('El PDF supera '+maxMB+' MB.');
+    var r=new FileReader(); r.onload=function(){ok(r.result.split(',')[1],'application/pdf');}; r.onerror=function(){fail('No se pudo leer el archivo.');}; return r.readAsDataURL(file);
+  }
+  if(!/^image\//.test(file.type)) return fail('Use una foto (JPG, PNG) o un PDF.');
+  var img=new Image(), url=URL.createObjectURL(file);
+  img.onload=function(){ var m=1600, k=Math.min(1,m/Math.max(img.width,img.height)), c=document.createElement('canvas'); c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(url);
+    c.toBlob(function(b){ if(b.size>maxMB*1048576) return fail('La imagen sigue siendo muy grande.'); var r=new FileReader(); r.onload=function(){ok(r.result.split(',')[1],'image/jpeg');}; r.readAsDataURL(b); },'image/jpeg',0.82); };
+  img.onerror=function(){fail('No se pudo abrir la imagen.');}; img.src=url;
+}
+function formularioSoporte(o){
+  var tipo=h('select',{},[h('option',{value:'',text:'— Tipo de documento —'})].concat(MS.tiposDocumento.map(function(t){return h('option',{value:t,text:t});})));
+  var motivo=h('select',{},[h('option',{value:'',text:'— Motivo (si cambia el reportado) —'})].concat(MS.motivos.map(function(m){return h('option',{value:m,text:m});})));
+  var archivo=h('input',{type:'file',accept:'image/*,application/pdf'}), coment=h('input',{type:'text',placeholder:'Comentario (opcional)',maxlength:'300'}), msg=h('div',{class:'msg'});
+  var btn=h('button',{class:'btn',text:'Cargar soporte',onclick:function(){
+    if(!tipo.value){msg.textContent='Elija el tipo de documento.';return;}
+    if(!archivo.files[0]){msg.textContent='Tome una foto o elija un archivo.';return;}
+    btn.disabled=true; msg.textContent='Preparando el archivo…';
+    archivoABase64(archivo.files[0],MS.maxMB,function(b64,mime){
+      msg.textContent='Enviando…';
+      google.script.run.withSuccessHandler(function(r){ msg.textContent='Cargado'+(r.extemporaneo==='SI'?' (fuera de plazo)':'')+'.'; cargarSoportesEn(el('secSoportes')); })
+        .withFailureHandler(function(e){btn.disabled=false;msg.textContent=e.message||String(e);})
+        .subirSoporte({clave:o.clave,tipoDocumento:tipo.value,motivoDeclarado:motivo.value,mime:mime,base64:b64,comentario:coment.value});
+    },function(m){btn.disabled=false;msg.textContent=m;});}});
+  return h('div',{style:'margin-top:8px'},[h('label',{class:'campo',text:'Tipo de documento'},[tipo]),h('label',{class:'campo',text:'Motivo'},[motivo]),
+    h('label',{class:'campo',text:'Foto o PDF'},[archivo]),h('label',{class:'campo',text:'Comentario'},[coment]),h('div',{class:'acciones'},[btn]),msg]);
+}
+
+/* Gestión para coordinación: solicitudes de acceso y soportes */
+function cargarGestion(){
+  var sec=h('section',{class:'card ancha',id:'secGestion',style:'margin-top:14px'},[h('h2',{text:'Gestión: acceso de docentes y soportes'}),h('div',{class:'vacio',text:'Cargando…'})]);
+  el('contenido').insertBefore(sec,el('contenido').querySelector('.rejilla'));
+  var res={};
+  google.script.run.withSuccessHandler(function(a){res.sol=a;
+    google.script.run.withSuccessHandler(function(b){res.sop=b;pintarGestion(sec,res);}).withFailureHandler(function(e){sec.replaceChildren(h('h2',{text:'Gestión'}),h('div',{class:'vacio',text:'Error: '+(e.message||e)}));}).soportesPorRevisar();
+  }).withFailureHandler(function(e){sec.replaceChildren(h('h2',{text:'Gestión'}),h('div',{class:'vacio',text:'Error: '+(e.message||e)}));}).listarSolicitudes();
+}
+function accion(fn,args,sec){
+  google.script.run.withSuccessHandler(function(){ sec.remove(); cargarGestion(); }).withFailureHandler(function(e){alert(e.message||e);})[fn](args);
+}
+function pintarGestion(sec,res){
+  var r=res.sop.resumen;
+  sec.replaceChildren(h('h2',{text:'Gestión: acceso de docentes y soportes'}),
+    h('div',{class:'nota',text:'Soportes: '+r.vencidos+' vencidos · '+r.pendientes+' pendientes · '+r.porRevisar+' por revisar · '+r.rechazados+' rechazados · '+r.aceptados+' aceptados. Accesos: '+res.sol.pendientes.length+' por aprobar, '+res.sol.activos.length+' activos.'}));
+  if(res.sol.pendientes.length){
+    sec.appendChild(h('h3',{text:'Solicitudes de acceso',style:'font-size:14px;margin:12px 0 4px'}));
+    res.sol.pendientes.forEach(function(p){
+      sec.appendChild(h('div',{class:'obl'},[h('div',{class:'nombre',text:p.docente}),h('div',{class:'meta',text:p.email+' · '+p.fecha}),
+        h('div',{class:'acciones'},[h('button',{class:'btn',text:'Aprobar',onclick:function(){accion('resolverSolicitud',{email:p.email,accion:'APROBAR'},sec);}}),
+          h('button',{class:'btn sec',text:'Rechazar',onclick:function(){accion('resolverSolicitud',{email:p.email,accion:'RECHAZAR'},sec);}})])]));
+    });
+  }
+  if(res.sop.porRevisar.length){
+    sec.appendChild(h('h3',{text:'Soportes por revisar',style:'font-size:14px;margin:12px 0 4px'}));
+    res.sop.porRevisar.forEach(function(s){
+      var obs=h('input',{type:'text',placeholder:'Observación (obligatoria para rechazar)',maxlength:'300'});
+      sec.appendChild(h('div',{class:'obl'},[
+        h('div',{class:'cab'},[h('div',{},[h('div',{class:'nombre',text:s.docente}),h('div',{class:'meta',text:'Ausencia '+fFecha(s.inicio)+(s.fin!==s.inicio?' al '+fFecha(s.fin):'')+' · '+s.tipo+(s.motivoDeclarado?' · motivo declarado: '+s.motivoDeclarado:'')})]),
+          h('span',{class:'insignia'+(s.extemporaneo==='SI'?' venc':''),text:s.extemporaneo==='SI'?'Fuera de plazo':'En plazo'})]),
+        s.comentario?h('div',{class:'obs',text:s.comentario}):null,
+        h('div',{class:'acciones'},[h('a',{href:s.url,target:'_blank',rel:'noopener',class:'btn sec',style:'text-decoration:none;display:inline-flex;align-items:center',text:'Ver archivo'}),
+          h('button',{class:'btn',text:'Aceptar',onclick:function(){accion('revisarSoporte',{id:s.id,accion:'ACEPTAR',observacion:obs.value},sec);}}),
+          h('button',{class:'btn rojo',text:'Rechazar',onclick:function(){ if(!obs.value.trim()){alert('Escriba por qué se rechaza.');return;} accion('revisarSoporte',{id:s.id,accion:'RECHAZAR',observacion:obs.value},sec);}}),
+          h('button',{class:'btn sec',text:'No aplica',onclick:function(){accion('revisarSoporte',{id:s.id,accion:'NO_APLICA',observacion:obs.value},sec);}})]),
+        h('label',{class:'campo',text:'Observación'},[obs])]));
+    });
+  }
+  if(res.sop.vencidos.length){
+    sec.appendChild(h('h3',{text:'Plazo vencido sin soporte',style:'font-size:14px;margin:12px 0 4px'}));
+    sec.appendChild(tablaSimple(['Docente','Ausencia','Motivo','Venció','Días hábiles'],res.sop.vencidos.map(function(o){return [o.docente,fFecha(o.inicio)+(o.fin!==o.inicio?' al '+fFecha(o.fin):''),o.motivos.join(', '),fFecha(o.limite),-o.diasRestantes];}),[4]));
+  }
+  if(!res.sol.pendientes.length&&!res.sop.porRevisar.length&&!res.sop.vencidos.length) sec.appendChild(h('div',{class:'vacio',text:'Nada pendiente por gestionar.'}));
+}
+
+/* ---------- arranque: según quién abre el panel ---------- */
+function arranque(){
+  google.script.run.withSuccessHandler(function(ctx){
+    CTX=ctx;
+    if(ctx.rol==='sin_registro') return pantallaRegistro(ctx);
+    if(ctx.rol==='pendiente') return pantallaMensaje('Solicitud enviada',['Su solicitud de acceso está pendiente de aprobación por un directivo.','Cuando la aprueben, abra de nuevo este enlace: el sistema reconocerá su cuenta automáticamente.']);
+    if(ctx.rol==='bloqueado') return pantallaMensaje('Acceso no activo',['Su acceso no está activo. Comuníquese con coordinación.']);
+    if(ctx.rol==='anonimo') return pantallaMensaje('Inicie sesión',['No se pudo identificar su cuenta. Inicie sesión con su cuenta de Google y abra de nuevo el enlace.']);
+    document.querySelector('.filtros').style.display='';
+    vista=ctx.vistaInicial||'coordinacion';
+    if(ctx.rol==='directivo'){
+      el('nivel').replaceChildren(h('option',{value:'',text:'Todos'})); el('docente').replaceChildren(h('option',{value:'',text:'— elegir —'}));
+      (ctx.niveles||[]).forEach(function(n){el('nivel').appendChild(h('option',{value:n,text:cap(n)}));});
+      (ctx.docentes||[]).forEach(function(d){el('docente').appendChild(h('option',{value:d.nombre,text:d.nombre}));});
+    }
+    ajustaControles(); preset(ctx.rol==='docente'?'30d':'hoy');   // el docente abre con sus últimos 30 días
+  }).withFailureHandler(function(e){ el('contenido').replaceChildren(h('div',{class:'vacio',text:'Error: '+(e.message||e)})); }).contextoPanel();
+}
+
+try{ google.script.run.withSuccessHandler(function(u){ if(u){var a=el('irRonda');a.href=u+'?p=ronda';a.style.display='inline';} }).urlBase(); }catch(e){}
+var _t=null; window.addEventListener('resize',function(){clearTimeout(_t);_t=setTimeout(pintar,200);});
+arranque();
+</script>
+</body>
+</html>

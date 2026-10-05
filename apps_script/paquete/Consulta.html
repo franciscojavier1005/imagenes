@@ -83,6 +83,7 @@
     <select id="dia" onchange="cambiaDia()" aria-label="Día">
       <option>LUNES</option><option>MARTES</option><option>MIERCOLES</option><option>JUEVES</option><option>VIERNES</option>
     </select>
+    <select id="modo" onchange="cambiaModo()" aria-label="Qué se verifica en cada visita"><option value="bloque">Por bloque</option><option value="sesion">Por sesión</option></select>
     <button class="nav ahora" onclick="ahora()">Ahora</button>
   </div>
   <div class="fila"><span class="chip" id="franja"></span><span class="chip" id="reloj"></span><span class="chip" id="total"></span></div>
@@ -126,6 +127,7 @@
 var S = null;          // respuesta del servidor
 var marcas = {};       // docente -> {estado, motivo, minutos, obs, atiende}
 var diaSel = null, sesSel = null;
+var modo = (function(){try{return localStorage.getItem('icet_modo')==='sesion'?'sesion':'bloque';}catch(e){return 'bloque';}})();
 var ESTADOS=['Presente','No asistió','Llegada tarde','Salida temprana'];
 var ICONOS={'Presente':'✔','No asistió':'✖','Llegada tarde':'⏰','Salida temprana':'↩'};
 
@@ -146,17 +148,20 @@ function cargar(dia, ses){
       }
     });
     diaSel=r.dia; sesSel=r.sesion;
-    el('dia').value=r.dia; el('sesion').textContent=r.sesion?('Sesión '+r.sesion):'Descanso';
+    el('dia').value=r.dia; el('sesion').textContent=r.sesion?(r.modo==='bloque'?('Bloque '+r.bloque):('Sesión '+r.sesion)):'Descanso'; el('modo').value=modo;
     el('franja').textContent=r.franja||r.nota; el('reloj').textContent='Hora: '+r.hora;
     el('total').textContent=r.filas.length+' docentes';
     pintarQuien(); pintar();
-  }).withFailureHandler(function(e){el('lista').innerHTML='<div class="aviso">Error: '+esc(e.message||e)+'</div>';}).consultarSesion(dia||null, ses||null);
+  }).withFailureHandler(function(e){el('lista').innerHTML='<div class="aviso">Error: '+esc(e.message||e)+'</div>';}).consultarSesion(dia||null, ses||null, modo);
 }
 function ahora(){cargar(null,null);}
 function mover(d){
-  var n=(sesSel||0)+d; if(n<1) n=1; if(n>8) n=8;
+  var n;
+  if(modo==='bloque'){ var b=Math.ceil((sesSel||1)/2)+d; if(b<1)b=1; if(b>4)b=4; n=2*b-1; }
+  else { n=(sesSel||0)+d; if(n<1) n=1; if(n>8) n=8; }
   cargar(diaSel, n);
 }
+function cambiaModo(){ modo=el('modo').value; try{localStorage.setItem('icet_modo',modo);}catch(e){} cargar(diaSel, sesSel||1); }
 function cambiaDia(){ cargar(el('dia').value, sesSel||1); }
 
 function pintarQuien(){
@@ -222,7 +227,7 @@ function detalle(id,m){
   h+='<label>¿Quién atendió al grupo?<select class="sel" onchange="campo(\''+id+'\',\'atiende\',this.value)">'+
      opt('','— Sin dato —',!m.atiende)+ATIENDE.map(function(x){return opt(x,x,m.atiende===x);}).join('')+'</select></label>';
   if(noAsistio) h+='<label>¿Hasta cuándo no estará?<select class="sel" onchange="campo(\''+id+'\',\'alcance\',this.value,true)">'+
-     opt('','Solo esta sesión',!m.alcance)+opt('JC','Toda la jornada (se registra una sola vez)',m.alcance==='JC')+'</select></label>';
+     opt('',modo==='bloque'?'Solo este bloque':'Solo esta sesión',!m.alcance)+opt('JC','Toda la jornada (se registra una sola vez)',m.alcance==='JC')+'</select></label>';
   h+='<label>Minutos'+(noAsistio?(m.alcance==='JC'?' (toda la jornada)':' (sesión completa)'):'')+'<select class="sel" '+(noAsistio?'disabled':'')+' onchange="campo(\''+id+'\',\'minutos\',this.value)">'+
      opt('',noAsistio?(m.alcance==='JC'?'Total del día':'Automático'):'— Elegir —',!m.minutos||noAsistio)+[5,10,15,20,30,45].map(function(x){return opt(x,x+' min',Number(m.minutos)===x&&!noAsistio);}).join('')+'</select></label>';
   h+='<label>Dejó actividad de aprendizaje<select class="sel" onchange="campo(\''+id+'\',\'actividad\',this.value)">'+
@@ -266,8 +271,12 @@ function guardar(){
     if(m.estado!=='Presente'){
       if((m.estado==='Llegada tarde'||m.estado==='Salida temprana')&&!m.minutos) falta=falta||f.docente+': elija los minutos';
     }
-    regs.push({docente:f.docente,grupoCodigo:f.grupoCodigo,area:f.area,estado:m.estado,motivo:m.motivo||'',
-      minutos:m.minutos||'',actividad:m.actividad||'N/A',obs:m.obs||'',atiende:m.atiende||'',alcance:m.estado==='No asistió'?(m.alcance||''):''});
+    var ss=f.sesiones||[{sesion:S.sesion,grupoCodigo:f.grupoCodigo,area:f.area}];
+    if(m.estado==='Llegada tarde') ss=ss.slice(0,1); else if(m.estado==='Salida temprana') ss=ss.slice(-1);   // la llegada tarde es de la primera sesión; la salida temprana, de la última
+    ss.forEach(function(x){   // por bloque: la marca vale para cada sesión del bloque
+      regs.push({docente:f.docente,sesion:x.sesion,grupoCodigo:x.grupoCodigo,area:x.area,estado:m.estado,motivo:m.motivo||'',
+        minutos:m.minutos||'',actividad:m.actividad||'N/A',obs:m.obs||'',atiende:m.atiende||'',alcance:m.estado==='No asistió'?(m.alcance||''):''});
+    });
   });
   if(falta){ toast(falta); return; }
   if(!regs.length){ toast('No hay marcas para guardar'); return; }

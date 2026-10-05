@@ -91,7 +91,7 @@ function doGet(e) {
  * Docentes que deben estar en la sesión indicada. Sin argumentos usa el día y la hora actuales.
  * También devuelve las listas para los radios (motivos, medios, fuentes).
  */
-function consultarSesion(dia, sesion) {
+function consultarSesion(dia, sesion, modo) {
   var ahora = new Date();
   var auto = !dia && !sesion;
   dia = dia || DIAS[Number(Utilities.formatDate(ahora, TZ, 'u'))];
@@ -99,12 +99,21 @@ function consultarSesion(dia, sesion) {
   var fr = datos_('Franjas').filter(function (f) { return Number(f.hora) === s; })[0];
   var out = {
     dia: dia, diaHoy: DIAS[Number(Utilities.formatDate(ahora, TZ, 'u'))], sesion: s, auto: auto, hora: Utilities.formatDate(ahora, TZ, 'HH:mm'), fecha: ymd_(ahora),
-    franja: fr ? hhmm_(fr.inicio) + ' - ' + hhmm_(fr.fin) : '', bloque: fr ? Number(fr.bloque) : null,
+    franja: fr ? hhmm_(fr.inicio) + ' - ' + hhmm_(fr.fin) : '', bloque: fr ? Number(fr.bloque) : null, modo: modo === 'bloque' ? 'bloque' : 'sesion',
+    sesionesBloque: [],
     filas: [], motivos: datos_('Motivos'), listas: datos_('Listas'),
     directivos: datos_('Directivos').map(function (d) { return d.nombre; }),
     nota: s ? '' : (auto ? 'Descanso o fuera de jornada' : 'Sesión no válida')
   };
   if (!s) return out;
+  // por bloque: la visita cuenta para las dos sesiones del bloque (si no llegó en la primera, no estará en la segunda)
+  var hs = [s];
+  if (out.modo === 'bloque' && fr) {
+    var delBloque = datos_('Franjas').filter(function (f) { return Number(f.bloque) === Number(fr.bloque); }).sort(function (a, b) { return Number(a.hora) - Number(b.hora); });
+    hs = delBloque.map(function (f) { return Number(f.hora); });
+    out.sesionesBloque = hs;
+    out.franja = hhmm_(delBloque[0].inicio) + ' - ' + hhmm_(delBloque[delBloque.length - 1].fin);
+  }
   var nombres = mapaGrupos_(), direccion = mapaDireccion_();
   var reportes = {};   // novedades de hoy ya registradas (formulario, WhatsApp o ronda anterior)
   datos_('Novedades').forEach(function (n) {
@@ -117,11 +126,11 @@ function consultarSesion(dia, sesion) {
   var yaMarcados = {};
   datos_('Registro_Ronda').forEach(function (r) {
     var f = r.fecha instanceof Date ? ymd_(r.fecha) : String(r.fecha);
-    if (f === out.fecha && Number(r.sesion) === s) yaMarcados[r.docente] = r;
+    if (f === out.fecha && hs.indexOf(Number(r.sesion)) >= 0 && !yaMarcados[r.docente]) yaMarcados[r.docente] = r;
   });
-  out.filas = datos_('Horario').filter(function (h) {
-    return h.dia === dia && Number(h.hora) === s;
-  }).map(function (h) {
+  var fuente = datos_('Horario').filter(function (h) { return h.dia === dia && hs.indexOf(Number(h.hora)) >= 0; })
+    .sort(function (a, b) { return Number(a.hora) - Number(b.hora); });
+  out.filas = fuente.map(function (h) {
     var enf = h.tipo === 'ENFASIS';
     var nota = [/^00/.test(String(h.grupo)) ? 'Preescolar ' + hhmm_(h.inicio) + ' - ' + hhmm_(h.fin) : '', h.alternancia, h.equipo_enfasis ? 'Con: ' + h.equipo_enfasis : ''].filter(String).join(' · ');
     var ya = yaMarcados[h.docente];
@@ -132,10 +141,26 @@ function consultarSesion(dia, sesion) {
       area: h.area || '(énfasis)', tipo: h.tipo, nota: nota,
       dir: h.tipo === 'AREAS_MULTIPLES' ? '' : ((direccion[String(enf ? h.grupos_enfasis : h.grupo).split('+')[0]] || {}).dir || ''),
       modalidad: (direccion[String(enf ? h.grupos_enfasis : h.grupo).split('+')[0]] || {}).modalidad || '',
+      sesiones: [{ sesion: Number(h.hora), grupoCodigo: enf ? h.grupos_enfasis : h.grupo, area: h.area || '(énfasis)',
+                   grupo: enf ? 'ÉNFASIS ' + String(h.grupos_enfasis).split('+').map(function (g) { return nombres[g] || g; }).join(' + ') : (nombres[h.grupo] || h.grupo) }],
       reporte: reportes[h.docente] || null,
       previo: ya ? { estado: ya.estado, motivo: ya.motivo, minutos: ya.minutos, observaciones: ya.observaciones, atendidoPor: ya.atendido_por || '' } : null
     };
   });
+  if (out.modo === 'bloque') {   // una tarjeta por docente: sus sesiones del bloque quedan juntas
+    var por = {}, uni = [];
+    out.filas.forEach(function (f) {
+      var k = por[f.docente];
+      if (!k) { por[f.docente] = f; uni.push(f); return; }
+      k.sesiones = k.sesiones.concat(f.sesiones);
+    });
+    uni.forEach(function (f) {
+      var gs = f.sesiones.map(function (x) { return x.grupo; }).filter(function (g, i, a) { return a.indexOf(g) === i; });
+      if (gs.length > 1) f.nota = [f.sesiones.map(function (x) { return 'S' + x.sesion + ': ' + x.grupo; }).join(' · '), f.nota].filter(String).join(' · ');
+      else if (f.sesiones.length === 1 && hs.length > 1) f.nota = ['Solo S' + f.sesiones[0].sesion, f.nota].filter(String).join(' · ');
+    });
+    out.filas = uni;
+  }
   out.filas.sort(function (a, b) { return claveGrupo_(a.grupoCodigo) - claveGrupo_(b.grupoCodigo); });   // orden de lista: preescolar a 11°
   return out;
 }
@@ -165,9 +190,8 @@ function guardarRonda(p) {
   var lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
-    var ahora = new Date(), fecha = p.fecha || ymd_(ahora), sesion = Number(p.sesion);
-    var fr = datos_('Franjas').filter(function (f) { return Number(f.hora) === sesion; })[0];
-    var franjaBase = hhmm_(fr.inicio) + ' - ' + hhmm_(fr.fin);
+    var ahora = new Date(), fecha = p.fecha || ymd_(ahora);
+    var franjas = datos_('Franjas');
     var hz = datos_('Horario');
     var motivos = {};
     datos_('Motivos').forEach(function (m) { motivos[m.motivo] = m; });
@@ -177,6 +201,10 @@ function guardarRonda(p) {
     var novCol = novVals[0].indexOf('Sesiones');
     var guardados = 0;
     (p.registros || []).forEach(function (r) {
+      var sesion = Number(r.sesion || p.sesion);   // en la ronda por bloque cada marca trae su sesión (el bloque se guarda como sus dos sesiones)
+      var fr = franjas.filter(function (f) { return Number(f.hora) === sesion; })[0];
+      if (!fr) throw new Error('Sesión no válida: ' + sesion);
+      var franjaBase = hhmm_(fr.inicio) + ' - ' + hhmm_(fr.fin);
       var m = motivos[r.motivo] || {};
       var just = r.estado === 'Presente' ? '' : (m.justificada === 'SI' ? 'Sí' : 'No');
       var atiende = r.estado === 'Presente' ? '' : (ATIENDE_GRUPO.indexOf(r.atiende) >= 0 ? r.atiende : '');   // quién cubrió el grupo; NO cuenta como asistencia del docente

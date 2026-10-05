@@ -49,6 +49,9 @@ Nada pasa a `Novedades` sin esa confirmación y no se duplica una ausencia ya re
 - Imagen institucional: escudo de ICET (recortado de `LOGO ORIENTACIÓN ESCOLAR ICET 40.jpg`, copia en `apps_script/recursos/`), azul marino y dorado.
 - Directivos: Francisco Javier Cortés (coordinador académico), Verónica Barreiro (coordinadora de redes de apoyo), Harold Angulo (coordinador de convivencia) y Jorge Hernández (rector); correos aún temporales.
 
+## Ronda por bloque
+La ronda verifica por **bloque** (2 sesiones: S1-2, S3-4, S5-6, S7-8) o, si se prefiere, por sesión (selector "Por bloque / Por sesión" en el encabezado; se recuerda en cada dispositivo). En bloque, una visita en cualquier momento del bloque vale para sus dos sesiones: una tarjeta por docente y la marca se guarda como las dos sesiones (Registro_Ronda y Novedades, 45 min cada una; 60 en preescolar). La llegada tarde se anota en la primera sesión y la salida temprana en la última. "Toda la jornada" sigue registrándose una sola vez.
+
 ## Ingreso de docentes
 El docente entra con una **cuenta de Google** (Gmail o un correo cualquiera vinculado a una cuenta Google). El ingreso con Facebook **no es posible** en Google Apps Script. Los correos de los docentes se
 dejan vacíos por ahora (se registran ellos mismos al ingresar y el directivo aprueba); los de los directivos siguen siendo temporales (`@example.com`). La huella/firma queda pospuesta.

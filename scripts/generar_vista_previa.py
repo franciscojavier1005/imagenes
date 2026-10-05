@@ -44,27 +44,36 @@ var DATOS = %s;
     return {dia:DIAS[p.weekday],hm:h+':'+p.minute,fecha:p.year+'-'+p.month+'-'+p.day};
   }
   function sesionAhora(hm){var s=null;DATOS.franjas.forEach(function(f){if(f.inicio<=hm&&hm<f.fin)s=f.hora;});return s;}
-  function consultar(dia,sesion){
+  function consultar(dia,sesion,modo){
     var b=bogota(), auto=!dia&&!sesion; dia=dia||b.dia; var s=sesion?Number(sesion):sesionAhora(b.hm);
     var fr=DATOS.franjas.filter(function(f){return f.hora===s;})[0];
-    var out={dia:dia,diaHoy:dia,sesion:s,auto:auto,hora:b.hm,fecha:b.fecha,franja:fr?fr.inicio+' - '+fr.fin:'',bloque:fr?fr.bloque:null,
+    var out={dia:dia,diaHoy:dia,sesion:s,auto:auto,hora:b.hm,fecha:b.fecha,franja:fr?fr.inicio+' - '+fr.fin:'',bloque:fr?fr.bloque:null,modo:modo==='bloque'?'bloque':'sesion',
       filas:[],motivos:DATOS.motivos,listas:DATOS.listas,directivos:DATOS.directivos,nota:s?'':(auto?'Descanso o fuera de jornada':'Sesión no válida')};
     if(!s) return out;
-    out.filas=DATOS.horario.filter(function(h){return h.dia===dia&&Number(h.hora)===s;}).map(function(h){
+    var hs=[s];
+    if(out.modo==='bloque'&&fr){hs=DATOS.franjas.filter(function(f){return f.bloque===fr.bloque;}).map(function(f){return f.hora;});
+      var fb=DATOS.franjas.filter(function(f){return f.bloque===fr.bloque;}); out.franja=fb[0].inicio+' - '+fb[fb.length-1].fin;}
+    out.filas=DATOS.horario.filter(function(h){return h.dia===dia&&hs.indexOf(Number(h.hora))>=0;}).map(function(h){
       var enf=h.tipo==='ENFASIS', gc=enf?h.grupos_enfasis:h.grupo, d=DATOS.direccion[String(gc).split('+')[0]]||{};
       return {docente:h.docente,grupoCodigo:gc,
         grupo:enf?'ÉNFASIS '+String(gc).split('+').map(function(g){return DATOS.grupos[g]||g;}).join(' + '):(DATOS.grupos[gc]||gc),
         area:h.area||'(énfasis)',tipo:h.tipo,
         nota:[/^00/.test(h.grupo)?'Preescolar '+DATOS.preesc[h.dia+h.hora]:'',h.alternancia,h.equipo_enfasis?'Con: '+h.equipo_enfasis:''].filter(Boolean).join(' · '),
-        dir:h.tipo==='AREAS_MULTIPLES'?'':(d.dir||''),modalidad:d.modalidad||'',previo:null};
+        dir:h.tipo==='AREAS_MULTIPLES'?'':(d.dir||''),modalidad:d.modalidad||'',previo:null,
+        sesiones:[{sesion:Number(h.hora),grupoCodigo:gc,area:h.area||'(énfasis)',grupo:enf?'ÉNFASIS '+String(gc).split('+').map(function(g){return DATOS.grupos[g]||g;}).join(' + '):(DATOS.grupos[gc]||gc)}]};
     });
+    if(out.modo==='bloque'){var por={},uni=[];out.filas.forEach(function(f){var k=por[f.docente];if(!k){por[f.docente]=f;uni.push(f);}else k.sesiones=k.sesiones.concat(f.sesiones);});
+      uni.forEach(function(f){var gs=f.sesiones.map(function(x){return x.grupo;}).filter(function(g,i,a){return a.indexOf(g)===i;});
+        if(gs.length>1)f.nota=[f.sesiones.map(function(x){return 'S'+x.sesion+': '+x.grupo;}).join(' · '),f.nota].filter(Boolean).join(' · ');
+        else if(f.sesiones.length===1&&hs.length>1)f.nota=['Solo S'+f.sesiones[0].sesion,f.nota].filter(Boolean).join(' · ');});
+      out.filas=uni;}
     function ck(c){var g=String(c).split('+')[0],m=g.match(/^CS([12])0?(\\d)$/);if(m)return(m[1]==='1'?6:9)*1000+500+Number(m[2]);m=g.match(/^(\\d\\d)(\\d\\d)$/);return m?Number(m[1])*1000+Number(m[2]):99000;}
     out.filas.sort(function(a,b){return ck(a.grupoCodigo)-ck(b.grupoCodigo);});
     return out;
   }
   function csv(p){
     var c=['fecha,dia,sesion,docente,grupo,area,estado,motivo,minutos,actividad,observaciones,directivo'];
-    p.registros.forEach(function(r){c.push([p.fecha,p.dia,p.sesion,r.docente,r.grupoCodigo,r.area,r.estado,r.motivo,r.minutos,r.actividad,r.obs,p.directivo]
+    p.registros.forEach(function(r){c.push([p.fecha,p.dia,r.sesion||p.sesion,r.docente,r.grupoCodigo,r.area,r.estado,r.motivo,r.minutos,r.actividad,r.obs,p.directivo]
       .map(function(x){return '"'+String(x==null?'':x).replace(/"/g,'""')+'"';}).join(','));});
     return c.join('\\n');
   }
@@ -79,7 +88,7 @@ var DATOS = %s;
   var api=function(){var ok=null,fail=null,self={
     withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
     urlBase:function(){setTimeout(function(){ok('');},0);},
-    consultarSesion:function(d,s){setTimeout(function(){ok(consultar(d,s));},20);},
+    consultarSesion:function(d,s,m){setTimeout(function(){ok(consultar(d,s,m));},20);},
     guardarNotaRonda:function(p){setTimeout(function(){
       if(!String(p.texto||'').trim()){ok({id:'n',propuestas:[],audioGuardado:false});return;}
       var a=analizarNota_(ctxNota(p.texto,p.fecha||bogota().fecha)), nuevas=a.propuestas.map(function(x,i){

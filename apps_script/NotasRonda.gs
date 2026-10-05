@@ -60,7 +60,7 @@ function guardarNotaRonda(p) {
       var pid = nid + '-' + (i + 1), fila = [];
       var v = { fecha: fecha, hora: hora, remitente: quien, docente: x.docente, tipo_novedad: x.tipo_novedad, motivo: x.motivo, categoria: x.categoria,
                 justificada: x.justificada === 'Sí' ? 'Sí' : 'No', confianza: x.confianza, mensaje: x.mensaje, confirmar: '', importado: '', id: pid, origen: ORIGEN_NOTA,
-                sesion: x.sesion || '', grupo: x.grupo || '' };
+                sesion: x.sesion || '', grupo: textoCod_(x.grupo || '') };
       cab.forEach(function (c) { fila.push(v[c] === undefined ? '' : v[c]); });
       sh.appendRow(fila); props.push(Object.assign({ id: pid }, v));
     });

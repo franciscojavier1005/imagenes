@@ -42,7 +42,7 @@ function importarBandeja_() {
     var pg, area, jornadaTxt, minutos, codSes;
     if (ses) {
       var fs1 = mias.filter(function (x) { return Number(x.hora) === ses; })[0];
-      var gtxt = fs1 ? (fs1.tipo === 'ENFASIS' ? fs1.grupos_enfasis : fs1.grupo) : (col.grupo === undefined ? '' : f[col.grupo]);
+      var gtxt = fs1 ? (fs1.tipo === 'ENFASIS' ? fs1.grupos_enfasis : fs1.grupo) : (col.grupo === undefined ? '' : String(f[col.grupo]).replace(/^'/, ''));
       pg = gtxt ? partesGrupo_(String(gtxt).split('+')[0]) : { grado: 'N/A', grupo: 'N/A' };
       area = fs1 && fs1.area ? fs1.area : (fs1 ? '(énfasis)' : 'N/A');
       jornadaTxt = 'H' + ses; codSes = 'S' + ses;

@@ -18,6 +18,7 @@ var FUENTE_RONDA = 'Coordinador(a)';
 function onOpen() {
   SpreadsheetApp.getUi().createMenu('Asistencia ICET')
     .addItem('Crear formulario de novedades (desplegables)', 'crearFormulario')
+    .addItem('Actualizar horario de preescolar (una sola vez)', 'actualizarHorarioPreescolar')
     .addItem('Importar bandeja de WhatsApp (filas marcadas SI)', 'importarBandejaWhatsApp')
     .addItem('Borrar audios de ronda antiguos', 'purgarAudios')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
@@ -179,6 +180,9 @@ function claveGrupo_(codigo) {
  */
 var ATIENDE_GRUPO = ['Nadie (grupo solo)', 'Sin clase: los niños no asistieron (padres avisados)', 'Reemplazo (docente)', 'Practicante', 'Otro docente o directivo'];
 
+/** Google Sheets convierte '0101' en el número 101: los códigos con cero inicial se escriben como texto (apóstrofo). */
+function textoCod_(v) { v = String(v == null ? '' : v); return /^0\d+$/.test(v) ? "'" + v : v; }
+
 /** Minutos de una sesión: 45 en general; 60 en preescolar (4 horas de clase entre 7:30 y 11:30). */
 function minutosSesion_(grupoCodigo) { return /^00/.test(String(grupoCodigo).split('+')[0]) ? 60 : 45; }
 
@@ -213,7 +217,7 @@ function guardarRonda(p) {
       var franja = hrow ? hhmm_(hrow.inicio) + ' - ' + hhmm_(hrow.fin) : franjaBase;   // preescolar tiene sus propios periodos
       var minutos = r.estado === 'No asistió' ? minutosSesion_(r.grupoCodigo) : (Number(r.minutos) || '');
       // 1) Registro_Ronda: una fila por docente-fecha-sesión (se reemplaza si ya existía)
-      var fila = [ahora, fecha, p.dia, sesion, franja, r.docente, r.grupoCodigo, r.area, r.estado,
+      var fila = [ahora, fecha, p.dia, sesion, franja, r.docente, textoCod_(r.grupoCodigo), r.area, r.estado,
                   r.motivo || '', just, minutos, r.obs || '', p.directivo || '', atiende];
       var idx = -1;
       for (var i = 1; i < regVals.length; i++) {
@@ -333,6 +337,33 @@ function compartirConDirectivos() {
 function mostrarUrlConsulta() {
   SpreadsheetApp.getUi().alert('Para la ronda y el panel:\nImplementar > Nueva implementación > Aplicación web.\n' +
     'Ejecutar como: el usuario que accede. Quién tiene acceso: solo directivos.\nRonda: la URL. Panel: la URL con ?p=panel al final. Agréguelas a la pantalla de inicio.');
+}
+
+/**
+ * Una sola vez: pasa el horario de preescolar a 4 periodos de 60 min entre 7:30 y 11:30 (sesiones 3 a 6 de la ronda).
+ * Quita las filas de la sesión 2 y corrige inicio y fin de las demás. No toca ninguna otra hoja. Se puede repetir sin daño.
+ */
+var PERIODOS_PREESCOLAR = { 3: ['07:30', '08:30'], 4: ['08:30', '09:30'], 5: ['09:30', '10:30'], 6: ['10:30', '11:30'] };
+function actualizarHorarioPreescolar_() {
+  var sh = hoja_('Horario'), v = sh.getDataRange().getValues(), h = v[0];
+  var iG = h.indexOf('grupo'), iH = h.indexOf('hora'), iI = h.indexOf('inicio'), iF = h.indexOf('fin');
+  var quitadas = 0, corregidas = 0;
+  for (var i = v.length - 1; i >= 1; i--) {
+    var cod = String(v[i][iG]); while (/^\d+$/.test(cod) && cod.length < 4) cod = '0' + cod;   // 1 -> 0001 si Sheets perdió los ceros
+    if (cod.indexOf('00') !== 0) continue;
+    var hora = Number(v[i][iH]);
+    if (!PERIODOS_PREESCOLAR[hora]) { sh.deleteRow(i + 1); quitadas++; continue; }
+    var ini = sh.getRange(i + 1, iI + 1), fin = sh.getRange(i + 1, iF + 1);
+    ini.setNumberFormat('@'); fin.setNumberFormat('@');
+    if (hhmm_(v[i][iI]) !== PERIODOS_PREESCOLAR[hora][0] || hhmm_(v[i][iF]) !== PERIODOS_PREESCOLAR[hora][1]) {
+      ini.setValue(PERIODOS_PREESCOLAR[hora][0]); fin.setValue(PERIODOS_PREESCOLAR[hora][1]); corregidas++;
+    }
+  }
+  return { quitadas: quitadas, corregidas: corregidas };
+}
+function actualizarHorarioPreescolar() {
+  var r = actualizarHorarioPreescolar_();
+  SpreadsheetApp.getUi().alert('Horario de preescolar actualizado.\nFilas de la sesión 2 quitadas: ' + r.quitadas + '\nPeriodos corregidos: ' + r.corregidas);
 }
 
 // ===================== Resumen.gs =====================
@@ -879,7 +910,7 @@ function importarBandeja_() {
     var pg, area, jornadaTxt, minutos, codSes;
     if (ses) {
       var fs1 = mias.filter(function (x) { return Number(x.hora) === ses; })[0];
-      var gtxt = fs1 ? (fs1.tipo === 'ENFASIS' ? fs1.grupos_enfasis : fs1.grupo) : (col.grupo === undefined ? '' : f[col.grupo]);
+      var gtxt = fs1 ? (fs1.tipo === 'ENFASIS' ? fs1.grupos_enfasis : fs1.grupo) : (col.grupo === undefined ? '' : String(f[col.grupo]).replace(/^'/, ''));
       pg = gtxt ? partesGrupo_(String(gtxt).split('+')[0]) : { grado: 'N/A', grupo: 'N/A' };
       area = fs1 && fs1.area ? fs1.area : (fs1 ? '(énfasis)' : 'N/A');
       jornadaTxt = 'H' + ses; codSes = 'S' + ses;
@@ -1335,7 +1366,7 @@ function guardarNotaRonda(p) {
       var pid = nid + '-' + (i + 1), fila = [];
       var v = { fecha: fecha, hora: hora, remitente: quien, docente: x.docente, tipo_novedad: x.tipo_novedad, motivo: x.motivo, categoria: x.categoria,
                 justificada: x.justificada === 'Sí' ? 'Sí' : 'No', confianza: x.confianza, mensaje: x.mensaje, confirmar: '', importado: '', id: pid, origen: ORIGEN_NOTA,
-                sesion: x.sesion || '', grupo: x.grupo || '' };
+                sesion: x.sesion || '', grupo: textoCod_(x.grupo || '') };
       cab.forEach(function (c) { fila.push(v[c] === undefined ? '' : v[c]); });
       sh.appendRow(fila); props.push(Object.assign({ id: pid }, v));
     });

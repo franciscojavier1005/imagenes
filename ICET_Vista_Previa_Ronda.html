@@ -501,7 +501,7 @@ function detalle(id,m){
   if(noAsistio) h+='<label>¿Hasta cuándo no estará?<select class="sel" onchange="campo(\''+id+'\',\'alcance\',this.value,true)">'+
      opt('','Solo esta sesión',!m.alcance)+opt('JC','Toda la jornada (se registra una sola vez)',m.alcance==='JC')+'</select></label>';
   h+='<label>Minutos'+(noAsistio?(m.alcance==='JC'?' (toda la jornada)':' (sesión completa)'):'')+'<select class="sel" '+(noAsistio?'disabled':'')+' onchange="campo(\''+id+'\',\'minutos\',this.value)">'+
-     opt('',noAsistio?(m.alcance==='JC'?'Total del día':'45'):'— Elegir —',!m.minutos||noAsistio)+[5,10,15,20,30,45].map(function(x){return opt(x,x+' min',Number(m.minutos)===x&&!noAsistio);}).join('')+'</select></label>';
+     opt('',noAsistio?(m.alcance==='JC'?'Total del día':'Automático'):'— Elegir —',!m.minutos||noAsistio)+[5,10,15,20,30,45].map(function(x){return opt(x,x+' min',Number(m.minutos)===x&&!noAsistio);}).join('')+'</select></label>';
   h+='<label>Dejó actividad de aprendizaje<select class="sel" onchange="campo(\''+id+'\',\'actividad\',this.value)">'+
      ['N/A','Sí','No'].map(function(x){return opt(x,x,(m.actividad||'N/A')===x);}).join('')+'</select></label>';
   h+='</div><div class="previo">Si el grupo lo atendió un reemplazo o practicante, la ausencia del docente se mantiene.</div><label>Observaciones<input type="text" class="obs" value="'+esc(m.obs||'')+'" oninput="campo(\''+id+'\',\'obs\',this.value,false)"></label></div>';

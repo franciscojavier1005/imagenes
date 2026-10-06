@@ -27,6 +27,7 @@ function onOpen() {
     .addItem('Actualizar horario de preescolar (una sola vez)', 'actualizarHorarioPreescolar')
     .addItem('Importar bandeja de WhatsApp (filas marcadas SI)', 'importarBandejaWhatsApp')
     .addItem('Generar claves de ingreso de los directivos', 'generarClavesDirectivos')
+    .addItem('Restablecer la clave de un directivo', 'restablecerClaveDirectivo')
     .addItem('Acerca de este sistema', 'acercaDe')
     .addItem('Borrar audios de ronda antiguos', 'purgarAudios')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')

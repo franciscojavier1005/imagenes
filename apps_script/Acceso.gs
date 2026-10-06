@@ -96,7 +96,7 @@ function contextoPanel() {
     var docs = datos_('Docentes').filter(function (d) { return d.nivel !== 'REEMPLAZADO'; }), niveles = {};
     docs.forEach(function (d) { niveles[d.nivel] = 1; });
     var ec = estadoCorreo_(id);
-    return { rol: 'directivo', nombre: id.nombre, vistaInicial: id.vistaInicial, necesitaCorreo: ec.necesitaCorreo, correo: ec.correo || '', informes: ec.informes || null,
+    return { rol: 'directivo', nombre: id.nombre, vistaInicial: id.vistaInicial, debeCambiar: !!ec.debeCambiar, necesitaCorreo: ec.necesitaCorreo, correo: ec.correo || '', informes: ec.informes || null,
              docentes: docs.map(function (d) { return { nombre: d.nombre_completo, nivel: d.nivel }; }), niveles: Object.keys(niveles).sort() };
   }
   if (id.rol === 'docente') {

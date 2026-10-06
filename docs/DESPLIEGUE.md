@@ -13,7 +13,7 @@ Los coordinadores no tienen que iniciar sesión en Google ni pasar por «Google 
 
 1. Pegue el código (`ICET_completo.gs`, `Consulta`, `Dashboard`, `Reunion`, `Menu` y `appsscript.json`, que ahora trae `USER_DEPLOYING` y `ANYONE_ANONYMOUS`).
 2. **Implementar > Administrar implementaciones > lápiz**: *Ejecutar como*: **Yo**; *Quién tiene acceso*: **Cualquier persona**; Versión: *Nueva versión*; Implementar. La URL no cambia. Solo usted (propietario) autoriza los permisos, una vez.
-3. Recargue la hoja y use el menú **Asistencia ICET > Generar claves de ingreso de los directivos**: aparecen las claves **una sola vez**; anótelas y entréguelas. En la hoja solo queda el hash.
+3. Recargue la hoja y use el menú **Asistencia ICET > Generar claves de ingreso de los directivos**: aparecen las claves TEMPORALES **una sola vez** (cada directivo elige la suya al primer ingreso; si la olvida: menú **Restablecer la clave de un directivo**); anótelas y entréguelas. En la hoja solo queda el hash.
 4. Cada directivo abre la URL, elige su nombre y escribe su clave. La sesión dura 14 días en ese dispositivo (se puede cerrar con «Cerrar sesión») y la clave se puede cambiar desde el menú de la aplicación.
 5. 5 intentos fallidos bloquean al directivo 15 minutos. Si alguien olvida su clave: vuelva a generarlas (reemplaza las anteriores) o cámbiela directamente.
 6. Ya no es necesario compartir el libro con los coordinadores: pueden dejar de ser editores (más seguro).

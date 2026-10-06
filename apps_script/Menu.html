@@ -104,6 +104,7 @@ function entrar(){
 function pintar(rol,nombre,c){
   var h='';
   CTX=c||{}; CTX.nombre=nombre;
+  if(rol==='directivo'&&CTX.debeCambiar){ el('saludo').textContent='Bienvenido(a)'+(nombre?', '+nombre:'')+'. Antes de seguir, elija su clave personal.'; el('botones').innerHTML='<div id="claveForm">'+formClaveObligatoria()+'</div><div class="pie"><button class="enlace" onclick="salir()">Cerrar sesión</button></div>'; return; }
   if(rol==='directivo'){
     el('saludo').textContent='Bienvenido(a)'+(nombre?', '+nombre:'')+'. ¿Qué desea hacer?';
     h+=boton('ronda','📋','Ronda de aula','Lo normal: verificar quién está en clase (por bloque).');
@@ -134,6 +135,17 @@ function guardarMail(){
   var p={correo:el('kMail').value,dia:el('kDia').checked,semana:el('kSem').checked,mes:el('kMes').checked};
   srv().withSuccessHandler(function(){ CTX.necesitaCorreo=false; CTX.correo=p.correo; CTX.informes={dia:p.dia,semana:p.semana,mes:p.mes}; el('kMsg').style.color='#1b5e20'; el('kMsg').textContent='Listo: correo guardado.'; setTimeout(function(){ pintar('directivo',CTX.nombre,CTX); },900); })
    .withFailureHandler(function(e){ el('kMsg').style.color='#a31515'; el('kMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); }).guardarCorreo(p);
+}
+function formClaveObligatoria(){
+  return '<div class="caja"><b>Su clave actual es temporal</b><div class="msg" style="color:#555">Escriba la clave temporal que le entregaron y elija una clave propia de 6 números que solo usted conozca. Si algún día la olvida, quien administra el libro le da una temporal nueva.</div>'+
+    '<label>Clave temporal<input class="pin" id="cA" type="password" inputmode="numeric" maxlength="6"></label><label>Su clave nueva (6 números)<input class="pin" id="cN" type="password" inputmode="numeric" maxlength="6"></label>'+
+    '<label>Repita su clave nueva<input class="pin" id="cN2" type="password" inputmode="numeric" maxlength="6"></label>'+
+    '<button class="btn" onclick="cambiarObligatoria()">Guardar mi clave</button><div class="msg" id="cMsg"></div></div>';
+}
+function cambiarObligatoria(){
+  if(el('cN').value!==el('cN2').value){ el('cMsg').style.color='#a31515'; el('cMsg').textContent='Las dos claves nuevas no coinciden.'; return; }
+  srv().withSuccessHandler(function(){ el('cMsg').style.color='#1b5e20'; el('cMsg').textContent='Listo: su clave quedó guardada.'; setTimeout(iniciar,900); })
+   .withFailureHandler(function(e){ el('cMsg').style.color='#a31515'; el('cMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); }).cambiarClave({actual:el('cA').value,nueva:el('cN').value});
 }
 function formClave(){
   el('claveForm').innerHTML='<div class="caja"><label>Clave actual<input class="pin" id="cA" type="password" inputmode="numeric" maxlength="6"></label><label>Clave nueva (6 números)<input class="pin" id="cN" type="password" inputmode="numeric" maxlength="6"></label>'+

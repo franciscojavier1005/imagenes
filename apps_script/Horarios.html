@@ -54,6 +54,10 @@
   @media(min-width:700px){.velo{align-items:center}.modal{border-radius:16px}}
   .modal label.op{display:flex;flex-direction:row;gap:10px;align-items:center;padding:9px 6px;border-bottom:1px solid #eef1f5;font-size:14.5px;color:#1b2430;margin:0} .modal label.op input{width:auto;margin:0;transform:scale(1.3)}
   textarea{width:100%;padding:10px;border:2px solid var(--borde);border-radius:10px;font:inherit;font-size:15px;margin-top:3px;min-height:60px}
+
+  .resum{background:#f1f5fb;border:2px solid #cfd8e5;border-radius:12px;padding:10px;margin:8px 0 14px} .resum .rg{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:6px;margin-top:6px}
+  .resum .rg div{background:#fff;border:1px solid #dde4ee;border-radius:10px;padding:6px 4px;text-align:center;font-size:11.5px;color:#456} .resum big{display:block;font-size:22px;font-weight:800;color:#0f2a5c}
+  .resum .ok big{color:#2e7d32} .resum .no big{color:#c62828} .resum .av big{color:#e65100}
   @media print{.barra,.velo{display:none!important} header,.tabs,.ctrl,.dias,.btn,.autoria{display:none!important} body{background:#fff} .card{box-shadow:none;border:0} table.hor{min-width:0}}
 
   /* enlaces del encabezado como botones en relieve */
@@ -200,17 +204,26 @@ function sinTild(t){ return String(t==null?'':t).normalize('NFD').replace(/[̀-�
 function kEst(e){ return e.g+'|'+e.a+'|'+e.n; }
 function cargaEst(force){
   if(EST&&!force){ pintaEstCtl(); filtraEst(); return; }
+  var f={}; ['en','eg','eq','em','ep'].forEach(function(k){ if(el(k)) f[k]=el(k).value; });   // los filtros no se pierden al guardar
   el('res').innerHTML='<div class="aviso">Cargando estudiantes…</div>';
-  srv().withSuccessHandler(function(d){ EST=d; EMO={}; (d.tipos||[]).forEach(function(t){EMO[t.texto]=[t.emo,t.color];}); pintaEstCtl(); filtraEst(); }).withFailureHandler(function(e){ el('res').innerHTML='<div class="aviso">Error: '+esc(e&&e.message||e)+'</div>'; }).datosEstudiantes();
+  srv().withSuccessHandler(function(d){ EST=d; EMO={}; (d.tipos||[]).forEach(function(t){EMO[t.texto]=[t.emo,t.color];}); pintaEstCtl();
+      if(f.en){ el('en').value=f.en; el('eg').innerHTML=opcionesGrupos(f.en); }
+      ['eg','eq','em','ep'].forEach(function(k){ if(f[k]!==undefined&&el(k)) el(k).value=f[k]; });
+      filtraEst(); }).withFailureHandler(function(e){ el('res').innerHTML='<div class="aviso">Error: '+esc(e&&e.message||e)+'</div>'; }).datosEstudiantes();
 }
 function pintaEstCtl(){
   if(EST.sinDatos){ el('estCtl').innerHTML=''; el('res').innerHTML='<div class="card"><h2>Aún no se ha cargado el listado de estudiantes</h2><div class="sub">Quien administra el libro debe importar la hoja «Estudiantes» (archivo ICET_Estudiantes_2026.xlsx: Archivo &gt; Importar &gt; Insertar hoja nueva).</div></div>'; return; }
-  el('estCtl').innerHTML='<label>Grupo <select id="eg" onchange="filtraEst()">'+opt('','Todos los grupos',true)+EST.grupos.map(function(g){return opt(g.codigo,g.curso+' ('+g.total+')',false);}).join('')+'</select></label>'+
+  var res=EST.niveles.map(function(n){var gs=EST.grupos.filter(function(g){return g.nivel===n;}); return gs.length?esc(n)+': '+gs.length+' grupos · '+gs.reduce(function(a,g){return a+g.total;},0)+' estudiantes':'';}).filter(String);
+  el('estCtl').innerHTML='<div class="sub" style="margin-top:6px"><b>'+EST.grupos.length+' grupos · '+EST.estudiantes.length+' estudiantes</b><br>'+res.join('<br>')+'</div>'+
+    '<label>Nivel <select id="en" onchange="cambiaNivel()">'+opt('','Todos los niveles',true)+EST.niveles.filter(function(n){return EST.grupos.some(function(g){return g.nivel===n;});}).map(function(n){return opt(n,n,false);}).join('')+'</select></label>'+
+    '<label>Grupo <select id="eg" onchange="filtraEst()">'+opcionesGrupos('')+'</select></label>'+
     '<label>Buscar por apellido, nombre o proyecto <input type="text" id="eq" placeholder="Ej.: quiñones, ana, nombre de un proyecto…" oninput="filtraEst()"></label>'+
     '<label>Mostrar <select id="em" onchange="filtraEst()">'+opt('','Todos',true)+opt('*','Con alguna marca',false)+opt('-','Sin marcas',false)+gruposTipos(function(t){return opt(t.texto,t.emo+' '+t.texto,false);})+'</select></label>'+
     (EST.catalogo&&EST.catalogo.length?'<label>Grupo, selección, club o proyecto <select id="ep" onchange="filtraEst()">'+opt('','Todos',true)+catPorTipo().map(function(c){return '<optgroup label="'+esc(c[0])+'">'+c[1].map(function(n){return opt(c[0]+'||'+n,n,false);}).join('')+'</optgroup>';}).join('')+'</select></label>':'<input type="hidden" id="ep" value="">')+
     '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="formGrupoProy()">🏷 Nuevo grupo o proyecto</button><button class="btn" onclick="formNuevo()">➕ Agregar estudiante</button><button class="btn" onclick="selTodos()">☑ Seleccionar todos los de la lista</button><button class="btn" onclick="window.print()">🖨 Imprimir esta lista</button></div>';
 }
+function opcionesGrupos(nivel){ return opt('','Todos los grupos'+(nivel?' de este nivel':''),true)+EST.grupos.filter(function(g){return !nivel||g.nivel===nivel;}).map(function(g){return opt(g.codigo,g.curso+' ('+g.total+')',false);}).join(''); }
+function cambiaNivel(){ el('eg').innerHTML=opcionesGrupos(el('en').value); filtraEst(); }
 function gruposTipos(fn){
   var cats=[],por={}; EST.tipos.forEach(function(t){ if(!por[t.cat]){por[t.cat]=[];cats.push(t.cat);} por[t.cat].push(t); });
   return cats.map(function(c){return '<optgroup label="'+esc(c)+'">'+por[c].map(fn).join('')+'</optgroup>';}).join('');
@@ -228,9 +241,10 @@ function guardaGrupoProy(){
 function selTodos(){ VIS.forEach(function(e){ SEL[kEst(e)]=e; }); pintaEst(); }
 function filtraEst(){
   if(!EST||EST.sinDatos) return;
-  var g=el('eg').value, q=sinTild(el('eq').value).trim().split(/\s+/).filter(String), m=el('em').value;
+  var g=el('eg').value, nv=el('en')?el('en').value:'', q=sinTild(el('eq').value).trim().split(/\s+/).filter(String), m=el('em').value;
   VIS=EST.estudiantes.filter(function(e){
     if(g&&e.g!==g) return false;
+    if(nv&&!g&&(EST.grupos.filter(function(x){return x.codigo===e.g;})[0]||{}).nivel!==nv) return false;
     var tx=sinTild(e.a+' '+e.n+' '+(e.m||[]).map(function(x){return x.nota;}).join(' ')); if(q.some(function(w){return tx.indexOf(w)<0;})) return false;
     var ep=el('ep')?el('ep').value:''; if(ep){ var pp=ep.split('||'); if(!(e.m||[]).some(function(x){return x.tipo===pp[0]&&x.nota===pp[1];})) return false; }
     var mm=e.m||[]; if(m==='*') return mm.length>0; if(m==='-') return mm.length===0; if(m) return mm.some(function(x){return x.tipo===m;}); return true; });
@@ -239,17 +253,34 @@ function filtraEst(){
 function pintaEst(){
   var marc=VIS.filter(function(e){return e.m&&e.m.length;}).length, nsel=Object.keys(SEL).length, ult='';
   var h='<div class="card"><h2>Estudiantes</h2><div class="sub">'+VIS.length+' estudiantes'+(marc?' · '+marc+' con marcas':'')+(el('eg')&&el('eg').value?'':' (elija un grupo para ver su lista completa)')+'</div>';
-  h+=VIS.slice(0,700).map(function(e,i){
+  var corte=VIS.slice(0,700);
+  h+=corte.map(function(e,i){
     var cab=(e.g!==ult&&!(el('eg')&&el('eg').value))?'<div class="gr">'+esc((EST.grupos.filter(function(x){return x.codigo===e.g;})[0]||{}).curso||e.g)+'</div>':''; ult=e.g;
-    var ret=(e.m||[]).some(function(x){return /Retirado|cancelada/.test(x.tipo);});
-    return cab+'<div class="est'+(ret?' ret':'')+'"><input type="checkbox" '+(SEL[kEst(e)]?'checked ':'')+'onchange="selEst('+VIS.indexOf(e)+',this.checked)"><div class="ei"><b>'+esc(e.a)+'</b> '+esc(e.n)+'<small>N.º '+e.no+' · '+esc(e.g)+'</small><div>'+
+    var ret=(e.m||[]).some(function(x){return /Retirado|cancelada|otra institución/.test(x.tipo);});
+    var fila=cab+'<div class="est'+(ret?' ret':'')+'"><input type="checkbox" '+(SEL[kEst(e)]?'checked ':'')+'onchange="selEst('+VIS.indexOf(e)+',this.checked)"><div class="ei"><b>'+esc(e.a)+'</b> '+esc(e.n)+'<small>N.º '+e.no+' · '+esc(e.g)+'</small><div>'+
       (e.m||[]).map(function(x){var c=EMO[x.tipo]||['•','#555']; return '<span class="bd" style="background:'+c[1]+'" title="'+esc((x.nota||'')+' · '+x.por+' · '+x.fecha+' (toque para levantar)')+'" onclick="levanta(\''+esc(x.id)+'\')">'+c[0]+' '+esc(x.tipo)+(x.nota?' <small>· '+esc(x.nota.slice(0,40))+'</small>':'')+'</span>';}).join('')+'</div></div>'+
       '<button class="btn mini" onclick="abreMarca(['+VIS.indexOf(e)+'])">Marcar</button></div>';
+    var sig=corte[i+1]; if(!sig||sig.g!==e.g) fila+=resumenGrupo(e.g);   // consolidado al final de cada grupo
+    return fila;
   }).join('')||'<div class="aviso">Sin resultados.</div>';
   if(VIS.length>700) h+='<div class="aviso">Se muestran los primeros 700: afine la búsqueda.</div>';
   h+='</div>';
   if(nsel) h+='<div class="barra"><span><b>'+nsel+'</b> seleccionado(s)</span><span><button class="btn mini" onclick="abreMarca(null)">Marcar…</button> <button class="btn mini" onclick="SEL={};pintaEst()">Quitar selección</button></span></div>';
   el('res').innerHTML=h;
+}
+function resumenGrupo(cod){
+  var G=EST.grupos.filter(function(x){return x.codigo===cod;})[0]||{curso:cod}, L=EST.estudiantes.filter(function(e){return e.g===cod;}), n={}, proy={};
+  L.forEach(function(e){ var vistos={}; (e.m||[]).forEach(function(x){ if(vistos[x.tipo]) return; vistos[x.tipo]=1; n[x.tipo]=(n[x.tipo]||0)+1;
+    var t=EST.tipos.filter(function(y){return y.texto===x.tipo;})[0]; if(t&&t.nombre&&x.nota){ var k=t.emo+' '+x.nota; proy[k]=(proy[k]||0)+1; } }); });
+  function c(id){ var t=EST.tipos.filter(function(y){return y.id===id;})[0]; return t?(n[t.texto]||0):0; }
+  var fuera=L.filter(function(e){return (e.m||[]).some(function(x){return /Retirado|cancelada|otra institución/.test(x.tipo);});}).length, activos=L.length-fuera, noAsiste=L.filter(function(e){return !(e.m||[]).some(function(x){return /Retirado|cancelada|otra institución/.test(x.tipo);})&&(e.m||[]).some(function(x){return /No asiste/.test(x.tipo);});}).length;
+  var enProy=L.filter(function(e){return (e.m||[]).some(function(x){var t=EST.tipos.filter(function(y){return y.texto===x.tipo;})[0]; return t&&t.nombre&&t.id!=='OTRA_INSTITUCION';});}).length;
+  var otros=EST.tipos.filter(function(t){return n[t.texto]&&!/^(NO_ASISTE|AUSENTE|FUGA)$/.test(t.id);}).map(function(t){return '<span class="bd" style="background:'+t.color+'">'+t.emo+' '+esc(t.texto.replace(/ \(.*$/,''))+': '+n[t.texto]+'</span>';}).join('');
+  return '<div class="resum"><b>Resumen · '+esc(G.curso)+'</b><div class="rg">'+
+    '<div><big>'+L.length+'</big>en lista</div><div><big>'+activos+'</big>matriculados activos</div><div class="ok"><big>'+(activos-noAsiste)+'</big>asistiendo</div><div class="no"><big>'+noAsiste+'</big>no asisten</div>'+
+    '<div class="av"><big>'+c('AUSENTE')+'</big>faltan con frecuencia</div><div class="av"><big>'+c('FUGA')+'</big>se fugan con frecuencia</div><div><big>'+enProy+'</big>en proyectos, programas o clubes</div></div>'+
+    (Object.keys(proy).length?'<div class="sub" style="margin-top:6px"><b>Por proyecto o grupo:</b> '+Object.keys(proy).sort().map(function(k){return esc(k)+' ('+proy[k]+')';}).join(' · ')+'</div>':'')+
+    (otros?'<div style="margin-top:6px">'+otros+'</div>':'')+'</div>';
 }
 function selEst(i,on){ var e=VIS[i]; if(on) SEL[kEst(e)]=e; else delete SEL[kEst(e)]; pintaEst(); }
 function modal(h){ var v=document.createElement('div'); v.className='velo'; v.id='velo'; v.innerHTML='<div class="modal">'+h+'</div>'; document.body.appendChild(v); }

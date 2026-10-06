@@ -2426,6 +2426,16 @@ function agregarGrupoProyecto(p) {
   return { ok: true };
 }
 
+/** Nivel de un grupo por su código: 00 preescolar (transición), 01-05 primaria, 06-09 secundaria, CS caminar en secundaria, 10-11 media, C3/C5 ciclos de adultos. */
+function nivelGrupoEst_(cod) {
+  cod = String(cod || '');
+  if (/^CS/.test(cod)) return 'Caminar en Secundaria';
+  if (/^C\d/.test(cod)) return 'Adultos (ciclos)';
+  var n = Number(cod.slice(0, 2));
+  return n === 0 ? 'Preescolar (transición)' : n <= 5 ? 'Primaria (1° a 5°)' : n <= 9 ? 'Secundaria (6° a 9°)' : 'Media (10° y 11°)';
+}
+var NIVELES_EST = ['Preescolar (transición)', 'Primaria (1° a 5°)', 'Secundaria (6° a 9°)', 'Caminar en Secundaria', 'Media (10° y 11°)', 'Adultos (ciclos)'];
+
 function listadoEstudiantes_() {
   var sh = SpreadsheetApp.getActive().getSheetByName('Estudiantes');
   if (!sh) return null;
@@ -2447,13 +2457,13 @@ function datosEstudiantes() {
   var grupos = {}, orden = [];
   lista.sort(function (x, y) { return claveGrupo_(x.g) - claveGrupo_(y.g) || x.no - y.no; });   // orden de lista: preescolar a 11° (CS tras sextos y novenos)
   var est = lista.map(function (e) {
-    if (!grupos[e.g]) { grupos[e.g] = { codigo: e.g, curso: e.curso, total: 0 }; orden.push(e.g); }
+    if (!grupos[e.g]) { grupos[e.g] = { codigo: e.g, curso: e.curso, total: 0, nivel: nivelGrupoEst_(e.g) }; orden.push(e.g); }
     grupos[e.g].total++;
     var m = vig[claveEst_(e.g, e.a, e.n)];
     return m ? { g: e.g, no: e.no, a: e.a, n: e.n, m: m } : { g: e.g, no: e.no, a: e.a, n: e.n };
   });
   orden.sort(function (x, y) { return claveGrupo_(x) - claveGrupo_(y); });
-  return { grupos: orden.map(function (c) { return grupos[c]; }), estudiantes: est, tipos: TIPOS_MARCA_EST, catalogo: catalogoGrupos_() };
+  return { grupos: orden.map(function (c) { return grupos[c]; }), estudiantes: est, tipos: TIPOS_MARCA_EST, catalogo: catalogoGrupos_(), niveles: NIVELES_EST };
 }
 
 /** Pone una marca a uno o varios estudiantes. p = {items:[{g, a, n}], tipo, nota?} */

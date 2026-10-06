@@ -30,6 +30,9 @@ hojas.Estudiantes=new Hoja([['grupo','curso','no','apellidos','nombres'],
   ['0601','6°-1',1,'PEREZ GOMEZ','ANA MARIA'],['0601','6°-1',2,'ÁLVAREZ RÍOS','JOSÉ LUIS'],['0601','6°-1',3,'ZUÑIGA','CARLOS'],
   [701,'7°-1',1,'ROJAS LOPEZ','LAURA'],[701,'7°-1',2,'SOTO','PEDRO PABLO'],['CS101','CS 1-1',1,'DIAZ','MARTA']]);
 let d=run('datosEstudiantes()');
+ok(d.grupos.map(x=>x.nivel).join('|')==='Secundaria (6° a 9°)|Caminar en Secundaria|Secundaria (6° a 9°)'&&d.niveles.length===6,'cada grupo trae su nivel (6° y 7° secundaria, CS aparte) y hay 6 niveles');
+const nv=(c)=>run(`nivelGrupoEst_('${c}')`);
+ok(nv('0001')==='Preescolar (transición)'&&nv('0503')==='Primaria (1° a 5°)'&&nv('0902')==='Secundaria (6° a 9°)'&&nv('CS201')==='Caminar en Secundaria'&&nv('1101')==='Media (10° y 11°)'&&nv('C501')==='Adultos (ciclos)','clasificación por nivel: preescolar, primaria, secundaria, CS, media y adultos');
 ok(d.estudiantes.length===6&&d.grupos.map(x=>x.codigo).join()==='0601,CS101,0701'&&d.grupos[2].total===2,'grupos con totales; «701» se normaliza a 0701 y CS 1 queda tras los sextos');
 ok(d.tipos.length===31&&['REDES_APOYO','SENA_ARTICULACION','SENA_CURSO','SALUD_MENTAL','SALUD','GRUPO_ARTISTICO','SELECCION','CLUB','PROYECTO','NO_LISTADO','OTRA_INSTITUCION','NUEVO','PROMOVIDO','CONVIVENCIA','MATRICULA_COND','SPA','LACTANTE','GESTANTE','EXTRANJERO','DISCAPACIDAD','DESPLAZADO','MADRE_SUSTITUTA','DEPORTISTA','SOBRESALIENTE','COLABORADOR'].every(i=>d.tipos.some(t=>t.id===i))&&d.tipos.every(t=>t.cat&&t.emo&&/^#[0-9a-f]{6}$/i.test(t.color)),'31 tipos de marca en 6 categorías, cada uno con emoji y color');
 run("marcarEstudiantes({items:[{g:'CS101',a:'DIAZ',n:'MARTA'}],tipo:'EXTRANJERO',nota:'Venezolana'})");

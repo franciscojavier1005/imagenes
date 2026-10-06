@@ -208,11 +208,12 @@ if os.path.exists(os.path.join(RAIZ, "apps_script", "pruebas", "hojas.json")):
   var D=%s;
   /* estudiantes FALSOS (solo para la simulación) */
   var AP=['Rojas','Soto','Pérez','Díaz','Mena','Cuero','Angulo','Ortiz','Lerma','Caicedo','Torres','Rivas'], NM=['Ana María','José Luis','Laura','Carlos','Sofía','Pedro','Camila','Andrés','Valentina','Mateo'];
-  var GR={'0001':'0°-1','0501':'5°-1','0601':'6°-1','0602':'6°-2','CS101':'CS 1-1','0701':'7°-1','0702':'7°-2','0901':'9°-1','1101':'11°-1'}, ESTU=[], MID=0, TIPOSE=%s;
+  var GR=%s, ESTU=[], MID=0, TIPOSE=%s;
   Object.keys(GR).forEach(function(g,gi){for(var i=0;i<14;i++){ESTU.push({g:g,no:i+1,a:(AP[(i*3+gi)%%AP.length]+' '+AP[(i+gi*5+1)%%AP.length]).toUpperCase(),n:NM[(i+gi)%%NM.length].toUpperCase()});}});
   ESTU[2].m=[{id:'m0',tipo:'No asiste (posible deserción)',nota:'No viene desde el 15 de septiembre',por:'Harold Angulo',fecha:'2026-10-02'}];
   var CAT=[{tipo:'Selección o equipo deportivo (atletismo, fútbol sala, natación…)',nombre:'Fútbol sala'},{tipo:'Club académico o científico (robótica, matemáticas…)',nombre:'Club de robótica'}];
-  function estData(){var gs={},ord=[];ESTU.forEach(function(e){if(!gs[e.g]){gs[e.g]={codigo:e.g,curso:GR[e.g],total:0};ord.push(e.g);} gs[e.g].total++;}); return {grupos:ord.map(function(c){return gs[c];}),estudiantes:ESTU,tipos:TIPOSE,catalogo:CAT};}
+  function nivelG(c){if(/^CS/.test(c))return 'Caminar en Secundaria'; if(/^C\\d/.test(c))return 'Adultos (ciclos)'; var n=+c.slice(0,2); return n===0?'Preescolar (transición)':n<=5?'Primaria (1° a 5°)':n<=9?'Secundaria (6° a 9°)':'Media (10° y 11°)';}
+  function estData(){var gs={},ord=[];ESTU.forEach(function(e){if(!gs[e.g]){gs[e.g]={codigo:e.g,curso:GR[e.g],total:0,nivel:nivelG(e.g)};ord.push(e.g);} gs[e.g].total++;}); return {grupos:ord.map(function(c){return gs[c];}),estudiantes:ESTU,tipos:TIPOSE,catalogo:CAT,niveles:['Preescolar (transición)','Primaria (1° a 5°)','Secundaria (6° a 9°)','Caminar en Secundaria','Media (10° y 11°)','Adultos (ciclos)']};}
   var api=function(){var ok=null,fail=null,self={withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
     urlBase:function(){setTimeout(function(){ok('#vista-previa');},5);},
     consultaHorarios:function(p){setTimeout(function(){
@@ -232,7 +233,7 @@ if os.path.exists(os.path.join(RAIZ, "apps_script", "pruebas", "hojas.json")):
   window.google={script:{run:new Proxy({},{get:function(_,k){var s=api();return k in s?s[k]:s;}})}};
 })();
 </script>
-""" % (_datos_h, _tipos_est)
+""" % (_datos_h, json.dumps({g["grupo"]: g["nombre"] for g in rd("grupos.csv") if g["tipo"] not in ("TRANSVERSAL",)} | {"C301": "Adultos 6°-7° (C301)", "C501": "Adultos 10°-11° (C501)"}, ensure_ascii=False), _tipos_est)
     _hh = open(os.path.join(RAIZ, "apps_script", "Horarios.html"), encoding="utf-8").read()
     _i = _hh.index("<script>")
     _hh = _hh[:_i] + _mock4 + _hh[_i:]

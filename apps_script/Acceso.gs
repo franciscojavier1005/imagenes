@@ -33,6 +33,15 @@ function exigirEditor_() {
   if (!email || editoresLibro_().indexOf(email) < 0) throw new Error('Esta acción solo se hace desde el libro, con su cuenta.');
 }
 
+/** Diagnóstico para quien administra: ejecutarla desde el editor y mirar el Registro de ejecución. No devuelve nada (solo escribe en el registro). */
+function diagnosticoAcceso() {
+  var a = '', e = '', ed = [], o = '', err = '';
+  try { a = Session.getActiveUser().getEmail(); } catch (x) { err += ' activo:' + x.message; }
+  try { e = Session.getEffectiveUser().getEmail(); } catch (x) { err += ' efectivo:' + x.message; }
+  try { var ss = SpreadsheetApp.getActive(); ss.getEditors().forEach(function (u) { ed.push(u.getEmail()); }); var ow = ss.getOwner(); o = ow ? ow.getEmail() : '(sin propietario visible)'; } catch (x) { err += ' libro:' + x.message; }
+  Logger.log('Usuario activo: [' + a + '] · Usuario efectivo: [' + e + '] · Propietario: [' + o + '] · Editores: [' + ed.join(', ') + ']' + (err ? ' · Errores:' + err : ''));
+}
+
 function emailActual_() {
   if (REQ_EMAIL !== null) return String(REQ_EMAIL).toLowerCase();
   try { return String(Session.getActiveUser().getEmail() || '').toLowerCase(); } catch (e) { return ''; }

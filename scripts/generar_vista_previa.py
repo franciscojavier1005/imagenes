@@ -164,3 +164,16 @@ _h = _h.replace("<script>\nvar L=null;", mock2 + "<script>\nvar L=null;", 1)
 _h = _h.replace("<main id=\"app\">", '<div style="background:#fff3cd;color:#664d03;padding:6px 12px;font-size:13px;border-bottom:1px solid #ffe69c"><b>VISTA PREVIA:</b> pruebe el flujo; nada se guarda fuera de esta página.</div>\n<main id="app">', 1)
 open(os.path.join(RAIZ, "ICET_Vista_Previa_Reuniones.html"), "w", encoding="utf-8").write(_h)
 print("OK reuniones", round(len(_h) / 1024), "KB", len(_tipos), "tipos")
+
+
+# ---------------------------------------------------------------- vista previa del menú de entrada
+_m = open(os.path.join(RAIZ, "apps_script", "Menu.html"), encoding="utf-8").read()
+_mock3 = """<script>
+window.google={script:{run:new Proxy({},{get:function(_,k){var ok=null,self={withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(){return self;}};
+  var fn=function(){setTimeout(function(){ok(k==='urlBase'?'#vista-previa':{rol:'directivo',nombre:'Francisco Javier Cortés'});},10);};
+  return k==='withSuccessHandler'||k==='withFailureHandler'?self[k]:fn;}})}};
+</script>
+"""
+_m = _m.replace("<script>\nvar BASE='';", _mock3 + "<script>\nvar BASE='';", 1)
+open(os.path.join(RAIZ, "ICET_Vista_Previa_Menu.html"), "w", encoding="utf-8").write(_m)
+print("OK menu")

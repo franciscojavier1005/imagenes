@@ -9,10 +9,11 @@
  * Propiedades del script (Configuración del proyecto): BACK_URL = URL /exec del back, API_SECRET = el mismo secreto del back.
  */
 function doGet(e) {
-  var p = (e && e.parameter && e.parameter.p) || 'panel';
-  var ronda = p === 'ronda', reunion = p === 'reunion';
-  return HtmlService.createHtmlOutputFromFile(ronda ? 'Consulta' : (reunion ? 'Reunion' : 'Dashboard'))
-    .setTitle(ronda ? 'ICET - Ronda de asistencia docente' : (reunion ? 'ICET - Reuniones y jornadas' : 'ICET - Asistencia docente'))
+  var p = (e && e.parameter && e.parameter.p) || 'menu';   // sin parámetros abre el menú de entrada
+  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y jornadas'], panel: ['Dashboard', 'ICET - Asistencia docente'] };
+  var pg = PAGINAS[p] || PAGINAS.menu;
+  return HtmlService.createHtmlOutputFromFile(pg[0])
+    .setTitle(pg[1])
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 

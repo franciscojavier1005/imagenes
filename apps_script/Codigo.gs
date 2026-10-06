@@ -81,9 +81,11 @@ function doGet(e) {
   if (PropertiesService.getScriptProperties().getProperty('MODO_BACK') === 'SI') {
     return ContentService.createTextOutput('ICET API').setMimeType(ContentService.MimeType.TEXT);
   }
-  var pag = (e && e.parameter && e.parameter.p) || 'ronda', panel = pag === 'panel', reunion = pag === 'reunion';
-  return HtmlService.createHtmlOutputFromFile(panel ? 'Dashboard' : (reunion ? 'Reunion' : 'Consulta'))
-    .setTitle(panel ? 'ICET - Panel de asistencia docente' : (reunion ? 'ICET - Reuniones y jornadas' : 'ICET - Ronda de asistencia docente'))
+  var pag = (e && e.parameter && e.parameter.p) || 'menu';   // sin parámetros abre el menú de entrada
+  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y jornadas'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'] };
+  var pg = PAGINAS[pag] || PAGINAS.menu;
+  return HtmlService.createHtmlOutputFromFile(pg[0])
+    .setTitle(pg[1])
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 

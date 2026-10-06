@@ -82,9 +82,11 @@ function doGet(e) {
   if (PropertiesService.getScriptProperties().getProperty('MODO_BACK') === 'SI') {
     return ContentService.createTextOutput('ICET API').setMimeType(ContentService.MimeType.TEXT);
   }
-  var pag = (e && e.parameter && e.parameter.p) || 'ronda', panel = pag === 'panel', reunion = pag === 'reunion';
-  return HtmlService.createHtmlOutputFromFile(panel ? 'Dashboard' : (reunion ? 'Reunion' : 'Consulta'))
-    .setTitle(panel ? 'ICET - Panel de asistencia docente' : (reunion ? 'ICET - Reuniones y jornadas' : 'ICET - Ronda de asistencia docente'))
+  var pag = (e && e.parameter && e.parameter.p) || 'menu';   // sin parámetros abre el menú de entrada
+  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y jornadas'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'] };
+  var pg = PAGINAS[pag] || PAGINAS.menu;
+  return HtmlService.createHtmlOutputFromFile(pg[0])
+    .setTitle(pg[1])
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
@@ -1651,10 +1653,10 @@ var TIPOS_REUNION = [
   { tipo: 'Reunión de desarrollo institucional', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
   { tipo: 'Reunión de planeación', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
   { tipo: 'Capacitación en el colegio', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
-  { tipo: 'Reunión pedagógica', sinEstudiantes: true, inicio: '07:00', fin: '09:00' },
-  { tipo: 'Asamblea de docentes', sinEstudiantes: true, inicio: '07:00', fin: '09:00' },
-  { tipo: 'Reunión extraordinaria del rector', sinEstudiantes: true, inicio: '07:00', fin: '09:00' },
-  { tipo: 'Reunión informativa o actividad institucional', sinEstudiantes: true, inicio: '07:00', fin: '09:00' },
+  { tipo: 'Reunión pedagógica', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Asamblea de docentes', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Reunión extraordinaria del rector', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Reunión informativa o actividad institucional', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
   { tipo: 'Consejo académico', sinEstudiantes: false, inicio: '08:00', fin: '10:00' },
   { tipo: 'Comité de convivencia', sinEstudiantes: false, inicio: '08:00', fin: '10:00' },
   { tipo: 'Comité de calidad', sinEstudiantes: false, inicio: '08:00', fin: '10:00' },

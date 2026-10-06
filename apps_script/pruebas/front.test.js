@@ -30,7 +30,7 @@ let fallos=0; const ok=(c,m)=>{console.log((c?'  ok   ':'  FALLA ')+m); if(!c)fa
 const f=(js)=>vm.runInContext(js,front); const falla=(js)=>{try{f(js);return null}catch(e){return e.message}};
 
 ok(back.doGet({}).texto==='ICET API','el BACK no sirve ninguna pantalla: solo responde "ICET API" (MODO_BACK=SI)');
-ok(f('doGet({parameter:{}})').pagina==='Dashboard'&&f("doGet({parameter:{p:'ronda'}})").pagina==='Consulta','el FRONT sirve el panel por defecto y la ronda con ?p=ronda');
+ok(f('doGet({parameter:{}})').pagina==='Menu'&&f("doGet({parameter:{p:'ronda'}})").pagina==='Consulta'&&f("doGet({parameter:{p:'panel'}})").pagina==='Dashboard'&&f("doGet({parameter:{p:'reunion'}})").pagina==='Reunion','el FRONT abre el menú de entrada; ronda, reunión y panel con ?p=');
 let c=f('contextoPanel()'); ok(c.rol==='directivo'&&ultimaPeticion.cuerpo.email==='dueno@gmail.com'&&ultimaPeticion.cuerpo.secret===SECRETO&&ultimaPeticion.cuerpo.fn==='contextoPanel','front -> back: viaja el correo de Google y el secreto; el propietario es directivo');
 ok(ultimaPeticion.opt.method==='post'&&ultimaPeticion.url==='https://back/exec','petición POST a la URL del back');
 // otro usuario: el front manda SU correo

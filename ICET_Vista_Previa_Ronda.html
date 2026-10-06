@@ -93,6 +93,9 @@
   .prop .t{font-weight:600} .prop .m{font-size:12.5px;color:#566;margin-top:2px}
   .prop select{width:100%;margin-top:6px;padding:10px;border:2px solid var(--borde);border-radius:8px;font-size:15px;background:#fff}
   .conf-baja,.conf-sin{color:var(--no)} .conf-media{color:var(--tarde)} .conf-alta{color:var(--ok)}
+  .autoria{margin:26px auto 10px;padding:0 12px;text-align:center;font-size:11px;line-height:1.4;color:#8a94a0;max-width:640px}
+  .autoria b{font-weight:600}
+  @media print{.autoria{display:none}}
 </style>
 </head>
 <body>
@@ -115,6 +118,7 @@
   <div class="quien" id="quien"></div>
   <input class="buscar" id="q" type="search" placeholder="Buscar docente o grupo" oninput="pintar()">
   <div id="lista"><div class="aviso">Cargando…</div></div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b> · Coordinador académico, I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026</div>
 </main>
 <div class="barra">
   <div class="estado" id="estado" aria-live="polite"></div>

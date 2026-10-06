@@ -183,6 +183,6 @@ function htmlInforme_(r, fechaTexto, urlPanel) {
   }
   h += '<p style="font-size:12.5px;color:#52514e">Ronda de verificación (docentes verificados/esperados): ' + e(ronda || 'sin registros') + '</p>' +
        (urlPanel ? '<p><a href="' + e(urlPanel) + '" style="color:#1c5cab">Abrir el panel completo</a></p>' : '') +
-       '<p style="font-size:11.5px;color:#74736d;border-top:1px solid #e6e5e0;padding-top:8px">Información confidencial de uso directivo (Ley 1581 de 2012).</p></div>';
+       '<p style="font-size:11.5px;color:#74736d;border-top:1px solid #e6e5e0;padding-top:8px">Información confidencial de uso directivo (Ley 1581 de 2012).<br>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas, coordinador académico, I.E. ICET.</p></div>';
   return h;
 }

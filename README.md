@@ -1,5 +1,7 @@
 # ICET 2026 - Control de asistencia docente
 
+**Autor:** Francisco Javier Cortés Cabezas · Coordinador académico · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026. Diseño, especificaciones y dirección del sistema.
+
 - `fuentes/`: PDF de asignación académica, dirección de grupo y Word de asistencia (originales).
 - `scripts/`: extracción (`extraer_horarios.py`), datos (`construir_datos.py`), validación (`validar.py`) y libro (`generar_libro.py`; `direccion_grupo.py` con la dirección de grupo 2026).
 - `data/`: CSV generados (docentes, grupos, franjas, horario maestro) y `VALIDACION.md`.

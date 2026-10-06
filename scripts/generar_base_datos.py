@@ -224,6 +224,8 @@ hoja("Horario_Legible", leg)
 tabla("Motivos", motivos, ["categoria", "motivo", "justificada", "soporte_sugerido", "requiere_soporte", "plazo_dias"])
 hoja("Novedades", [["Marca temporal", "Fecha Novedad", "Docente", "Tipo Novedad", "Actividad de Aprendizaje", "Motivo Ausencia", "Descripción", "Fuente Novedad",
                     "Medio Información", "Grado", "Grupo", "Área/Asignatura", "Horario", "Minutos Desatendidos", "Directivo Docente", "Sesiones", "Justificada", "Categoría motivo"]])
+wb.properties.creator = "Francisco Javier Cortés Cabezas"
+wb.properties.description = "Autor: Francisco Javier Cortés Cabezas, coordinador académico, I.E. ICET, Tumaco (Nariño). © 2026"
 wb.save(os.path.join(RAIZ, "ICET_Base_Datos_2026.xlsx"))
 print("OK. Controles:")
 for c in checks:

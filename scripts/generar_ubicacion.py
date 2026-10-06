@@ -175,5 +175,7 @@ lm["A1"].font = Font(bold=True, size=14); lm.column_dimensions["A"].width = 130
 
 wb._sheets = [wb[n] for n in ("Ubicacion", "Por_Docente", "Horario_Bach", "Franjas", "Grupos", "LEEME")]
 wb.active = 0
+wb.properties.creator = "Francisco Javier Cortés Cabezas"
+wb.properties.description = "Autor: Francisco Javier Cortés Cabezas, coordinador académico, I.E. ICET, Tumaco (Nariño). © 2026"
 wb.save(OUT)
 print("OK", OUT, os.path.getsize(OUT) // 1024, "KB;", len(H), "filas de horario;", len(sec), "docentes de bachillerato")

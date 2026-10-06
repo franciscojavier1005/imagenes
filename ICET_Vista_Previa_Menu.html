@@ -29,6 +29,9 @@
   .enlace{background:none;border:0;color:#1b4a8f;text-decoration:underline;font-size:14px;padding:8px}
   .pie{text-align:center;font-size:12.5px;color:#678;margin-top:18px}
   .espera{text-align:center;padding:24px;color:#456}
+  .autoria{margin:26px auto 10px;padding:0 12px;text-align:center;font-size:11px;line-height:1.4;color:#8a94a0;max-width:640px}
+  .autoria b{font-weight:600}
+  @media print{.autoria{display:none}}
 </style>
 </head>
 <body>
@@ -40,6 +43,7 @@
 <main>
   <div class="saludo" id="saludo"></div>
   <div id="botones"><div class="espera">Cargando…</div></div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b> · Coordinador académico, I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */

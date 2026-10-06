@@ -70,6 +70,7 @@ GR = {g["grupo"]: g for g in leer_d("grupos.csv")}
 lm = wb.create_sheet("LEEME")
 for t in [
     "ICET 2026 - Control de asistencia docente",
+    "Autor: Francisco Javier Cortés Cabezas · Coordinador académico · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026",
     "",
     "RONDA (hoja principal): al abrirla muestra, sin filtros, quién debe estar en cada grupo en la sesión actual.",
     "  - Día y sesión se calculan con la hora del dispositivo. En Google Sheets: Archivo > Configuración > zona horaria (GMT-05:00 Bogotá).",
@@ -255,5 +256,8 @@ hoja(wb, "Registro_Ronda", [["marca_temporal", "fecha", "dia", "sesion", "franja
 orden = ["LEEME", "Ronda", "Docentes", "Horario", "Matriz_Grupos", "Direccion_Grupo", "Motivos", "Novedades", "Bandeja_WhatsApp", "Notas_Ronda", "Alternancias", "Semana_Alternancia", "Reuniones", "Asistencia_Reunion", "Usuarios", "Soportes", "Parametros", "Registro_Ronda", "Directivos", "Listas", "Franjas", "Grupos"]
 wb._sheets = [wb[n] for n in orden]
 wb.active = 1
+wb.properties.creator = "Francisco Javier Cortés Cabezas"
+wb.properties.title = "ICET 2026 - Control de asistencia docente"
+wb.properties.description = "Sistema de control de asistencia docente. Autor: Francisco Javier Cortés Cabezas, coordinador académico, I.E. ICET, Tumaco (Nariño). © 2026"
 wb.save(OUT)
 print("OK", OUT)

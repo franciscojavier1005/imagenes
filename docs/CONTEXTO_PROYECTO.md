@@ -2,6 +2,9 @@
 
 > **Se actualiza en cada cambio** (regla acordada con el coordinador). Última actualización: ingreso con clave sin pantallas de Google, menú de entrada (Ronda / Reuniones / Panel), reuniones 7:00-13:30, auditoría (`docs/AUDITORIA.md`).
 
+## Autoría
+Autor: **Francisco Javier Cortés Cabezas**, coordinador académico, I.E. ICET, San Andrés de Tumaco (Nariño, Colombia). © 2026. Su crédito aparece de forma discreta: pie del menú y de las pantallas, hoja LEEME y propiedades de los libros, informe diario, planilla de firmas, menú del libro «Acerca de este sistema», README. Licencia: pendiente de definir por el autor.
+
 ## Quién y para qué
 Coordinador académico de una institución pública (San Andrés de Tumaco, Nariño, Colombia). Los directivos (4: coordinador académico Francisco Javier Cortés, coordinadora de redes de apoyo Verónica Barreiro, coordinador de convivencia Harold Angulo, rector Jorge Hernández) hacen **rondas** por el colegio con celular o tableta para verificar si los docentes están en su clase, registran novedades (ausencias, llegadas tarde, permisos), y consultan paneles. Los docentes después ven su informe y suben soportes. Todo sobre **Google Sheets + Apps Script** (sin servidor propio).
 

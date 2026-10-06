@@ -1,5 +1,6 @@
 /**
  * ICET 2026 - Control de asistencia docente (ronda de verificación)
+ * Autor: Francisco Javier Cortés Cabezas, coordinador académico, I.E. ICET (Tumaco, Nariño). © 2026
  *
  * Instalación: abrir el libro en Google Sheets > Extensiones > Apps Script,
  * pegar este archivo como Codigo.gs y crear el archivo HTML "Consulta" con Consulta.html.
@@ -9,6 +10,12 @@
  * Panel: Dashboard.gs + Dashboard.html. Informe al rector: Dashboard.gs. Cálculo del resumen: Resumen.gs.
  * Hojas que usa: Horario, Franjas, Grupos, Direccion_Grupo, Motivos, Listas, Directivos, Registro_Ronda, Novedades.
  */
+/**
+ * Sistema de control de asistencia docente - I.E. ICET, San Andrés de Tumaco (Nariño, Colombia).
+ * Autor: Francisco Javier Cortés Cabezas, coordinador académico. © 2026.
+ */
+var AUTORIA = 'Sistema de control de asistencia docente\nAutor: Francisco Javier Cortés Cabezas\nCoordinador académico · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia)\n© 2026';
+
 var TZ = 'America/Bogota';
 var DIAS = ['', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
 var MEDIO_RONDA = 'Inspección ocular/Ronda supervisión';
@@ -20,6 +27,7 @@ function onOpen() {
     .addItem('Actualizar horario de preescolar (una sola vez)', 'actualizarHorarioPreescolar')
     .addItem('Importar bandeja de WhatsApp (filas marcadas SI)', 'importarBandejaWhatsApp')
     .addItem('Generar claves de ingreso de los directivos', 'generarClavesDirectivos')
+    .addItem('Acerca de este sistema', 'acercaDe')
     .addItem('Borrar audios de ronda antiguos', 'purgarAudios')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')
@@ -505,3 +513,5 @@ function actualizarHorarioPreescolar() {
   var r = actualizarHorarioPreescolar_();
   SpreadsheetApp.getUi().alert('Horario de preescolar actualizado.\nFilas de la sesión 2 quitadas: ' + r.quitadas + '\nPeriodos corregidos: ' + r.corregidas);
 }
+
+function acercaDe() { SpreadsheetApp.getUi().alert('Acerca de este sistema', AUTORIA, SpreadsheetApp.getUi().ButtonSet.OK); }

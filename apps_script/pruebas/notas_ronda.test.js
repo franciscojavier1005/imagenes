@@ -141,7 +141,7 @@ const ejemplo=hr[0]; const otro=parA.find(x=>x!==ejemplo[hi('docente')]);
 const rq=run(`consultarSesion('${ejemplo[hi('dia')]}',${ejemplo[hi('hora')]},'sesion')`);
 const card=rq.filas.find(f=>f.docente===ejemplo[hi('docente')]&&f.area==='ETR');
 ok(card&&JSON.stringify(card.alternos)===JSON.stringify([otro]),'ética y religión en pareja: la tarjeta de un docente ofrece al otro como alterno');
-const noEtr=rq.filas.filter(f=>!['ETR','CSI'].includes(f.area)&&f.tipo==='CLASE'&&f.alternos.length);
+const noEtr=rq.filas.filter(f=>!['ETR','CSI','CNA'].includes(f.area)&&f.tipo==='CLASE'&&f.alternos.length);
 ok(noEtr.length===0,'solo las áreas de la hoja Alternancias tienen alternos');
 const dia1=H.Horario.slice(1).filter(r=>r[hi('dia')]===ejemplo[hi('dia')]&&r[hi('docente')]===ejemplo[hi('docente')]).length;
 ok(card.minutosDia===dia1*45,`la tarjeta trae el total del día para "toda la jornada" (${card.minutosDia} min)`);
@@ -162,6 +162,10 @@ const csiPares=H.Alternancias.slice(1).filter(r=>r[0]==='CSI'); ok(csiPares.leng
 const csi=H.Horario.slice(1).find(r=>r[hi('tipo')]==='CLASE'&&r[hi('area')]==='CSI'&&csiPares.some(p=>p.includes(r[hi('docente')])));
 const rc=run(`consultarSesion('${csi[hi('dia')]}',${csi[hi('hora')]},'sesion')`); const cc2=rc.filas.find(f=>f.docente===csi[hi('docente')]&&f.area==='CSI');
 ok(cc2&&cc2.alternos.length===1,'sociales/inglés: la tarjeta ofrece al otro docente de la pareja');
+const cnaP=H.Alternancias.slice(1).filter(r=>r[0]==='CNA'); ok(cnaP.length===1,'hoja Alternancias trae la pareja de ciencias naturales (química / física)');
+const cna=H.Horario.slice(1).find(r=>r[hi('tipo')]==='CLASE'&&r[hi('area')]==='CNA'&&cnaP[0].includes(r[hi('docente')]));
+const rn=run(`consultarSesion('${cna[hi('dia')]}',${cna[hi('hora')]},'sesion')`); const cn=rn.filas.find(f=>f.docente===cna[hi('docente')]&&f.area==='CNA');
+ok(cn&&cn.alternos.length===1,'ciencias naturales: la tarjeta ofrece al otro docente de la pareja');
 // una hoja Alternancias de la versión anterior (solo ética y religión) recibe las parejas que faltan
 const al=hojas.Alternancias.v; const nAl=al.length; al.splice(al.findIndex(r=>r[0]==='CSI'),2);
 run("consultarSesion('VIERNES',3,'bloque')"); ok(al.length===nAl,'se agregan solas las parejas que faltan, sin duplicar');

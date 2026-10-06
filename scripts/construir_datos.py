@@ -69,6 +69,7 @@ MAPA = {
 #  - Armero Dájome Jesús (#57, OPS) reemplaza a Terán Guevara Jorge Alberto (#47) y atiende todo su horario.
 PENDIENTES = {}
 NOTAS_DOCENTE = {
+    4: "OPS - asignado por el rector (Ciencias Naturales y Educación Ambiental, CS 1)",
     57: "OPS - reemplaza a Terán Guevara Jorge Alberto: atiende su horario",
     47: "Reemplazado por Armero Dájome Jesús (OPS): su horario lo atiende Armero",
     37: "Reemplazo de la docente Luz María Cortés Tenorio. Desde el cambio del rector atiende el horario que tenía Puches (Docente 1)",

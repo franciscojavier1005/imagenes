@@ -53,7 +53,7 @@ Nada pasa a `Novedades` sin esa confirmación y no se duplica una ausencia ya re
 La ronda verifica por **bloque** (2 sesiones: S1-2, S3-4, S5-6, S7-8) o, si se prefiere, por sesión (selector "Por bloque / Por sesión" en el encabezado; se recuerda en cada dispositivo). En bloque, una visita en cualquier momento del bloque vale para sus dos sesiones: una tarjeta por docente y la marca se guarda como las dos sesiones (Registro_Ronda y Novedades, 45 min cada una; 60 en preescolar). La llegada tarde se anota en la primera sesión y la salida temprana en la última. "Toda la jornada" sigue registrándose una sola vez.
 
 ## Parejas que alternan y barra de estado
-- Hoja `Alternancias` (se crea sola con las dos parejas de ética y religión: Casanova / Castillo y Estacio / Montaño): en la ronda esas clases muestran los dos nombres y se elige **quién dicta esta semana**; la marca queda a nombre del elegido. Se puede editar la hoja para agregar parejas.
+- Hoja `Alternancias` (se crea sola con las parejas: ética y religión Casanova / Castillo y Estacio / Montaño; sociales e inglés Quintero / Ortiz y Betancourth / Pulgarín; ciencias naturales Lemos / Villota): en la ronda esas clases muestran los dos nombres y se elige **quién dicta esta semana**; la marca queda a nombre del elegido. Se puede editar la hoja para agregar parejas.
 - Asistencia con botones (Presente / No asistió / Llegada tarde / Salida temprana) en lugar de lista desplegable; tocar de nuevo el botón activo lo desmarca.
 - Barra fija abajo: quién hace la ronda, cuántos deben estar, presentes, no asistieron, tarde/salida y sin marcar.
 - "Toda la jornada" muestra el total de minutos del día del docente (45 por sesión; 60 por periodo en preescolar).

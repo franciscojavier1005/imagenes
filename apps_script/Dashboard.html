@@ -348,10 +348,10 @@ function pintar(){
     h('div',{class:'det',text:fmtNum(k.sesiones)+' sesiones de 45 minutos de '+fmtNum(k.programadas)+' programadas · cumplimiento '+fmtPct(k.cumplimiento)})]));
 
   var tiles=esDoc
-    ?[['Ausencias',fmtNum(k.ausencias),'días sin asistir'],['Llegadas tarde',fmtNum(k.llegadasTarde),'registros'],['Salidas tempranas',fmtNum(k.salidasTempranas),'registros'],['Permisos por horas',fmtNum(k.permisosTemporales),'registros'],
+    ?[['Ausencias',fmtNum(k.ausencias),'días sin asistir'],['Llegadas tarde',fmtNum(k.llegadasTarde),'registros'],['Salidas tempranas',fmtNum(k.salidasTempranas),'registros'],['Permisos por horas',fmtNum(k.permisosTemporales),'registros'],['Incumplimientos',fmtNum(k.incumplimientos),'reportados'],
       ['Novedades justificadas',fmtPct(k.pctJustificadas),fmtNum(k.eventos)+' novedades'],['Sin justificar',fmtMin(k.minutosSinJustificar),'tiempo sin atender']]
     :[['Docentes con novedad',fmtNum(k.docentesConNovedad),'en el periodo'],['Ausencias',fmtNum(k.ausencias),'docente-día sin asistir'],
-      ['Llegadas tarde',fmtNum(k.llegadasTarde),'registros'],['Salidas tempranas',fmtNum(k.salidasTempranas),'registros'],['Permisos por horas',fmtNum(k.permisosTemporales),'registros'],
+      ['Llegadas tarde',fmtNum(k.llegadasTarde),'registros'],['Salidas tempranas',fmtNum(k.salidasTempranas),'registros'],['Permisos por horas',fmtNum(k.permisosTemporales),'registros'],['Incumplimientos',fmtNum(k.incumplimientos),'reportados'],
       ['Novedades justificadas',fmtPct(k.pctJustificadas),fmtNum(k.eventos)+' novedades'],['Sin justificar',fmtMin(k.minutosSinJustificar),'tiempo sin atender']];
   c.appendChild(h('div',{class:'tiles'},tiles.map(function(t){return h('div',{class:'tile'},[h('div',{class:'et',text:t[0]}),h('div',{class:'v',text:t[1]}),h('div',{class:'n',text:t[2]})]);})));
 
@@ -390,8 +390,40 @@ function pintar(){
   }
   if(CTX&&CTX.rol==='docente') cargarSoportes();
   if(CTX&&CTX.rol==='directivo'&&vista==='coordinacion') cargarGestion();
+  if(CTX&&CTX.rol==='directivo'&&!esDoc) cargarIncumplimientos();
   el('pie').textContent=esDoc?'Este informe muestra solo sus registros. Para aclaraciones o para entregar soportes, comuníquese con coordinación. Actualizado: '+new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})+'.'
     :'Información confidencial de uso directivo (Ley 1581 de 2012). Actualizado: '+new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})+'.';
+}
+
+/* ---------- incumplimientos reportados (solo directivos): registro de solo agregar, con seguimiento ---------- */
+function cargarIncumplimientos(){
+  var sec=h('section',{class:'card ancha',id:'secInc',style:'margin-top:14px'},[h('h2',{text:'⚠ Incumplimientos reportados'}),h('div',{class:'vacio',text:'Cargando…'})]);
+  var viejo=el('secInc'); if(viejo) viejo.remove();
+  el('contenido').appendChild(sec);
+  srv().withSuccessHandler(function(r){ pintarInc(sec,r); })
+   .withFailureHandler(function(e){ sec.replaceChildren(h('h2',{text:'⚠ Incumplimientos reportados'}),h('div',{class:'vacio',text:'Error: '+(e.message||e)})); })
+   .listarIncumplimientos({desde:R.desde,hasta:R.hasta});
+}
+function pintarInc(sec,r){
+  var cab=h('h2',{text:'⚠ Incumplimientos reportados'});
+  var nota=h('div',{class:'msg',text:'Registro permanente: los reportes no se borran. Aquí se les da seguimiento (estado y notas). No son una sanción: son el soporte para el debido proceso.'});
+  if(!r.lista.length){ sec.replaceChildren(cab,nota,h('div',{class:'vacio',text:'Sin reportes en este periodo.'})); return; }
+  var items=r.lista.map(function(x){
+    var sel=h('select',{},r.estados.map(function(e){var o=h('option',{value:e,text:e}); if(e===x.estado) o.selected=true; return o;}));
+    var inp=h('input',{type:'text',placeholder:'Nota de seguimiento (opcional)',style:'flex:1;min-width:140px;padding:8px;border:1px solid var(--grid);border-radius:8px;background:var(--surface-1);color:var(--text-primary);font:inherit'});
+    var btn=h('button',{class:'p',text:'Guardar seguimiento',onclick:function(){ btn.disabled=true;
+      srv().withSuccessHandler(function(){ cargarIncumplimientos(); }).withFailureHandler(function(e){ btn.disabled=false; alert(e.message||e); }).actualizarSeguimiento({id:x.id,estado:sel.value,nota:inp.value}); }});
+    return h('div',{style:'border:1px solid var(--grid);border-left:4px solid #7b1fa2;border-radius:10px;padding:10px 12px;margin-top:10px'},[
+      h('div',{style:'font-weight:600',text:x.docente+' · '+x.tipo.replace('Incumplimiento: ','')}),
+      h('div',{class:'sub',text:fFecha(x.fecha)+' · '+x.sesiones+(x.grupo?' · grupo '+x.grupo:'')+(x.minutos?' · '+x.minutos+' min':'')+' · '+(x.reincidencia>1?x.reincidencia+'.º reporte del docente':'1.er reporte')+' · registró '+x.registradoPor}),
+      x.donde?h('div',{class:'sub',text:'Estaba: '+x.donde}):null,
+      h('div',{style:'margin-top:6px',text:x.descripcion}),
+      x.explicacion?h('div',{class:'sub',style:'margin-top:4px',text:'Explicación del docente: '+x.explicacion}):null,
+      x.seguimiento?h('div',{class:'sub',style:'margin-top:6px;white-space:pre-wrap',text:x.seguimiento}):null,
+      h('div',{style:'display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px'},[sel,inp,btn])]);
+  });
+  var tot=Object.keys(r.totalPorDocente).filter(function(d){return r.totalPorDocente[d]>1;});
+  sec.replaceChildren.apply(sec,[cab,nota].concat(tot.length?[h('div',{class:'sub',style:'margin-top:6px',text:'Con más de un reporte en el año: '+tot.map(function(d){return d+' ('+r.totalPorDocente[d]+')';}).join(' · ')})]:[]).concat(items));
 }
 
 /* ---------- pantallas por rol: registro, soportes y gestión ---------- */

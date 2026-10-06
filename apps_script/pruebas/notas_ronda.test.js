@@ -20,7 +20,7 @@ const g={Utilities:{formatDate:fmt,getUuid:()=>'u'+Math.random().toString(36).sl
     createFolder:()=>({getId:()=>'RAIZ',createFolder:n=>({createFile:b=>{const f={b,id:'F'+archivos.length,setSharing(){},getId(){return this.id},getUrl(){return 'https://drive/'+this.id}};archivos.push(f);return f},getFoldersByName:()=>({hasNext:()=>false})}),getFoldersByName:()=>({hasNext:()=>false})}),
     getFolderById:()=>{throw new Error('no')},getFileById:id=>({setTrashed(){papelera.push(id)}})},console};
 vm.createContext(g);
-['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Reuniones.gs','Sesion.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
+['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Reuniones.gs','Incumplimientos.gs','Sesion.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
 let fallos=0; const ok=(c,m)=>{console.log((c?'  ok   ':'  FALLA ')+m); if(!c)fallos++;};
 const run=(c)=>vm.runInContext(c,g);
 const hi=H.Horario[0].indexOf.bind(H.Horario[0]);
@@ -238,4 +238,43 @@ const gj=run('guardarAsistenciaReunion(RAT)'); ok(gj.guardados>=50,'se registra 
 run('guardarAsistenciaReunion(RAT)'); const filasAs=hojas.Asistencia_Reunion.v.filter(r=>r[0]===rj.id).length; ok(filasAs===gj.guardados,'volver a guardar reemplaza, no duplica');
 let eR=null; try{run("crearReunion({tipo:'Jornada pedagógica',inicio:'13:00',fin:'08:00',convocados:'TODOS'})")}catch(x){eR=x} ok(eR&&/hora/.test(eR.message),'rechaza horas inválidas');
 EMAIL='alguien@gmail.com'; eR=null; try{run("crearReunion({tipo:'Jornada pedagógica',inicio:'07:00',fin:'13:30',convocados:'TODOS'})")}catch(x){eR=x} ok(eR&&/Solo un directivo/.test(eR.message),'solo directivos registran reuniones'); EMAIL='dueno@gmail.com';
+// ---- incumplimientos con rigor
+const claseI=H.Horario.slice(1).find(r=>r[hi('dia')]==='MARTES'&&r[hi('tipo')]==='CLASE'&&Number(r[hi('hora')])===3), dI=claseI[hi('docente')], gI=claseI[hi('grupo')];
+const guardaInc=(fecha,ses,tipo,obs,extra)=>run(`guardarRonda({dia:'MARTES',sesion:${ses},fecha:'${fecha}',registros:[{docente:${JSON.stringify(dI)},sesion:${ses},grupoCodigo:${JSON.stringify(gI)},area:'X',estado:'Incumplimiento',obs:${JSON.stringify(obs)},incumplimiento:Object.assign({tipo:'${tipo}',donde:'En la sala de profesores'},${JSON.stringify(extra||{})})}]})`);
+let eI=null; try{guardaInc('2026-10-06',3,'NO_ATIENDE','corto')}catch(x){eI=x}
+ok(eI&&/mínimo 15/.test(eI.message),'rigor: sin descripción suficiente no se guarda');
+eI=null; try{guardaInc('2026-10-06',3,'XX','El docente estaba en la sala de profesores y el grupo sin clase')}catch(x){eI=x}
+ok(eI&&/tipo de incumplimiento/.test(eI.message),'rigor: exige elegir el tipo de incumplimiento');
+const nI0=hojas.Novedades.v.length;
+guardaInc('2026-10-06',3,'NO_ATIENDE','Lo encontré en la sala de profesores; el grupo estaba sin clase y sin actividad.',{explicacion:'Dijo que esperaba al coordinador'});
+const nvI=hojas.Novedades.v[hojas.Novedades.v.length-1], iv=hojas.Incumplimientos.v, icol=iv[0];
+ok(hojas.Novedades.v.length===nI0+1&&nvI[cc('Tipo Novedad')]==='Incumplimiento: no atiende al grupo'&&nvI[cc('Minutos Desatendidos')]===45&&nvI[cc('Justificada')]==='No'&&nvI[cc('Categoría motivo')]==='INCUMPLIMIENTO','no atiende: novedad de 45 min, sin justificación, categoría INCUMPLIMIENTO');
+const filaI=iv[iv.length-1]; ok(iv.length===2&&filaI[icol.indexOf('reincidencia')]===1&&filaI[icol.indexOf('estado')]==='Reportado'&&/sala de profesores/.test(filaI[icol.indexOf('donde')])&&/sin clase/.test(filaI[icol.indexOf('descripcion')])&&filaI[icol.indexOf('registrado_por')]==='dueno@gmail.com','queda en Incumplimientos: reincidencia 1, estado Reportado, dónde, descripción y quién lo registró');
+guardaInc('2026-10-06',3,'NO_ATIENDE','Lo encontré en la sala de profesores; el grupo estaba sin clase y sin actividad.'); ok(hojas.Incumplimientos.v.length===2,'guardar dos veces el mismo reporte no lo duplica');
+// aunque luego se cambie la marca de esa sesión, el reporte NO desaparece
+run(`guardarRonda({dia:'MARTES',sesion:3,fecha:'2026-10-06',registros:[{docente:${JSON.stringify(dI)},sesion:3,grupoCodigo:${JSON.stringify(gI)},area:'X',estado:'Presente'}]})`);
+ok(hojas.Incumplimientos.v.length===2&&!hojas.Novedades.v.some(r=>r[cc('Docente')]===dI&&/Incumplimiento/.test(r[cc('Tipo Novedad')])),'si después se marca Presente, la novedad del panel se reemplaza pero el reporte formal NO se borra (registro de solo agregar)');
+guardaInc('2026-10-07',3,'NO_ATIENDE','Otra vez en la sala de profesores con el grupo sin atender, según lo vi en la ronda.');
+ok(hojas.Incumplimientos.v[hojas.Incumplimientos.v.length-1][icol.indexOf('reincidencia')]===2,'la reincidencia cuenta los reportes anteriores del docente (2.º reporte)');
+// despidió a los estudiantes: resto de la jornada
+guardaInc('2026-10-08',4,'DESPIDIO','Despidió a los estudiantes a las 9:00 sin autorización de ningún directivo.',{alcance:'RESTO'});
+const nrD=hojas.Novedades.v[hojas.Novedades.v.length-1];
+const restoMin=H.Horario.slice(1).filter(r=>r[hi('dia')]==='MARTES'&&r[hi('docente')]===dI&&Number(r[hi('hora')])>=4).length*45;
+ok(nrD[cc('Tipo Novedad')]==='Incumplimiento: despidió a los estudiantes sin autorización'&&nrD[cc('Sesiones')]==='S4-FIN'&&nrD[cc('Minutos Desatendidos')]===restoMin,'despidió a los estudiantes: suma los minutos desde esa sesión hasta el final de su jornada ('+restoMin+' min)');
+// seguimiento
+const idSeg=hojas.Incumplimientos.v[1][icol.indexOf('id')];
+run(`actualizarSeguimiento({id:'${idSeg}',estado:'En seguimiento',nota:'Se habló con el docente'})`); run(`actualizarSeguimiento({id:'${idSeg}',estado:'Citado a descargos',nota:'Citación para el viernes'})`);
+const fs2=hojas.Incumplimientos.v[1]; ok(fs2[icol.indexOf('estado')]==='Citado a descargos'&&/Se habló/.test(fs2[icol.indexOf('seguimiento')])&&/viernes/.test(fs2[icol.indexOf('seguimiento')]),'el seguimiento cambia el estado y conserva TODAS las notas anteriores');
+let eS=null; try{run(`actualizarSeguimiento({id:'${idSeg}',estado:'Borrado'})`)}catch(x){eS=x} ok(eS&&/Estado no válido/.test(eS.message),'no se puede "borrar" un reporte: solo estados de seguimiento');
+const liI=run("listarIncumplimientos({desde:'2026-10-06',hasta:'2026-10-07'})"); ok(liI.lista.length===2&&liI.totalPorDocente[dI]===3,'listarIncumplimientos: filtra por fechas y cuenta los reportes por docente');
+const falla=(c)=>{try{run(c);return null}catch(e){return String(e.message)}};
+EMAIL=''; ok(/Debe iniciar sesión/.test(falla("listarIncumplimientos({})")||'')&&/Debe iniciar sesión/.test(falla("actualizarSeguimiento({id:'x',estado:'Cerrado'})")||''),'sin sesión no se pueden ver ni modificar'); EMAIL='dueno@gmail.com';
+// una observación o un chat que reporte un incumplimiento también queda en la hoja formal
+{const B=hojas.Bandeja_WhatsApp.v; if(!B[0].includes('id')) run('bandeja_()'); const bh=hojas.Bandeja_WhatsApp.v[0]; const fil=bh.map(()=>''); const set=(k,v)=>{fil[bh.indexOf(k)]=v};
+ set('fecha','2026-10-09');set('hora','13:35');set('remitente','Prueba');set('docente',dI);set('tipo_novedad','Incumplimiento: despidió a los estudiantes sin autorización');set('motivo','Sin justificación');set('categoria','INCUMPLIMIENTO');set('justificada','No');set('mensaje','Mandó a los niños para la casa sin autorización.');set('confirmar','SI');
+ hojas.Bandeja_WhatsApp.v.push(fil); const antesI=hojas.Incumplimientos.v.length; const rb=run('importarBandeja_()');
+ ok(rb.importadas>=1&&hojas.Incumplimientos.v.length===antesI+1&&hojas.Incumplimientos.v[hojas.Incumplimientos.v.length-1][icol.indexOf('tipo')]==='Incumplimiento: despidió a los estudiantes sin autorización','un reporte importado de WhatsApp/observaciones también queda en la hoja Incumplimientos');}
+// panel: kpi
+g.RS2={desde:'2026-10-06',hasta:'2026-10-08',docentes:[],motivos:[],horario:[],novedades:[{fecha:'2026-10-06',docente:'X',tipo:'Incumplimiento: no atiende al grupo',motivo:'Sin justificación',minutos:45,justificada:'No',categoria:'INCUMPLIMIENTO'}]};
+const k2=run('calcularResumen_(RS2)').kpis; ok(k2.incumplimientos===1&&k2.minutos===45&&k2.ausencias===0&&k2.minutosSinJustificar===45,'panel: cuenta incumplimientos, suma sus minutos como injustificados y no los mezcla con ausencias');
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

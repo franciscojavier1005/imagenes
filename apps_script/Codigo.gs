@@ -352,7 +352,18 @@ function guardarRonda(p) {
         var rr = reunionesEnSesiones_(fecha, [sesion], franjas).filter(function (x) { return convocadoA_(x, r.docente) && ESTADOS_REUNION_PRESENTE.indexOf(x.asistencia[r.docente]) >= 0; })[0];
         if (rr) r = Object.assign({}, r, { estado: 'En reunión', motivo: rr.nombre, minutos: '' });
       }
-      var m = motivos[r.motivo] || {};
+      // incumplimientos: se registran con rigor (descripción obligatoria, siempre sin justificación, y quedan además en la hoja Incumplimientos)
+      var inc = null;
+      if (r.estado === 'Incumplimiento') {
+        var ti = r.incumplimiento || {};
+        if (!TIPOS_INCUMPL[ti.tipo]) throw new Error('Elija el tipo de incumplimiento de ' + r.docente + '.');
+        if (String(r.obs || '').trim().length < MIN_DESCRIPCION_INCUMPL) throw new Error('Describa lo que verificó de ' + r.docente + ' (mínimo ' + MIN_DESCRIPCION_INCUMPL + ' letras).');
+        var resto = ti.tipo === 'DESPIDIO' && ti.alcance === 'RESTO', minInc = minutosSesion_(r.grupoCodigo);
+        if (resto) { minInc = 0; hz.forEach(function (h) { if (h.docente === r.docente && h.dia === p.dia && Number(h.hora) >= sesion) minInc += minutosSesion_(h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo); }); }
+        inc = { tipo: ti.tipo, texto: TIPOS_INCUMPL[ti.tipo], resto: resto, minutos: minInc, donde: DONDE_INCUMPL.indexOf(ti.donde) >= 0 ? ti.donde : '', explicacion: ti.explicacion };
+        r = Object.assign({}, r, { estado: inc.texto, motivo: 'Sin justificación', minutos: inc.minutos });
+      }
+      var m = inc ? { justificada: 'NO', categoria: 'INCUMPLIMIENTO' } : (motivos[r.motivo] || {});
       var just = (r.estado === 'Presente' || r.estado === 'En reunión') ? '' : (m.justificada === 'SI' ? 'Sí' : 'No');
       var atiende = (r.estado === 'Presente' || r.estado === 'En reunión') ? '' : (ATIENDE_GRUPO.indexOf(r.atiende) >= 0 ? r.atiende : '');   // quién cubrió el grupo; NO cuenta como asistencia del docente
       var pre = /^00/.test(String(r.grupoCodigo));
@@ -373,7 +384,8 @@ function guardarRonda(p) {
       for (var j = novVals.length - 1; j >= 1; j--) {
         var fj = novVals[j][1] instanceof Date ? ymd_(novVals[j][1]) : String(novVals[j][1]);
         var fechaStr = fecha.split('-').reverse().map(Number).join('/');
-        if ((fj === fecha || fj === fechaStr) && novVals[j][2] === r.docente && String(novVals[j][novCol]) === 'S' + sesion) {
+        var sj = String(novVals[j][novCol]), mj = sj.match(/^S(\d)$/);
+        if ((fj === fecha || fj === fechaStr) && novVals[j][2] === r.docente && (sj === 'S' + sesion || (inc && inc.resto && mj && Number(mj[1]) >= sesion))) {
           nov.deleteRow(j + 1); novVals.splice(j, 1);
         }
       }
@@ -399,6 +411,17 @@ function guardarRonda(p) {
       var jornada = (r.estado === 'No asistió' || r.estado === 'Ausente temporal') && novVals.slice(1).some(function (x) {
         return fechaIso_(x[1]) === fecha && x[2] === r.docente && String(x[novCol]) === 'JC' && /no asisti/i.test(String(x[3]));
       });  // ya reportado como ausencia de jornada completa: se verifica en Registro_Ronda sin duplicar minutos en Novedades
+      if (inc) {   // el incumplimiento siempre queda en la hoja Incumplimientos; en Novedades suma minutos salvo que la jornada completa ya los contenga
+        var jc = novVals.slice(1).some(function (x) { return fechaIso_(x[1]) === fecha && x[2] === r.docente && String(x[novCol]) === 'JC' && /no asisti/i.test(String(x[3])); });
+        var pgi = partesGrupo_(String(r.grupoCodigo).split('+')[0]);
+        var ni = [ahora, fecha, r.docente, r.estado, r.actividad || 'N/A', 'Sin justificación', String(r.obs || '').slice(0, 300), r.fuente || FUENTE_RONDA, r.medio || MEDIO_RONDA, pgi.grado, pgi.grupo, r.area,
+                  'H' + sesion + ' ' + franja + (pre ? '' : ' Bloque ' + Math.ceil(sesion / 2)), jc ? '' : minutos, p.directivo || '', 'S' + sesion + (inc.resto ? '-FIN' : ''), 'No', 'INCUMPLIMIENTO', atiende];
+        nov.appendRow(ni); novVals.push(ni);
+        registrarIncumplimiento_({ fecha: fecha, docente: r.docente, tipo: inc.texto, sesiones: 'S' + sesion + (inc.resto ? ' a fin de jornada' : ''), grupo: String(r.grupoCodigo), area: r.area,
+          minutos: minutos, donde: inc.donde, descripcion: r.obs, explicacion: inc.explicacion, por: p.directivo });
+        guardados++;
+        return;
+      }
       if (r.estado !== 'Presente' && r.estado !== 'En reunión' && !jornada) {
         var pg = partesGrupo_(String(r.grupoCodigo).split('+')[0]);
         var nf = [ahora, fecha, r.docente, r.estado, r.actividad || 'N/A', r.motivo || '', r.obs || '',

@@ -27,7 +27,7 @@ const raices=[]; const g={Utilities:{formatDate:fmt,base64Decode:b=>Array.from(B
      Access:{PRIVATE:'p'},Permission:{NONE:'n'}},
   PropertiesService:{getScriptProperties:()=>({getProperty:()=>'secreto-de-prueba'})},ContentService:{},console};
 vm.createContext(g);
-['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Reuniones.gs','Sesion.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
+['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Reuniones.gs','Incumplimientos.gs','Sesion.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
 let fallos=0; const ok=(c,m)=>{console.log((c?'  ok   ':'  FALLA ')+m); if(!c)fallos++;};
 const api=(fn,args,email,secret='secreto-de-prueba')=>vm.runInContext(`apiEjecutar_(${JSON.stringify({secret,email,fn,args:args||[]})},'secreto-de-prueba')`,g);
 const DUENO='dueno@gmail.com', DOC='docente.a@correo.com';

@@ -57,7 +57,7 @@ function calcularResumen_(ctx) {
     return {
       fecha: n.fecha, docente: n.docente, tipo: tipo, motivo: n.motivo || '', minutos: minutos, justificada: just === 'Sí' || just === 'SI' || just === 'Si' ? 'Sí' : 'No',
       categoria: n.categoria || m.categoria || 'OTRO', grupo: resGrupo_(n.grado, n.grupo), area: n.area || '', directivo: n.directivo || '',
-      nivel: nivel[n.docente] || 'SIN NIVEL', ausencia: /no asisti/i.test(tipo), temporal: /temporal/i.test(tipo), tarde: /tarde/i.test(tipo), salida: /salida/i.test(tipo)
+      nivel: nivel[n.docente] || 'SIN NIVEL', ausencia: /no asisti/i.test(tipo), temporal: /temporal/i.test(tipo), incumplimiento: /incumplimiento/i.test(tipo), tarde: /tarde/i.test(tipo), salida: /salida/i.test(tipo)
     };
   }
   // todas las novedades (sin límite de fechas) que cumplen el filtro; de ahí salen el periodo y la tendencia
@@ -86,6 +86,7 @@ function calcularResumen_(ctx) {
     llegadasTarde: nov.filter(function (n) { return n.tarde; }).length,
     salidasTempranas: nov.filter(function (n) { return n.salida; }).length,
     permisosTemporales: nov.filter(function (n) { return n.temporal; }).length,
+    incumplimientos: nov.filter(function (n) { return n.incumplimiento; }).length,
     eventos: nov.length,
     pctJustificadas: nov.length ? Math.round(just.length / nov.length * 1000) / 10 : null,
     minutosSinJustificar: resSuma_(nov.filter(function (n) { return n.justificada !== 'Sí'; }), function (n) { return n.minutos; })
@@ -167,9 +168,9 @@ function htmlInforme_(r, fechaTexto, urlPanel) {
     '<div style="font-size:40px;font-weight:600;line-height:1.1">' + e(k.horas) + ' <span style="font-size:16px;color:#52514e;font-weight:500">horas</span></div>' +
     '<div style="font-size:13px;color:#52514e">' + e(k.sesiones) + ' sesiones de 45 min de ' + e(k.programadas) + ' programadas · cumplimiento ' + (k.cumplimiento == null ? '—' : e(k.cumplimiento) + '%') + '</div></div>' +
     '<table width="100%" cellpadding="0" cellspacing="6" style="margin-bottom:10px"><tr>' +
-    [['Docentes con novedad', k.docentesConNovedad], ['Ausencias', k.ausencias], ['Llegadas tarde', k.llegadasTarde], ['Salidas tempranas', k.salidasTempranas], ['Permisos por horas', k.permisosTemporales],
+    [['Docentes con novedad', k.docentesConNovedad], ['Ausencias', k.ausencias], ['Llegadas tarde', k.llegadasTarde], ['Salidas tempranas', k.salidasTempranas], ['Permisos por horas', k.permisosTemporales], ['Incumplimientos', k.incumplimientos],
      ['Justificadas', k.pctJustificadas == null ? '—' : k.pctJustificadas + '%']].map(function (t) {
-      return '<td style="background:#f3f3f0;border-radius:8px;padding:8px 10px;width:16%"><div style="font-size:11.5px;color:#52514e">' + e(t[0]) + '</div><div style="font-size:20px;font-weight:600">' + e(t[1]) + '</div></td>';
+      return '<td style="background:#f3f3f0;border-radius:8px;padding:8px 10px;width:14%"><div style="font-size:11.5px;color:#52514e">' + e(t[0]) + '</div><div style="font-size:20px;font-weight:600">' + e(t[1]) + '</div></td>';
     }).join('') + '</tr></table>';
   if (!r.dia.length) {
     h += '<p style="font-size:14px">No se registraron novedades en el día.</p>';

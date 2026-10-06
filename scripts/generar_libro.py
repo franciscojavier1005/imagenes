@@ -90,6 +90,7 @@ for t in [
     "  Alternancias   Parejas de docentes que alternan cada semana (ética/religión): en la ronda aparecen los dos nombres y usted elige quién dicta.",
     "  Semana_Alternancia Quién dicta cada pareja en cada semana (lo define un directivo una vez y vale lunes a viernes).",
     "  Reuniones      Reuniones y jornadas sin estudiantes (se registran en ?p=reunion); Asistencia_Reunion guarda la asistencia de cada persona.",
+    "  Incumplimientos Reportes con rigor de docentes que no atienden al grupo o despiden a los estudiantes sin autorización (solo se agrega; seguimiento por estados).",
     "  Notas_Ronda    Observaciones (voz o texto) al terminar la ronda; sus propuestas van a la bandeja y requieren su confirmación.",
     "  Parametros     soportes_desde (las ausencias anteriores no exigen soporte) y la carpeta de soportes.",
     "  Registro_Ronda Cada marca de la ronda (presente, no asistió, tarde...).",
@@ -249,11 +250,12 @@ hoja(wb, "Alternancias", [["area", "docente_a", "docente_b", "nota"]] + [list(r.
 hoja(wb, "Semana_Alternancia", [["semana", "clave", "elegido", "intercambio", "definido_por", "fecha_definicion"]])
 hoja(wb, "Reuniones", [["id", "fecha", "tipo", "nombre", "inicio", "fin", "sin_estudiantes", "convocados", "creado_por", "fecha_creacion"]])
 hoja(wb, "Asistencia_Reunion", [["id_reunion", "fecha", "persona", "estado", "motivo", "observacion", "registrado_por", "fecha_registro"]])
+hoja(wb, "Incumplimientos", [["id", "fecha", "docente", "tipo", "sesiones", "grupo", "area", "minutos", "donde", "descripcion", "explicacion_docente", "registrado_por", "fecha_registro", "estado", "seguimiento", "reincidencia"]])
 hoja(wb, "Notas_Ronda", [["id", "fecha_registro", "fecha", "directivo", "sesion", "texto", "audio_id", "audio_url", "duracion_seg", "propuestas"]])
 hoja(wb, "Registro_Ronda", [["marca_temporal", "fecha", "dia", "sesion", "franja", "docente", "grupo", "area", "estado", "motivo",
                              "justificada", "minutos", "observaciones", "directivo", "atendido_por"]])
 
-orden = ["LEEME", "Ronda", "Docentes", "Horario", "Matriz_Grupos", "Direccion_Grupo", "Motivos", "Novedades", "Bandeja_WhatsApp", "Notas_Ronda", "Alternancias", "Semana_Alternancia", "Reuniones", "Asistencia_Reunion", "Usuarios", "Soportes", "Parametros", "Registro_Ronda", "Directivos", "Listas", "Franjas", "Grupos"]
+orden = ["LEEME", "Ronda", "Docentes", "Horario", "Matriz_Grupos", "Direccion_Grupo", "Motivos", "Novedades", "Bandeja_WhatsApp", "Notas_Ronda", "Alternancias", "Semana_Alternancia", "Reuniones", "Asistencia_Reunion", "Incumplimientos", "Usuarios", "Soportes", "Parametros", "Registro_Ronda", "Directivos", "Listas", "Franjas", "Grupos"]
 wb._sheets = [wb[n] for n in orden]
 wb.active = 1
 wb.properties.creator = "Francisco Javier Cortés Cabezas"

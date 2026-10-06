@@ -353,7 +353,18 @@ function guardarRonda(p) {
         var rr = reunionesEnSesiones_(fecha, [sesion], franjas).filter(function (x) { return convocadoA_(x, r.docente) && ESTADOS_REUNION_PRESENTE.indexOf(x.asistencia[r.docente]) >= 0; })[0];
         if (rr) r = Object.assign({}, r, { estado: 'En reunión', motivo: rr.nombre, minutos: '' });
       }
-      var m = motivos[r.motivo] || {};
+      // incumplimientos: se registran con rigor (descripción obligatoria, siempre sin justificación, y quedan además en la hoja Incumplimientos)
+      var inc = null;
+      if (r.estado === 'Incumplimiento') {
+        var ti = r.incumplimiento || {};
+        if (!TIPOS_INCUMPL[ti.tipo]) throw new Error('Elija el tipo de incumplimiento de ' + r.docente + '.');
+        if (String(r.obs || '').trim().length < MIN_DESCRIPCION_INCUMPL) throw new Error('Describa lo que verificó de ' + r.docente + ' (mínimo ' + MIN_DESCRIPCION_INCUMPL + ' letras).');
+        var resto = ti.tipo === 'DESPIDIO' && ti.alcance === 'RESTO', minInc = minutosSesion_(r.grupoCodigo);
+        if (resto) { minInc = 0; hz.forEach(function (h) { if (h.docente === r.docente && h.dia === p.dia && Number(h.hora) >= sesion) minInc += minutosSesion_(h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo); }); }
+        inc = { tipo: ti.tipo, texto: TIPOS_INCUMPL[ti.tipo], resto: resto, minutos: minInc, donde: DONDE_INCUMPL.indexOf(ti.donde) >= 0 ? ti.donde : '', explicacion: ti.explicacion };
+        r = Object.assign({}, r, { estado: inc.texto, motivo: 'Sin justificación', minutos: inc.minutos });
+      }
+      var m = inc ? { justificada: 'NO', categoria: 'INCUMPLIMIENTO' } : (motivos[r.motivo] || {});
       var just = (r.estado === 'Presente' || r.estado === 'En reunión') ? '' : (m.justificada === 'SI' ? 'Sí' : 'No');
       var atiende = (r.estado === 'Presente' || r.estado === 'En reunión') ? '' : (ATIENDE_GRUPO.indexOf(r.atiende) >= 0 ? r.atiende : '');   // quién cubrió el grupo; NO cuenta como asistencia del docente
       var pre = /^00/.test(String(r.grupoCodigo));
@@ -374,7 +385,8 @@ function guardarRonda(p) {
       for (var j = novVals.length - 1; j >= 1; j--) {
         var fj = novVals[j][1] instanceof Date ? ymd_(novVals[j][1]) : String(novVals[j][1]);
         var fechaStr = fecha.split('-').reverse().map(Number).join('/');
-        if ((fj === fecha || fj === fechaStr) && novVals[j][2] === r.docente && String(novVals[j][novCol]) === 'S' + sesion) {
+        var sj = String(novVals[j][novCol]), mj = sj.match(/^S(\d)$/);
+        if ((fj === fecha || fj === fechaStr) && novVals[j][2] === r.docente && (sj === 'S' + sesion || (inc && inc.resto && mj && Number(mj[1]) >= sesion))) {
           nov.deleteRow(j + 1); novVals.splice(j, 1);
         }
       }
@@ -400,6 +412,17 @@ function guardarRonda(p) {
       var jornada = (r.estado === 'No asistió' || r.estado === 'Ausente temporal') && novVals.slice(1).some(function (x) {
         return fechaIso_(x[1]) === fecha && x[2] === r.docente && String(x[novCol]) === 'JC' && /no asisti/i.test(String(x[3]));
       });  // ya reportado como ausencia de jornada completa: se verifica en Registro_Ronda sin duplicar minutos en Novedades
+      if (inc) {   // el incumplimiento siempre queda en la hoja Incumplimientos; en Novedades suma minutos salvo que la jornada completa ya los contenga
+        var jc = novVals.slice(1).some(function (x) { return fechaIso_(x[1]) === fecha && x[2] === r.docente && String(x[novCol]) === 'JC' && /no asisti/i.test(String(x[3])); });
+        var pgi = partesGrupo_(String(r.grupoCodigo).split('+')[0]);
+        var ni = [ahora, fecha, r.docente, r.estado, r.actividad || 'N/A', 'Sin justificación', String(r.obs || '').slice(0, 300), r.fuente || FUENTE_RONDA, r.medio || MEDIO_RONDA, pgi.grado, pgi.grupo, r.area,
+                  'H' + sesion + ' ' + franja + (pre ? '' : ' Bloque ' + Math.ceil(sesion / 2)), jc ? '' : minutos, p.directivo || '', 'S' + sesion + (inc.resto ? '-FIN' : ''), 'No', 'INCUMPLIMIENTO', atiende];
+        nov.appendRow(ni); novVals.push(ni);
+        registrarIncumplimiento_({ fecha: fecha, docente: r.docente, tipo: inc.texto, sesiones: 'S' + sesion + (inc.resto ? ' a fin de jornada' : ''), grupo: String(r.grupoCodigo), area: r.area,
+          minutos: minutos, donde: inc.donde, descripcion: r.obs, explicacion: inc.explicacion, por: p.directivo });
+        guardados++;
+        return;
+      }
       if (r.estado !== 'Presente' && r.estado !== 'En reunión' && !jornada) {
         var pg = partesGrupo_(String(r.grupoCodigo).split('+')[0]);
         var nf = [ahora, fecha, r.docente, r.estado, r.actividad || 'N/A', r.motivo || '', r.obs || '',
@@ -577,7 +600,7 @@ function calcularResumen_(ctx) {
     return {
       fecha: n.fecha, docente: n.docente, tipo: tipo, motivo: n.motivo || '', minutos: minutos, justificada: just === 'Sí' || just === 'SI' || just === 'Si' ? 'Sí' : 'No',
       categoria: n.categoria || m.categoria || 'OTRO', grupo: resGrupo_(n.grado, n.grupo), area: n.area || '', directivo: n.directivo || '',
-      nivel: nivel[n.docente] || 'SIN NIVEL', ausencia: /no asisti/i.test(tipo), temporal: /temporal/i.test(tipo), tarde: /tarde/i.test(tipo), salida: /salida/i.test(tipo)
+      nivel: nivel[n.docente] || 'SIN NIVEL', ausencia: /no asisti/i.test(tipo), temporal: /temporal/i.test(tipo), incumplimiento: /incumplimiento/i.test(tipo), tarde: /tarde/i.test(tipo), salida: /salida/i.test(tipo)
     };
   }
   // todas las novedades (sin límite de fechas) que cumplen el filtro; de ahí salen el periodo y la tendencia
@@ -606,6 +629,7 @@ function calcularResumen_(ctx) {
     llegadasTarde: nov.filter(function (n) { return n.tarde; }).length,
     salidasTempranas: nov.filter(function (n) { return n.salida; }).length,
     permisosTemporales: nov.filter(function (n) { return n.temporal; }).length,
+    incumplimientos: nov.filter(function (n) { return n.incumplimiento; }).length,
     eventos: nov.length,
     pctJustificadas: nov.length ? Math.round(just.length / nov.length * 1000) / 10 : null,
     minutosSinJustificar: resSuma_(nov.filter(function (n) { return n.justificada !== 'Sí'; }), function (n) { return n.minutos; })
@@ -687,9 +711,9 @@ function htmlInforme_(r, fechaTexto, urlPanel) {
     '<div style="font-size:40px;font-weight:600;line-height:1.1">' + e(k.horas) + ' <span style="font-size:16px;color:#52514e;font-weight:500">horas</span></div>' +
     '<div style="font-size:13px;color:#52514e">' + e(k.sesiones) + ' sesiones de 45 min de ' + e(k.programadas) + ' programadas · cumplimiento ' + (k.cumplimiento == null ? '—' : e(k.cumplimiento) + '%') + '</div></div>' +
     '<table width="100%" cellpadding="0" cellspacing="6" style="margin-bottom:10px"><tr>' +
-    [['Docentes con novedad', k.docentesConNovedad], ['Ausencias', k.ausencias], ['Llegadas tarde', k.llegadasTarde], ['Salidas tempranas', k.salidasTempranas], ['Permisos por horas', k.permisosTemporales],
+    [['Docentes con novedad', k.docentesConNovedad], ['Ausencias', k.ausencias], ['Llegadas tarde', k.llegadasTarde], ['Salidas tempranas', k.salidasTempranas], ['Permisos por horas', k.permisosTemporales], ['Incumplimientos', k.incumplimientos],
      ['Justificadas', k.pctJustificadas == null ? '—' : k.pctJustificadas + '%']].map(function (t) {
-      return '<td style="background:#f3f3f0;border-radius:8px;padding:8px 10px;width:16%"><div style="font-size:11.5px;color:#52514e">' + e(t[0]) + '</div><div style="font-size:20px;font-weight:600">' + e(t[1]) + '</div></td>';
+      return '<td style="background:#f3f3f0;border-radius:8px;padding:8px 10px;width:14%"><div style="font-size:11.5px;color:#52514e">' + e(t[0]) + '</div><div style="font-size:20px;font-weight:600">' + e(t[1]) + '</div></td>';
     }).join('') + '</tr></table>';
   if (!r.dia.length) {
     h += '<p style="font-size:14px">No se registraron novedades en el día.</p>';
@@ -1088,7 +1112,7 @@ function importarBandeja_() {
       pg = gtxt ? partesGrupo_(String(gtxt).split('+')[0]) : { grado: 'N/A', grupo: 'N/A' };
       area = fs1 && fs1.area ? fs1.area : (fs1 ? '(énfasis)' : 'N/A');
       jornadaTxt = 'H' + ses; codSes = 'S' + ses;
-      minutos = (noAsistio || /temporal/i.test(tipo)) ? (fs1 ? minutosSesion_(fs1.tipo === 'ENFASIS' ? fs1.grupos_enfasis : fs1.grupo) : 45) : '';
+      minutos = (noAsistio || /temporal|incumplimiento/i.test(tipo)) ? (fs1 ? minutosSesion_(fs1.tipo === 'ENFASIS' ? fs1.grupos_enfasis : fs1.grupo) : 45) : '';
     } else {
       var gr = {}, ar = {};
       mias.forEach(function (x) { gr[x.tipo === 'ENFASIS' ? x.grupos_enfasis : x.grupo] = 1; ar[x.area || '(énfasis)'] = 1; });
@@ -1102,6 +1126,8 @@ function importarBandeja_() {
     var fila = [new Date(), fecha, doc, tipo, 'N/A', f[col.motivo], String(f[col.mensaje] || '').slice(0, 300), 'Coordinador(a)', origen,
                 pg.grado, pg.grupo, area, jornadaTxt, minutos, f[col.remitente], codSes, m.justificada === 'SI' ? 'Sí' : 'No', m.categoria || ''];
     nov.appendRow(fila); novVals.push(fila);
+    if (/^Incumplimiento/i.test(tipo)) registrarIncumplimiento_({ fecha: fecha, docente: doc, tipo: tipo, sesiones: ses ? 'S' + ses : 'Jornada', grupo: pg.grado === 'N/A' ? '' : String(f[col.grupo] || ''), area: area,
+      minutos: minutos, donde: '', descripcion: String(f[col.mensaje] || ''), explicacion: '', por: f[col.remitente] });
     sh.getRange(i + 1, col.importado + 1).setValue('SI');
     res.importadas++;
   }
@@ -1277,6 +1303,14 @@ var PATRONES = {
   [
    "Salida temprana informada",
    "(salir|sale|salio|se retira|retirara|se va|se fue)\\s+(mas\\s+)?(temprano|antes)|salida temprana|permiso para salir|se fue (antes|temprano)|se retiro|salio antes|dejo (el grupo|a los estudiantes)|abandono (el|la) (aula|salon|clase)"
+  ],
+  [
+   "Incumplimiento: no atiende al grupo",
+   "vista gorda|esta en el colegio pero no (atiende|dicta|dio clase|esta con)|no (atiende|dicta|esta atendiendo) (al|el|a los|a las) (grupo|curso|estudiantes|ninos|alumnos)|estando en el colegio no|no quiso dar clase|no dio clase estando"
+  ],
+  [
+   "Incumplimiento: despidió a los estudiantes sin autorización",
+   "(mando|envio|despacho|devolvio|despidio)\\s+(a\\s+)?(los\\s+)?(estudiantes|ninos|alumnos|muchachos|chicos)\\s+(para\\s+)?(a\\s+)?(la\\s+)?casa|(despidio|despacho) (a )?(los )?(estudiantes|ninos|alumnos)|sin autorizacion.{0,40}(estudiantes|ninos|alumnos).{0,25}casa"
   ],
   [
    "Ausente temporal",
@@ -1829,6 +1863,75 @@ function reunionesEnSesiones_(fecha, sesiones, franjas) {
 /** ¿Esa persona está convocada a la reunión? */
 function convocadoA_(reunion, nombre) { return reunion.convocados === 'TODOS' || reunion.convocados.indexOf(nombre) >= 0; }
 
+// ===================== Incumplimientos.gs =====================
+/**
+ * Incumplimientos de los deberes docentes que se reportan con rigor:
+ *  - "Incumplimiento: no atiende al grupo": el docente está en el colegio pero no atiende a los estudiantes.
+ *  - "Incumplimiento: despidió a los estudiantes sin autorización": envió a los niños a la casa sin autorización de un directivo.
+ * Se guardan en la hoja Incumplimientos, que es un REGISTRO DE SOLO AGREGAR: la ronda no la borra ni la reemplaza (aunque después se
+ * cambie la marca de esa sesión), cada fila lleva quién la registró y cuándo, la reincidencia (n.º de reportes del docente) y un
+ * seguimiento (estado + notas que solo se agregan). Nada de esto es una sanción: es el soporte para el debido proceso.
+ */
+var COL_INCUMPL = ['id', 'fecha', 'docente', 'tipo', 'sesiones', 'grupo', 'area', 'minutos', 'donde', 'descripcion', 'explicacion_docente',
+                   'registrado_por', 'fecha_registro', 'estado', 'seguimiento', 'reincidencia'];
+var TIPOS_INCUMPL = { NO_ATIENDE: 'Incumplimiento: no atiende al grupo', DESPIDIO: 'Incumplimiento: despidió a los estudiantes sin autorización' };
+var DONDE_INCUMPL = ['En la sala de profesores', 'En el patio o pasillos', 'En otra dependencia del colegio', 'En coordinación o secretaría', 'No se sabe dónde estaba'];
+var ESTADOS_SEGUIMIENTO = ['Reportado', 'En seguimiento', 'Citado a descargos', 'Con llamado de atención', 'Cerrado'];
+var MIN_DESCRIPCION_INCUMPL = 15;
+
+function hojaIncumplimientos_() { return hojaOCrea_('Incumplimientos', COL_INCUMPL); }
+
+/** Agrega un reporte (si ya existe el mismo docente-fecha-tipo-sesiones no lo duplica). Devuelve {id, reincidencia, nuevo}. */
+function registrarIncumplimiento_(d) {
+  var sh = hojaIncumplimientos_(), v = sh.getDataRange().getValues(), cab = v[0], col = {}, previos = 0;
+  cab.forEach(function (k, i) { col[k] = i; });
+  for (var i = 1; i < v.length; i++) {
+    if (v[i][col.docente] !== d.docente) continue;
+    previos++;
+    if (fechaIso_(limpiaTxt_(v[i][col.fecha])) === d.fecha && v[i][col.tipo] === d.tipo && String(v[i][col.sesiones]) === String(d.sesiones))
+      return { id: v[i][col.id], reincidencia: Number(v[i][col.reincidencia]) || previos, nuevo: false };
+  }
+  var id = Utilities.getUuid(), rei = previos + 1;
+  sh.appendRow([id, txtForzado_(d.fecha), d.docente, d.tipo, d.sesiones, textoCod_(d.grupo || ''), d.area || '', d.minutos || '', d.donde || '',
+    String(d.descripcion || '').slice(0, 1000), String(d.explicacion || '').slice(0, 500), d.por || '', ahoraTxt_(), 'Reportado', '', rei]);
+  return { id: id, reincidencia: rei, nuevo: true };
+}
+
+/** Lista los reportes de un periodo. p = {desde?, hasta?} (por defecto, todo el año). */
+function listarIncumplimientos(p) {
+  exigirDirectivo_();
+  p = p || {};
+  var desde = p.desde ? fechaIso_(p.desde) : '0000-00-00', hasta = p.hasta ? fechaIso_(p.hasta) : '9999-99-99';
+  var todos = datosOCrea_('Incumplimientos', COL_INCUMPL).map(function (r) {
+    return { id: r.id, fecha: fechaIso_(limpiaTxt_(r.fecha)), docente: r.docente, tipo: r.tipo, sesiones: r.sesiones, grupo: limpiaTxt_(r.grupo), area: r.area, minutos: r.minutos,
+             donde: r.donde, descripcion: r.descripcion, explicacion: r.explicacion_docente, registradoPor: r.registrado_por, fechaRegistro: String(r.fecha_registro),
+             estado: r.estado, seguimiento: r.seguimiento, reincidencia: Number(r.reincidencia) || 1 };
+  });
+  var lista = todos.filter(function (r) { return r.fecha >= desde && r.fecha <= hasta; }).sort(function (a, b) { return a.fecha < b.fecha ? 1 : (a.fecha > b.fecha ? -1 : 0); });
+  var por = {}; todos.forEach(function (r) { por[r.docente] = (por[r.docente] || 0) + 1; });
+  return { lista: lista, totalPorDocente: por, estados: ESTADOS_SEGUIMIENTO };
+}
+
+/** Cambia el estado del seguimiento y agrega una nota (las notas anteriores se conservan). p = {id, estado, nota?} */
+function actualizarSeguimiento(p) {
+  var quien = exigirDirectivo_();
+  p = p || {};
+  if (ESTADOS_SEGUIMIENTO.indexOf(p.estado) < 0) throw new Error('Estado no válido.');
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var sh = hojaIncumplimientos_(), v = sh.getDataRange().getValues(), col = {};
+    v[0].forEach(function (k, i) { col[k] = i; });
+    for (var i = 1; i < v.length; i++) if (v[i][col.id] === p.id) {
+      var nota = String(p.nota || '').trim().slice(0, 500);
+      var linea = ahoraTxt_() + ' · ' + (quien.nombre || quien.email) + ' · ' + p.estado + (nota ? ': ' + nota : '');
+      sh.getRange(i + 1, col.estado + 1).setValue(p.estado);
+      sh.getRange(i + 1, col.seguimiento + 1).setValue((v[i][col.seguimiento] ? v[i][col.seguimiento] + '\n' : '') + linea);
+      return { ok: true };
+    }
+    throw new Error('No se encontró el reporte.');
+  } finally { lock.releaseLock(); }
+}
+
 // ===================== Sesion.gs =====================
 /**
  * Ingreso con clave (sin pantallas de Google).
@@ -2000,7 +2103,9 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   crearReunion: ['directivo'],
   cargarReunion: ['directivo'],
   guardarAsistenciaReunion: ['directivo'],
-  cambiarClave: ['directivo']
+  cambiarClave: ['directivo'],
+  listarIncumplimientos: ['directivo'],
+  actualizarSeguimiento: ['directivo']
 };
 
 function apiFunciones_() {
@@ -2011,7 +2116,8 @@ function apiFunciones_() {
     soportesPorRevisar: soportesPorRevisar, revisarSoporte: revisarSoporte,
     guardarNotaRonda: guardarNotaRonda, listarPropuestas: listarPropuestas, resolverPropuesta: resolverPropuesta, definirAlternancia: definirAlternancia,
     listarReuniones: listarReuniones, crearReunion: crearReunion, cargarReunion: cargarReunion, guardarAsistenciaReunion: guardarAsistenciaReunion,
-    cambiarClave: cambiarClave
+    cambiarClave: cambiarClave,
+    listarIncumplimientos: listarIncumplimientos, actualizarSeguimiento: actualizarSeguimiento
   };
 }
 

@@ -52,3 +52,5 @@ function listarReuniones(p) { return llamar_('listarReuniones', [p]); }
 function crearReunion(p) { return llamar_('crearReunion', [p]); }
 function cargarReunion(p) { return llamar_('cargarReunion', [p]); }
 function guardarAsistenciaReunion(p) { return llamar_('guardarAsistenciaReunion', [p]); }
+function listarIncumplimientos(p) { return llamar_('listarIncumplimientos', [p]); }
+function actualizarSeguimiento(p) { return llamar_('actualizarSeguimiento', [p]); }

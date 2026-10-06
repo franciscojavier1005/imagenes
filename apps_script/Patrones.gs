@@ -10,6 +10,14 @@ var PATRONES = {
    "(salir|sale|salio|se retira|retirara|se va|se fue)\\s+(mas\\s+)?(temprano|antes)|salida temprana|permiso para salir|se fue (antes|temprano)|se retiro|salio antes|dejo (el grupo|a los estudiantes)|abandono (el|la) (aula|salon|clase)"
   ],
   [
+   "Incumplimiento: no atiende al grupo",
+   "vista gorda|esta en el colegio pero no (atiende|dicta|dio clase|esta con)|no (atiende|dicta|esta atendiendo) (al|el|a los|a las) (grupo|curso|estudiantes|ninos|alumnos)|estando en el colegio no|no quiso dar clase|no dio clase estando"
+  ],
+  [
+   "Incumplimiento: despidió a los estudiantes sin autorización",
+   "(mando|envio|despacho|devolvio|despidio)\\s+(a\\s+)?(los\\s+)?(estudiantes|ninos|alumnos|muchachos|chicos)\\s+(para\\s+)?(a\\s+)?(la\\s+)?casa|(despidio|despacho) (a )?(los )?(estudiantes|ninos|alumnos)|sin autorizacion.{0,40}(estudiantes|ninos|alumnos).{0,25}casa"
+  ],
+  [
    "Ausente temporal",
    "permiso (por|de) (una|dos|tres|cuatro|media|\\d+)\\s*(hora|horas|minutos)|permiso por (horas|un rato)|(esta|estan|estuvo|salio|fue|fueron|va|van|asiste|asisten)\\s+(a|en|con)\\s+(la\\s+|el\\s+|una\\s+|un\\s+)?(reunion de (docentes|profesores|area)|comite|consejo|coordinacion|ptafi)|atendiendo (a )?(un|una|el|la|los|las)\\s+(padre|madre|acudiente|estudiante|alumno)|por (una|dos|tres|cuatro|\\d+)\\s*horas?\\b|por (media hora|un rato)|(una|dos|tres|\\d+) horas? para"
   ],

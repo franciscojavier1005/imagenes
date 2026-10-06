@@ -68,6 +68,9 @@ Pantalla `?p=reunion` (archivo `Reunion.html`): se crea una reunión (jornada pe
 - No genera minutos de inasistencia en aulas (no hay estudiantes).
 - Si la reunión es "sin estudiantes", la ronda de aula se suspende en ese horario y lo avisa. Si tiene estudiantes (p. ej. consejo académico), la ronda sigue y quien asistió aparece como "En reunión", sin poder marcarse ausente; si otro directivo lo marca ausente, queda "En reunión" y no se crea novedad.
 
+## Incumplimientos reportados con rigor
+Botón morado «⚠ Reportar incumplimiento» en la ronda: *no atiende al grupo* (está en el colegio) o *despidió a los estudiantes sin autorización*. Exige describir lo verificado y confirmar; queda en la hoja `Incumplimientos` (solo agregar, con reincidencia y seguimiento) y en el panel. Ver `docs/CONTEXTO_PROYECTO.md`.
+
 ## Ingreso de docentes
 El docente entra con una **cuenta de Google** (Gmail o un correo cualquiera vinculado a una cuenta Google). El ingreso con Facebook **no es posible** en Google Apps Script. Los correos de los docentes se
 dejan vacíos por ahora (se registran ellos mismos al ingresar y el directivo aprueba); los de los directivos siguen siendo temporales (`@example.com`). La huella/firma queda pospuesta.

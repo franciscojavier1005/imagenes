@@ -1,10 +1,11 @@
-# Auditoría del sistema de control de asistencia docente (2026-10-06)
+# Auditoría del sistema de control de asistencia docente (actualizada 2026-10-07)
 
 ## 1. Qué se construyó (resumen por área)
 **Datos e horario.** Extracción de 10 PDF de horarios (secundaria, primaria, preescolar) a CSV y libro; 57 docentes, 35 grupos, 1 549 filas de horario; validado: 0 choques de docente, 0 choques de grupo, 576 celdas de clase cruzadas con 0 diferencias. Énfasis reconstruidos (parejas de 7°, equipos de 4 desde 8°). Direcciones de grupo (dinamizadores), reemplazos (Armero reemplaza a Terán, orientadoras, PTAFI). Preescolar en 4 periodos de 60 min (7:30-11:30).
 **Ronda (celular/tableta).** Por bloque (2 sesiones) o por sesión; tarjetas por docente con botones Presente / No asistió / Permiso por horas o reunión / Llegada tarde / Salida temprana; un solo selector de Motivo; quién atendió el grupo; toda la jornada una sola vez con total de minutos; barra fija con conteos y directivo; tonos suaves (se pueden silenciar); ausentes en rosado; lista ordenada preescolar→11° con CS tras sextos y novenos; grupos sin cero a la izquierda; logo responsive y colores del escudo.
 **Parejas que alternan cada semana.** Ética/religión, sociales/inglés y ciencias naturales, más énfasis en pareja de 7°: la ronda ofrece los dos nombres, un directivo elige una vez y vale de lunes a viernes (intercambia los grupos).
 **Reuniones y jornadas.** Registro único de asistencia (jornada pedagógica, desarrollo institucional, planeación, asamblea, consejo, comités, capacitación…), planilla de firmas imprimible, cruce con la ronda (sin estudiantes: se suspende la ronda; con estudiantes: "En reunión", no ausente). Sin minutos de inasistencia.
+**Incumplimientos con rigor.** Dos reportes especiales en la ronda (botón morado «Reportar incumplimiento»): docente en el colegio que **no atiende al grupo** (dónde estaba) y docente que **despide a los estudiantes sin autorización** (solo esta sesión o hasta el final de su jornada, suma los minutos). Exigen describir lo verificado (mín. 15 letras) y confirmar que lo verificó personalmente; siempre sin justificación; quedan en la hoja `Incumplimientos`, que es **de solo agregar** (cambiar después la marca de la sesión no la borra), con quién y cuándo, **reincidencia** (n.º de reporte del docente) y **seguimiento** por estados (Reportado, En seguimiento, Citado a descargos, Con llamado de atención, Cerrado) con notas que solo se agregan. Aparecen en el panel (cifra y sección con seguimiento para directivos), en el informe al rector y también se alimentan desde observaciones por voz y WhatsApp. La llegada tarde ya se registraba (con minutos). No son sanciones: son soporte para el debido proceso.
 **Ingreso seguro con clave.** Los directivos entran con nombre + clave de 6 números (sin cuenta de Google, sin «Opciones avanzadas»). Servidor: token aleatorio por sesión (14 días, solo se guarda su hash), claves con SHA-256 + sal, bloqueo a los 5 intentos, todas las funciones públicas blindadas frente a visitantes y las del menú solo desde el libro. Verificado con 23 comprobaciones propias (`sesion.test.js`).
 **Menú de entrada.** Pantalla con tres botones (Ronda, Reuniones, Panel e informes); cada pantalla trae el enlace «Menú». Ya no hace falta escribir `?p=`.
 **Paneles e informes.** Rector, coordinación e informe individual del docente; informe diario por correo al rector (se activa con correo real); cifras nuevas: permisos por horas.
@@ -13,7 +14,7 @@
 **Motivos.** Catálogo ampliado: permiso por horas, comités, reunión PTAFI, reunión de docentes, atención a padres, atención en coordinación, reunión de cierre, reunión o acto escolar de hijo(a), lluvia intensa, sepelio o duelo (más los de salud, calamidad, capacitación, SED, etc.). Se agregan solos a la hoja `Motivos`.
 
 ## 2. Verificación
-- 269 comprobaciones automáticas en 9 suites de Node (Google simulado) + 12 del importador de WhatsApp en Python; todas pasan. Cálculo del panel contrastado con un cálculo independiente en Python; vectores cruzados Python/JS para el análisis de notas.
+- 283 comprobaciones automáticas en 9 suites de Node (Google simulado) + 12 del importador de WhatsApp en Python; todas pasan. Cálculo del panel contrastado con un cálculo independiente en Python; vectores cruzados Python/JS para el análisis de notas.
 - Revisión del paquete final: 113 funciones en `ICET_completo.gs`, sin nombres duplicados; todas las llamadas de las 4 pantallas al servidor existen; las 5 páginas del menú compilan.
 - Pantallas probadas con Chromium (celular y computador) y micrófono simulado; sonidos verificados por creación de osciladores (no se pueden oír aquí).
 - **No verificado en Google real:** nada se ha ejecutado desde aquí en tu cuenta (solo lectura de Drive). Sí se vio que tu hoja ya guarda rondas (Registro_Ronda y Novedades).
@@ -28,7 +29,8 @@
 7. Las reuniones todavía no aparecen en el panel ni en el informe al rector.
 8. Los festivos no se descuentan en los plazos de soportes.
 9. Observaciones por voz: la transcripción automática depende del navegador; audio = dato sensible (Ley 1581): revisar la política institucional y el texto de autorización (borrador).
-10. Pendiente de confirmar: si los docentes 1 y 2 (6° y 7°) también se alternan entre sí.
+10. Los incumplimientos son información sensible laboral: revisar con el rector/asesoría jurídica el procedimiento (descargos, llamado de atención) y a quién se comparte el panel.
+11. Pendiente de confirmar: si los docentes 1 y 2 (6° y 7°) también se alternan entre sí.
 
 ## 4. Pendientes
 Correos reales de directivos (hoy temporales), huella (pospuesta), modo B para docentes, reuniones en el panel, confirmar parejas de docentes 1 y 2, texto jurídico de autorización de datos.
@@ -42,5 +44,6 @@ Correos reales de directivos (hoy temporales), huella (pospuesta), modo B para d
 6. `appsscript.json` ← **cambia** (ahora publica como el propietario, para cualquier persona).
 7. Guardar, y **Implementar > Administrar implementaciones > lápiz > Nueva versión** (la URL no cambia).
 8. Recargar la hoja y, una sola vez, menú **Asistencia ICET > Actualizar horario de preescolar**.
-9. Implementación: *Ejecutar como*: Yo; *Acceso*: Cualquier persona. Menú **Generar claves de ingreso** y entregar las claves.
-10. Abrir la URL **sin nada al final**: aparece el ingreso con clave y luego el menú.
+9. (Nuevo) El código ya incluye `Incumplimientos.gs` dentro de `ICET_completo.gs`: no hay archivos adicionales.
+10. Implementación: *Ejecutar como*: Yo; *Acceso*: Cualquier persona. Menú **Generar claves de ingreso** y entregar las claves.
+11. Abrir la URL **sin nada al final**: aparece el ingreso con clave y luego el menú.

@@ -46,7 +46,7 @@ function importarBandeja_() {
       pg = gtxt ? partesGrupo_(String(gtxt).split('+')[0]) : { grado: 'N/A', grupo: 'N/A' };
       area = fs1 && fs1.area ? fs1.area : (fs1 ? '(énfasis)' : 'N/A');
       jornadaTxt = 'H' + ses; codSes = 'S' + ses;
-      minutos = (noAsistio || /temporal/i.test(tipo)) ? (fs1 ? minutosSesion_(fs1.tipo === 'ENFASIS' ? fs1.grupos_enfasis : fs1.grupo) : 45) : '';
+      minutos = (noAsistio || /temporal|incumplimiento/i.test(tipo)) ? (fs1 ? minutosSesion_(fs1.tipo === 'ENFASIS' ? fs1.grupos_enfasis : fs1.grupo) : 45) : '';
     } else {
       var gr = {}, ar = {};
       mias.forEach(function (x) { gr[x.tipo === 'ENFASIS' ? x.grupos_enfasis : x.grupo] = 1; ar[x.area || '(énfasis)'] = 1; });
@@ -60,6 +60,8 @@ function importarBandeja_() {
     var fila = [new Date(), fecha, doc, tipo, 'N/A', f[col.motivo], String(f[col.mensaje] || '').slice(0, 300), 'Coordinador(a)', origen,
                 pg.grado, pg.grupo, area, jornadaTxt, minutos, f[col.remitente], codSes, m.justificada === 'SI' ? 'Sí' : 'No', m.categoria || ''];
     nov.appendRow(fila); novVals.push(fila);
+    if (/^Incumplimiento/i.test(tipo)) registrarIncumplimiento_({ fecha: fecha, docente: doc, tipo: tipo, sesiones: ses ? 'S' + ses : 'Jornada', grupo: pg.grado === 'N/A' ? '' : String(f[col.grupo] || ''), area: area,
+      minutos: minutos, donde: '', descripcion: String(f[col.mensaje] || ''), explicacion: '', por: f[col.remitente] });
     sh.getRange(i + 1, col.importado + 1).setValue('SI');
     res.importadas++;
   }

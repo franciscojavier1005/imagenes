@@ -53,9 +53,13 @@ var DEMO=%s;
       return {id:'u',estado:'Entregado',extemporaneo:o.estado==='Vencido'?'SI':'NO'};},
     listarSolicitudes:function(){return {pendientes:PEND.slice(),activos:[{email:'a@x.com',docente:DOC}]};},
     resolverSolicitud:function(p){PEND=PEND.filter(function(x){return x.email!==p.email;});return {estado:p.accion};},
+    listarIncumplimientos:function(p){return {estados:['Reportado','En seguimiento','Citado a descargos','Con llamado de atención','Cerrado'],totalPorDocente:{'Docente demo SEC 03':2},
+      lista:[{id:'i1',fecha:'2026-10-02',docente:'Docente demo SEC 03',tipo:'Incumplimiento: no atiende al grupo',sesiones:'S3',grupo:'0801',minutos:45,donde:'En la sala de profesores',descripcion:'Ejemplo ficticio: a las 9:10 estaba en la sala de profesores y el grupo sin clase.',explicacion:'Dijo que esperaba al coordinador.',registradoPor:'Francisco Cortés',estado:'En seguimiento',seguimiento:'2026-10-02 10:00 · Francisco Cortés · En seguimiento: se habló con el docente',reincidencia:2}]};},
+    actualizarSeguimiento:function(p){return {ok:true};},
     soportesPorRevisar:function(){var o=obl('');return {porRevisar:REV.slice(),vencidos:o.filter(function(x){return x.estado==='Vencido';}).slice(0,8),pendientes:o.filter(function(x){return x.estado==='Pendiente';}),resumen:resumenObligaciones_(o)};},
     revisarSoporte:function(p){REV=REV.filter(function(x){return x.id!==p.id;});SOP.forEach(function(s){if(s.id===p.id){s.estado={ACEPTAR:'Aceptado',RECHAZAR:'Rechazado',NO_APLICA:'No aplica'}[p.accion];s.observacion=p.observacion;}});return {estado:p.accion};}
   };
+  window.PREVIEW=true;
   window.google={script:{run:new Proxy({},{get:function(_,k){
     var ok=null,fail=null,self={withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;}};
     Object.keys(api).forEach(function(n){self[n]=function(){var a=arguments;setTimeout(function(){try{var r=api[n].apply(null,a);if(ok)ok(r);}catch(e){if(fail)fail(e);}},60);};});

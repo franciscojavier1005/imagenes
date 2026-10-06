@@ -59,3 +59,8 @@ function guardarCorreo(p) { return llamar_('guardarCorreo', [p]); }
 function datosNovedades() { return llamar_('datosNovedades', []); }
 function registrarNovedad(p) { return llamar_('registrarNovedad', [p]); }
 function quitarNovedad(p) { return llamar_('quitarNovedad', [p]); }
+function datosEstudiantes() { return llamar_('datosEstudiantes', []); }
+function marcarEstudiantes(p) { return llamar_('marcarEstudiantes', [p]); }
+function levantarMarcaEstudiante(p) { return llamar_('levantarMarcaEstudiante', [p]); }
+function agregarEstudiante(p) { return llamar_('agregarEstudiante', [p]); }
+function moverEstudiante(p) { return llamar_('moverEstudiante', [p]); }

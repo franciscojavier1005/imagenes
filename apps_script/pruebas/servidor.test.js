@@ -8,7 +8,7 @@ const g={Utilities:{formatDate:fmt},Logger:{log:m=>logs.push(m)},
   SpreadsheetApp:{getActive:()=>({getEditors:()=>[{getEmail:()=>'dueno@gmail.com'}],getOwner:()=>({getEmail:()=>'dueno@gmail.com'}),getSheetByName:n=>({getRange:(r,c)=>({setValue:v=>{H[n][0][c-1]=v}}),getDataRange:()=>({getValues:()=>JSON.parse(JSON.stringify(H[n]))})})}),getUi:()=>({alert:()=>{}})},
   ScriptApp:{getService:()=>({getUrl:()=>'https://script.google.com/macros/s/ID/exec'})},MailApp:{sendEmail:o=>correos.push(o)},Session:{getActiveUser:()=>({getEmail:()=>EMAIL})},HtmlService:{},console};
 vm.createContext(g);
-['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Soportes.gs','Reuniones.gs','Incumplimientos.gs','Horarios.gs','Novedades.gs','Sesion.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
+['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Soportes.gs','Reuniones.gs','Incumplimientos.gs','Horarios.gs','Novedades.gs','Estudiantes.gs','Sesion.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
 const EXP=H.Horario.slice(1).filter(r=>['JUEVES','VIERNES'].includes(r[H.Horario[0].indexOf('dia')])).length;
 const r=vm.runInContext("datosDashboard('2026-10-01','2026-10-02')",g);
 const ok=(c,m)=>{try{assert.ok(c);console.log('  ok  ',m)}catch(e){console.log('  FALLA',m);process.exitCode=1}};

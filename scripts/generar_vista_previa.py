@@ -202,6 +202,12 @@ if os.path.exists(os.path.join(RAIZ, "apps_script", "pruebas", "hojas.json")):
 /* Vista previa de Horarios: respuestas calculadas con el código real sobre los datos del libro. */
 (function(){
   var D=%s;
+  /* estudiantes FALSOS (solo para la simulación) */
+  var AP=['Rojas','Soto','Pérez','Díaz','Mena','Cuero','Angulo','Ortiz','Lerma','Caicedo','Torres','Rivas'], NM=['Ana María','José Luis','Laura','Carlos','Sofía','Pedro','Camila','Andrés','Valentina','Mateo'];
+  var GR={'0001':'0°-1','0501':'5°-1','0601':'6°-1','0602':'6°-2','CS101':'CS 1-1','0701':'7°-1','0702':'7°-2','0901':'9°-1','1101':'11°-1'}, ESTU=[], MID=0, TIPOSE=[{id:'NO_ASISTE',texto:'No asiste (posible deserción)'},{id:'AUSENTE',texto:'Se ausenta con frecuencia'},{id:'FUGA',texto:'Se fuga con frecuencia (se evade de clase)'},{id:'ORIENTACION',texto:'Remitido a orientación escolar'},{id:'PROYECTO',texto:'En proyecto o programa especial'},{id:'RETIRADO',texto:'Retirado formalmente'},{id:'CANCELADA',texto:'Matrícula cancelada'},{id:'NUEVO',texto:'Estudiante nuevo (llegó en el año)'},{id:'PROMOVIDO',texto:'Promovido al siguiente grado'}];
+  Object.keys(GR).forEach(function(g,gi){for(var i=0;i<14;i++){ESTU.push({g:g,no:i+1,a:(AP[(i*3+gi)%%AP.length]+' '+AP[(i+gi*5+1)%%AP.length]).toUpperCase(),n:NM[(i+gi)%%NM.length].toUpperCase()});}});
+  ESTU[2].m=[{id:'m0',tipo:'No asiste (posible deserción)',nota:'No viene desde el 15 de septiembre',por:'Harold Angulo',fecha:'2026-10-02'}];
+  function estData(){var gs={},ord=[];ESTU.forEach(function(e){if(!gs[e.g]){gs[e.g]={codigo:e.g,curso:GR[e.g],total:0};ord.push(e.g);} gs[e.g].total++;}); return {grupos:ord.map(function(c){return gs[c];}),estudiantes:ESTU,tipos:TIPOSE};}
   var api=function(){var ok=null,fail=null,self={withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
     urlBase:function(){setTimeout(function(){ok('#vista-previa');},5);},
     consultaHorarios:function(p){setTimeout(function(){
@@ -209,6 +215,12 @@ if os.path.exists(os.path.join(RAIZ, "apps_script", "pruebas", "hojas.json")):
       else if(p.modo==='lote') ok({modo:'lote',tipo:p.tipo,semana:D.docente[Object.keys(D.docente)[0]].semana,items:Object.keys(p.tipo==='grupo'?D.grupo:D.docente).map(function(k){return (p.tipo==='grupo'?D.grupo:D.docente)[k];})});
       else if(p.modo==='docente') ok(D.docente[p.docente]); else if(p.modo==='grupo') ok(D.grupo[p.grupo]);
       else { var k=(p.dia||'JUEVES')+'|'+(p.sesion||1); ok(D.ahora[k]||D.ahora['JUEVES|1']); } },20);},
+    datosEstudiantes:function(){setTimeout(function(){ok(estData());},30);},
+    marcarEstudiantes:function(p){setTimeout(function(){var tx=TIPOSE.filter(function(t){return t.id===p.tipo;})[0]; if(!tx){fail({message:'Elija el tipo de marca.'});return;}
+      p.items.forEach(function(it){var e=ESTU.filter(function(x){return x.g===it.g&&x.a===it.a&&x.n===it.n;})[0]; if(e){e.m=e.m||[]; e.m.push({id:'m'+(++MID),tipo:tx.texto,nota:p.nota||'',por:'Francisco Cortés',fecha:new Date().toISOString().slice(0,10)});}}); ok({marcados:p.items.length,yaTenian:0});},30);},
+    levantarMarcaEstudiante:function(p){setTimeout(function(){ESTU.forEach(function(e){if(e.m) e.m=e.m.filter(function(x){return x.id!==p.id;});}); ok({ok:true});},30);},
+    agregarEstudiante:function(p){setTimeout(function(){if(!p.a||!p.n){fail({message:'Escriba apellidos y nombres.'});return;} var c=ESTU.filter(function(x){return x.g===p.g;}); ESTU.push({g:p.g,no:c.length+1,a:p.a.toUpperCase(),n:p.n.toUpperCase(),m:[{id:'m'+(++MID),tipo:'Estudiante nuevo (llegó en el año)',nota:p.nota||'',por:'Francisco Cortés',fecha:new Date().toISOString().slice(0,10)}]}); ok({ok:true});},30);},
+    moverEstudiante:function(p){setTimeout(function(){var e=ESTU.filter(function(x){return x.g===p.g&&x.a===p.a&&x.n===p.n;})[0]; if(!e){fail({message:'No se encontró al estudiante.'});return;} var o=GR[e.g], d=GR[p.destino]; e.g=p.destino; e.no=ESTU.filter(function(x){return x.g===p.destino;}).length; e.m=(e.m||[]).concat([{id:'m'+(++MID),tipo:'Promovido al siguiente grado',nota:'De '+o+' a '+d+(p.nota?' · '+p.nota:''),por:'Francisco Cortés',fecha:new Date().toISOString().slice(0,10)}]); ok({ok:true});},30);},
     llamarSeguro:function(){setTimeout(function(){ok({});},5);}};return self;};
   window.PREVIEW=true;
   window.google={script:{run:new Proxy({},{get:function(_,k){var s=api();return k in s?s[k]:s;}})}};

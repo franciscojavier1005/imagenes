@@ -34,7 +34,12 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   guardarCorreo: ['directivo'],
   datosNovedades: ['directivo'],
   registrarNovedad: ['directivo'],
-  quitarNovedad: ['directivo']
+  quitarNovedad: ['directivo'],
+  datosEstudiantes: ['directivo'],
+  marcarEstudiantes: ['directivo'],
+  levantarMarcaEstudiante: ['directivo'],
+  agregarEstudiante: ['directivo'],
+  moverEstudiante: ['directivo']
 };
 
 function apiFunciones_() {
@@ -49,7 +54,9 @@ function apiFunciones_() {
     listarIncumplimientos: listarIncumplimientos, actualizarSeguimiento: actualizarSeguimiento,
     consultaHorarios: consultaHorarios,
     guardarCorreo: guardarCorreo,
-    datosNovedades: datosNovedades, registrarNovedad: registrarNovedad, quitarNovedad: quitarNovedad
+    datosNovedades: datosNovedades, registrarNovedad: registrarNovedad, quitarNovedad: quitarNovedad,
+    datosEstudiantes: datosEstudiantes, marcarEstudiantes: marcarEstudiantes, levantarMarcaEstudiante: levantarMarcaEstudiante,
+    agregarEstudiante: agregarEstudiante, moverEstudiante: moverEstudiante
   };
 }
 

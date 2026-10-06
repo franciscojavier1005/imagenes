@@ -1781,7 +1781,7 @@ function purgarAudios() {
 
 // ===================== Reuniones.gs =====================
 /**
- * Reuniones, actividades institucionales y jornadas sin clases (entrega de boletines, clausura, día del idioma, afrocolombianidad, semana científica o cultural, jornada pedagógica, desarrollo institucional, planeación, asamblea de docentes, consejo académico,
+ * Reuniones, actividades institucionales y jornadas sin clases (entrega de boletines, clausura, actividades institucionales generales, jornada pedagógica, desarrollo institucional, planeación, asamblea de docentes, consejo académico,
  * comité de convivencia, capacitación, etc.). La asistencia se registra UNA vez por reunión, no por sesión, y no genera minutos de
  * "tiempo sin atender" (no hay estudiantes). La ronda de aula usa estos registros para no marcar como ausente a quien está en la reunión.
  *
@@ -1808,13 +1808,7 @@ var TIPOS_REUNION = [
   { tipo: 'Reunión PTAFI con la tutora', sinEstudiantes: false, inicio: '08:00', fin: '09:00' },
   { tipo: 'Entrega de boletines', sinEstudiantes: false, inicio: '07:00', fin: '13:30' },
   { tipo: 'Clausura', sinEstudiantes: true, inicio: '08:00', fin: '12:00' },
-  { tipo: 'Acto cívico o izada de bandera', sinEstudiantes: false, inicio: '07:00', fin: '07:45' },
-  { tipo: 'Día del idioma', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
-  { tipo: 'Día de la afrocolombianidad', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
-  { tipo: 'Semana científica', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
-  { tipo: 'Semana cultural', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
-  { tipo: 'Actividad recreativa o deportiva', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
-  { tipo: 'Otra actividad pedagógica o cultural general', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Actividad institucional general', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
   { tipo: 'Otra reunión', sinEstudiantes: false, inicio: '08:00', fin: '09:00' }
 ];
 

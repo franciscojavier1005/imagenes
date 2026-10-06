@@ -108,7 +108,7 @@ function pintar(rol,nombre,c){
     el('saludo').textContent='Bienvenido(a)'+(nombre?', '+nombre:'')+'. ¿Qué desea hacer?';
     h+=boton('ronda','📋','Ronda de aula','Lo normal: verificar quién está en clase (por bloque).');
     h+=boton('novedad','📝','Registrar novedades','Permisos, incapacidades, llegadas tarde o salidas pedagógicas, sin hacer la ronda.');
-    h+=boton('reunion','👥','Reuniones y actividades','Asistencia en reuniones, entrega de boletines, clausura, actos y jornadas culturales o pedagógicas.');
+    h+=boton('reunion','👥','Reuniones y actividades','Asistencia en reuniones y en actividades institucionales generales (entrega de boletines, clausura...).');
     h+=boton('horarios','🗓','Horarios y consultas','Horario de un docente o grupo, quiénes deben estar ahora y directores de grupo.');
     h+=boton('panel','📊','Panel e informes','Ver cifras, tendencias y el informe del periodo.');
     if(CTX.necesitaCorreo) h+='<div id="correoForm">'+formCorreo(true)+'</div>';

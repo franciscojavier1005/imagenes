@@ -10,9 +10,9 @@
  */
 function doGet(e) {
   var p = (e && e.parameter && e.parameter.p) || 'panel';
-  var ronda = p === 'ronda';
-  return HtmlService.createHtmlOutputFromFile(ronda ? 'Consulta' : 'Dashboard')
-    .setTitle(ronda ? 'ICET - Ronda de asistencia docente' : 'ICET - Asistencia docente')
+  var ronda = p === 'ronda', reunion = p === 'reunion';
+  return HtmlService.createHtmlOutputFromFile(ronda ? 'Consulta' : (reunion ? 'Reunion' : 'Dashboard'))
+    .setTitle(ronda ? 'ICET - Ronda de asistencia docente' : (reunion ? 'ICET - Reuniones y jornadas' : 'ICET - Asistencia docente'))
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
@@ -47,3 +47,7 @@ function guardarNotaRonda(p) { return llamar_('guardarNotaRonda', [p]); }
 function listarPropuestas() { return llamar_('listarPropuestas', []); }
 function resolverPropuesta(p) { return llamar_('resolverPropuesta', [p]); }
 function definirAlternancia(p) { return llamar_('definirAlternancia', [p]); }
+function listarReuniones(p) { return llamar_('listarReuniones', [p]); }
+function crearReunion(p) { return llamar_('crearReunion', [p]); }
+function cargarReunion(p) { return llamar_('cargarReunion', [p]); }
+function guardarAsistenciaReunion(p) { return llamar_('guardarAsistenciaReunion', [p]); }

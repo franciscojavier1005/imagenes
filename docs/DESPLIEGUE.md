@@ -36,6 +36,9 @@ Copie también `Notas.gs`, `NotasRonda.gs` y `Patrones.gs` al proyecto del libro
 Pruebas en el celular: abrir `?p=ronda`, pulsar **🎙 Observación** y conceder el permiso de micrófono (el sitio debe abrirse por https, como lo hace Apps Script). Si el navegador no
 transcribe, use el micrófono del teclado. El menú *Asistencia ICET > Borrar audios de ronda antiguos* aplica la retención (30 días).
 
+## Reuniones y jornadas
+Agregue el archivo HTML `Reunion` (contenido de `apps_script/Reunion.html`) y el código de `Reuniones.gs` al proyecto del libro (back) y al front el HTML `Reunion` y las funciones nuevas de `Front.gs`. La pantalla se abre con `?p=reunion` y desde la ronda hay un enlace "Reuniones".
+
 ## Si algo falla
 - **"No autorizado" al abrir el front:** `API_SECRET` distinto entre front y back, o falta en uno de los dos.
 - **Pantalla en blanco o error de permisos en el front:** vuelva a autorizar (Implementar > Administrar implementaciones > editar > nueva versión).

@@ -81,9 +81,9 @@ function doGet(e) {
   if (PropertiesService.getScriptProperties().getProperty('MODO_BACK') === 'SI') {
     return ContentService.createTextOutput('ICET API').setMimeType(ContentService.MimeType.TEXT);
   }
-  var panel = e && e.parameter && e.parameter.p === 'panel';
-  return HtmlService.createHtmlOutputFromFile(panel ? 'Dashboard' : 'Consulta')
-    .setTitle(panel ? 'ICET - Panel de asistencia docente' : 'ICET - Ronda de asistencia docente')
+  var pag = (e && e.parameter && e.parameter.p) || 'ronda', panel = pag === 'panel', reunion = pag === 'reunion';
+  return HtmlService.createHtmlOutputFromFile(panel ? 'Dashboard' : (reunion ? 'Reunion' : 'Consulta'))
+    .setTitle(panel ? 'ICET - Panel de asistencia docente' : (reunion ? 'ICET - Reuniones y jornadas' : 'ICET - Ronda de asistencia docente'))
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
@@ -195,6 +195,17 @@ function consultarSesion(dia, sesion, modo) {
       else if (f.sesiones.length === 1 && hs.length > 1) f.nota = ['Solo S' + f.sesiones[0].sesion, f.nota].filter(String).join(' · ');
     });
     out.filas = uni;
+  }
+  // reuniones que se cruzan con este horario (se registran en la pantalla de reuniones): quien está en la reunión no se marca ausente
+  var reun = reunionesEnSesiones_(out.fecha, hs, datos_('Franjas'));
+  out.reuniones = reun.map(function (r) { return { id: r.id, nombre: r.nombre, tipo: r.tipo, inicio: r.inicio, fin: r.fin, sinEstudiantes: r.sinEstudiantes }; });
+  if (reun.some(function (r) { return r.sinEstudiantes; })) {
+    out.sinEstudiantes = true; out.filas = [];
+    out.nota = 'Hay una reunión o jornada sin estudiantes en este horario (' + reun.filter(function (r) { return r.sinEstudiantes; })[0].nombre + '): no se hace ronda de aula. La asistencia se registra en Reuniones.';
+  } else {
+    out.filas.forEach(function (f) {
+      for (var i = 0; i < reun.length; i++) if (convocadoA_(reun[i], f.docente)) { f.reunion = { id: reun[i].id, nombre: reun[i].nombre, inicio: reun[i].inicio, fin: reun[i].fin, estado: reun[i].asistencia[f.docente] || '' }; break; }
+    });
   }
   out.filas.sort(function (a, b) { return claveGrupo_(a.grupoCodigo) - claveGrupo_(b.grupoCodigo); });   // orden de lista: preescolar a 11°
   return out;
@@ -324,9 +335,14 @@ function guardarRonda(p) {
       var fr = franjas.filter(function (f) { return Number(f.hora) === sesion; })[0];
       if (!fr) throw new Error('Sesión no válida: ' + sesion);
       var franjaBase = hhmm_(fr.inicio) + ' - ' + hhmm_(fr.fin);
+      // quien asistió a una reunión que se cruza con esta sesión no se marca ausente: queda "En reunión" y no suma tiempo
+      if (r.estado === 'No asistió' || r.estado === 'Ausente temporal') {
+        var rr = reunionesEnSesiones_(fecha, [sesion], franjas).filter(function (x) { return convocadoA_(x, r.docente) && ESTADOS_REUNION_PRESENTE.indexOf(x.asistencia[r.docente]) >= 0; })[0];
+        if (rr) r = Object.assign({}, r, { estado: 'En reunión', motivo: rr.nombre, minutos: '' });
+      }
       var m = motivos[r.motivo] || {};
-      var just = r.estado === 'Presente' ? '' : (m.justificada === 'SI' ? 'Sí' : 'No');
-      var atiende = r.estado === 'Presente' ? '' : (ATIENDE_GRUPO.indexOf(r.atiende) >= 0 ? r.atiende : '');   // quién cubrió el grupo; NO cuenta como asistencia del docente
+      var just = (r.estado === 'Presente' || r.estado === 'En reunión') ? '' : (m.justificada === 'SI' ? 'Sí' : 'No');
+      var atiende = (r.estado === 'Presente' || r.estado === 'En reunión') ? '' : (ATIENDE_GRUPO.indexOf(r.atiende) >= 0 ? r.atiende : '');   // quién cubrió el grupo; NO cuenta como asistencia del docente
       var pre = /^00/.test(String(r.grupoCodigo));
       var hrow = pre ? hz.filter(function (h) { return h.docente === r.docente && h.dia === p.dia && Number(h.hora) === sesion; })[0] : null;
       var franja = hrow ? hhmm_(hrow.inicio) + ' - ' + hhmm_(hrow.fin) : franjaBase;   // preescolar tiene sus propios periodos
@@ -371,7 +387,7 @@ function guardarRonda(p) {
       var jornada = (r.estado === 'No asistió' || r.estado === 'Ausente temporal') && novVals.slice(1).some(function (x) {
         return fechaIso_(x[1]) === fecha && x[2] === r.docente && String(x[novCol]) === 'JC' && /no asisti/i.test(String(x[3]));
       });  // ya reportado como ausencia de jornada completa: se verifica en Registro_Ronda sin duplicar minutos en Novedades
-      if (r.estado !== 'Presente' && !jornada) {
+      if (r.estado !== 'Presente' && r.estado !== 'En reunión' && !jornada) {
         var pg = partesGrupo_(String(r.grupoCodigo).split('+')[0]);
         var nf = [ahora, fecha, r.docente, r.estado, r.actividad || 'N/A', r.motivo || '', r.obs || '',
                   r.fuente || FUENTE_RONDA, r.medio || MEDIO_RONDA, pg.grado, pg.grupo, r.area,

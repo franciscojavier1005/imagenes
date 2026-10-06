@@ -128,3 +128,39 @@ html = html.replace("<main>", '<div style="background:#fff3cd;color:#664d03;padd
 html = html.replace("<title>ICET - Ronda de asistencia docente</title>", "<title>ICET - Vista previa de la ronda</title>")
 open(os.path.join(RAIZ, "ICET_Vista_Previa_Ronda.html"), "w", encoding="utf-8").write(html)
 print("OK", round(len(html) / 1024), "KB")
+
+
+# ---------------------------------------------------------------- vista previa de Reuniones
+import re as _re
+_gs = open(os.path.join(RAIZ, "apps_script", "Reuniones.gs"), encoding="utf-8").read()
+_tipos = [{"tipo": m.group(1), "sinEstudiantes": m.group(2) == "true", "inicio": m.group(3), "fin": m.group(4)}
+          for m in _re.finditer(r"\{ tipo: '([^']+)', sinEstudiantes: (true|false), inicio: '(\d\d:\d\d)', fin: '(\d\d:\d\d)' \}", _gs)]
+_personas = [{"nombre": d["nombre_completo"], "rol": "Docente"} for d in rd("docentes.csv") if d["tiene_horario"] == "SI"] + \
+            [{"nombre": n, "rol": "Directivo"} for n in datos["directivos"]]
+mock2 = """<script>
+/* ---- Vista previa: simula el servidor con datos de ejemplo; nada se guarda fuera de esta página ---- */
+(function(){
+  var TIPOS=%s, PERSONAS=%s, MOTIVOS=%s, REUN=[], ASIST={}, HOY=(function(){var p=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Bogota'}).format(new Date());return p;})();
+  function reun(id){return REUN.filter(function(r){return r.id===id;})[0];}
+  function conv(r){return r.convocados==='TODOS'?PERSONAS.map(function(p){return p.nombre;}):r.convocados;}
+  var api=function(){var ok=null,fail=null,self={
+    withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
+    urlBase:function(){setTimeout(function(){ok('');},0);},
+    listarReuniones:function(p){setTimeout(function(){var f=(p&&p.fecha)||HOY;
+      ok({fecha:f,tipos:TIPOS,personas:PERSONAS,motivos:MOTIVOS,reuniones:REUN.filter(function(r){return r.fecha===f;}).map(function(r){var a=ASIST[r.id]||{},c=conv(r);
+        return Object.assign({},r,{convocadosN:c.length,registrados:c.filter(function(n){return a[n];}).length});})});},20);},
+    crearReunion:function(p){setTimeout(function(){
+      if(!p.inicio||!p.fin||p.fin<=p.inicio){fail&&fail({message:'Revise la hora de inicio y de fin.'});return;}
+      var r={id:'r'+(REUN.length+1),fecha:p.fecha||HOY,tipo:p.tipo,nombre:p.nombre||p.tipo,inicio:p.inicio,fin:p.fin,sinEstudiantes:!!p.sinEstudiantes,convocados:p.convocados};REUN.push(r);ok({id:r.id});},20);},
+    cargarReunion:function(p){setTimeout(function(){var r=reun(p.id),a=ASIST[r.id]||{};
+      ok({reunion:r,motivos:MOTIVOS,personas:conv(r).map(function(n){var pp=PERSONAS.filter(function(x){return x.nombre===n;})[0]||{rol:'Docente'};return {nombre:n,rol:pp.rol,registro:a[n]||null};})});},20);},
+    guardarAsistenciaReunion:function(p){setTimeout(function(){var a=ASIST[p.id]=ASIST[p.id]||{};p.registros.forEach(function(x){a[x.persona]={estado:x.estado,motivo:x.motivo};});ok({guardados:p.registros.length});},20);}};return self;};
+  window.google={script:{run:new Proxy({},{get:function(_,k){var s=api();return k in s?s[k]:s;}})}};
+})();
+</script>
+""" % (json.dumps(_tipos, ensure_ascii=False), json.dumps(_personas, ensure_ascii=False), json.dumps([m["motivo"] for m in datos["motivos"]], ensure_ascii=False))
+_h = open(os.path.join(RAIZ, "apps_script", "Reunion.html"), encoding="utf-8").read()
+_h = _h.replace("<script>\nvar L=null;", mock2 + "<script>\nvar L=null;", 1)
+_h = _h.replace("<main id=\"app\">", '<div style="background:#fff3cd;color:#664d03;padding:6px 12px;font-size:13px;border-bottom:1px solid #ffe69c"><b>VISTA PREVIA:</b> pruebe el flujo; nada se guarda fuera de esta página.</div>\n<main id="app">', 1)
+open(os.path.join(RAIZ, "ICET_Vista_Previa_Reuniones.html"), "w", encoding="utf-8").write(_h)
+print("OK reuniones", round(len(_h) / 1024), "KB", len(_tipos), "tipos")

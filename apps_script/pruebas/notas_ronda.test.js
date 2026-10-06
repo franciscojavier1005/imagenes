@@ -20,7 +20,7 @@ const g={Utilities:{formatDate:fmt,getUuid:()=>'u'+Math.random().toString(36).sl
     createFolder:()=>({getId:()=>'RAIZ',createFolder:n=>({createFile:b=>{const f={b,id:'F'+archivos.length,setSharing(){},getId(){return this.id},getUrl(){return 'https://drive/'+this.id}};archivos.push(f);return f},getFoldersByName:()=>({hasNext:()=>false})}),getFoldersByName:()=>({hasNext:()=>false})}),
     getFolderById:()=>{throw new Error('no')},getFileById:id=>({setTrashed(){papelera.push(id)}})},console};
 vm.createContext(g);
-['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
+['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Reuniones.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
 let fallos=0; const ok=(c,m)=>{console.log((c?'  ok   ':'  FALLA ')+m); if(!c)fallos++;};
 const run=(c)=>vm.runInContext(c,g);
 const hi=H.Horario[0].indexOf.bind(H.Horario[0]);
@@ -209,4 +209,33 @@ const mvNombres=hojas.Motivos.v.map(r=>r[1]);
 ok(['Permiso por horas (personal)','Comité o consejo (calidad, académico, convivencia)','Reunión PTAFI con la tutora','Reunión de docentes o de área','Atención a padre de familia o acudiente','Atención en coordinación (estudiante o acudiente)'].every(n=>mvNombres.includes(n)),'los 6 motivos de permisos por horas y reuniones internas están en la hoja Motivos');
 g.RS={desde:'2026-10-08',hasta:'2026-10-08',docentes:[],motivos:[],horario:[],novedades:[{fecha:'2026-10-08',docente:'X',tipo:'Ausente temporal',motivo:'Reunión PTAFI con la tutora',minutos:60,justificada:'Sí',categoria:'ACTIVIDAD INSTITUCIONAL'}]};
 const rsm=run('calcularResumen_(RS)').kpis; ok(rsm.permisosTemporales===1&&rsm.minutos===60&&rsm.ausencias===0,'panel: el permiso por horas suma sus minutos y NO cuenta como ausencia del día');
+// ---- reuniones y jornadas sin estudiantes
+EMAIL='dueno@gmail.com'; const hoyR=fmt(new Date(),'America/Bogota','yyyy-MM-dd');
+const clase3=H.Horario.slice(1).find(r=>r[hi('dia')]==='VIERNES'&&r[hi('tipo')]==='CLASE'&&Number(r[hi('hora')])===3), dR=clase3[hi('docente')];
+g.RC={tipo:'Consejo académico',nombre:'Consejo académico de prueba',inicio:'08:00',fin:'10:00',sinEstudiantes:false,convocados:[dR,'Persona que no existe'],directivo:'P'};
+const rc1=run('crearReunion(RC)');
+g.RA={id:rc1.id,registros:[{persona:dR,estado:'Asistió'},{persona:'Otro cualquiera',estado:'Asistió'}],directivo:'P'};
+const ga=run('guardarAsistenciaReunion(RA)');
+ok(ga.guardados===1,'la asistencia solo guarda a los convocados (se ignora a quien no lo es)');
+const cr=run("cargarReunion({id:'"+rc1.id+"'})"); ok(cr.personas.length===1&&cr.personas[0].registro.estado==='Asistió','cargarReunion devuelve convocados y lo registrado');
+const rondaR=run("consultarSesion('VIERNES',3,'sesion')"); const cardR=rondaR.filas.find(f=>f.docente===dR);
+ok(rondaR.reuniones.length===1&&cardR&&cardR.reunion&&cardR.reunion.estado==='Asistió'&&!rondaR.sinEstudiantes,'la ronda marca a quien está en la reunión (la reunión tiene estudiantes: la ronda sigue)');
+const regN=hojas.Registro_Ronda.v.length, novN=hojas.Novedades.v.length;
+run(`guardarRonda({dia:'VIERNES',sesion:3,fecha:'${hoyR}',registros:[{docente:${JSON.stringify(dR)},grupoCodigo:${JSON.stringify(clase3[hi('grupo')])},area:'X',estado:'No asistió',motivo:'Sin justificación'}]})`);
+const rl=hojas.Registro_Ronda.v[hojas.Registro_Ronda.v.length-1];
+ok(hojas.Registro_Ronda.v.length===regN+1&&rl[8]==='En reunión'&&hojas.Novedades.v.length===novN,'si otro directivo lo marca ausente, queda "En reunión" y NO se crea novedad ni minutos');
+// mismo docente sin asistencia registrada: sí queda ausente
+g.RA2={id:rc1.id,registros:[{persona:dR,estado:'No asistió',motivo:'Mal estado de salud'}],directivo:'P'}; run('guardarAsistenciaReunion(RA2)');
+run(`guardarRonda({dia:'VIERNES',sesion:3,fecha:'${hoyR}',registros:[{docente:${JSON.stringify(dR)},grupoCodigo:${JSON.stringify(clase3[hi('grupo')])},area:'X',estado:'No asistió',motivo:'Sin justificación'}]})`);
+ok(hojas.Novedades.v.length===novN+1,'si NO asistió a la reunión, la ausencia en el aula sí se registra');
+// jornada pedagógica sin estudiantes: se suspende la ronda
+g.RJ={tipo:'Jornada pedagógica',inicio:'07:00',fin:'13:30',sinEstudiantes:true,convocados:'TODOS',directivo:'P'}; const rj=run('crearReunion(RJ)');
+const rondaJ=run("consultarSesion('VIERNES',3,'bloque')");
+ok(rondaJ.sinEstudiantes===true&&rondaJ.filas.length===0&&/sin estudiantes/.test(rondaJ.nota),'jornada pedagógica: la ronda de aula se suspende y avisa');
+const lj=run('listarReuniones({})'); ok(lj.reuniones.length===2&&lj.personas.length>40&&lj.tipos.some(t=>t.tipo==='Jornada pedagógica'),'listarReuniones: reuniones del día, tipos y personas (docentes + directivos)');
+g.RAT={id:rj.id,registros:H.Docentes.slice(1).map(r=>({persona:r[H.Docentes[0].indexOf('nombre_completo')],estado:'Asistió'})),directivo:'P'};
+const gj=run('guardarAsistenciaReunion(RAT)'); ok(gj.guardados>=50,'se registra la asistencia de todos de una vez ('+gj.guardados+')');
+run('guardarAsistenciaReunion(RAT)'); const filasAs=hojas.Asistencia_Reunion.v.filter(r=>r[0]===rj.id).length; ok(filasAs===gj.guardados,'volver a guardar reemplaza, no duplica');
+let eR=null; try{run("crearReunion({tipo:'Jornada pedagógica',inicio:'13:00',fin:'08:00',convocados:'TODOS'})")}catch(x){eR=x} ok(eR&&/hora/.test(eR.message),'rechaza horas inválidas');
+EMAIL='alguien@gmail.com'; eR=null; try{run("crearReunion({tipo:'Jornada pedagógica',inicio:'07:00',fin:'13:30',convocados:'TODOS'})")}catch(x){eR=x} ok(eR&&/Solo un directivo/.test(eR.message),'solo directivos registran reuniones'); EMAIL='dueno@gmail.com';
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

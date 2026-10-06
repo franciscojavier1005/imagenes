@@ -61,6 +61,11 @@ La ronda verifica por **bloque** (2 sesiones: S1-2, S3-4, S5-6, S7-8) o, si se p
 ## Quién dicta cada semana
 Cuando una clase la comparte una pareja (hoja `Alternancias`) o un énfasis en pareja, la primera vez que un directivo elige quién dicta queda guardado **de lunes a viernes** (hoja `Semana_Alternancia`). En las parejas de clase la elección intercambia los grupos (si Yohana dicta lo de Pulgarín, Pulgarín pasa a lo de Yohana); en el énfasis solo atiende el docente elegido, con el grupo completo. Todas las rondas de esa semana lo muestran sin volver a preguntar, con el botón "Cambiar" por si cambia el acuerdo; la semana siguiente vuelve a preguntar.
 
+## Reuniones y jornadas sin estudiantes
+Pantalla `?p=reunion` (archivo `Reunion.html`): se crea una reunión (jornada pedagógica, desarrollo institucional, planeación, asamblea de docentes, consejo académico, comité de convivencia, capacitación, etc.) con su horario, si hay o no estudiantes y a quiénes se convoca (todos o personas elegidas), y se registra la asistencia **una sola vez** (Asistió / No asistió con motivo / Tarde / Salió antes). Hojas `Reuniones` y `Asistencia_Reunion`. También imprime una planilla de firmas para hacerlo en papel y transcribirlo después.
+- No genera minutos de inasistencia en aulas (no hay estudiantes).
+- Si la reunión es "sin estudiantes", la ronda de aula se suspende en ese horario y lo avisa. Si tiene estudiantes (p. ej. consejo académico), la ronda sigue y quien asistió aparece como "En reunión", sin poder marcarse ausente; si otro directivo lo marca ausente, queda "En reunión" y no se crea novedad.
+
 ## Ingreso de docentes
 El docente entra con una **cuenta de Google** (Gmail o un correo cualquiera vinculado a una cuenta Google). El ingreso con Facebook **no es posible** en Google Apps Script. Los correos de los docentes se
 dejan vacíos por ahora (se registran ellos mismos al ingresar y el directivo aprueba); los de los directivos siguen siendo temporales (`@example.com`). La huella/firma queda pospuesta.

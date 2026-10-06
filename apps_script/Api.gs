@@ -22,7 +22,11 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   guardarNotaRonda: ['directivo'],
   listarPropuestas: ['directivo'],
   resolverPropuesta: ['directivo'],
-  definirAlternancia: ['directivo']
+  definirAlternancia: ['directivo'],
+  listarReuniones: ['directivo'],
+  crearReunion: ['directivo'],
+  cargarReunion: ['directivo'],
+  guardarAsistenciaReunion: ['directivo']
 };
 
 function apiFunciones_() {
@@ -31,7 +35,8 @@ function apiFunciones_() {
     listarSolicitudes: listarSolicitudes, resolverSolicitud: resolverSolicitud, consultarSesion: consultarSesion, guardarRonda: guardarRonda,
     datosDashboard: datosDashboard, misSoportes: misSoportes, subirSoporte: subirSoporte,
     soportesPorRevisar: soportesPorRevisar, revisarSoporte: revisarSoporte,
-    guardarNotaRonda: guardarNotaRonda, listarPropuestas: listarPropuestas, resolverPropuesta: resolverPropuesta, definirAlternancia: definirAlternancia
+    guardarNotaRonda: guardarNotaRonda, listarPropuestas: listarPropuestas, resolverPropuesta: resolverPropuesta, definirAlternancia: definirAlternancia,
+    listarReuniones: listarReuniones, crearReunion: crearReunion, cargarReunion: cargarReunion, guardarAsistenciaReunion: guardarAsistenciaReunion
   };
 }
 

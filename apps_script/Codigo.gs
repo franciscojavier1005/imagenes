@@ -92,6 +92,7 @@ function doGet(e) {
  * También devuelve las listas para los radios (motivos, medios, fuentes).
  */
 function consultarSesion(dia, sesion, modo) {
+  asegurarMotivos_();
   var ahora = new Date();
   var auto = !dia && !sesion;
   dia = dia || DIAS[Number(Utilities.formatDate(ahora, TZ, 'u'))];
@@ -183,6 +184,16 @@ function claveGrupo_(codigo) {
  * p = {directivo, dia, sesion, fecha?, registros:[{docente, grupoCodigo, area, estado, motivo, minutos, obs, fuente, medio}]}
  */
 var ATIENDE_GRUPO = ['Nadie (grupo solo)', 'Sin clase: los niños no asistieron (padres avisados)', 'Reemplazo (docente)', 'Practicante', 'Otro docente o directivo'];
+
+/** Motivos agregados después de la primera versión del libro: se añaden solos a la hoja Motivos si faltan. */
+var MOTIVOS_NUEVOS = [
+  ['CALAMIDAD DOMÉSTICA', 'Reunión o acto escolar de hijo(a)', 'SI', 'Citación o constancia del colegio', 'SI', 5],
+  ['PERMISO INSTITUCIONAL', 'Reunión o actividad institucional', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5]
+];
+function asegurarMotivos_() {
+  var sh = hoja_('Motivos'), existentes = datos_('Motivos').map(function (m) { return m.motivo; });
+  MOTIVOS_NUEVOS.forEach(function (f) { if (existentes.indexOf(f[1]) < 0) sh.appendRow(f); });
+}
 
 /** Parejas que alternan cada semana (hoja Alternancias; si no existe se crea con las dos parejas de ética y religión). */
 var ALTERNANCIAS_DEFECTO = [

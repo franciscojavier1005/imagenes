@@ -36,6 +36,11 @@ var PATRONES = {
    "(hij[oa]s?|esposo|esposa|mama|papa|madre|padre|familiar|nieto|nieta|abuel[oa]).{0,45}(enferm|hospital|urgencia|cirug|medico|clinica|fiebre|accidente|cita)"
   ],
   [
+   "Reunión o acto escolar de hijo(a)",
+   "CALAMIDAD DOMÉSTICA",
+   "reunion de padres|entrega de boletin|entrega de notas de su hij|citacion del colegio|acto (escolar|civico|de grado|de graduacion).{0,30}(hij|su)|graduacion de su hij|hij[oa]s?.{0,30}(reunion|acto escolar|izada)"
+  ],
+  [
    "Tema académico de hijo(a)",
    "CALAMIDAD DOMÉSTICA",
    "reunion de padres|entrega de boletin|citacion del colegio|hij[oa]s?.{0,30}(colegio|escuela|reunion|matricula|examen|graduacion)"
@@ -59,6 +64,11 @@ var PATRONES = {
    "Evento Secretaría de Educación",
    "EVENTO EXTERNO",
    "secretaria de educacion|\\bsed\\b|comision de servicio|mesa de trabajo|reunion en la secretaria"
+  ],
+  [
+   "Reunión o actividad institucional",
+   "PERMISO INSTITUCIONAL",
+   "(esta|estan|estuvo|salio|fue|fueron|va|van|asiste|asisten)\\s+(a|en)\\s+(la\\s+|una\\s+)?(reunion|consejo|comite|comision)\\b.{0,25}(institucional|de area|de docentes|academic|directiv|evaluacion|promocion)|actividad institucional|acto civico institucional"
   ],
   [
    "Capacitación/Taller",

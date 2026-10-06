@@ -144,4 +144,9 @@ const noEtr=rq.filas.filter(f=>f.area!=='ETR'&&f.alternos.length);
 ok(noEtr.length===0,'solo las áreas de la hoja Alternancias tienen alternos');
 const dia1=H.Horario.slice(1).filter(r=>r[hi('dia')]===ejemplo[hi('dia')]&&r[hi('docente')]===ejemplo[hi('docente')]).length;
 ok(card.minutosDia===dia1*45,`la tarjeta trae el total del día para "toda la jornada" (${card.minutosDia} min)`);
+// ---- motivos nuevos se agregan solos a libros anteriores
+const mv=hojas.Motivos.v; const antesM=mv.length;
+['Reunión o acto escolar de hijo(a)','Reunión o actividad institucional'].forEach(n=>{const i=mv.findIndex(r=>r[1]===n); if(i>0) mv.splice(i,1);});
+const sinNuevos=mv.length; run("consultarSesion('VIERNES',3,'bloque')"); const conNuevos=mv.length; run("consultarSesion('VIERNES',3,'bloque')");
+ok(sinNuevos===antesM-2&&conNuevos===antesM&&mv.length===antesM,'los 2 motivos nuevos (reunión de hijo(a), reunión institucional) se agregan solos y una sola vez');
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

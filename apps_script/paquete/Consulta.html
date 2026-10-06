@@ -35,7 +35,7 @@
   .dirgrupo{padding:4px 12px;font-size:12px;color:#456;background:#f4f8fc;border-top:1px solid #e3e9f0}
   .doc{padding:10px 12px;border-top:1px solid #eef1f5;scroll-margin-top:140px;scroll-margin-bottom:100px}
   .detalle label{scroll-margin-top:140px;scroll-margin-bottom:100px}
-  .doc.estado-No{background:#fdeceb;border-left:4px solid var(--no)} .doc.estado-Tarde{background:#fff6e0;border-left:4px solid var(--tarde)} .doc.estado-Presente{background:#eaf6ec;border-left:4px solid var(--ok)}
+  .doc.estado-No{background:#ffe1ea;border-left:4px solid #e0457b} .doc.estado-Tarde{background:#fff6e0;border-left:4px solid var(--tarde)} .doc.estado-Presente{background:#eaf6ec;border-left:4px solid var(--ok)}
   .nombre{font-weight:600;font-size:16px}
   .meta{font-size:13px;color:#566}
   .nota{font-size:12px;color:#7a5200;margin-top:2px}
@@ -57,7 +57,8 @@
   .estado .quien-chip{background:#0f2a5c;color:#fff;max-width:100%;overflow:hidden;text-overflow:ellipsis}
   .estado .c-ok{background:#e1f3e4;color:#1b5e20} .estado .c-no{background:#fde3e1;color:#a31515} .estado .c-t{background:#fff0cc;color:#7a4b00} .estado .c-sm{background:#e8ecf2;color:#37475e}
   .botones{display:flex;gap:8px;align-items:center}
-  .botones .todos{flex:1} .botones .guardar{flex:1.3}
+  .botones .todos{flex:1}
+  .botones .obsbtn{flex:0 0 46px;padding:12px 0} .botones .guardar{flex:1.3}
   .seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
   @media(min-width:560px){.seg{grid-template-columns:repeat(4,1fr)}}
   .seg button{border:2px solid var(--borde);background:#fff;color:#2b3a4f;border-radius:10px;min-height:48px;font-weight:700;font-size:15px;padding:6px}
@@ -113,6 +114,7 @@
 <div class="barra">
   <div class="estado" id="estado" aria-live="polite"></div>
   <div class="botones">
+    <button class="todos" id="btnSonido" onclick="alternaSonido()" aria-label="Activar o silenciar los tonos" title="Tonos al marcar" style="flex:0 0 46px;padding:12px 0">🔔</button>
     <button class="todos obsbtn" onclick="abrirObs()" aria-label="Observación de la ronda (voz o texto)" title="Observación de la ronda">🎙</button>
     <button class="todos" onclick="todosPresentes()">Todos presentes</button>
     <button class="guardar" id="btnGuardar" onclick="guardar()">Guardar ronda</button>
@@ -264,8 +266,26 @@ function detalle(id,m){
 
 function idDe(d){ return btoa(unescape(encodeURIComponent(d))).replace(/=/g,''); }
 function nombrePorId(id){ return decodeURIComponent(escape(atob(id))); }
+/* tonos suaves al marcar (Web Audio; se pueden silenciar con la campana) */
+var sonido=(function(){try{return localStorage.getItem('icet_sonido')!=='no';}catch(e){return true;}})(), audioCtx=null;
+function tono(tipo){
+  if(!sonido) return;
+  try{
+    var C=window.AudioContext||window.webkitAudioContext; if(!C) return;
+    audioCtx=audioCtx||new C(); if(audioCtx.state==='suspended') audioCtx.resume();
+    var notas={ok:[[659,0],[880,.11]], no:[[330,0],[247,.13]], neutro:[[523,0]]}[tipo]||[];
+    notas.forEach(function(n){
+      var o=audioCtx.createOscillator(), g=audioCtx.createGain(), t=audioCtx.currentTime+n[1];
+      o.type=tipo==='no'?'triangle':'sine'; o.frequency.value=n[0];
+      g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.07,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+0.2);   // volumen bajo y corto
+      o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.22);
+    });
+  }catch(e){}
+}
+function alternaSonido(){ sonido=!sonido; try{localStorage.setItem('icet_sonido',sonido?'si':'no');}catch(e){} el('btnSonido').textContent=sonido?'🔔':'🔕'; if(sonido) tono('ok'); }
 function marcar(id,estado){
   var d=nombrePorId(id), m=marcas[d]||{};
+  if(estado) tono(estado==='Presente'?'ok':(estado==='No asistió'?'no':'neutro'));
   if(!estado){ var q0=m.quien; delete marcas[d]; if(q0) marcas[d]={quien:q0}; pintar(); return; }
   m.estado=estado;
   if(estado==='Presente'){ m={estado:'Presente',quien:m.quien}; }
@@ -283,7 +303,7 @@ function todosPresentes(){
   S.filas.forEach(function(f){ if(marcas[f.docente]&&marcas[f.docente].estado) return;
     if(f.alternos&&f.alternos.length&&!(marcas[f.docente]&&marcas[f.docente].quien)){ salto++; return; }   // si alternan, primero se elige quién dicta
     marcas[f.docente]=Object.assign(marcas[f.docente]||{},{estado:'Presente'}); });
-  if(salto) toast(salto+' sin marcar: elija quién dicta (alternan por semana)');
+  if(salto) toast(salto+' sin marcar: elija quién dicta (alternan por semana)'); else tono('ok');
   pintar();
 }
 function cuenta(){
@@ -381,6 +401,7 @@ function resolver(i,accion){
   .withFailureHandler(function(e){toast('Error: '+(e.message||e));}).resolverPropuesta(arg);
 }
 try{ google.script.run.withSuccessHandler(function(u){ if(u){var a=el('irPanel');a.href=u+'?p=panel';a.style.display='inline';} }).urlBase(); }catch(e){}
+el('btnSonido').textContent=sonido?'🔔':'🔕';
 ahora();
 </script>
 </body>

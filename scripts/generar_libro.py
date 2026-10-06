@@ -180,7 +180,7 @@ for k in range(1, NF + 1):
     ro.cell(f, 5, f'=IF($K{f}="","",IF(INDEX(Horario!$K$2:$K${MAXF},$K{f})="","(énfasis)",INDEX(Horario!$K$2:$K${MAXF},$K{f})))')
     ro.cell(f, 6, f'=IF($K{f}="","",INDEX(Horario!$R$2:$R${MAXF},$K{f}))')
 dvE = DataValidation(type="list", formula1="=Listas!$B$2:$B$7", allow_blank=True)
-dvM = DataValidation(type="list", formula1="=Motivos!$B$2:$B$16", allow_blank=True)
+dvM = DataValidation(type="list", formula1="=Motivos!$B$2:$B$40", allow_blank=True)
 ro.add_data_validation(dvE); ro.add_data_validation(dvM)
 dvE.add(f"G10:G{9 + NF}"); dvM.add(f"H10:H{9 + NF}")
 ro.conditional_formatting.add(f"A10:I{9 + NF}", FormulaRule(formula=['$G10="No asistió"'], fill=PatternFill("solid", bgColor="F8CBAD")))
@@ -232,7 +232,7 @@ nov = hoja(wb, "Novedades", [["Marca temporal", "Fecha Novedad", "Docente", "Tip
 bj = hoja(wb, "Bandeja_WhatsApp", [["fecha", "hora", "remitente", "docente", "tipo_novedad", "motivo", "categoria", "justificada", "confianza", "mensaje", "confirmar", "importado", "id", "origen", "sesion", "grupo"]])
 dvc = DataValidation(type="list", formula1='"SI,NO"', allow_blank=True)
 dvd2 = DataValidation(type="list", formula1="=Docentes!$E$2:$E$200", allow_blank=True)
-dvm2 = DataValidation(type="list", formula1="=Motivos!$B$2:$B$16", allow_blank=True)
+dvm2 = DataValidation(type="list", formula1="=Motivos!$B$2:$B$40", allow_blank=True)
 dvt2 = DataValidation(type="list", formula1="=Listas!$B$2:$B$7", allow_blank=True)
 for v, rng in ((dvc, "K2:K500"), (dvd2, "D2:D500"), (dvm2, "F2:F500"), (dvt2, "E2:E500")):
     bj.add_data_validation(v); v.add(rng)

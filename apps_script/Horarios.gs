@@ -70,6 +70,7 @@ function directoresDeGrupo_() {
  *  'docente'   -> {docente, fecha?}  horario semanal (alternancias de esa semana aplicadas)
  *  'grupo'     -> {grupo, fecha?}    horario semanal del grupo
  *  'ahora'     -> {dia?, sesion?}    quiénes deben estar (por bloque), sin necesidad de haber hecho la ronda
+ *  'lote'      -> {tipo:'docente'|'grupo', fecha?}  todos los horarios de la semana, para imprimir
  *  'directores'-> directores de grupo de todos los cursos y docentes de bachillerato sin dirección
  */
 function consultaHorarios(p) {
@@ -99,6 +100,16 @@ function consultaHorarios(p) {
     return { modo: 'ahora', dia: r.dia, sesion: r.sesion, bloque: r.bloque, franja: r.franja, hora: r.hora, sinEstudiantes: !!r.sinEstudiantes, nota: r.nota,
              reuniones: r.reuniones, filas: r.filas.map(function (f) { return { docente: f.docente, alternos: f.alternos, definido: !!f.definido, grupo: f.grupo, area: f.area, tipo: f.tipo, nota: f.nota,
                sesiones: f.sesiones.map(function (x) { return x.sesion; }) }; }) };
+  }
+  if (p.modo === 'lote') {   // todos los docentes o todos los grupos de una vez (para imprimir)
+    var ef = horarioEfectivo_(semana), cat = catalogoHorarios_();
+    if (p.tipo === 'grupo') return { modo: 'lote', tipo: 'grupo', semana: semana, items: cat.grupos.map(function (g) {
+      return { grupo: g.nombre, celdas: ef.filter(function (f) { return f.grupoCodigo.split('+').indexOf(g.codigo) >= 0; }).map(function (f) {
+        return { dia: f.dia, hora: f.hora, area: f.area, equipo: f.equipo, pendiente: f.pendiente, docentes: f.pendiente ? f.posibles : [f.docente] }; }) }; }) };
+    return { modo: 'lote', tipo: 'docente', semana: semana, items: cat.docentes.map(function (d) {
+      return { docente: d.nombre, celdas: ef.filter(function (f) { return f.docente === d.nombre || f.posibles.indexOf(d.nombre) >= 0; }).map(function (f) {
+        var otros = f.posibles.filter(function (n) { return n !== d.nombre; });
+        return { dia: f.dia, hora: f.hora, grupo: f.grupo, area: f.area, equipo: f.equipo, pendiente: f.pendiente, alternaCon: f.pendiente ? otros[0] : '' }; }) }; }) };
   }
   throw new Error('Consulta no válida.');
 }

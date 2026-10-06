@@ -91,7 +91,7 @@ function doGet(e) {
     return ContentService.createTextOutput('ICET API').setMimeType(ContentService.MimeType.TEXT);
   }
   var pag = (e && e.parameter && e.parameter.p) || 'menu';   // sin parámetros abre el menú de entrada
-  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y jornadas'], horarios: ['Horarios', 'ICET - Horarios y consultas'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'] };
+  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], novedad: ['Novedad', 'ICET - Registrar novedades'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y jornadas'], horarios: ['Horarios', 'ICET - Horarios y consultas'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'] };
   var pg = PAGINAS[pag] || PAGINAS.menu;
   return HtmlService.createHtmlOutputFromFile(pg[0])
     .setTitle(pg[1])
@@ -128,8 +128,14 @@ function consultarSesion(dia, sesion, modo) {
     out.franja = hhmm_(delBloque[0].inicio) + ' - ' + hhmm_(delBloque[delBloque.length - 1].fin);
   }
   var nombres = mapaGrupos_(), direccion = mapaDireccion_();
-  var reportes = {};   // novedades de hoy ya registradas (formulario, WhatsApp o ronda anterior)
-  datos_('Novedades').forEach(function (n) {
+  var reportes = {}, externas = {};   // novedades de hoy ya registradas (pantalla de novedades, formulario, WhatsApp o ronda anterior)
+  var novHoy = datos_('Novedades');
+  novHoy.forEach(function (n) {
+    if (fechaIso_(n['Fecha Novedad']) === out.fecha && n['Tipo Novedad'] === TIPO_EXTERNA) {
+      var e = externas[n['Docente']] = externas[n['Docente']] || { sesiones: {}, jc: false, motivo: n['Motivo Ausencia'], texto: String(n['Descripción'] || '').slice(0, 160) };
+      if (String(n['Sesiones']) === 'JC') e.jc = true; else e.sesiones[String(n['Sesiones']).replace('S', '')] = 1;
+      return;
+    }
     if (fechaIso_(n['Fecha Novedad']) === out.fecha && n['Tipo Novedad'] && n['Tipo Novedad'] !== 'Presente') {
       var d = n['Docente'], medio = String(n['Medio Información'] || '');
       reportes[d] = { tipo: n['Tipo Novedad'], motivo: n['Motivo Ausencia'], texto: String(n['Descripción'] || '').slice(0, 160), medio: medio,
@@ -219,6 +225,10 @@ function consultarSesion(dia, sesion, modo) {
       for (var i = 0; i < reun.length; i++) if (convocadoA_(reun[i], f.docente)) { f.reunion = { id: reun[i].id, nombre: reun[i].nombre, inicio: reun[i].inicio, fin: reun[i].fin, estado: reun[i].asistencia[f.docente] || '' }; break; }
     });
   }
+  out.filas.forEach(function (f) {   // fuera con estudiantes (salida pedagógica, intercolegiados, charla...): no se marca ausente
+    var e = externas[f.docente];
+    if (e && (e.jc || f.sesiones.some(function (x) { return e.sesiones[x.sesion]; }))) f.externa = { motivo: e.motivo, texto: e.texto };
+  });
   out.filas.sort(function (a, b) { return claveGrupo_(a.grupoCodigo) - claveGrupo_(b.grupoCodigo); });   // orden de lista: preescolar a 11°
   return out;
 }
@@ -249,7 +259,11 @@ var MOTIVOS_NUEVOS = [
   ['ACTIVIDAD INSTITUCIONAL', 'Atención en coordinación (estudiante o acudiente)', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
   ['ACTIVIDAD INSTITUCIONAL', 'Reunión de cierre de jornada', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
   ['FORTUITO', 'Lluvia intensa o emergencia climática', 'SI', 'No requiere soporte (situación general)', 'NO', 5],
-  ['CALAMIDAD DOMÉSTICA', 'Sepelio o duelo de un familiar', 'SI', 'Acta de defunción u otro soporte', 'SI', 5]
+  ['CALAMIDAD DOMÉSTICA', 'Sepelio o duelo de un familiar', 'SI', 'Acta de defunción u otro soporte', 'SI', 5],
+  ['ACTIVIDAD INSTITUCIONAL', 'Salida pedagógica o recorrido con estudiantes', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
+  ['ACTIVIDAD INSTITUCIONAL', 'Paseo o salida recreativa con estudiantes', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
+  ['ACTIVIDAD INSTITUCIONAL', 'Intercolegiados o evento deportivo con estudiantes', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
+  ['ACTIVIDAD INSTITUCIONAL', 'Charla o actividad externa con estudiantes', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5]
 ];
 function asegurarMotivos_() {
   var sh = hoja_('Motivos'), existentes = datos_('Motivos').map(function (m) { return m.motivo; });
@@ -321,6 +335,9 @@ function definirAlternancia(p) {
 }
 
 /** Google Sheets convierte '0101' en el número 101: los códigos con cero inicial se escriben como texto (apóstrofo). */
+/** Estados de la ronda que NO son novedad (el docente está cumpliendo su labor). */
+function sinNovedad_(estado) { return estado === 'Presente' || estado === 'En reunión' || estado === 'En actividad externa'; }
+
 function textoCod_(v) { v = String(v == null ? '' : v); return /^0\d+$/.test(v) ? "'" + v : v; }
 
 /** Minutos de una sesión: 45 en general; 60 en preescolar (4 horas de clase entre 7:30 y 11:30). */
@@ -352,6 +369,11 @@ function guardarRonda(p) {
         var rr = reunionesEnSesiones_(fecha, [sesion], franjas).filter(function (x) { return convocadoA_(x, r.docente) && ESTADOS_REUNION_PRESENTE.indexOf(x.asistencia[r.docente]) >= 0; })[0];
         if (rr) r = Object.assign({}, r, { estado: 'En reunión', motivo: rr.nombre, minutos: '' });
       }
+      // quien está fuera con estudiantes (salida pedagógica, intercolegiados...) registrada en Novedades no se marca ausente
+      if (r.estado === 'No asistió' || r.estado === 'Ausente temporal') {
+        var ex = externaDe_(fecha, r.docente, sesion, novVals.slice(1).map(function (x) { var o = {}; novVals[0].forEach(function (k, i) { o[k] = x[i]; }); return o; }));
+        if (ex) r = Object.assign({}, r, { estado: 'En actividad externa', motivo: ex.motivo, minutos: '' });
+      }
       // incumplimientos: se registran con rigor (descripción obligatoria, siempre sin justificación, y quedan además en la hoja Incumplimientos)
       var inc = null;
       if (r.estado === 'Incumplimiento') {
@@ -364,8 +386,8 @@ function guardarRonda(p) {
         r = Object.assign({}, r, { estado: inc.texto, motivo: 'Sin justificación', minutos: inc.minutos });
       }
       var m = inc ? { justificada: 'NO', categoria: 'INCUMPLIMIENTO' } : (motivos[r.motivo] || {});
-      var just = (r.estado === 'Presente' || r.estado === 'En reunión') ? '' : (m.justificada === 'SI' ? 'Sí' : 'No');
-      var atiende = (r.estado === 'Presente' || r.estado === 'En reunión') ? '' : (ATIENDE_GRUPO.indexOf(r.atiende) >= 0 ? r.atiende : '');   // quién cubrió el grupo; NO cuenta como asistencia del docente
+      var just = sinNovedad_(r.estado) ? '' : (m.justificada === 'SI' ? 'Sí' : 'No');
+      var atiende = sinNovedad_(r.estado) ? '' : (ATIENDE_GRUPO.indexOf(r.atiende) >= 0 ? r.atiende : '');   // quién cubrió el grupo; NO cuenta como asistencia del docente
       var pre = /^00/.test(String(r.grupoCodigo));
       var hrow = pre ? hz.filter(function (h) { return h.docente === r.docente && h.dia === p.dia && Number(h.hora) === sesion; })[0] : null;
       var franja = hrow ? hhmm_(hrow.inicio) + ' - ' + hhmm_(hrow.fin) : franjaBase;   // preescolar tiene sus propios periodos
@@ -385,6 +407,7 @@ function guardarRonda(p) {
         var fj = novVals[j][1] instanceof Date ? ymd_(novVals[j][1]) : String(novVals[j][1]);
         var fechaStr = fecha.split('-').reverse().map(Number).join('/');
         var sj = String(novVals[j][novCol]), mj = sj.match(/^S(\d)$/);
+        if (novVals[j][3] === TIPO_EXTERNA) continue;   // la salida con estudiantes se anula solo desde la pantalla de novedades
         if ((fj === fecha || fj === fechaStr) && novVals[j][2] === r.docente && (sj === 'S' + sesion || (inc && inc.resto && mj && Number(mj[1]) >= sesion))) {
           nov.deleteRow(j + 1); novVals.splice(j, 1);
         }
@@ -422,7 +445,7 @@ function guardarRonda(p) {
         guardados++;
         return;
       }
-      if (r.estado !== 'Presente' && r.estado !== 'En reunión' && !jornada) {
+      if (!sinNovedad_(r.estado) && !jornada) {
         var pg = partesGrupo_(String(r.grupoCodigo).split('+')[0]);
         var nf = [ahora, fecha, r.docente, r.estado, r.actividad || 'N/A', r.motivo || '', r.obs || '',
                   r.fuente || FUENTE_RONDA, r.medio || MEDIO_RONDA, pg.grado, pg.grupo, r.area,

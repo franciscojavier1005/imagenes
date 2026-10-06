@@ -43,6 +43,7 @@
   .btn.prim{background:linear-gradient(135deg,#0f2a5c,#1b4a8f);color:#fff}
   .aviso{padding:22px 10px;text-align:center;color:#456}
   .autoria{margin:26px auto 10px;padding:0 12px;text-align:center;font-size:11px;line-height:1.4;color:#8a94a0;max-width:640px} .autoria b{font-weight:600}
+  #lote{display:none} body.imprimiendo #lote{display:block} body.imprimiendo main>:not(#lote){display:none!important} .pag{page-break-after:always;break-after:page;padding:6px} .pag h2{font-size:20px;color:var(--azul);margin:0}
   @media print{header,.tabs,.ctrl,.dias,.btn,.autoria{display:none!important} body{background:#fff} .card{box-shadow:none;border:0} table.hor{min-width:0}}
 </style>
 </head>
@@ -52,6 +53,7 @@
   <div class="tabs" id="tabs"></div>
   <div class="ctrl" id="ctrl"></div>
   <div id="res"><div class="aviso">Cargando…</div></div>
+  <div id="lote"></div>
   <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026</div>
 </main>
 <script>
@@ -119,7 +121,22 @@ function consultar(){
 }
 function fechaSemana(sem){ var d=new Date(sem+'T12:00:00Z'), e=new Date(d.getTime()+4*86400000), M=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   return 'Semana del '+d.getUTCDate()+' al '+e.getUTCDate()+' de '+M[e.getUTCMonth()]+' de '+e.getUTCFullYear(); }
-function chipsDias(){ return '<div class="dias"><button class="'+(!diaSel?'on':'')+'" onclick="dia(\'\')">Semana</button>'+DIAS.map(function(d){return '<button class="'+(diaSel===d?'on':'')+'" onclick="dia(\''+d+'\')">'+ETQ[d]+'</button>';}).join('')+'<button class="btn" onclick="window.print()">🖨 Imprimir</button></div>'; }
+function imprimirTodos(tipo){
+  var f=el('fec')?el('fec').value:'';
+  el('res').insertAdjacentHTML('afterbegin','<div class="aviso" id="espera">Preparando impresión…</div>');
+  srv().withSuccessHandler(function(r){
+    var e=el('espera'); if(e) e.remove();
+    var ds=diaSel; diaSel='';
+    var h='<div class="lote">'+r.items.map(function(it){
+      var tit=tipo==='grupo'?'Grupo '+it.grupo:it.docente, celdas=it.celdas;
+      var cuerpo=rejilla(celdas,function(c){ return tipo==='grupo'?'<div class="celda"><b>'+c.docentes.map(esc).join(' / ')+'</b><small>'+esc(c.area)+'</small></div>':'<div class="celda"><b>'+esc(c.grupo)+'</b><small>'+esc(c.area)+'</small>'+(c.pendiente?'<div class="alt">Alterna con '+esc(c.alternaCon)+'</div>':'')+'</div>'; });
+      return '<section class="pag"><h2>'+esc(tit)+'</h2><div class="sub">I.E. ICET · Horario · '+esc(fechaSemana(r.semana))+'</div>'+(celdas.length?cuerpo:'<div class="aviso">Sin horario en bachillerato.</div>')+'</section>';
+    }).join('')+'</div>';
+    diaSel=ds; el('lote').innerHTML=h; document.body.classList.add('imprimiendo'); setTimeout(function(){ window.print(); },300);
+  }).withFailureHandler(falla).consultaHorarios({modo:'lote',tipo:tipo,fecha:f});
+}
+window.onafterprint=function(){ document.body.classList.remove('imprimiendo'); var l=el('lote'); if(l) l.innerHTML=''; };
+function chipsDias(){ return '<div class="dias"><button class="'+(!diaSel?'on':'')+'" onclick="dia(\'\')">Semana</button>'+DIAS.map(function(d){return '<button class="'+(diaSel===d?'on':'')+'" onclick="dia(\''+d+'\')">'+ETQ[d]+'</button>';}).join('')+'<button class="btn" onclick="window.print()">🖨 Imprimir</button><button class="btn" onclick="imprimirTodos(\''+MODO+'\')">🖨 Imprimir todos los '+(MODO==='grupo'?'grupos':'docentes')+'</button></div>'; }
 function dia(d){ diaSel=d; if(MODO==='docente') pintaDocente(ult); else pintaGrupo(ult); }
 function rejilla(celdas,fn){
   var dias=diaSel?[diaSel]:DIAS, fr=CAT.franjas, h='<div class="tabla"><table class="hor"><thead><tr><th>Sesión</th>'+dias.map(function(d){return '<th>'+ETQ[d]+'</th>';}).join('')+'</tr></thead><tbody>';

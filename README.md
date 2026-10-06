@@ -63,6 +63,9 @@ La ronda verifica por **bloque** (2 sesiones: S1-2, S3-4, S5-6, S7-8) o, si se p
 ## Quién dicta cada semana
 Cuando una clase la comparte una pareja (hoja `Alternancias`) o un énfasis en pareja, la primera vez que un directivo elige quién dicta queda guardado **de lunes a viernes** (hoja `Semana_Alternancia`). En las parejas de clase la elección intercambia los grupos (si Yohana dicta lo de Pulgarín, Pulgarín pasa a lo de Yohana); en el énfasis solo atiende el docente elegido, con el grupo completo. Todas las rondas de esa semana lo muestran sin volver a preguntar, con el botón "Cambiar" por si cambia el acuerdo; la semana siguiente vuelve a preguntar.
 
+## Registrar novedades sin ronda
+Pantalla `?p=novedad` (`Novedad.html`): permisos, incapacidades, llegadas tarde o salidas tempranas avisadas, calamidades y salidas pedagógicas con estudiantes, para hoy, días pasados o futuros, uno o varios docentes. Quien hace la ronda las ve como «Reportado hoy».
+
 ## Horarios y correos
 Pantalla `?p=horarios` (`Horarios.html`): horario de un docente o grupo de bachillerato (con la alternancia de la semana), quiénes deben estar en un bloque, directores de grupo y docentes por área. Los directivos registran su correo la primera vez que ingresan y reciben por correo la síntesis del día (1:35 p. m.), de la semana (viernes) y del mes (último día hábil).
 

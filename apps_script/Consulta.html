@@ -271,9 +271,11 @@ function tarjeta(f){
   var h='<div class="doc estado-'+({'Presente':'Presente','No asistió':'No','Ausente temporal':'Temp','Incumplimiento':'Inc'}[m.estado]||(m.estado?'Tarde':''))+'" id="d_'+id+'">'+
     '<div class="nombre">'+nombres.map(esc).join(' <span style="color:#8a94a0;font-weight:400">/</span> ')+'</div><div class="meta">'+esc(f.area)+(par.length?' · alternan cada semana':'')+'</div>'+
     (f.nota?'<div class="nota">'+esc(f.nota)+'</div>':'')+
-    (f.reporte?'<div class="reporte"><b>Reportado hoy:</b> '+esc(f.reporte.tipo)+(f.reporte.motivo?' · '+esc(f.reporte.motivo):'')+(f.reporte.texto?' — “'+esc(f.reporte.texto)+'”':'')+(f.reporte.medio?' ('+esc(f.reporte.medio)+')':'')+(f.reporte.jornada?' · jornada completa (ya cuenta todo el día: no se suma más tiempo)':'')+'</div>':'')+
+    (f.reporte?'<div class="reporte"><b>Reportado hoy:</b> '+esc(f.reporte.tipo)+(f.reporte.motivo?' · '+esc(f.reporte.motivo):'')+(f.reporte.texto?' — “'+esc(f.reporte.texto)+'”':'')+(f.reporte.medio?' ('+esc(f.reporte.medio)+')':'')+(f.reporte.jornada?' · jornada completa (ya cuenta todo el día: no se suma más tiempo)':'')+
+      (f.reporte.jornada&&/no asisti/i.test(f.reporte.tipo)&&!(marcas[f.docente]&&marcas[f.docente].estado)?'<div><button type="button" style="margin-top:6px;min-height:36px;padding:5px 12px;border:2px solid #b58900;background:#fff;border-radius:8px;font-weight:700" onclick="confirmarReportado(\''+id+'\')">✔ Confirmar: no está (como se reportó)</button></div>':'')+'</div>':'')+
     (f.previo?'<div class="previo">Ya registrado: '+esc(f.previo.estado)+(f.previo.motivo?' · '+esc(f.previo.motivo):'')+'</div>':'');
-  if(f.reunion){ var er=enReunion(f); h+='<div class="reporte" style="'+(er?'background:#e1f3e4;color:#1b5e20':'')+'">📋 '+(er?'<b>En reunión:</b> ':'Convocado a: ')+esc(f.reunion.nombre)+' ('+esc(f.reunion.inicio)+' a '+esc(f.reunion.fin)+')'+(er?' · '+esc(f.reunion.estado)+': no se marca ausente':' · asistencia aún sin registrar')+'</div>'; }
+  if(f.externa) h+='<div class="reporte" style="background:#e1f3e4;color:#1b5e20">🚌 <b>Fuera con estudiantes:</b> '+esc(f.externa.motivo)+(f.externa.texto?' — “'+esc(f.externa.texto)+'”':'')+' · no se marca ausente</div>';
+  if(f.reunion&&!f.externa){ var er=enReunion(f); h+='<div class="reporte" style="'+(er?'background:#e1f3e4;color:#1b5e20':'')+'">📋 '+(er?'<b>En reunión:</b> ':'Convocado a: ')+esc(f.reunion.nombre)+' ('+esc(f.reunion.inicio)+' a '+esc(f.reunion.fin)+')'+(er?' · '+esc(f.reunion.estado)+': no se marca ausente':' · asistencia aún sin registrar')+'</div>'; }
   var ck=esc(f.claveAlt||'').replace(/'/g,'');
   if(par.length&&mostrarElegir){
     h+='<div class="quien-dicta"><b>¿Quién dicta esta semana?</b> <span style="color:#6b5a00">(queda guardado de lunes a viernes)</span><div class="op">'+par.map(function(n){
@@ -283,7 +285,7 @@ function tarjeta(f){
        ' <button type="button" style="flex:none;min-height:34px;padding:4px 10px;margin-left:6px;font-size:12.5px;border:2px solid var(--borde);background:#fff;border-radius:8px" onclick="cambiarQuien(\''+id+'\')">Cambiar</button></div>';
   }
   var cl={'Presente':'Presente','No asistió':'No','Ausente temporal':'Temp','Llegada tarde':'Tarde','Salida temprana':'Salida','Incumplimiento':'Inc'};
-  if(enReunion(f)) return h+'</div>';
+  if(enReunion(f)||f.externa) return h+'</div>';
   h+='<div class="seg" role="radiogroup" aria-label="Asistencia de '+esc(f.docente)+'">'+ESTADOS.map(function(e){
     var on=m.estado===e;
     return '<button type="button" role="radio" aria-checked="'+on+'" class="b-'+cl[e]+(on?' on':'')+'" onclick="marcar(\''+id+'\',\''+(on?'':e)+'\')">'+ICONOS[e]+' '+esc(ETIQUETA[e]||e)+'</button>';}).join('')+'</div>';
@@ -291,7 +293,7 @@ function tarjeta(f){
   return h+'</div>';
 }
 var cambiando={}, urlReunion='';
-function enReunion(f){ return !!(f.reunion&&['Asistió','Llegada tarde','Salida temprana'].indexOf(f.reunion.estado)>=0); }
+function enReunion(f){ return !!(f.externa||(f.reunion&&['Asistió','Llegada tarde','Salida temprana'].indexOf(f.reunion.estado)>=0)); }
 function avisoReuniones(){
   if(!S||!S.reuniones||!S.reuniones.length) return '';
   return S.reuniones.map(function(r){ return '<div class="reporte" style="margin:8px 0">📋 <b>'+esc(r.nombre)+'</b> ('+esc(r.inicio)+' a '+esc(r.fin)+')'+(r.sinEstudiantes?' · <b>sin estudiantes</b>':'')+(urlReunion?' · <a href="'+esc(urlReunion)+'" target="_top">Registrar asistencia</a>':'')+'</div>'; }).join('');
@@ -372,6 +374,11 @@ function marcar(id,estado){
   else { m.motivo=m.motivo||'Sin justificación'; if(estado==='Ausente temporal'&&m.motivo==='Sin justificación') m.motivo='Permiso por horas (personal)'; if(estado!=='No asistió') delete m.alcance; if(estado==='No asistió') m.minutos=45; else if(Number(m.minutos)===45&&m.estado!=='No asistió') m.minutos=''; }
   marcas[d]=m; pintar();
   if(m.estado&&m.estado!=='Presente'){ var c=el('d_'+id); if(c&&c.scrollIntoView) c.scrollIntoView({block:'center',behavior:'smooth'}); }   // se despliegan las opciones de la novedad
+}
+function confirmarReportado(id){
+  var d=nombrePorId(id), f=S.filas.filter(function(x){return x.docente===d;})[0]||{}, r=f.reporte||{};
+  marcas[d]={estado:'No asistió',motivo:r.motivo||'Sin justificación',minutos:45,obs:'Verificado en la ronda: ya estaba reportado'+(r.medio?' ('+r.medio+')':'')};
+  tono('no'); pintar();
 }
 function campo(id,k,v,repintar){
   var d=nombrePorId(id), m=marcas[d]||{}; m[k]=v;

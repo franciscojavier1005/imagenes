@@ -61,7 +61,8 @@ function calcularResumen_(ctx) {
     };
   }
   // todas las novedades (sin límite de fechas) que cumplen el filtro; de ahí salen el periodo y la tendencia
-  var todas = (ctx.novedades || []).filter(function (n) { return n.tipo && n.tipo !== 'Presente'; }).map(norm).filter(function (n) { return pasa(n.docente, n.nivel); });
+  var externas = (ctx.novedades || []).filter(function (n) { return n.tipo === 'Actividad externa con estudiantes'; });   // salidas pedagógicas: actividad institucional, no suman tiempo sin atender
+  var todas = (ctx.novedades || []).filter(function (n) { return n.tipo && n.tipo !== 'Presente' && n.tipo !== 'Actividad externa con estudiantes'; }).map(norm).filter(function (n) { return pasa(n.docente, n.nivel); });
   var nov = todas.filter(function (n) { return n.fecha >= desde && n.fecha <= hasta; });
 
   // programadas: sesiones docente-día que debían dictarse en los días hábiles del rango (del filtro)
@@ -87,6 +88,7 @@ function calcularResumen_(ctx) {
     salidasTempranas: nov.filter(function (n) { return n.salida; }).length,
     permisosTemporales: nov.filter(function (n) { return n.temporal; }).length,
     incumplimientos: nov.filter(function (n) { return n.incumplimiento; }).length,
+    salidasPedagogicas: (function () { var u = {}; externas.forEach(function (n) { if (n.fecha >= desde && n.fecha <= hasta && pasa(n.docente, nivel[n.docente] || 'SIN NIVEL')) u[n.docente + '|' + n.fecha] = 1; }); return Object.keys(u).length; })(),
     eventos: nov.length,
     pctJustificadas: nov.length ? Math.round(just.length / nov.length * 1000) / 10 : null,
     minutosSinJustificar: resSuma_(nov.filter(function (n) { return n.justificada !== 'Sí'; }), function (n) { return n.minutos; })
@@ -168,7 +170,7 @@ function htmlInforme_(r, fechaTexto, urlPanel) {
     '<div style="font-size:40px;font-weight:600;line-height:1.1">' + e(k.horas) + ' <span style="font-size:16px;color:#52514e;font-weight:500">horas</span></div>' +
     '<div style="font-size:13px;color:#52514e">' + e(k.sesiones) + ' sesiones de 45 min de ' + e(k.programadas) + ' programadas · cumplimiento ' + (k.cumplimiento == null ? '—' : e(k.cumplimiento) + '%') + '</div></div>' +
     '<table width="100%" cellpadding="0" cellspacing="6" style="margin-bottom:10px"><tr>' +
-    [['Docentes con novedad', k.docentesConNovedad], ['Ausencias', k.ausencias], ['Llegadas tarde', k.llegadasTarde], ['Salidas tempranas', k.salidasTempranas], ['Permisos por horas', k.permisosTemporales], ['Incumplimientos', k.incumplimientos],
+    [['Docentes con novedad', k.docentesConNovedad], ['Ausencias', k.ausencias], ['Llegadas tarde', k.llegadasTarde], ['Salidas tempranas', k.salidasTempranas], ['Permisos por horas', k.permisosTemporales], ['Salidas pedagógicas (docente-día)', k.salidasPedagogicas], ['Incumplimientos', k.incumplimientos],
      ['Justificadas', k.pctJustificadas == null ? '—' : k.pctJustificadas + '%']].map(function (t) {
       return '<td style="background:#f3f3f0;border-radius:8px;padding:8px 10px;width:14%"><div style="font-size:11.5px;color:#52514e">' + e(t[0]) + '</div><div style="font-size:20px;font-weight:600">' + e(t[1]) + '</div></td>';
     }).join('') + '</tr></table>';

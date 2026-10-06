@@ -48,3 +48,4 @@ Correos reales de directivos (se capturan al primer ingreso), huella (pospuesta)
 10. Implementación: *Ejecutar como*: Yo; *Acceso*: Cualquier persona. Menú **Generar claves de ingreso** y entregar las claves.
 11. Abrir la URL **sin nada al final**: aparece el ingreso con clave y luego el menú.
 12. (Nuevo) HTML **nuevo** `Horarios` ← `Horarios.html`; reemplazar también `Menu.html` (tarjeta de correo) y `ICET_completo.gs`. Menú **Programar informe diario** (una vez) y volver a **Generar claves** solo si faltan claves (registra el correo del propietario). No hay que volver a subir el libro.
+13. (Nuevo) HTML **nuevo** `Novedad` ← `Novedad.html`; reemplazar también `Consulta.html`, `Dashboard.html`, `Horarios.html`, `Menu.html` y `ICET_completo.gs`. La hoja `Novedades` recibe sola la columna «ID registro» y `Motivos` los 4 motivos de salidas con estudiantes; `Novedades_Anuladas` se crea sola. No hay que volver a subir el libro.

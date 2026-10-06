@@ -232,7 +232,7 @@ mx.auto_filter.ref = mx.dimensions
 # ------------------------------------------------------------------ Novedades (esquema del formulario actual) y Registro_Ronda
 nov = hoja(wb, "Novedades", [["Marca temporal", "Fecha Novedad", "Docente", "Tipo Novedad", "Actividad de Aprendizaje", "Motivo Ausencia",
                               "Descripción", "Fuente Novedad", "Medio Información", "Grado", "Grupo", "Área/Asignatura", "Horario",
-                              "Minutos Desatendidos", "Directivo Docente", "Sesiones", "Justificada", "Categoría motivo", "Grupo atendido por"]])
+                              "Minutos Desatendidos", "Directivo Docente", "Sesiones", "Justificada", "Categoría motivo", "Grupo atendido por", "ID registro"]])
 bj = hoja(wb, "Bandeja_WhatsApp", [["fecha", "hora", "remitente", "docente", "tipo_novedad", "motivo", "categoria", "justificada", "confianza", "mensaje", "confirmar", "importado", "id", "origen", "sesion", "grupo"]])
 dvc = DataValidation(type="list", formula1='"SI,NO"', allow_blank=True)
 dvd2 = DataValidation(type="list", formula1="=Docentes!$E$2:$E$200", allow_blank=True)

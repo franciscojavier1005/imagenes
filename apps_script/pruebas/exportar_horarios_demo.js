@@ -9,7 +9,7 @@ const hoja=n=>H[n]?{getDataRange:()=>({getValues:()=>JSON.parse(JSON.stringify(H
 const g={Utilities:{formatDate:fmt,getUuid:()=>'x'},Logger:{log(){}},LockService:{getScriptLock:()=>({waitLock(){},releaseLock(){}})},Session:{getActiveUser:()=>({getEmail:()=>'dueno@gmail.com'})},
   SpreadsheetApp:{getActive:()=>({getEditors:()=>[{getEmail:()=>'dueno@gmail.com'}],getOwner:()=>({getEmail:()=>'dueno@gmail.com'}),getSheetByName:hoja,insertSheet:n=>({appendRow(){},getRange:()=>({setValue(){},setValues(){}}),getDataRange:()=>({getValues:()=>[[]]}),setFrozenRows(){},getName:()=>n})}),getUi:()=>({})},console};
 vm.createContext(g);
-['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Soportes.gs','Reuniones.gs','Incumplimientos.gs','Horarios.gs','Sesion.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
+['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Soportes.gs','Reuniones.gs','Incumplimientos.gs','Horarios.gs','Novedades.gs','Sesion.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
 const run=c=>vm.runInContext(c,g), q=o=>run('consultaHorarios('+JSON.stringify(o)+')');
 const cat=q({modo:'catalogo'}), out={catalogo:cat,directores:q({modo:'directores'}),docente:{},grupo:{},ahora:{}};
 cat.docentes.forEach(d=>{out.docente[d.nombre]=q({modo:'docente',docente:d.nombre});});

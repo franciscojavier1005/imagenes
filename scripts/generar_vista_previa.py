@@ -206,6 +206,7 @@ if os.path.exists(os.path.join(RAIZ, "apps_script", "pruebas", "hojas.json")):
     urlBase:function(){setTimeout(function(){ok('#vista-previa');},5);},
     consultaHorarios:function(p){setTimeout(function(){
       if(p.modo==='catalogo') ok(D.catalogo); else if(p.modo==='directores') ok(D.directores);
+      else if(p.modo==='lote') ok({modo:'lote',tipo:p.tipo,semana:D.docente[Object.keys(D.docente)[0]].semana,items:Object.keys(p.tipo==='grupo'?D.grupo:D.docente).map(function(k){return (p.tipo==='grupo'?D.grupo:D.docente)[k];})});
       else if(p.modo==='docente') ok(D.docente[p.docente]); else if(p.modo==='grupo') ok(D.grupo[p.grupo]);
       else { var k=(p.dia||'JUEVES')+'|'+(p.sesion||1); ok(D.ahora[k]||D.ahora['JUEVES|1']); } },20);},
     llamarSeguro:function(){setTimeout(function(){ok({});},5);}};return self;};
@@ -219,3 +220,33 @@ if os.path.exists(os.path.join(RAIZ, "apps_script", "pruebas", "hojas.json")):
     _hh = _hh[:_i] + _mock4 + _hh[_i:]
     open(os.path.join(RAIZ, "ICET_Vista_Previa_Horarios.html"), "w", encoding="utf-8").write(_hh)
     print("OK horarios", round(len(_hh) / 1024), "KB")
+
+
+# ---------------------------------------------------------------- vista previa de Registrar novedades
+_nv = open(os.path.join(RAIZ, "apps_script", "Novedad.html"), encoding="utf-8").read()
+_docs = [{"nombre": d["nombre_completo"], "nivel": d["nivel"]} for d in rd("docentes.csv") if d["tiene_horario"] == "SI"]
+_mots = [{"motivo": m["motivo"], "categoria": m["categoria"], "justificada": m["justificada"]} for m in datos["motivos"]]
+_mock5 = """<script>
+/* Vista previa de Registrar novedades: nada se guarda fuera de esta página. */
+(function(){
+  var DOCS=%s, MOTIVOS=%s, REG=[];
+  var EXT=['Salida pedagógica o recorrido con estudiantes','Paseo o salida recreativa con estudiantes','Intercolegiados o evento deportivo con estudiantes','Charla o actividad externa con estudiantes'];
+  var TIPOS=[{id:'AUSENCIA',texto:'No asistirá (o no asistió) el día completo',pide:'dias'},{id:'TARDE',texto:'Llegará tarde (o llegó tarde)',pide:'llegada'},{id:'SALIDA',texto:'Saldrá temprano (o salió temprano)',pide:'salida'},{id:'HORAS',texto:'Permiso por horas',pide:'rango'},{id:'EXTERNA',texto:'Salida pedagógica o actividad con estudiantes fuera del colegio',pide:'rango_o_dia'}];
+  var hoy=new Date().toLocaleDateString('en-CA',{timeZone:'America/Bogota'});
+  var api=function(){var ok=null,fail=null,self={withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
+    urlBase:function(){setTimeout(function(){ok('#vista-previa');},5);},
+    datosNovedades:function(){setTimeout(function(){ok({hoy:hoy,docentes:DOCS,tipos:TIPOS,motivos:MOTIVOS,motivosExterna:EXT,medios:['WhatsApp directo','Llamada celular','Verbal','Formato Permiso Docente'],fuentes:['Docente ausente','Rector','Coordinador(a)'],registros:REG});},20);},
+    registrarNovedad:function(p){setTimeout(function(){ if(!p.docentes.length){fail({message:'Elija al menos un docente.'});return;}
+      p.docentes.forEach(function(d){REG.unshift({id:'r'+REG.length,docente:d,tipo:p.tipo,motivo:p.motivo,desde:p.desde,hasta:p.hasta,dias:1,descripcion:p.descripcion||'',por:'Francisco Cortés'});});
+      ok({id:'x',filas:p.docentes.length,dias:1,sinClases:[],yaAusente:[]});},200);},
+    quitarNovedad:function(p){setTimeout(function(){REG=REG.filter(function(r){return r.id!==p.id;});ok({quitadas:1});},100);},
+    llamarSeguro:function(){setTimeout(function(){ok({});},5);}};return self;};
+  window.PREVIEW=true;
+  window.google={script:{run:new Proxy({},{get:function(_,k){var s=api();return k in s?s[k]:s;}})}};
+})();
+</script>
+""" % (json.dumps(_docs, ensure_ascii=False), json.dumps(_mots, ensure_ascii=False))
+_i = _nv.index("<script>")
+_nv = _nv[:_i] + _mock5 + _nv[_i:]
+open(os.path.join(RAIZ, "ICET_Vista_Previa_Novedades.html"), "w", encoding="utf-8").write(_nv)
+print("OK novedades", round(len(_nv) / 1024), "KB")

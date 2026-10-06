@@ -16,7 +16,7 @@ const back={Utilities:{formatDate:fmt,base64Decode:b=>Array.from(Buffer.from(b,'
   DriveApp:{}, PropertiesService:{getScriptProperties:()=>({getProperty:k=>propsBack[k]})},
   ContentService:{createTextOutput:t=>({texto:t,setMimeType(){return this}}),MimeType:{JSON:'json',TEXT:'text'}},HtmlService:{},console};
 vm.createContext(back);
-['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Reuniones.gs','Incumplimientos.gs','Horarios.gs','Sesion.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),back,{filename:f}));
+['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Reuniones.gs','Incumplimientos.gs','Horarios.gs','Novedades.gs','Sesion.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),back,{filename:f}));
 // red simulada: lo que el front envía por POST llega a doPost del back
 let ultimaPeticion=null, EMAIL='dueno@gmail.com', responder=null;
 const front={Session:{getActiveUser:()=>({getEmail:()=>EMAIL})},PropertiesService:{getScriptProperties:()=>({getProperty:k=>propsFront[k]})},

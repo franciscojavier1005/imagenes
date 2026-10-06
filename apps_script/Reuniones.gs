@@ -34,7 +34,7 @@ function txtForzado_(v) { return "'" + v; }
 function personasReunion_() {
   var out = [], vistos = {};
   function agrega(n, rol) { n = String(n || '').trim(); if (n && !vistos[n]) { vistos[n] = 1; out.push({ nombre: n, rol: rol }); } }
-  datos_('Docentes').forEach(function (d) { if (String(d.tiene_horario) === 'SI') agrega(d.nombre_completo, 'Docente'); });
+  datos_('Docentes').forEach(function (d) { if (String(d.tiene_horario) === 'SI') agrega(d.nombre_completo, /PTAFI/i.test(String(d.nivel)) ? 'Tutora PTAFI' : 'Docente'); });
   datos_('Directivos').forEach(function (d) { agrega(d.nombre, 'Directivo'); });
   return out;
 }

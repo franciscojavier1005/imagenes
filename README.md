@@ -58,6 +58,9 @@ La ronda verifica por **bloque** (2 sesiones: S1-2, S3-4, S5-6, S7-8) o, si se p
 - Barra fija abajo: quién hace la ronda, cuántos deben estar, presentes, no asistieron, tarde/salida y sin marcar.
 - "Toda la jornada" muestra el total de minutos del día del docente (45 por sesión; 60 por periodo en preescolar).
 
+## Quién dicta cada semana
+Cuando una clase la comparte una pareja (hoja `Alternancias`) o un énfasis en pareja, la primera vez que un directivo elige quién dicta queda guardado **de lunes a viernes** (hoja `Semana_Alternancia`). En las parejas de clase la elección intercambia los grupos (si Yohana dicta lo de Pulgarín, Pulgarín pasa a lo de Yohana); en el énfasis solo atiende el docente elegido, con el grupo completo. Todas las rondas de esa semana lo muestran sin volver a preguntar, con el botón "Cambiar" por si cambia el acuerdo; la semana siguiente vuelve a preguntar.
+
 ## Ingreso de docentes
 El docente entra con una **cuenta de Google** (Gmail o un correo cualquiera vinculado a una cuenta Google). El ingreso con Facebook **no es posible** en Google Apps Script. Los correos de los docentes se
 dejan vacíos por ahora (se registran ellos mismos al ingresar y el directivo aprueba); los de los directivos siguen siendo temporales (`@example.com`). La huella/firma queda pospuesta.

@@ -19,7 +19,7 @@ ALIAS = {"A": etiqueta["Escobar Cortés Liliana"], "B": etiqueta["Cuero Rincón 
 import re
 _pat = re.compile("|".join(re.escape(k) for k in sorted(etiqueta, key=len, reverse=True)))
 anon = lambda v: _pat.sub(lambda m: etiqueta[m.group(0)], v) if isinstance(v, str) else v   # también dentro de textos compuestos
-out = {n: [[anon(c) for c in f] for f in hoja(n)] for n in ["Horario", "Docentes", "Motivos", "Directivos", "Novedades", "Registro_Ronda", "Franjas", "Grupos", "Direccion_Grupo", "Listas", "Usuarios", "Soportes", "Parametros", "Alternancias"]}
+out = {n: [[anon(c) for c in f] for f in hoja(n)] for n in ["Horario", "Docentes", "Motivos", "Directivos", "Novedades", "Registro_Ronda", "Franjas", "Grupos", "Direccion_Grupo", "Listas", "Usuarios", "Soportes", "Parametros", "Alternancias", "Semana_Alternancia"]}
 hdr = out["Novedades"][0]
 def fila(**k):
     return [k.get(h) for h in hdr]

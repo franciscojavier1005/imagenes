@@ -149,6 +149,9 @@ function consultarSesion(dia, sesion, modo) {
                    grupo: enf ? 'ÉNFASIS ' + String(h.grupos_enfasis).split('+').map(function (g) { return nombres[g] || g; }).join(' + ') : (nombres[h.grupo] || h.grupo) }],
       _par: h.tipo === 'ENFASIS' && /^PAREJA/.test(String(h.alternancia)) ? h.hora + '|' + h.grupos_enfasis : '',
       alternos: h.tipo === 'CLASE' && altern[h.area + '|' + h.docente] ? [altern[h.area + '|' + h.docente]] : [],   // pareja que alterna por semana: se elige quién dicta
+      primario: h.docente,
+      pareja: h.tipo === 'CLASE' && altern[h.area + '|' + h.docente] ? [h.docente, altern[h.area + '|' + h.docente]].sort() : null,
+      claveAlt: h.tipo === 'CLASE' && altern[h.area + '|' + h.docente] ? 'CLASE|' + h.area + '|' + [h.docente, altern[h.area + '|' + h.docente]].sort().join('|') : '',
       minutosDia: totDia[h.docente] || 0,
       reporte: reportes[h.docente] || null,
       previo: ya ? { estado: ya.estado, motivo: ya.motivo, minutos: ya.minutos, observaciones: ya.observaciones, atendidoPor: ya.atendido_por || '' } : null
@@ -162,10 +165,22 @@ function consultarSesion(dia, sesion, modo) {
     if (!k) { pares[f._par] = f; sinPar.push(f); return; }
     var pri = f.docente < k.docente ? f : k, otro = pri === f ? k : f;
     pri.alternos = (pri.alternos || []).concat([otro.docente]);
+    pri.pareja = [pri.docente, otro.docente].sort(); pri.claveAlt = 'ENFASIS|' + String(pri.grupoCodigo) + '|' + pri.pareja.join('|');
     if (pri === f) { pares[f._par] = f; sinPar[sinPar.indexOf(k)] = f; }
   });
   out.filas = sinPar;
   out.filas.forEach(function (f) { delete f._par; });
+  // lo ya definido para la semana: aparece solo quien dicta (y su pareja queda como la otra persona)
+  var estados = estadosSemana_(lunesDe_(out.fecha));
+  out.filas.forEach(function (f) {
+    var st = f.claveAlt ? estados[f.claveAlt] : null;
+    if (!st) return;
+    var nuevo = /^CLASE/.test(f.claveAlt) ? (st.intercambio === 'SI' ? f.pareja.filter(function (n) { return n !== f.primario; })[0] : f.primario) : st.elegido;
+    f.docente = nuevo; f.alternos = []; f.definido = { por: st.por };
+    f.reporte = reportes[nuevo] || null; f.minutosDia = totDia[nuevo] || 0;
+    var ya2 = yaMarcados[nuevo];
+    f.previo = ya2 ? { estado: ya2.estado, motivo: ya2.motivo, minutos: ya2.minutos, observaciones: ya2.observaciones, atendidoPor: ya2.atendido_por || '' } : null;
+  });
   if (out.modo === 'bloque') {   // una tarjeta por docente: sus sesiones del bloque quedan juntas
     var por = {}, uni = [];
     out.filas.forEach(function (f) {
@@ -227,6 +242,51 @@ function alternancias_() {
     m[a.area + '|' + a.docente_a] = a.docente_b; m[a.area + '|' + a.docente_b] = a.docente_a;
   });
   return m;
+}
+
+/** Lunes de la semana de una fecha 'yyyy-MM-dd'. */
+function lunesDe_(f) { var d = resDia_(f); return resSumaDias_(f, -(d === 0 ? 6 : d - 1)); }
+var COL_SEMANA_ALT = ['semana', 'clave', 'elegido', 'intercambio', 'definido_por', 'fecha_definicion'];
+
+/** Quién dicta cada pareja esta semana: clave -> {intercambio, elegido, por}. Lo define un directivo una vez y vale de lunes a viernes. */
+function estadosSemana_(semana) {
+  var m = {};
+  datosOCrea_('Semana_Alternancia', COL_SEMANA_ALT).forEach(function (r) {
+    if (fechaIso_(String(r.semana).replace(/^'/, '')) === semana) m[r.clave] = { intercambio: r.intercambio, elegido: r.elegido, por: r.definido_por };
+  });
+  return m;
+}
+
+/**
+ * Un directivo define quién dicta esta semana. p = {clave, elegido, primario?, fecha?}
+ * clave 'CLASE|area|docenteA|docenteB' (parejas de la hoja Alternancias: se guarda si la pareja intercambia sus grupos; primario = a quién
+ * le corresponde la clase en el horario) o 'ENFASIS|grupos|docenteA|docenteB' (énfasis en pareja: se guarda quién atiende el grupo completo).
+ */
+function definirAlternancia(p) {
+  p = p || {};
+  var quien = REQ_EMAIL !== null ? identidad_() : null;
+  if (quien && quien.rol !== 'directivo') throw new Error('Solo un directivo puede definir quién dicta.');
+  var por = quien ? (quien.nombre || quien.email) : String(p.directivo || '');
+  var partes = String(p.clave || '').split('|');
+  if (partes.length !== 4 || ['CLASE', 'ENFASIS'].indexOf(partes[0]) < 0) throw new Error('Pareja no válida.');
+  var par = [partes[2], partes[3]];
+  if (par.indexOf(p.elegido) < 0) throw new Error('El docente elegido no pertenece a la pareja.');
+  var inter = '';
+  if (partes[0] === 'CLASE') {
+    var otro = alternancias_()[partes[1] + '|' + par[0]];
+    if (otro !== par[1]) throw new Error('Esa pareja no está en la hoja Alternancias.');
+    if (par.indexOf(p.primario) < 0) throw new Error('Falta indicar a quién le corresponde la clase.');
+    inter = p.elegido !== p.primario ? 'SI' : 'NO';
+  }
+  var semana = lunesDe_(p.fecha ? fechaIso_(p.fecha) : ymd_(new Date()));
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var sh = hojaOCrea_('Semana_Alternancia', COL_SEMANA_ALT), v = sh.getDataRange().getValues(), fila = -1;
+    for (var i = 1; i < v.length; i++) if (fechaIso_(String(v[i][0]).replace(/^'/, '')) === semana && v[i][1] === p.clave) { fila = i + 1; break; }
+    var datos = ["'" + semana, p.clave, p.elegido, inter, por, ahoraTxt_()];
+    if (fila > 0) sh.getRange(fila, 1, 1, datos.length).setValues([datos]); else sh.appendRow(datos);
+  } finally { lock.releaseLock(); }
+  return { ok: true, semana: semana, intercambio: inter };
 }
 
 /** Google Sheets convierte '0101' en el número 101: los códigos con cero inicial se escriben como texto (apóstrofo). */

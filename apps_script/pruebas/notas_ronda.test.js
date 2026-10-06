@@ -169,4 +169,34 @@ ok(cn&&cn.alternos.length===1,'ciencias naturales: la tarjeta ofrece al otro doc
 // una hoja Alternancias de la versión anterior (solo ética y religión) recibe las parejas que faltan
 const al=hojas.Alternancias.v; const nAl=al.length; al.splice(al.findIndex(r=>r[0]==='CSI'),2);
 run("consultarSesion('VIERNES',3,'bloque')"); ok(al.length===nAl,'se agregan solas las parejas que faltan, sin duplicar');
+// ---- quién dicta se define una vez y vale toda la semana
+const parETR=[ejemplo[hi('docente')],otro]; const claveE='CLASE|ETR|'+[...parETR].sort().join('|');
+const antesDef=run(`consultarSesion('${ejemplo[hi('dia')]}',${ejemplo[hi('hora')]},'sesion')`).filas.find(f=>f.claveAlt===claveE&&f.primario===ejemplo[hi('docente')]);
+ok(antesDef&&antesDef.alternos.length===1&&!antesDef.definido,'sin definir: la tarjeta ofrece a los dos');
+g.PD={clave:claveE,elegido:otro,primario:ejemplo[hi('docente')],directivo:'Prueba'}; run('definirAlternancia(PD)');
+const despues=run(`consultarSesion('${ejemplo[hi('dia')]}',${ejemplo[hi('hora')]},'sesion')`).filas.find(f=>f.claveAlt===claveE&&f.primario===ejemplo[hi('docente')]);
+ok(despues.docente===otro&&despues.alternos.length===0&&despues.definido.por==='Prueba','definido: ahora esa clase muestra solo a '+'quien se eligió');
+// la clase del otro docente (su par de grupos) queda con el primero: intercambio automático
+const otraClase=H.Horario.slice(1).find(r=>r[hi('tipo')]==='CLASE'&&r[hi('area')]==='ETR'&&r[hi('docente')]===otro);
+const ro=run(`consultarSesion('${otraClase[hi('dia')]}',${otraClase[hi('hora')]},'sesion')`).filas.find(f=>f.claveAlt===claveE&&f.primario===otro);
+ok(ro&&ro.docente===ejemplo[hi('docente')]&&ro.definido,'el otro docente pasa automáticamente al otro grupo (intercambio)');
+// cualquier día de la semana ve lo mismo
+const otroDia=['LUNES','MARTES','MIERCOLES','JUEVES','VIERNES'].find(d=>d!==ejemplo[hi('dia')]);
+const hs2=H.Horario.slice(1).find(r=>r[hi('tipo')]==='CLASE'&&r[hi('area')]==='ETR'&&r[hi('docente')]===ejemplo[hi('docente')]&&r[hi('dia')]===otroDia);
+if(hs2){const rd=run(`consultarSesion('${otroDia}',${hs2[hi('hora')]},'sesion')`).filas.find(f=>f.claveAlt===claveE&&f.primario===ejemplo[hi('docente')]); ok(rd&&rd.docente===otro,'la misma elección aplica a todos los días de esa semana ('+otroDia+')');}
+// cambiarlo reemplaza (no duplica) y volver al original
+const nSem=hojas.Semana_Alternancia.v.length; g.PD2={clave:claveE,elegido:ejemplo[hi('docente')],primario:ejemplo[hi('docente')],directivo:'Prueba'}; run('definirAlternancia(PD2)');
+const rev=run(`consultarSesion('${ejemplo[hi('dia')]}',${ejemplo[hi('hora')]},'sesion')`).filas.find(f=>f.claveAlt===claveE&&f.primario===ejemplo[hi('docente')]);
+ok(hojas.Semana_Alternancia.v.length===nSem&&rev.docente===ejemplo[hi('docente')],'cambiar la elección actualiza la misma fila de la semana');
+// semana distinta: no afecta; validaciones
+g.PD3={clave:claveE,elegido:otro,primario:ejemplo[hi('docente')],fecha:'2026-03-04',directivo:'P'}; run('definirAlternancia(PD3)');
+const hoy2=run(`consultarSesion('${ejemplo[hi('dia')]}',${ejemplo[hi('hora')]},'sesion')`).filas.find(f=>f.claveAlt===claveE&&f.primario===ejemplo[hi('docente')]);
+ok(hoy2.docente===ejemplo[hi('docente')],'lo definido para otra semana no cambia esta');
+let e3=null; try{run("definirAlternancia({clave:'CLASE|ETR|X|Y',elegido:'X',primario:'X'})")}catch(x){e3=x}
+ok(e3&&/no está en la hoja|no pertenece|no válida/.test(e3.message),'rechaza parejas que no están en la hoja Alternancias');
+// énfasis en pareja: se define quién atiende el grupo completo
+const claveEnf='ENFASIS|'+cardsPar[0].grupoCodigo+'|'+[...par].sort().join('|');
+g.PE={clave:claveEnf,elegido:par[1],directivo:'P'}; run('definirAlternancia(PE)');
+const enfD=run(`consultarSesion('${e0[hi('dia')]}',${e0[hi('hora')]},'sesion')`).filas.filter(f=>f.tipo==='ENFASIS'&&f.claveAlt===claveEnf);
+ok(enfD.length===1&&enfD[0].docente===par[1]&&enfD[0].alternos.length===0,'énfasis en pareja: esa semana solo atiende '+'el docente definido el grupo entero');
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

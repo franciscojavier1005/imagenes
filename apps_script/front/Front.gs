@@ -46,3 +46,4 @@ function revisarSoporte(p) { return llamar_('revisarSoporte', [p]); }
 function guardarNotaRonda(p) { return llamar_('guardarNotaRonda', [p]); }
 function listarPropuestas() { return llamar_('listarPropuestas', []); }
 function resolverPropuesta(p) { return llamar_('resolverPropuesta', [p]); }
+function definirAlternancia(p) { return llamar_('definirAlternancia', [p]); }

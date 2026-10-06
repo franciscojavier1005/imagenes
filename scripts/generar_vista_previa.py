@@ -66,12 +66,14 @@ var DATOS = %s;
         grupo:enf?'ÉNFASIS '+String(gc).split('+').map(function(g){return DATOS.grupos[g]||g;}).join(' + '):(DATOS.grupos[gc]||gc),
         area:h.area||'(énfasis)',tipo:h.tipo,
         nota:[/^00/.test(h.grupo)?'Preescolar '+DATOS.preesc[h.dia+h.hora]:'',h.alternancia,h.equipo_enfasis?'Con: '+h.equipo_enfasis:''].filter(Boolean).join(' · '),
-        dir:h.tipo==='AREAS_MULTIPLES'?'':(d.dir||''),modalidad:d.modalidad||'',previo:null,_par:(h.tipo==='ENFASIS'&&/^PAREJA/.test(h.alternancia))?h.hora+'|'+h.grupos_enfasis:'',alternos:(h.tipo==='CLASE'&&DATOS.altern[h.area+'|'+h.docente])?[DATOS.altern[h.area+'|'+h.docente]]:[],minutosDia:(DATOS.totdia[h.dia+'|'+h.docente]||0),
+        dir:h.tipo==='AREAS_MULTIPLES'?'':(d.dir||''),modalidad:d.modalidad||'',previo:null,primario:h.docente,pareja:(h.tipo==='CLASE'&&DATOS.altern[h.area+'|'+h.docente])?[h.docente,DATOS.altern[h.area+'|'+h.docente]].sort():null,claveAlt:(h.tipo==='CLASE'&&DATOS.altern[h.area+'|'+h.docente])?'CLASE|'+h.area+'|'+[h.docente,DATOS.altern[h.area+'|'+h.docente]].sort().join('|'):'',_par:(h.tipo==='ENFASIS'&&/^PAREJA/.test(h.alternancia))?h.hora+'|'+h.grupos_enfasis:'',alternos:(h.tipo==='CLASE'&&DATOS.altern[h.area+'|'+h.docente])?[DATOS.altern[h.area+'|'+h.docente]]:[],minutosDia:(DATOS.totdia[h.dia+'|'+h.docente]||0),
         sesiones:[{sesion:Number(h.hora),grupoCodigo:gc,area:h.area||'(énfasis)',grupo:enf?'ÉNFASIS '+String(gc).split('+').map(function(g){return DATOS.grupos[g]||g;}).join(' + '):(DATOS.grupos[gc]||gc)}]};
     });
     var pares={},sp=[];out.filas.forEach(function(f){if(!f._par){sp.push(f);return;}var k=pares[f._par];if(!k){pares[f._par]=f;sp.push(f);return;}
-      var pri=f.docente<k.docente?f:k,otro=pri===f?k:f;pri.alternos=(pri.alternos||[]).concat([otro.docente]);if(pri===f){pares[f._par]=f;sp[sp.indexOf(k)]=f;}});
+      var pri=f.docente<k.docente?f:k,otro=pri===f?k:f;pri.alternos=(pri.alternos||[]).concat([otro.docente]);pri.pareja=[pri.docente,otro.docente].sort();pri.claveAlt='ENFASIS|'+pri.grupoCodigo+'|'+pri.pareja.join('|');if(pri===f){pares[f._par]=f;sp[sp.indexOf(k)]=f;}});
     out.filas=sp;out.filas.forEach(function(f){delete f._par;});
+    out.filas.forEach(function(f){var st=f.claveAlt?ESTADO[f.claveAlt]:null;if(!st)return;
+      f.docente=/^CLASE/.test(f.claveAlt)?(st.intercambio==='SI'?f.pareja.filter(function(n){return n!==f.primario;})[0]:f.primario):st.elegido;f.alternos=[];f.definido={por:st.por};});
     if(out.modo==='bloque'){var por={},uni=[];out.filas.forEach(function(f){var k=por[f.docente];if(!k){por[f.docente]=f;uni.push(f);}else{k.sesiones=k.sesiones.concat(f.sesiones);f.alternos.forEach(function(a){if(k.alternos.indexOf(a)<0)k.alternos.push(a);});}});
       uni.forEach(function(f){var gs=f.sesiones.map(function(x){return x.grupo;}).filter(function(g,i,a){return a.indexOf(g)===i;});
         if(gs.length>1)f.nota=[f.sesiones.map(function(x){return 'S'+x.sesion+': '+x.grupo;}).join(' · '),f.nota].filter(Boolean).join(' · ');
@@ -87,7 +89,7 @@ var DATOS = %s;
       .map(function(x){return '"'+String(x==null?'':x).replace(/"/g,'""')+'"';}).join(','));});
     return c.join('\\n');
   }
-  var PROP=[], NOTAS_N=0;
+  var PROP=[], NOTAS_N=0, ESTADO={};
   function mins(hm){var a=hm.split(':');return Number(a[0])*60+Number(a[1]);}
   function ctxNota(texto,fecha){
     var nombres={}; DATOS.horario.forEach(function(h){nombres[h.docente]=1;});
@@ -104,6 +106,7 @@ var DATOS = %s;
       var a=analizarNota_(ctxNota(p.texto,p.fecha||bogota().fecha)), nuevas=a.propuestas.map(function(x,i){
         return {id:'p'+(++NOTAS_N),fecha:p.fecha||bogota().fecha,docente:x.docente,tipo_novedad:x.tipo_novedad,motivo:x.motivo,categoria:x.categoria,confianza:x.confianza,mensaje:x.mensaje,sesion:x.sesion||p.sesion||'',grupo:x.grupo||''};});
       PROP=PROP.concat(nuevas); ok({id:'n',propuestas:nuevas,audioGuardado:false});},20);},
+    definirAlternancia:function(p){setTimeout(function(){var pt=p.clave.split('|');ESTADO[p.clave]={elegido:p.elegido,intercambio:pt[0]==='CLASE'?(p.elegido!==p.primario?'SI':'NO'):'',por:p.directivo||'(vista previa)'};ok({ok:true});},20);},
     listarPropuestas:function(){setTimeout(function(){var n={};DATOS.horario.forEach(function(h){n[h.docente]=1;});
       ok({propuestas:PROP.slice(),docentes:Object.keys(n).sort(),motivos:DATOS.motivos.map(function(m){return m.motivo;})});},20);},
     resolverPropuesta:function(p){setTimeout(function(){PROP=PROP.filter(function(x){return x.id!==p.id;});ok({estado:p.accion==='descartar'?'descartada':'registrada (vista previa: no se guarda)'});},20);},

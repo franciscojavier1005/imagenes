@@ -31,7 +31,7 @@ const datos=["consultarSesion('VIERNES',3,'bloque')","guardarRonda({dia:'VIERNES
   "guardarAsistenciaReunion({id:'x',registros:[]})","guardarNotaRonda({texto:'hola mundo'})","datosDashboard('2026-10-01','2026-10-02',{})"];
 const bloqueadas=datos.filter(c=>falla(c)!==null).length;
 ok(bloqueadas===datos.length,`un visitante sin sesión NO puede leer ni escribir datos (${bloqueadas} de ${datos.length} funciones bloqueadas)`);
-const menu=["crearFormulario()","compartirConDirectivos()","mostrarUrlConsulta()","actualizarHorarioPreescolar()","programarInformeDiario()","purgarAudios()","importarBandejaWhatsApp()","probarInformeDiario()","generarClavesDirectivos()","restablecerClaveDirectivo()","restablecerClave_('x')"];
+const menu=["crearFormulario()","compartirConDirectivos()","mostrarUrlConsulta()","actualizarHorarioPreescolar()","programarInformeDiario()","purgarAudios()","importarBandejaWhatsApp()","probarInformeDiario()","generarClavesDirectivos()","restablecerClaveDirectivo()","claveTemporalParaTodosEnRegistro()","restablecerClave_('x')"];
 ok(menu.every(c=>/solo se hace desde el libro/.test(falla(c)||'')),'las acciones del menú del libro no se pueden ejecutar desde la aplicación pública');
 ok(/Evento no válido/.test(falla("alEnviarFormulario({})")||''),'el disparador del formulario rechaza eventos falsos');
 ok(run("informeDiarioProgramado()")===undefined,'la función del reloj no devuelve datos');
@@ -116,6 +116,7 @@ EMAIL='dueno@gmail.com';
   run(`llamarSeguro(LT.token,'cambiarClave',[{actual:'${a2.pin}',nueva:'135790'}])`);
   g.LT2=run(`ingresar({nombre:${JSON.stringify(a2.nombre)},pin:'135790'})`);
   ok(g.LT2.debeCambiar===false,'después de elegir su clave ya no se le pide');
+  EMAIL='dueno@gmail.com'; ok(run('claveTemporalParaTodosEnRegistro()').length===4,'sin menú: genera claves temporales para los 4 directivos desde el editor'); EMAIL='';
   // el administrador restablece (el directivo olvidó la clave)
   EMAIL='dueno@gmail.com';
   const rs=run(`restablecerClave_(${JSON.stringify(a2.nombre)})`);

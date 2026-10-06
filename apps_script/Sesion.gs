@@ -142,6 +142,18 @@ function generarClavesDirectivos() {
            '\n\nAl entrar, la aplicación le pedirá elegir su propia clave. Si alguien la olvida: menú "Restablecer la clave de un directivo".');
 }
 
+/**
+ * Alternativa SIN menú (para ejecutar desde el editor de Apps Script: elegir esta función y pulsar Ejecutar): crea una clave temporal al azar
+ * para TODOS los directivos, reemplazando las anteriores, y las escribe en el "Registro de ejecución" del editor (solo lo ve quien administra).
+ * Cada directivo debe elegir su clave propia al primer ingreso.
+ */
+function claveTemporalParaTodosEnRegistro() {
+  exigirEditor_();
+  var cl = generarClavesDirectivos_(false), correoP = registrarCorreoPropietario_();
+  Logger.log('CLAVES TEMPORALES (entréguelas y no las comparta por otro medio):\n' + cl.map(function (x) { return x.nombre + ': ' + x.pin; }).join('\n'));
+  return cl;
+}
+
 /** Restablece la clave de UN directivo (solo el propietario del libro): genera una temporal, desbloquea y cierra sus sesiones abiertas. Devuelve la clave una vez. */
 function restablecerClave_(nombre, pinElegido) {
   exigirEditor_();

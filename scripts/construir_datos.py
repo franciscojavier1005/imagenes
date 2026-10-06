@@ -66,12 +66,11 @@ MAPA = {
 # Cambios confirmados por el coordinador (el PDF de asignación del 02-02-2026 aún trae el horario original):
 #  - El rector intercambió el horario de Arte de Docente 1 (antes Puches Ana Milena, #39) con el de Docente 2 (antes Prado Maribel, #37):
 #    hoy Prado (#37) atiende lo que era de Puches y Puches (#39) lo que era de Prado.
-#  - Armero Dájome Jesús (#57, OPS) reemplaza a Terán Guevara Jorge Alberto (#47) y atiende todo su horario.
+#  - Armero Dájome Jesús (#57) reemplaza a Terán Guevara Jorge Alberto (#47) y atiende todo su horario.
 PENDIENTES = {}
 NOTAS_DOCENTE = {
-    4: "OPS - asignado por el rector (Ciencias Naturales y Educación Ambiental, CS 1)",
-    57: "OPS - reemplaza a Terán Guevara Jorge Alberto: atiende su horario",
-    47: "Reemplazado por Armero Dájome Jesús (OPS): su horario lo atiende Armero",
+    57: "Reemplazo de Terán Guevara Jorge Alberto: atiende su horario",
+    47: "Reemplazado por Armero Dájome Jesús: su horario lo atiende Armero",
     37: "Reemplazo de la docente Luz María Cortés Tenorio. Desde el cambio del rector atiende el horario que tenía Puches (Docente 1)",
     39: "Desde el cambio del rector atiende el horario que tenía Prado Maribel (Docente 2 de Arte)",
     7: "Docente orientadora: sin grupos, trabaja con todos los niveles",

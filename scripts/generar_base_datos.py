@@ -80,7 +80,7 @@ sin_hor = [d["nombre_completo"] for d in docentes if d["tiene_horario"] == "NO" 
 checks.append(("Docentes con horario cargado", "OK" if not sin_hor else "PENDIENTE", f"{len(sin_hor)} sin horario: " + "; ".join(sin_hor)))
 sin_dir = [d["nombre_completo"] for d in docentes if not d["direccion_grupo"]]
 checks.append(("Docentes con dirección de grupo", "INFO", f"{len(sin_dir)} sin dirección: " + "; ".join(sin_dir)))
-checks.append(("Reemplazos y cambios del rector aplicados", "INFO", "Armero Dájome Jesús (OPS) reemplaza a Terán Guevara Jorge Alberto; Prado Genís Maribel y Puches Ana Milena intercambiaron su horario de Arte"))
+checks.append(("Reemplazos y cambios del rector aplicados", "INFO", "Armero Dájome Jesús reemplaza a Terán Guevara Jorge Alberto; Prado Genís Maribel y Puches Ana Milena intercambiaron su horario de Arte"))
 checks.append(("Alternancia semanal de énfasis (parejas, Sociales/Inglés, Ética/Religión)", "INFO", "No se hace seguimiento semanal en la base: lo controla internamente el coordinador"))
 checks.append(("Personal sin grupo (orientación y tutoría PTAFI)", "INFO", "Casanova Johana (orientadora): 07:30-14:30; Ponce Ángela (orientadora): 08:30-13:30; Ortiz Martha (tutora PTAFI): jornada de primaria 06:30-12:00"))
 

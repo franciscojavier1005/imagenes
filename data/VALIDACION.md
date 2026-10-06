@@ -31,7 +31,7 @@ Se reproduce con `python3 scripts/construir_datos.py && python3 scripts/validar.
 
 - **Orientadoras** (sin grupo, todos los niveles), confirmadas por el coordinador: Casanova Casanova Johana Andrea 7:30 a 14:30 y Ponce Moncayo Ángela Paola 8:30 a 13:30 (a veces llega más tarde o se queda más). Se registran por cada sesión de 45 min que se traslape con su jornada; lo posterior a las 13:30 no tiene sesión de clase.
 - **Tutora PTAFI** (Todos a Aprender - Formación Integral): Ortiz Estacio Martha Cecilia, transitoria, apoya preescolar y primaria. Jornada de primaria (6:30 a 12:00), confirmada por el coordinador.
-- **Armero Dájome Jesús** (OPS) reemplaza a **Terán Guevara Jorge Alberto**: atiende todo su horario (Educación Física, Docente 2). Terán queda como "REEMPLAZADO".
+- **Armero Dájome Jesús** reemplaza a **Terán Guevara Jorge Alberto**: atiende todo su horario (Educación Física, Docente 2). Terán queda como "REEMPLAZADO".
 - **Cambio del rector en Arte:** Prado Genís Maribel atiende ahora el horario de Docente 1 (antes de Puches Ana Milena: sexto y Caminar 1) y Puches el de Docente 2 (séptimo). Se interpretó como un intercambio. Prado reemplaza a la docente Luz María Cortés Tenorio.
 - **Énfasis:** en cada énfasis se muestra el área de cada docente. Los equipos de 4 (octavo a once, CS 2-1, CS 2-2) tienen un grupo de estudiantes por docente, en su área. La alternancia semanal de las parejas no se rastrea: la controla el coordinador internamente.
 - **Primaria y preescolar:** 5°-3 Narváez y 5°-4 Escobar (el PDF de marzo decía lo contrario).

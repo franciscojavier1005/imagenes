@@ -598,7 +598,7 @@ function definir(id,idN){
 }
 
 /* Controles de la novedad: los que no corresponden quedan desactivados */
-var ATIENDE=['Nadie (grupo solo)','Sin clase: los niños no asistieron (padres avisados)','Reemplazo (docente)','Practicante','Otro docente o directivo'];
+var ATIENDE=['Nadie (grupo solo)','Sin clase: los niños no asistieron (padres avisados)','Reemplazo (docente)','Practicante','Auxiliar o persona de apoyo del docente','Otro docente o directivo'];
 function detalle(id,m){
   var noAsistio=m.estado==='No asistió', motivo=m.motivo||'Sin justificación';
   var ff=S.filas.filter(function(x){return x.docente===nombrePorId(id);})[0]||{}, totDia=ff.minutosDia?(' · '+ff.minutosDia+' min'):'';
@@ -617,7 +617,7 @@ function detalle(id,m){
      opt('',noAsistio?(m.alcance==='JC'?(ff.minutosDia?ff.minutosDia+' min (total del día)':'Total del día'):'Automático'):'— Elegir —',!m.minutos||noAsistio)+(m.estado==='Ausente temporal'?[15,30,45,60,90]:[5,10,15,20,30,45]).map(function(x){return opt(x,x+' min',Number(m.minutos)===x&&!noAsistio);}).join('')+'</select></label>';
   h+='<label>Dejó actividad de aprendizaje<select class="sel" onchange="campo(\''+id+'\',\'actividad\',this.value)">'+
      ['N/A','Sí','No'].map(function(x){return opt(x,x,(m.actividad||'N/A')===x);}).join('')+'</select></label>';
-  h+='</div><div class="previo">Si el grupo lo atendió un reemplazo o practicante, la ausencia del docente se mantiene.</div><label>Observaciones<input type="text" class="obs" value="'+esc(m.obs||'')+'" oninput="campo(\''+id+'\',\'obs\',this.value,false)"></label></div>';
+  h+='</div><div class="previo">Si el grupo lo atendió un reemplazo, practicante o auxiliar, la ausencia del docente se mantiene.</div><label>Observaciones<input type="text" class="obs" value="'+esc(m.obs||'')+'" oninput="campo(\''+id+'\',\'obs\',this.value,false)"></label></div>';
   return h;
 }
 

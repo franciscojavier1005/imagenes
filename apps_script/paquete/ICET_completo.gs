@@ -2357,16 +2357,28 @@ function externaDe_(fecha, docente, sesion, novedades) {
  * Sistema de control de asistencia docente - I.E. ICET. Autor: Francisco Javier Cortés Cabezas.
  */
 var COL_MARCAS_EST = ['id', 'clave', 'grupo', 'curso', 'apellidos', 'nombres', 'tipo', 'nota', 'registrado_por', 'fecha_registro', 'estado', 'levantada_por', 'fecha_levantada'];
-var TIPOS_MARCA_EST = [
-  { id: 'NO_ASISTE', texto: 'No asiste (posible deserción)' },
-  { id: 'AUSENTE', texto: 'Se ausenta con frecuencia' },
-  { id: 'FUGA', texto: 'Se fuga con frecuencia (se evade de clase)' },
-  { id: 'ORIENTACION', texto: 'Remitido a orientación escolar' },
-  { id: 'PROYECTO', texto: 'En proyecto o programa especial' },
-  { id: 'RETIRADO', texto: 'Retirado formalmente' },
-  { id: 'CANCELADA', texto: 'Matrícula cancelada' },
-  { id: 'NUEVO', texto: 'Estudiante nuevo (llegó en el año)' },
-  { id: 'PROMOVIDO', texto: 'Promovido al siguiente grado' }
+var TIPOS_MARCA_EST = [   // cat: grupo en la pantalla; emo/color: distintivo visual
+  { id: 'NO_ASISTE', texto: 'No asiste (posible deserción)', cat: 'Alertas y seguimiento', emo: '🚫', color: '#c62828' },
+  { id: 'AUSENTE', texto: 'Se ausenta con frecuencia', cat: 'Alertas y seguimiento', emo: '📉', color: '#e65100' },
+  { id: 'FUGA', texto: 'Se fuga con frecuencia (se evade de clase)', cat: 'Alertas y seguimiento', emo: '🏃', color: '#b8860b' },
+  { id: 'CONVIVENCIA', texto: 'Dificultad de convivencia o conducta violenta', cat: 'Alertas y seguimiento', emo: '⚠️', color: '#ad1457' },
+  { id: 'SPA', texto: 'Caso de consumo de SPA', cat: 'Alertas y seguimiento', emo: '🚭', color: '#6d4c41' },
+  { id: 'ORIENTACION', texto: 'Remitido a orientación escolar', cat: 'Alertas y seguimiento', emo: '🧭', color: '#6a1b9a' },
+  { id: 'MATRICULA_COND', texto: 'Matrícula condicional', cat: 'Alertas y seguimiento', emo: '📝', color: '#d84315' },
+  { id: 'PROYECTO', texto: 'En proyecto o programa especial', cat: 'Alertas y seguimiento', emo: '📘', color: '#1565c0' },
+  { id: 'NUEVO', texto: 'Estudiante nuevo (llegó en el año)', cat: 'Matrícula', emo: '🆕', color: '#2e7d32' },
+  { id: 'PROMOVIDO', texto: 'Promovido al siguiente grado', cat: 'Matrícula', emo: '⬆️', color: '#00838f' },
+  { id: 'RETIRADO', texto: 'Retirado formalmente', cat: 'Matrícula', emo: '📤', color: '#546e7a' },
+  { id: 'CANCELADA', texto: 'Matrícula cancelada', cat: 'Matrícula', emo: '⛔', color: '#37474f' },
+  { id: 'LACTANTE', texto: 'Estudiante lactante', cat: 'Condición o población', emo: '🍼', color: '#c2185b' },
+  { id: 'GESTANTE', texto: 'Estudiante gestante', cat: 'Condición o población', emo: '🤰', color: '#8e24aa' },
+  { id: 'EXTRANJERO', texto: 'Población extranjera (venezolana, ecuatoriana u otra)', cat: 'Condición o población', emo: '🌎', color: '#0277bd' },
+  { id: 'DISCAPACIDAD', texto: 'Discapacidad o necesidades educativas especiales', cat: 'Condición o población', emo: '♿', color: '#3949ab' },
+  { id: 'DESPLAZADO', texto: 'Población desplazada', cat: 'Condición o población', emo: '🏚️', color: '#795548' },
+  { id: 'MADRE_SUSTITUTA', texto: 'Con madre sustituta (hogar sustituto)', cat: 'Condición o población', emo: '🏠', color: '#5d4037' },
+  { id: 'DEPORTISTA', texto: 'Deportista destacado', cat: 'Fortalezas y reconocimientos', emo: '🏅', color: '#ef6c00' },
+  { id: 'SOBRESALIENTE', texto: 'Sobresaliente académicamente', cat: 'Fortalezas y reconocimientos', emo: '🌟', color: '#f9a825' },
+  { id: 'COLABORADOR', texto: 'Colaborador del colegio (apoyo y sentido de pertenencia)', cat: 'Fortalezas y reconocimientos', emo: '🤝', color: '#2e7d32' }
 ];
 
 function quitaTildes_(s) { return String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g, ''); }

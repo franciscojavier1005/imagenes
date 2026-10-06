@@ -195,22 +195,26 @@ function pintaArea(area,q){
 }
 
 /* ---------- estudiantes: búsqueda, marcas y novedades de matrícula ---------- */
-var EST=null, SEL={}, VIS=[], EMO={'No asiste (posible deserción)':['🚫','#c62828'],'Se ausenta con frecuencia':['📉','#e65100'],'Se fuga con frecuencia (se evade de clase)':['🏃','#b8860b'],'Remitido a orientación escolar':['🧭','#6a1b9a'],
-  'En proyecto o programa especial':['📘','#1565c0'],'Retirado formalmente':['📤','#546e7a'],'Matrícula cancelada':['⛔','#37474f'],'Estudiante nuevo (llegó en el año)':['🆕','#2e7d32'],'Promovido al siguiente grado':['⬆️','#00838f']};
+var EST=null, SEL={}, VIS=[], EMO={};
 function sinTild(t){ return String(t==null?'':t).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(); }
 function kEst(e){ return e.g+'|'+e.a+'|'+e.n; }
 function cargaEst(force){
   if(EST&&!force){ pintaEstCtl(); filtraEst(); return; }
   el('res').innerHTML='<div class="aviso">Cargando estudiantes…</div>';
-  srv().withSuccessHandler(function(d){ EST=d; pintaEstCtl(); filtraEst(); }).withFailureHandler(function(e){ el('res').innerHTML='<div class="aviso">Error: '+esc(e&&e.message||e)+'</div>'; }).datosEstudiantes();
+  srv().withSuccessHandler(function(d){ EST=d; EMO={}; (d.tipos||[]).forEach(function(t){EMO[t.texto]=[t.emo,t.color];}); pintaEstCtl(); filtraEst(); }).withFailureHandler(function(e){ el('res').innerHTML='<div class="aviso">Error: '+esc(e&&e.message||e)+'</div>'; }).datosEstudiantes();
 }
 function pintaEstCtl(){
   if(EST.sinDatos){ el('estCtl').innerHTML=''; el('res').innerHTML='<div class="card"><h2>Aún no se ha cargado el listado de estudiantes</h2><div class="sub">Quien administra el libro debe importar la hoja «Estudiantes» (archivo ICET_Estudiantes_2026.xlsx: Archivo &gt; Importar &gt; Insertar hoja nueva).</div></div>'; return; }
   el('estCtl').innerHTML='<label>Grupo <select id="eg" onchange="filtraEst()">'+opt('','Todos los grupos',true)+EST.grupos.map(function(g){return opt(g.codigo,g.curso+' ('+g.total+')',false);}).join('')+'</select></label>'+
     '<label>Buscar por apellido o nombre <input type="text" id="eq" placeholder="Ej.: quiñones, ana…" oninput="filtraEst()"></label>'+
-    '<label>Mostrar <select id="em" onchange="filtraEst()">'+opt('','Todos',true)+opt('*','Con alguna marca',false)+opt('-','Sin marcas',false)+EST.tipos.map(function(t){return opt(t.texto,(EMO[t.texto]||[''])[0]+' '+t.texto,false);}).join('')+'</select></label>'+
-    '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="formNuevo()">➕ Estudiante nuevo</button><button class="btn" onclick="window.print()">🖨 Imprimir esta lista</button></div>';
+    '<label>Mostrar <select id="em" onchange="filtraEst()">'+opt('','Todos',true)+opt('*','Con alguna marca',false)+opt('-','Sin marcas',false)+gruposTipos(function(t){return opt(t.texto,t.emo+' '+t.texto,false);})+'</select></label>'+
+    '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="formNuevo()">➕ Estudiante nuevo</button><button class="btn" onclick="selTodos()">☑ Seleccionar todos los de la lista</button><button class="btn" onclick="window.print()">🖨 Imprimir esta lista</button></div>';
 }
+function gruposTipos(fn){
+  var cats=[],por={}; EST.tipos.forEach(function(t){ if(!por[t.cat]){por[t.cat]=[];cats.push(t.cat);} por[t.cat].push(t); });
+  return cats.map(function(c){return '<optgroup label="'+esc(c)+'">'+por[c].map(fn).join('')+'</optgroup>';}).join('');
+}
+function selTodos(){ VIS.forEach(function(e){ SEL[kEst(e)]=e; }); pintaEst(); }
 function filtraEst(){
   if(!EST||EST.sinDatos) return;
   var g=el('eg').value, q=sinTild(el('eq').value).trim().split(/\s+/).filter(String), m=el('em').value;
@@ -243,7 +247,7 @@ function abreMarca(idx){
   if(!lista.length) return;
   window.MARCA_LISTA=lista;
   modal('<h2 style="margin:0 0 4px;color:#0f2a5c">Marcar a '+lista.length+' estudiante'+(lista.length>1?'s':'')+'</h2><div class="sub">'+esc(lista.slice(0,3).map(function(e){return e.a+' '+e.n;}).join(' · '))+(lista.length>3?' …':'')+'</div>'+
-    EST.tipos.map(function(t,i){return '<label class="op"><input type="radio" name="mt" value="'+t.id+'"> '+(EMO[t.texto]||[''])[0]+' '+esc(t.texto)+'</label>';}).join('')+
+    (function(){var cats=[],por={}; EST.tipos.forEach(function(t){ if(!por[t.cat]){por[t.cat]=[];cats.push(t.cat);} por[t.cat].push(t); }); return cats.map(function(c){return '<div class="gr" style="font-size:13px;margin-top:8px">'+esc(c)+'</div>'+por[c].map(function(t){return '<label class="op"><input type="radio" name="mt" value="'+t.id+'"> '+t.emo+' '+esc(t.texto)+'</label>';}).join('');}).join('');})()+
     '<label>Nota (opcional): por qué, desde cuándo, qué se hizo<textarea id="mn" maxlength="300"></textarea></label>'+
     (lista.length===1?'<div style="margin-top:8px"><button class="btn" onclick="formMover()">⬆️ Pasarlo a otro grupo (promovido)</button></div>':'')+
     '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn prim" style="flex:1" onclick="guardaMarca()">Guardar marca</button><button class="btn" onclick="cierra()">Cancelar</button></div><div id="mm" class="sub" style="margin-top:6px;color:#a31515"></div>');

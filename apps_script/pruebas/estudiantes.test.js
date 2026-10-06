@@ -31,7 +31,10 @@ hojas.Estudiantes=new Hoja([['grupo','curso','no','apellidos','nombres'],
   [701,'7°-1',1,'ROJAS LOPEZ','LAURA'],[701,'7°-1',2,'SOTO','PEDRO PABLO'],['CS101','CS 1-1',1,'DIAZ','MARTA']]);
 let d=run('datosEstudiantes()');
 ok(d.estudiantes.length===6&&d.grupos.map(x=>x.codigo).join()==='0601,CS101,0701'&&d.grupos[2].total===2,'grupos con totales; «701» se normaliza a 0701 y CS 1 queda tras los sextos');
-ok(d.tipos.length===9&&d.tipos.some(t=>t.id==='NUEVO')&&d.tipos.some(t=>t.id==='PROMOVIDO'),'9 tipos de marca (incluye nuevo y promovido)');
+ok(d.tipos.length===21&&['NUEVO','PROMOVIDO','CONVIVENCIA','MATRICULA_COND','SPA','LACTANTE','GESTANTE','EXTRANJERO','DISCAPACIDAD','DESPLAZADO','MADRE_SUSTITUTA','DEPORTISTA','SOBRESALIENTE','COLABORADOR'].every(i=>d.tipos.some(t=>t.id===i))&&d.tipos.every(t=>t.cat&&t.emo&&/^#[0-9a-f]{6}$/i.test(t.color)),'21 tipos de marca en 4 categorías, cada uno con emoji y color');
+run("marcarEstudiantes({items:[{g:'CS101',a:'DIAZ',n:'MARTA'}],tipo:'EXTRANJERO',nota:'Venezolana'})");
+run("marcarEstudiantes({items:[{g:'CS101',a:'DIAZ',n:'MARTA'}],tipo:'DEPORTISTA',nota:'Voleibol'})");
+ok(run('datosEstudiantes()').estudiantes.find(e=>e.a==='DIAZ').m.length===2,'se pueden combinar condiciones y fortalezas en el mismo estudiante');
 // marcar varios a la vez
 g.M1={items:[{g:'0601',a:'PEREZ GOMEZ',n:'ANA MARIA'},{g:'0601',a:'ALVAREZ RIOS',n:'JOSE LUIS'}],tipo:'NO_ASISTE',nota:'No viene desde el 15 de septiembre'};
 let r=run('marcarEstudiantes(M1)');

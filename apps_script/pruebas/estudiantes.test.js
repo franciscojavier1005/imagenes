@@ -31,10 +31,14 @@ hojas.Estudiantes=new Hoja([['grupo','curso','no','apellidos','nombres'],
   [701,'7°-1',1,'ROJAS LOPEZ','LAURA'],[701,'7°-1',2,'SOTO','PEDRO PABLO'],['CS101','CS 1-1',1,'DIAZ','MARTA']]);
 let d=run('datosEstudiantes()');
 ok(d.estudiantes.length===6&&d.grupos.map(x=>x.codigo).join()==='0601,CS101,0701'&&d.grupos[2].total===2,'grupos con totales; «701» se normaliza a 0701 y CS 1 queda tras los sextos');
-ok(d.tipos.length===21&&['NUEVO','PROMOVIDO','CONVIVENCIA','MATRICULA_COND','SPA','LACTANTE','GESTANTE','EXTRANJERO','DISCAPACIDAD','DESPLAZADO','MADRE_SUSTITUTA','DEPORTISTA','SOBRESALIENTE','COLABORADOR'].every(i=>d.tipos.some(t=>t.id===i))&&d.tipos.every(t=>t.cat&&t.emo&&/^#[0-9a-f]{6}$/i.test(t.color)),'21 tipos de marca en 4 categorías, cada uno con emoji y color');
+ok(d.tipos.length===26&&['REDES_APOYO','SENA_ARTICULACION','SENA_CURSO','PROYECTO','NO_LISTADO','OTRA_INSTITUCION','NUEVO','PROMOVIDO','CONVIVENCIA','MATRICULA_COND','SPA','LACTANTE','GESTANTE','EXTRANJERO','DISCAPACIDAD','DESPLAZADO','MADRE_SUSTITUTA','DEPORTISTA','SOBRESALIENTE','COLABORADOR'].every(i=>d.tipos.some(t=>t.id===i))&&d.tipos.every(t=>t.cat&&t.emo&&/^#[0-9a-f]{6}$/i.test(t.color)),'26 tipos de marca en 5 categorías, cada uno con emoji y color');
 run("marcarEstudiantes({items:[{g:'CS101',a:'DIAZ',n:'MARTA'}],tipo:'EXTRANJERO',nota:'Venezolana'})");
 run("marcarEstudiantes({items:[{g:'CS101',a:'DIAZ',n:'MARTA'}],tipo:'DEPORTISTA',nota:'Voleibol'})");
 ok(run('datosEstudiantes()').estudiantes.find(e=>e.a==='DIAZ').m.length===2,'se pueden combinar condiciones y fortalezas en el mismo estudiante');
+// proyectos: exigen el nombre
+ok(/Escriba el nombre/.test(falla("marcarEstudiantes({items:[{g:'0601',a:'ZUÑIGA',n:'CARLOS'}],tipo:'SENA_ARTICULACION'})")||''),'articulación SENA, redes de apoyo y proyectos piden el nombre del proyecto o programa');
+run("marcarEstudiantes({items:[{g:'0601',a:'ZUÑIGA',n:'CARLOS'}],tipo:'SENA_ARTICULACION',nota:'Técnico en sistemas'})");
+ok(run('datosEstudiantes()').estudiantes.find(e=>e.a==='ZUÑIGA').m[0].nota==='Técnico en sistemas','el nombre queda en la marca (y se puede buscar por él)');
 // marcar varios a la vez
 g.M1={items:[{g:'0601',a:'PEREZ GOMEZ',n:'ANA MARIA'},{g:'0601',a:'ALVAREZ RIOS',n:'JOSE LUIS'}],tipo:'NO_ASISTE',nota:'No viene desde el 15 de septiembre'};
 let r=run('marcarEstudiantes(M1)');
@@ -53,6 +57,9 @@ run("agregarEstudiante({g:'0601',a:'nuevo apellido',n:'nuevo nombre',nota:'Viene
 d=run('datosEstudiantes()'); const nu=d.estudiantes.find(e=>e.a==='NUEVO APELLIDO');
 ok(nu&&nu.no===4&&nu.g==='0601'&&nu.m[0].tipo==='Estudiante nuevo (llegó en el año)'&&/Viene de Cali/.test(nu.m[0].nota),'agregar estudiante nuevo: queda al final del grupo con la marca «nuevo»');
 ok(/ya está en el grupo/.test(falla("agregarEstudiante({g:'0601',a:'ZUÑIGA',n:'CARLOS'})")||'')&&/Elija un grupo/.test(falla("agregarEstudiante({g:'9999',a:'A',n:'B'})")||''),'no repite estudiantes ni acepta grupos inexistentes');
+run("agregarEstudiante({g:'0601',a:'omitido',n:'uno',motivo:'NO_LISTADO'})");
+ok(run('datosEstudiantes()').estudiantes.find(e=>e.a==='OMITIDO').m[0].tipo==='Agregado: no aparecía en el listado','agregar a quien no aparecía en el listado queda con su propia marca');
+ok(/Escriba el nombre/.test(falla("marcarEstudiantes({items:[{g:'0601',a:'ZUÑIGA',n:'CARLOS'}],tipo:'OTRA_INSTITUCION'})")||''),'matriculado en otra institución pide cuál');
 // promovido
 run("moverEstudiante({g:'0601',a:'PEREZ GOMEZ',n:'ANA MARIA',destino:'0701',nota:'Promovida en el primer periodo'})");
 d=run('datosEstudiantes()'); const pr=d.estudiantes.find(e=>e.a==='PEREZ GOMEZ');

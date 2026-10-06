@@ -206,9 +206,9 @@ function cargaEst(force){
 function pintaEstCtl(){
   if(EST.sinDatos){ el('estCtl').innerHTML=''; el('res').innerHTML='<div class="card"><h2>Aún no se ha cargado el listado de estudiantes</h2><div class="sub">Quien administra el libro debe importar la hoja «Estudiantes» (archivo ICET_Estudiantes_2026.xlsx: Archivo &gt; Importar &gt; Insertar hoja nueva).</div></div>'; return; }
   el('estCtl').innerHTML='<label>Grupo <select id="eg" onchange="filtraEst()">'+opt('','Todos los grupos',true)+EST.grupos.map(function(g){return opt(g.codigo,g.curso+' ('+g.total+')',false);}).join('')+'</select></label>'+
-    '<label>Buscar por apellido o nombre <input type="text" id="eq" placeholder="Ej.: quiñones, ana…" oninput="filtraEst()"></label>'+
+    '<label>Buscar por apellido, nombre o proyecto <input type="text" id="eq" placeholder="Ej.: quiñones, ana, nombre de un proyecto…" oninput="filtraEst()"></label>'+
     '<label>Mostrar <select id="em" onchange="filtraEst()">'+opt('','Todos',true)+opt('*','Con alguna marca',false)+opt('-','Sin marcas',false)+gruposTipos(function(t){return opt(t.texto,t.emo+' '+t.texto,false);})+'</select></label>'+
-    '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="formNuevo()">➕ Estudiante nuevo</button><button class="btn" onclick="selTodos()">☑ Seleccionar todos los de la lista</button><button class="btn" onclick="window.print()">🖨 Imprimir esta lista</button></div>';
+    '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="formNuevo()">➕ Agregar estudiante</button><button class="btn" onclick="selTodos()">☑ Seleccionar todos los de la lista</button><button class="btn" onclick="window.print()">🖨 Imprimir esta lista</button></div>';
 }
 function gruposTipos(fn){
   var cats=[],por={}; EST.tipos.forEach(function(t){ if(!por[t.cat]){por[t.cat]=[];cats.push(t.cat);} por[t.cat].push(t); });
@@ -220,7 +220,7 @@ function filtraEst(){
   var g=el('eg').value, q=sinTild(el('eq').value).trim().split(/\s+/).filter(String), m=el('em').value;
   VIS=EST.estudiantes.filter(function(e){
     if(g&&e.g!==g) return false;
-    var tx=sinTild(e.a+' '+e.n); if(q.some(function(w){return tx.indexOf(w)<0;})) return false;
+    var tx=sinTild(e.a+' '+e.n+' '+(e.m||[]).map(function(x){return x.nota;}).join(' ')); if(q.some(function(w){return tx.indexOf(w)<0;})) return false;
     var mm=e.m||[]; if(m==='*') return mm.length>0; if(m==='-') return mm.length===0; if(m) return mm.some(function(x){return x.tipo===m;}); return true; });
   pintaEst();
 }
@@ -248,10 +248,18 @@ function abreMarca(idx){
   window.MARCA_LISTA=lista;
   modal('<h2 style="margin:0 0 4px;color:#0f2a5c">Marcar a '+lista.length+' estudiante'+(lista.length>1?'s':'')+'</h2><div class="sub">'+esc(lista.slice(0,3).map(function(e){return e.a+' '+e.n;}).join(' · '))+(lista.length>3?' …':'')+'</div>'+
     (function(){var cats=[],por={}; EST.tipos.forEach(function(t){ if(!por[t.cat]){por[t.cat]=[];cats.push(t.cat);} por[t.cat].push(t); }); return cats.map(function(c){return '<div class="gr" style="font-size:13px;margin-top:8px">'+esc(c)+'</div>'+por[c].map(function(t){return '<label class="op"><input type="radio" name="mt" value="'+t.id+'"> '+t.emo+' '+esc(t.texto)+'</label>';}).join('');}).join('');})()+
-    '<label>Nota (opcional): por qué, desde cuándo, qué se hizo<textarea id="mn" maxlength="300"></textarea></label>'+
+    '<label id="mnl">Nota (opcional): por qué, desde cuándo, qué se hizo<textarea id="mn" maxlength="300" list="nomProy"></textarea></label><datalist id="nomProy"></datalist>'+
     (lista.length===1?'<div style="margin-top:8px"><button class="btn" onclick="formMover()">⬆️ Pasarlo a otro grupo (promovido)</button></div>':'')+
     '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn prim" style="flex:1" onclick="guardaMarca()">Guardar marca</button><button class="btn" onclick="cierra()">Cancelar</button></div><div id="mm" class="sub" style="margin-top:6px;color:#a31515"></div>');
 }
+function nombresUsados(tipoTexto){ var u={}; EST.estudiantes.forEach(function(e){(e.m||[]).forEach(function(x){ if(x.tipo===tipoTexto&&x.nota) u[x.nota]=1; });}); return Object.keys(u).sort(); }
+document.addEventListener('change',function(ev){
+  if(!ev.target||ev.target.name!=='mt') return;
+  var t=EST.tipos.filter(function(x){return x.id===ev.target.value;})[0], l=el('mnl'); if(!t||!l) return;
+  l.firstChild.nodeValue=t.nombre?'Nombre del proyecto, programa o institución (obligatorio)':'Nota (opcional): por qué, desde cuándo, qué se hizo';
+  var us=nombresUsados(t.texto), nm=el('mnu'); if(nm) nm.remove();
+  if(t.nombre&&us.length){ var d=document.createElement('div'); d.id='mnu'; d.className='sub'; d.innerHTML='Ya usados (toque para elegir): '+us.map(function(n){return '<span class="bd" style="background:#546e7a" onclick="el(\'mn\').value=this.textContent">'+esc(n)+'</span>';}).join(''); l.parentNode.insertBefore(d,l.nextSibling); }
+});
 function guardaMarca(){
   var r=document.querySelector('input[name=mt]:checked'); if(!r){ el('mm').textContent='Elija el tipo de marca.'; return; }
   var items=window.MARCA_LISTA.map(function(e){return {g:e.g,a:e.a,n:e.n};});
@@ -262,12 +270,13 @@ function levanta(id){
   srv().withSuccessHandler(function(){ cargaEst(true); }).withFailureHandler(function(e){ alert(String(e&&e.message||e)); }).levantarMarcaEstudiante({id:id});
 }
 function formNuevo(){
-  modal('<h2 style="margin:0 0 4px;color:#0f2a5c">Estudiante nuevo</h2><div class="sub">Se agrega al final de la lista del grupo con la marca «nuevo».</div>'+
+  modal('<h2 style="margin:0 0 4px;color:#0f2a5c">Agregar un estudiante</h2><div class="sub">Para quien llegó nuevo o no aparece en el listado: queda al final de la lista del grupo, con su marca.</div>'+
+    '<label>¿Por qué se agrega?<select id="nm"><option value="NUEVO">Llegó nuevo durante el año</option><option value="NO_LISTADO">No aparecía en el listado</option></select></label>'+
     '<label>Grupo<select id="ng">'+EST.grupos.map(function(g){return opt(g.codigo,g.curso,false);}).join('')+'</select></label><label>Apellidos<input type="text" id="na"></label><label>Nombres<input type="text" id="nn"></label><label>Nota (opcional): de dónde viene<input type="text" id="nt" maxlength="200"></label>'+
     '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn prim" style="flex:1" onclick="guardaNuevo()">Agregar</button><button class="btn" onclick="cierra()">Cancelar</button></div><div id="mm" class="sub" style="margin-top:6px;color:#a31515"></div>');
 }
 function guardaNuevo(){
-  srv().withSuccessHandler(function(){ cierra(); cargaEst(true); }).withFailureHandler(function(e){ el('mm').textContent=String(e&&e.message||e).replace(/^Error: /,''); }).agregarEstudiante({g:el('ng').value,a:el('na').value,n:el('nn').value,nota:el('nt').value});
+  srv().withSuccessHandler(function(){ cierra(); cargaEst(true); }).withFailureHandler(function(e){ el('mm').textContent=String(e&&e.message||e).replace(/^Error: /,''); }).agregarEstudiante({motivo:el('nm').value,g:el('ng').value,a:el('na').value,n:el('nn').value,nota:el('nt').value});
 }
 function formMover(){
   var e=window.MARCA_LISTA[0]; cierra();

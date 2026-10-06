@@ -2357,7 +2357,7 @@ function externaDe_(fecha, docente, sesion, novedades) {
  * Sistema de control de asistencia docente - I.E. ICET. Autor: Francisco Javier Cortés Cabezas.
  */
 var COL_MARCAS_EST = ['id', 'clave', 'grupo', 'curso', 'apellidos', 'nombres', 'tipo', 'nota', 'registrado_por', 'fecha_registro', 'estado', 'levantada_por', 'fecha_levantada'];
-var TIPOS_MARCA_EST = [   // cat: grupo en la pantalla; emo/color: distintivo visual
+var TIPOS_MARCA_EST = [   // cat: grupo en la pantalla; emo/color: distintivo visual; nombre: pide el nombre del proyecto o programa (queda en la nota)
   { id: 'NO_ASISTE', texto: 'No asiste (posible deserción)', cat: 'Alertas y seguimiento', emo: '🚫', color: '#c62828' },
   { id: 'AUSENTE', texto: 'Se ausenta con frecuencia', cat: 'Alertas y seguimiento', emo: '📉', color: '#e65100' },
   { id: 'FUGA', texto: 'Se fuga con frecuencia (se evade de clase)', cat: 'Alertas y seguimiento', emo: '🏃', color: '#b8860b' },
@@ -2365,9 +2365,14 @@ var TIPOS_MARCA_EST = [   // cat: grupo en la pantalla; emo/color: distintivo vi
   { id: 'SPA', texto: 'Caso de consumo de SPA', cat: 'Alertas y seguimiento', emo: '🚭', color: '#6d4c41' },
   { id: 'ORIENTACION', texto: 'Remitido a orientación escolar', cat: 'Alertas y seguimiento', emo: '🧭', color: '#6a1b9a' },
   { id: 'MATRICULA_COND', texto: 'Matrícula condicional', cat: 'Alertas y seguimiento', emo: '📝', color: '#d84315' },
-  { id: 'PROYECTO', texto: 'En proyecto o programa especial', cat: 'Alertas y seguimiento', emo: '📘', color: '#1565c0' },
+  { id: 'PROYECTO', texto: 'Proyecto interno del colegio', cat: 'Proyectos y programas', emo: '📘', color: '#1565c0', nombre: true },
+  { id: 'REDES_APOYO', texto: 'Proyecto de redes de apoyo', cat: 'Proyectos y programas', emo: '🤲', color: '#00897b', nombre: true },
+  { id: 'SENA_ARTICULACION', texto: 'Articulación con el SENA (media técnica)', cat: 'Proyectos y programas', emo: '🛠️', color: '#2e7d32', nombre: true },
+  { id: 'SENA_CURSO', texto: 'Aprendiz SENA (curso o programa)', cat: 'Proyectos y programas', emo: '🎓', color: '#558b2f', nombre: true },
   { id: 'NUEVO', texto: 'Estudiante nuevo (llegó en el año)', cat: 'Matrícula', emo: '🆕', color: '#2e7d32' },
   { id: 'PROMOVIDO', texto: 'Promovido al siguiente grado', cat: 'Matrícula', emo: '⬆️', color: '#00838f' },
+  { id: 'NO_LISTADO', texto: 'Agregado: no aparecía en el listado', cat: 'Matrícula', emo: '➕', color: '#00796b' },
+  { id: 'OTRA_INSTITUCION', texto: 'Matriculado en otra institución', cat: 'Matrícula', emo: '🏫', color: '#6d4c41', nombre: true },
   { id: 'RETIRADO', texto: 'Retirado formalmente', cat: 'Matrícula', emo: '📤', color: '#546e7a' },
   { id: 'CANCELADA', texto: 'Matrícula cancelada', cat: 'Matrícula', emo: '⛔', color: '#37474f' },
   { id: 'LACTANTE', texto: 'Estudiante lactante', cat: 'Condición o población', emo: '🍼', color: '#c2185b' },
@@ -2421,6 +2426,7 @@ function marcarEstudiantes(p) {
   p = p || {};
   var tipo = TIPOS_MARCA_EST.filter(function (t) { return t.id === p.tipo; })[0];
   if (!tipo) throw new Error('Elija el tipo de marca.');
+  if (tipo.nombre && String(p.nota || '').trim().length < 3) throw new Error('Escriba el nombre (del proyecto, programa o institución).');
   var items = p.items || [];
   if (!items.length) throw new Error('Elija al menos un estudiante.');
   if (items.length > 200) throw new Error('Máximo 200 estudiantes a la vez.');
@@ -2465,7 +2471,7 @@ function ponMarcaEst_(sh, e, tipoId, nota, por) {
   sh.appendRow([Utilities.getUuid(), claveEst_(e.g, e.a, e.n), e.g, e.curso, e.a, e.n, textoMarca_(tipoId), String(nota || '').slice(0, 300), por, ahoraTxt_(), 'Vigente', '', '']);
 }
 
-/** Estudiante que llega nuevo durante el año: se agrega a la lista del grupo (al final) con la marca «nuevo». p = {g, a, n, nota?} */
+/** Agrega a un estudiante que no aparece en el listado (llegó nuevo, o se omitió): al final del grupo, con la marca «nuevo» o «no aparecía en el listado». p = {g, a, n, nota?, motivo?: 'NUEVO'|'NO_LISTADO'} */
 function agregarEstudiante(p) {
   var quien = exigirDirectivo_(), por = quien.nombre || quien.email;
   p = p || {};
@@ -2480,7 +2486,7 @@ function agregarEstudiante(p) {
   try {
     var no = delGrupo.reduce(function (m, e) { return Math.max(m, e.no); }, 0) + 1, curso = delGrupo[0].curso;
     hoja_('Estudiantes').appendRow([txtForzado_(g), curso, no, a, n]);
-    ponMarcaEst_(hojaOCrea_('Marcas_Estudiantes', COL_MARCAS_EST), { g: g, curso: curso, a: a, n: n }, 'NUEVO', (p.nota ? p.nota + ' · ' : '') + 'Ingresó el ' + ymd_(new Date()), por);
+    ponMarcaEst_(hojaOCrea_('Marcas_Estudiantes', COL_MARCAS_EST), { g: g, curso: curso, a: a, n: n }, p.motivo === 'NO_LISTADO' ? 'NO_LISTADO' : 'NUEVO', (p.nota ? p.nota + ' · ' : '') + (p.motivo === 'NO_LISTADO' ? 'Agregado el ' : 'Ingresó el ') + ymd_(new Date()), por);
     return { ok: true, no: no };
   } finally { lock.releaseLock(); }
 }

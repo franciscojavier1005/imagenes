@@ -1,5 +1,5 @@
 /**
- * Reuniones y jornadas sin estudiantes (jornada pedagógica, desarrollo institucional, planeación, asamblea de docentes, consejo académico,
+ * Reuniones, actividades institucionales y jornadas sin clases (entrega de boletines, clausura, día del idioma, afrocolombianidad, semana científica o cultural, jornada pedagógica, desarrollo institucional, planeación, asamblea de docentes, consejo académico,
  * comité de convivencia, capacitación, etc.). La asistencia se registra UNA vez por reunión, no por sesión, y no genera minutos de
  * "tiempo sin atender" (no hay estudiantes). La ronda de aula usa estos registros para no marcar como ausente a quien está en la reunión.
  *
@@ -24,6 +24,15 @@ var TIPOS_REUNION = [
   { tipo: 'Comité de convivencia', sinEstudiantes: false, inicio: '08:00', fin: '10:00' },
   { tipo: 'Comité de calidad', sinEstudiantes: false, inicio: '08:00', fin: '10:00' },
   { tipo: 'Reunión PTAFI con la tutora', sinEstudiantes: false, inicio: '08:00', fin: '09:00' },
+  { tipo: 'Entrega de boletines', sinEstudiantes: false, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Clausura', sinEstudiantes: true, inicio: '08:00', fin: '12:00' },
+  { tipo: 'Acto cívico o izada de bandera', sinEstudiantes: false, inicio: '07:00', fin: '07:45' },
+  { tipo: 'Día del idioma', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Día de la afrocolombianidad', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Semana científica', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Semana cultural', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Actividad recreativa o deportiva', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Otra actividad pedagógica o cultural general', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
   { tipo: 'Otra reunión', sinEstudiantes: false, inicio: '08:00', fin: '09:00' }
 ];
 
@@ -58,6 +67,20 @@ function asistenciaDe_(id) {
 function convocadosDe_(reunion) {
   var todos = personasReunion_().map(function (p) { return p.nombre; });
   return reunion.convocados === 'TODOS' ? todos : reunion.convocados;
+}
+
+/** Resumen de asistencia a reuniones y actividades de un periodo, para el informe por correo. Devuelve '' si no hubo. */
+function htmlReunionesInforme_(desde, hasta) {
+  var rs = datosOCrea_('Reuniones', COL_REUNIONES).map(reunionDeFila_).filter(function (r) { return r.fecha >= desde && r.fecha <= hasta; });
+  if (!rs.length) return '';
+  var e = resEsc_;
+  return '<div style="margin-top:12px;border-left:4px solid #1b5e20;padding:6px 10px;background:#e8f5e9"><div style="font-weight:600;color:#1b5e20">Reuniones y actividades institucionales (' + rs.length + ')</div>' +
+    rs.map(function (r) {
+      var a = asistenciaDe_(r.id), conv = convocadosDe_(r), no = [], pres = 0, sin = 0;
+      conv.forEach(function (n) { var x = a[n]; if (!x) sin++; else if (x.estado === 'No asistió') no.push(n + ' (' + (x.motivo || 'Sin justificación') + ')'); else pres++; });
+      return '<div style="font-size:13px;margin-top:6px"><b>' + e(r.nombre) + '</b> · ' + e(r.fecha) + ' · ' + e(r.inicio) + '-' + e(r.fin) + '<br>Asistieron ' + pres + ' de ' + conv.length +
+        (sin ? ' · <span style="color:#a31515">sin registrar: ' + sin + '</span>' : '') + (no.length ? '<br>No asistieron: ' + e(no.join('; ')) : '') + '</div>';
+    }).join('') + '</div>';
 }
 
 /** Reuniones de una fecha (por defecto hoy), con los tipos y las personas convocables. p = {fecha?} */

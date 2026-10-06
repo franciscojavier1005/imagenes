@@ -92,7 +92,7 @@ function doGet(e) {
     return ContentService.createTextOutput('ICET API').setMimeType(ContentService.MimeType.TEXT);
   }
   var pag = (e && e.parameter && e.parameter.p) || 'menu';   // sin parámetros abre el menú de entrada
-  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], novedad: ['Novedad', 'ICET - Registrar novedades'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y jornadas'], horarios: ['Horarios', 'ICET - Horarios y consultas'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'] };
+  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], novedad: ['Novedad', 'ICET - Registrar novedades'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y actividades'], horarios: ['Horarios', 'ICET - Horarios y consultas'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'] };
   var pg = PAGINAS[pag] || PAGINAS.menu;
   return HtmlService.createHtmlOutputFromFile(pg[0])
     .setTitle(pg[1])
@@ -220,7 +220,7 @@ function consultarSesion(dia, sesion, modo) {
   out.reuniones = reun.map(function (r) { return { id: r.id, nombre: r.nombre, tipo: r.tipo, inicio: r.inicio, fin: r.fin, sinEstudiantes: r.sinEstudiantes }; });
   if (reun.some(function (r) { return r.sinEstudiantes; })) {
     out.sinEstudiantes = true; out.filas = [];
-    out.nota = 'Hay una reunión o jornada sin estudiantes en este horario (' + reun.filter(function (r) { return r.sinEstudiantes; })[0].nombre + '): no se hace ronda de aula. La asistencia se registra en Reuniones.';
+    out.nota = 'Hay una reunión, actividad o jornada sin clases en este horario (' + reun.filter(function (r) { return r.sinEstudiantes; })[0].nombre + '): no se hace ronda de aula. La asistencia se registra en Reuniones.';
   } else {
     out.filas.forEach(function (f) {
       for (var i = 0; i < reun.length; i++) if (convocadoA_(reun[i], f.docente)) { f.reunion = { id: reun[i].id, nombre: reun[i].nombre, inicio: reun[i].inicio, fin: reun[i].fin, estado: reun[i].asistencia[f.docente] || '' }; break; }
@@ -1090,7 +1090,7 @@ function enviarInformes_(tipo, soloProbar, soloA) {
   if (tipo === 'semana') { desde = lunesDe_(f); nombre = 'de la semana'; fechaTexto = 'Semana del ' + desde + ' al ' + f; }
   if (tipo === 'mes') { desde = f.slice(0, 8) + '01'; nombre = 'del mes'; fechaTexto = 'Mes de ' + Utilities.formatDate(hoy, TZ, 'MMMM yyyy') + ' (hasta el ' + f + ')'; }
   var r = resumenInterno_(desde, f, {});
-  var cuerpo = htmlInforme_(r, fechaTexto, ScriptApp.getService().getUrl() + '?p=panel') + htmlIncumplimientos_(desde, f);
+  var cuerpo = htmlInforme_(r, fechaTexto, ScriptApp.getService().getUrl() + '?p=panel') + htmlReunionesInforme_(desde, f) + htmlIncumplimientos_(desde, f);
   var para = soloA || destinatarios_(tipo);
   if (!para.length) { Logger.log('Informe NO enviado: ningún directivo tiene correo real registrado.'); return { enviado: false, motivo: 'sin correos', html: cuerpo }; }
   para.forEach(function (c) {
@@ -1781,7 +1781,7 @@ function purgarAudios() {
 
 // ===================== Reuniones.gs =====================
 /**
- * Reuniones y jornadas sin estudiantes (jornada pedagógica, desarrollo institucional, planeación, asamblea de docentes, consejo académico,
+ * Reuniones, actividades institucionales y jornadas sin clases (entrega de boletines, clausura, día del idioma, afrocolombianidad, semana científica o cultural, jornada pedagógica, desarrollo institucional, planeación, asamblea de docentes, consejo académico,
  * comité de convivencia, capacitación, etc.). La asistencia se registra UNA vez por reunión, no por sesión, y no genera minutos de
  * "tiempo sin atender" (no hay estudiantes). La ronda de aula usa estos registros para no marcar como ausente a quien está en la reunión.
  *
@@ -1806,6 +1806,15 @@ var TIPOS_REUNION = [
   { tipo: 'Comité de convivencia', sinEstudiantes: false, inicio: '08:00', fin: '10:00' },
   { tipo: 'Comité de calidad', sinEstudiantes: false, inicio: '08:00', fin: '10:00' },
   { tipo: 'Reunión PTAFI con la tutora', sinEstudiantes: false, inicio: '08:00', fin: '09:00' },
+  { tipo: 'Entrega de boletines', sinEstudiantes: false, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Clausura', sinEstudiantes: true, inicio: '08:00', fin: '12:00' },
+  { tipo: 'Acto cívico o izada de bandera', sinEstudiantes: false, inicio: '07:00', fin: '07:45' },
+  { tipo: 'Día del idioma', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Día de la afrocolombianidad', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Semana científica', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Semana cultural', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Actividad recreativa o deportiva', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Otra actividad pedagógica o cultural general', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
   { tipo: 'Otra reunión', sinEstudiantes: false, inicio: '08:00', fin: '09:00' }
 ];
 
@@ -1840,6 +1849,20 @@ function asistenciaDe_(id) {
 function convocadosDe_(reunion) {
   var todos = personasReunion_().map(function (p) { return p.nombre; });
   return reunion.convocados === 'TODOS' ? todos : reunion.convocados;
+}
+
+/** Resumen de asistencia a reuniones y actividades de un periodo, para el informe por correo. Devuelve '' si no hubo. */
+function htmlReunionesInforme_(desde, hasta) {
+  var rs = datosOCrea_('Reuniones', COL_REUNIONES).map(reunionDeFila_).filter(function (r) { return r.fecha >= desde && r.fecha <= hasta; });
+  if (!rs.length) return '';
+  var e = resEsc_;
+  return '<div style="margin-top:12px;border-left:4px solid #1b5e20;padding:6px 10px;background:#e8f5e9"><div style="font-weight:600;color:#1b5e20">Reuniones y actividades institucionales (' + rs.length + ')</div>' +
+    rs.map(function (r) {
+      var a = asistenciaDe_(r.id), conv = convocadosDe_(r), no = [], pres = 0, sin = 0;
+      conv.forEach(function (n) { var x = a[n]; if (!x) sin++; else if (x.estado === 'No asistió') no.push(n + ' (' + (x.motivo || 'Sin justificación') + ')'); else pres++; });
+      return '<div style="font-size:13px;margin-top:6px"><b>' + e(r.nombre) + '</b> · ' + e(r.fecha) + ' · ' + e(r.inicio) + '-' + e(r.fin) + '<br>Asistieron ' + pres + ' de ' + conv.length +
+        (sin ? ' · <span style="color:#a31515">sin registrar: ' + sin + '</span>' : '') + (no.length ? '<br>No asistieron: ' + e(no.join('; ')) : '') + '</div>';
+    }).join('') + '</div>';
 }
 
 /** Reuniones de una fecha (por defecto hoy), con los tipos y las personas convocables. p = {fecha?} */

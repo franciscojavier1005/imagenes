@@ -96,4 +96,12 @@ const rs=run("enviarInformes_('semana',true)"); ok(rs.enviado&&enviados.length==
 const rm=run("enviarInformes_('mes',true)"); ok(rm.enviado&&enviados.length===3&&/del mes/.test(enviados[2].subject),'informe mensual a los 2 con correo');
 const rp=run("enviarInformes_('dia',true,['x@y.com'])"); ok(rp.para.join()==='x@y.com'&&enviados.length===4,'la prueba envía solo a la dirección indicada');
 ok(run("ultimoHabilDelMes_('2026-10-30')")===true&&run("ultimoHabilDelMes_('2026-10-29')")===false&&run("ultimoHabilDelMes_('2026-09-30')")===true,'último día hábil del mes (30-oct sí, 29-oct no, 30-sep sí)');
+// reuniones y actividades en el informe
+EMAIL='dueno@gmail.com';
+ok(run("TIPOS_REUNION").some(t=>t.tipo==='Entrega de boletines'&&t.sinEstudiantes===false)&&['Clausura','Día del idioma','Día de la afrocolombianidad','Semana científica','Semana cultural'].every(n=>run("TIPOS_REUNION").some(t=>t.tipo===n)),'tipos de actividades institucionales: boletines (clases en paralelo), clausura, día del idioma, afrocolombianidad, semana científica y cultural');
+const rb=run("crearReunion({tipo:'Entrega de boletines',inicio:'07:00',fin:'13:30',sinEstudiantes:false,convocados:'TODOS'})");
+const dB=run("personasReunion_()").filter(x=>x.rol==='Docente').slice(0,2).map(x=>x.nombre);
+g.RB={id:rb.id,registros:[{persona:dB[0],estado:'Asistió'},{persona:dB[1],estado:'No asistió',motivo:'Mal estado de salud'}]}; run('guardarAsistenciaReunion(RB)');
+enviados.length=0; run("enviarInformes_('dia',true,['x@y.com'])");
+ok(/Entrega de boletines/.test(enviados[0].htmlBody)&&/No asistieron: [^<]*Mal estado de salud/.test(enviados[0].htmlBody)&&/sin registrar/.test(enviados[0].htmlBody),'el informe incluye las actividades del día: quiénes asistieron, quiénes no (con motivo) y cuántos faltan por registrar');
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

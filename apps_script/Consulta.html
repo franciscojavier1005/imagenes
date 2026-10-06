@@ -105,10 +105,10 @@
     <select id="dia" onchange="cambiaDia()" aria-label="Día">
       <option>LUNES</option><option>MARTES</option><option>MIERCOLES</option><option>JUEVES</option><option>VIERNES</option>
     </select>
-    <select id="modo" onchange="cambiaModo()" aria-label="Qué se verifica en cada visita"><option value="bloque">Bloque</option><option value="sesion">Sesión</option></select>
+    <select id="modo" onchange="cambiaModo()" aria-label="Qué se verifica en cada visita"><option value="bloque">Bloque</option><option value="sesion">Sesión</option><option value="reunion">Reunión</option></select>
     <button class="nav ahora" onclick="ahora()">Ahora</button>
   </div>
-  <div class="fila"><span class="chip" id="franja"></span><span class="chip" id="reloj"></span><span class="chip" id="total"></span></div>
+  <div class="fila"><span class="chip" id="franja"></span><span class="chip" id="reloj"></span><span class="chip" id="total"></span><span class="chip" id="chipReunion" style="display:none;background:#f0c000;color:#3b2e00"></span></div>
 </header>
 <main>
   <div class="quien" id="quien"></div>
@@ -176,7 +176,8 @@ function cargar(dia, ses, conservar){
     });
     Object.keys(previas).forEach(function(d){ if(r.filas.some(function(f){return f.docente===d;})&&previas[d]&&previas[d].estado) marcas[d]=previas[d]; });   // al definir quién dicta no se pierde lo marcado
     diaSel=r.dia; sesSel=r.sesion;
-    el('dia').value=r.dia; el('sesion').textContent=r.sesion?(r.modo==='bloque'?('Bloque '+r.bloque):('Sesión '+r.sesion)):'Descanso'; el('modo').value=modo;
+    el('dia').value=r.dia; el('sesion').textContent=r.sinEstudiantes?'📋 Reunión':(r.sesion?(r.modo==='bloque'?('Bloque '+r.bloque):('Sesión '+r.sesion)):'Descanso'); el('modo').value=modo;
+    var cr=el('chipReunion'); if(r.reuniones&&r.reuniones.length){ cr.style.display='inline'; cr.textContent='📋 '+r.reuniones[0].nombre+(r.sinEstudiantes?' · sin estudiantes':''); } else { cr.style.display='none'; }
     el('franja').textContent=r.franja||r.nota; el('reloj').textContent='Hora: '+r.hora;
     el('total').textContent=r.filas.length+' docentes';
     pintarQuien(); pintar();
@@ -189,7 +190,8 @@ function mover(d){
   else { n=(sesSel||0)+d; if(n<1) n=1; if(n>8) n=8; }
   cargar(diaSel, n);
 }
-function cambiaModo(){ modo=el('modo').value; try{localStorage.setItem('icet_modo',modo);}catch(e){} cargar(diaSel, sesSel||1); }
+function cambiaModo(){ if(el('modo').value==='reunion'){ el('modo').value=modo; if(urlReunion){ window.top.location.href=urlReunion; } else { toast('Abra Reuniones desde el enlace del encabezado'); } return; }
+  modo=el('modo').value; try{localStorage.setItem('icet_modo',modo);}catch(e){} cargar(diaSel, sesSel||1); }
 function cambiaDia(){ cargar(el('dia').value, sesSel||1); }
 
 function pintarQuien(){

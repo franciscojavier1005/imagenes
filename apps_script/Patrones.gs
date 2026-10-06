@@ -25,6 +25,11 @@ var PATRONES = {
    "incapacid|licencia (medica|de maternidad|de paternidad)"
   ],
   [
+   "Sepelio o duelo de un familiar",
+   "CALAMIDAD DOMÉSTICA",
+   "sepelio|velorio|entierro|exequias|funeral|duelo|(asistio|fue|va|van) a (un |el )?(sepelio|velorio|entierro)"
+  ],
+  [
    "Calamidad familiar",
    "CALAMIDAD DOMÉSTICA",
    "calamidad|falleci|murio|fallecimiento|velorio|sepelio|luto|defuncion|se murio"
@@ -95,6 +100,11 @@ var PATRONES = {
    "atendiendo (a )?(un|una|el|la|los|las)\\s+(padre|madre|acudiente)|atencion a (padres|acudiente)"
   ],
   [
+   "Reunión de cierre de jornada",
+   "ACTIVIDAD INSTITUCIONAL",
+   "(esta|estan|estuvo|salio|fue|fueron|va|van|asiste|asisten)\\s+(a|en|con)\\s+(la\\s+|el\\s+|una\\s+|un\\s+)?(reunion|jornada) de cierre|reunion de cierre"
+  ],
+  [
    "Atención en coordinación (estudiante o acudiente)",
    "ACTIVIDAD INSTITUCIONAL",
    "(esta|estan|estuvo|salio|fue|fueron|va|van|asiste|asisten)\\s+(a|en|con)\\s+(la\\s+|el\\s+|una\\s+|un\\s+)?coordinacion|atendiendo (a )?(un|una)\\s+(estudiante|alumno)"
@@ -118,6 +128,11 @@ var PATRONES = {
    "Remisión otra ciudad",
    "TRASLADO",
    "remision|remitid|remiti|\\bcali\\b|\\bpasto\\b|bogota|medellin|viaje|otra ciudad|se traslado a|desplaz"
+  ],
+  [
+   "Lluvia intensa o emergencia climática",
+   "FORTUITO",
+   "lluvia (intensa|fuerte)|aguacero|inundacion|temporal de lluvia|emergencia climatica|tormenta|derrumbe"
   ],
   [
    "Situación fortuita camino al trabajo",

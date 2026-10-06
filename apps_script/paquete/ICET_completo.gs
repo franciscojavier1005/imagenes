@@ -235,7 +235,10 @@ var MOTIVOS_NUEVOS = [
   ['ACTIVIDAD INSTITUCIONAL', 'Reunión PTAFI con la tutora', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
   ['ACTIVIDAD INSTITUCIONAL', 'Reunión de docentes o de área', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
   ['ACTIVIDAD INSTITUCIONAL', 'Atención a padre de familia o acudiente', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
-  ['ACTIVIDAD INSTITUCIONAL', 'Atención en coordinación (estudiante o acudiente)', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5]
+  ['ACTIVIDAD INSTITUCIONAL', 'Atención en coordinación (estudiante o acudiente)', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
+  ['ACTIVIDAD INSTITUCIONAL', 'Reunión de cierre de jornada', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
+  ['FORTUITO', 'Lluvia intensa o emergencia climática', 'SI', 'No requiere soporte (situación general)', 'NO', 5],
+  ['CALAMIDAD DOMÉSTICA', 'Sepelio o duelo de un familiar', 'SI', 'Acta de defunción u otro soporte', 'SI', 5]
 ];
 function asegurarMotivos_() {
   var sh = hoja_('Motivos'), existentes = datos_('Motivos').map(function (m) { return m.motivo; });
@@ -1251,6 +1254,11 @@ var PATRONES = {
    "incapacid|licencia (medica|de maternidad|de paternidad)"
   ],
   [
+   "Sepelio o duelo de un familiar",
+   "CALAMIDAD DOMÉSTICA",
+   "sepelio|velorio|entierro|exequias|funeral|duelo|(asistio|fue|va|van) a (un |el )?(sepelio|velorio|entierro)"
+  ],
+  [
    "Calamidad familiar",
    "CALAMIDAD DOMÉSTICA",
    "calamidad|falleci|murio|fallecimiento|velorio|sepelio|luto|defuncion|se murio"
@@ -1321,6 +1329,11 @@ var PATRONES = {
    "atendiendo (a )?(un|una|el|la|los|las)\\s+(padre|madre|acudiente)|atencion a (padres|acudiente)"
   ],
   [
+   "Reunión de cierre de jornada",
+   "ACTIVIDAD INSTITUCIONAL",
+   "(esta|estan|estuvo|salio|fue|fueron|va|van|asiste|asisten)\\s+(a|en|con)\\s+(la\\s+|el\\s+|una\\s+|un\\s+)?(reunion|jornada) de cierre|reunion de cierre"
+  ],
+  [
    "Atención en coordinación (estudiante o acudiente)",
    "ACTIVIDAD INSTITUCIONAL",
    "(esta|estan|estuvo|salio|fue|fueron|va|van|asiste|asisten)\\s+(a|en|con)\\s+(la\\s+|el\\s+|una\\s+|un\\s+)?coordinacion|atendiendo (a )?(un|una)\\s+(estudiante|alumno)"
@@ -1344,6 +1357,11 @@ var PATRONES = {
    "Remisión otra ciudad",
    "TRASLADO",
    "remision|remitid|remiti|\\bcali\\b|\\bpasto\\b|bogota|medellin|viaje|otra ciudad|se traslado a|desplaz"
+  ],
+  [
+   "Lluvia intensa o emergencia climática",
+   "FORTUITO",
+   "lluvia (intensa|fuerte)|aguacero|inundacion|temporal de lluvia|emergencia climatica|tormenta|derrumbe"
   ],
   [
    "Situación fortuita camino al trabajo",

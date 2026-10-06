@@ -18,6 +18,11 @@ def corto(n):
     return f'{d["apellidos"].split()[0]} {d["nombres"].split()[0][0]}.'
 
 
+TOTDIA = {}
+for _r in rd("horario_maestro.csv"):
+    _k = _r["dia"] + "|" + _r["docente"]
+    TOTDIA[_k] = TOTDIA.get(_k, 0) + (60 if (_r["grupo"] or "").startswith("00") else 45)
+
 datos = {
     "horario": [{k: r[k] for k in ("docente", "dia", "hora", "tipo", "grupo", "grupos_enfasis", "area", "alternancia", "equipo_enfasis")}
                 for r in rd("horario_maestro.csv")],
@@ -25,6 +30,8 @@ datos = {
     "direccion": {r["grupo"]: {"dir": " / ".join(corto(x) for x in (r["docente_1"], r["docente_2"]) if x), "modalidad": r["modalidad"]}
                   for r in rd("direccion_grupo.csv")},
     "franjas": [{"hora": int(f["hora"]), "bloque": int(f["bloque"]), "inicio": f["inicio"], "fin": f["fin"]} for f in rd("franjas.csv")],
+    "altern": {r["area"] + "|" + r[k]: r["docente_b" if k == "docente_a" else "docente_a"] for r in rd("alternancias.csv") for k in ("docente_a", "docente_b")},
+    "totdia": TOTDIA,
     "preesc": {r["dia"] + r["hora"]: r["inicio"] + " - " + r["fin"] for r in rd("horario_maestro.csv") if r["grupo"].startswith("00")},
     "motivos": rd("motivos.csv"),
     "listas": rd("listas.csv"),
@@ -59,7 +66,7 @@ var DATOS = %s;
         grupo:enf?'ÉNFASIS '+String(gc).split('+').map(function(g){return DATOS.grupos[g]||g;}).join(' + '):(DATOS.grupos[gc]||gc),
         area:h.area||'(énfasis)',tipo:h.tipo,
         nota:[/^00/.test(h.grupo)?'Preescolar '+DATOS.preesc[h.dia+h.hora]:'',h.alternancia,h.equipo_enfasis?'Con: '+h.equipo_enfasis:''].filter(Boolean).join(' · '),
-        dir:h.tipo==='AREAS_MULTIPLES'?'':(d.dir||''),modalidad:d.modalidad||'',previo:null,
+        dir:h.tipo==='AREAS_MULTIPLES'?'':(d.dir||''),modalidad:d.modalidad||'',previo:null,alternos:(h.tipo==='CLASE'&&DATOS.altern[h.area+'|'+h.docente])?[DATOS.altern[h.area+'|'+h.docente]]:[],minutosDia:(DATOS.totdia[h.dia+'|'+h.docente]||0),
         sesiones:[{sesion:Number(h.hora),grupoCodigo:gc,area:h.area||'(énfasis)',grupo:enf?'ÉNFASIS '+String(gc).split('+').map(function(g){return DATOS.grupos[g]||g;}).join(' + '):(DATOS.grupos[gc]||gc)}]};
     });
     if(out.modo==='bloque'){var por={},uni=[];out.filas.forEach(function(f){var k=por[f.docente];if(!k){por[f.docente]=f;uni.push(f);}else k.sesiones=k.sesiones.concat(f.sesiones);});

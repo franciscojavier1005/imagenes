@@ -132,4 +132,16 @@ const ra=run('actualizarHorarioPreescolar_()'), mias2=hz.filter(r=>r[hh.indexOf(
 ok(ra.quitadas===1&&mias2.length===4&&mias2.every((r,i)=>r[hh.indexOf('hora')]===3+i)&&mias2[0][hh.indexOf('inicio')]==='07:30'&&mias2[3][hh.indexOf('fin')]==='11:30','actualizar horario: quita la sesión 2 y deja 07:30 a 11:30 en 4 periodos');
 const rb=run('actualizarHorarioPreescolar_()'); ok(rb.quitadas===0&&rb.corregidas===0,'repetirlo no cambia nada');
 ok(run("textoCod_('0101')")==="'0101"&&run("textoCod_('CS101')")==='CS101'&&run("textoCod_('1001+1002')")==='1001+1002','los códigos con cero inicial se escriben como texto');
+// ---- parejas que alternan por semana (ética/religión)
+const alt=H.Alternancias.slice(1); const ia=H.Alternancias[0];
+const parA=[alt[0][ia.indexOf('docente_a')],alt[0][ia.indexOf('docente_b')]];
+const hr=H.Horario.slice(1).filter(r=>r[hi('tipo')]==='CLASE'&&r[hi('area')]==='ETR'&&parA.includes(r[hi('docente')]));
+const ejemplo=hr[0]; const otro=parA.find(x=>x!==ejemplo[hi('docente')]);
+const rq=run(`consultarSesion('${ejemplo[hi('dia')]}',${ejemplo[hi('hora')]},'sesion')`);
+const card=rq.filas.find(f=>f.docente===ejemplo[hi('docente')]&&f.area==='ETR');
+ok(card&&JSON.stringify(card.alternos)===JSON.stringify([otro]),'ética y religión en pareja: la tarjeta de un docente ofrece al otro como alterno');
+const noEtr=rq.filas.filter(f=>f.area!=='ETR'&&f.alternos.length);
+ok(noEtr.length===0,'solo las áreas de la hoja Alternancias tienen alternos');
+const dia1=H.Horario.slice(1).filter(r=>r[hi('dia')]===ejemplo[hi('dia')]&&r[hi('docente')]===ejemplo[hi('docente')]).length;
+ok(card.minutosDia===dia1*45,`la tarjeta trae el total del día para "toda la jornada" (${card.minutosDia} min)`);
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

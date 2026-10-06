@@ -129,7 +129,10 @@ function consultarSesion(dia, sesion, modo) {
     var f = r.fecha instanceof Date ? ymd_(r.fecha) : String(r.fecha);
     if (f === out.fecha && hs.indexOf(Number(r.sesion)) >= 0 && !yaMarcados[r.docente]) yaMarcados[r.docente] = r;
   });
-  var fuente = datos_('Horario').filter(function (h) { return h.dia === dia && hs.indexOf(Number(h.hora)) >= 0; })
+  var altern = alternancias_(), totDia = {};
+  var horarioDia = datos_('Horario').filter(function (h) { return h.dia === dia; });
+  horarioDia.forEach(function (h) { totDia[h.docente] = (totDia[h.docente] || 0) + minutosSesion_(h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo); });
+  var fuente = horarioDia.filter(function (h) { return hs.indexOf(Number(h.hora)) >= 0; })
     .sort(function (a, b) { return Number(a.hora) - Number(b.hora); });
   out.filas = fuente.map(function (h) {
     var enf = h.tipo === 'ENFASIS';
@@ -144,6 +147,8 @@ function consultarSesion(dia, sesion, modo) {
       modalidad: (direccion[String(enf ? h.grupos_enfasis : h.grupo).split('+')[0]] || {}).modalidad || '',
       sesiones: [{ sesion: Number(h.hora), grupoCodigo: enf ? h.grupos_enfasis : h.grupo, area: h.area || '(énfasis)',
                    grupo: enf ? 'ÉNFASIS ' + String(h.grupos_enfasis).split('+').map(function (g) { return nombres[g] || g; }).join(' + ') : (nombres[h.grupo] || h.grupo) }],
+      alternos: h.tipo === 'CLASE' && altern[h.area + '|' + h.docente] ? [altern[h.area + '|' + h.docente]] : [],   // pareja que alterna por semana: se elige quién dicta
+      minutosDia: totDia[h.docente] || 0,
       reporte: reportes[h.docente] || null,
       previo: ya ? { estado: ya.estado, motivo: ya.motivo, minutos: ya.minutos, observaciones: ya.observaciones, atendidoPor: ya.atendido_por || '' } : null
     };
@@ -179,6 +184,22 @@ function claveGrupo_(codigo) {
  * p = {directivo, dia, sesion, fecha?, registros:[{docente, grupoCodigo, area, estado, motivo, minutos, obs, fuente, medio}]}
  */
 var ATIENDE_GRUPO = ['Nadie (grupo solo)', 'Sin clase: los niños no asistieron (padres avisados)', 'Reemplazo (docente)', 'Practicante', 'Otro docente o directivo'];
+
+/** Parejas que alternan cada semana (hoja Alternancias; si no existe se crea con las dos parejas de ética y religión). */
+var ALTERNANCIAS_DEFECTO = [
+  ['ETR', 'Casanova Quiñones Yoli del Carmen', 'Castillo Angulo Martha Cecilia', 'Alternan cada semana (Ética / Religión) entre 7° y 8° (+ CS 2)'],
+  ['ETR', 'Estacio Estupiñán Rosario', 'Montaño Arizala Leidis Claudina', 'Alternan cada semana (Ética / Religión) entre 9° - 10°-1 y 10°-2 - 11°']
+];
+/** area|docente -> el otro docente de la pareja. */
+function alternancias_() {
+  var sh = hojaOCrea_('Alternancias', ['area', 'docente_a', 'docente_b', 'nota']);
+  if (sh.getDataRange().getValues().length < 2) ALTERNANCIAS_DEFECTO.forEach(function (f) { sh.appendRow(f); });
+  var m = {};
+  datos_('Alternancias').forEach(function (a) {
+    m[a.area + '|' + a.docente_a] = a.docente_b; m[a.area + '|' + a.docente_b] = a.docente_a;
+  });
+  return m;
+}
 
 /** Google Sheets convierte '0101' en el número 101: los códigos con cero inicial se escriben como texto (apóstrofo). */
 function textoCod_(v) { v = String(v == null ? '' : v); return /^0\d+$/.test(v) ? "'" + v : v; }

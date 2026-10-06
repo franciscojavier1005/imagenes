@@ -86,6 +86,7 @@ for t in [
     "  Bandeja_WhatsApp Novedades propuestas desde el chat de WhatsApp: revise, marque SI en confirmar y use el menú para importarlas.",
     "  Usuarios       Cuentas de docentes (correo): se registran una vez y un directivo las aprueba.",
     "  Soportes       Soportes de ausencias cargados por los docentes (archivos en una carpeta privada de Drive).",
+    "  Alternancias   Parejas de docentes que alternan cada semana (ética/religión): en la ronda aparecen los dos nombres y usted elige quién dicta.",
     "  Notas_Ronda    Observaciones (voz o texto) al terminar la ronda; sus propuestas van a la bandeja y requieren su confirmación.",
     "  Parametros     soportes_desde (las ausencias anteriores no exigen soporte) y la carpeta de soportes.",
     "  Registro_Ronda Cada marca de la ronda (presente, no asistió, tarde...).",
@@ -241,11 +242,12 @@ hoja(wb, "Usuarios", [["email", "docente", "estado", "fecha_solicitud", "autoriz
 hoja(wb, "Soportes", [["id", "fecha_carga", "docente", "clave", "inicio", "fin", "motivo_declarado", "tipo_documento", "archivo_id", "archivo_url",
                        "estado", "extemporaneo", "comentario", "revisado_por", "fecha_revision", "observacion_revision"]])
 hoja(wb, "Parametros", [["clave", "valor"], ["soportes_desde", "2026-10-05"], ["carpeta_soportes_id", ""], ["audio_conservar_dias", "30"]])
+hoja(wb, "Alternancias", [["area", "docente_a", "docente_b", "nota"]] + [list(r.values()) for r in leer_d("alternancias.csv")])
 hoja(wb, "Notas_Ronda", [["id", "fecha_registro", "fecha", "directivo", "sesion", "texto", "audio_id", "audio_url", "duracion_seg", "propuestas"]])
 hoja(wb, "Registro_Ronda", [["marca_temporal", "fecha", "dia", "sesion", "franja", "docente", "grupo", "area", "estado", "motivo",
                              "justificada", "minutos", "observaciones", "directivo", "atendido_por"]])
 
-orden = ["LEEME", "Ronda", "Docentes", "Horario", "Matriz_Grupos", "Direccion_Grupo", "Motivos", "Novedades", "Bandeja_WhatsApp", "Notas_Ronda", "Usuarios", "Soportes", "Parametros", "Registro_Ronda", "Directivos", "Listas", "Franjas", "Grupos"]
+orden = ["LEEME", "Ronda", "Docentes", "Horario", "Matriz_Grupos", "Direccion_Grupo", "Motivos", "Novedades", "Bandeja_WhatsApp", "Notas_Ronda", "Alternancias", "Usuarios", "Soportes", "Parametros", "Registro_Ronda", "Directivos", "Listas", "Franjas", "Grupos"]
 wb._sheets = [wb[n] for n in orden]
 wb.active = 1
 wb.save(OUT)

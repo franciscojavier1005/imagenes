@@ -55,15 +55,19 @@
   .estado{display:flex;gap:5px;flex-wrap:wrap;align-items:center;font-size:12.5px;font-weight:600}
   .estado span{border-radius:12px;padding:2px 8px;background:#eef3fa;color:#0f2a5c;white-space:nowrap}
   .estado .quien-chip{background:#0f2a5c;color:#fff;max-width:100%;overflow:hidden;text-overflow:ellipsis}
-  .estado .c-ok{background:#e1f3e4;color:#1b5e20} .estado .c-no{background:#fde3e1;color:#a31515} .estado .c-t{background:#fff0cc;color:#7a4b00} .estado .c-sm{background:#e8ecf2;color:#37475e}
+  .estado .c-ok{background:#e1f3e4;color:#1b5e20} .estado .c-no{background:#fde3e1;color:#a31515} .estado .c-t{background:#fff0cc;color:#7a4b00} .estado .c-tp{background:#e3e7fa;color:#2f3b8f} .estado .c-sm{background:#e8ecf2;color:#37475e}
   .botones{display:flex;gap:8px;align-items:center}
   .botones .todos{flex:1}
   .botones .obsbtn{flex:0 0 46px;padding:12px 0} .botones .guardar{flex:1.3}
   .seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-  @media(min-width:560px){.seg{grid-template-columns:repeat(4,1fr)}}
+  
   .seg button{border:2px solid var(--borde);background:#fff;color:#2b3a4f;border-radius:10px;min-height:48px;font-weight:700;font-size:15px;padding:6px}
   .seg button.on.b-Presente{background:var(--ok);border-color:var(--ok);color:#fff}
   .seg button.on.b-No{background:var(--no);border-color:var(--no);color:#fff}
+  .seg button:last-child:nth-child(odd){grid-column:1/-1}
+  @media(min-width:560px){.seg{grid-template-columns:repeat(5,1fr)} .seg button:last-child:nth-child(odd){grid-column:auto}}
+  .seg button.on.b-Temp{background:#5b6bc0;border-color:#5b6bc0;color:#fff}
+  .doc.estado-Temp{background:#e8ebfb;border-left:4px solid #5b6bc0}
   .seg button.on.b-Tarde,.seg button.on.b-Salida{background:var(--tarde);border-color:var(--tarde);color:#fff}
   .quien-dicta{margin-top:8px;padding:8px;background:#fff8e1;border:1px dashed #e0b400;border-radius:10px;font-size:13px}
   .quien-dicta .op{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
@@ -149,8 +153,9 @@ var S = null;          // respuesta del servidor
 var marcas = {};       // docente -> {estado, motivo, minutos, obs, atiende}
 var diaSel = null, sesSel = null;
 var modo = (function(){try{return localStorage.getItem('icet_modo')==='sesion'?'sesion':'bloque';}catch(e){return 'bloque';}})();
-var ESTADOS=['Presente','No asistió','Llegada tarde','Salida temprana'];
-var ICONOS={'Presente':'✔','No asistió':'✖','Llegada tarde':'⏰','Salida temprana':'↩'};
+var ESTADOS=['Presente','No asistió','Ausente temporal','Llegada tarde','Salida temprana'];
+var ICONOS={'Presente':'✔','No asistió':'✖','Ausente temporal':'⏳','Llegada tarde':'⏰','Salida temprana':'↩'};
+var ETIQUETA={'Ausente temporal':'Permiso por horas o reunión'};
 
 function el(id){return document.getElementById(id);}
 function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
@@ -225,7 +230,7 @@ function tarjeta(f){
   var m=marcas[f.docente]||{}, id=idDe(f.docente), alt=f.alternos&&f.alternos.length, par=f.pareja||[];
   var sinDefinir=alt&&!f.definido, mostrarElegir=sinDefinir||cambiando[f.claveAlt];
   var nombres=sinDefinir?par:[f.docente];
-  var h='<div class="doc estado-'+({'Presente':'Presente','No asistió':'No'}[m.estado]||(m.estado?'Tarde':''))+'" id="d_'+id+'">'+
+  var h='<div class="doc estado-'+({'Presente':'Presente','No asistió':'No','Ausente temporal':'Temp'}[m.estado]||(m.estado?'Tarde':''))+'" id="d_'+id+'">'+
     '<div class="nombre">'+nombres.map(esc).join(' <span style="color:#8a94a0;font-weight:400">/</span> ')+'</div><div class="meta">'+esc(f.area)+(par.length?' · alternan cada semana':'')+'</div>'+
     (f.nota?'<div class="nota">'+esc(f.nota)+'</div>':'')+
     (f.reporte?'<div class="reporte"><b>Reportado hoy:</b> '+esc(f.reporte.tipo)+(f.reporte.motivo?' · '+esc(f.reporte.motivo):'')+(f.reporte.texto?' — “'+esc(f.reporte.texto)+'”':'')+(f.reporte.medio?' ('+esc(f.reporte.medio)+')':'')+(f.reporte.jornada?' · jornada completa (ya cuenta todo el día: no se suma más tiempo)':'')+'</div>':'')+
@@ -238,10 +243,10 @@ function tarjeta(f){
     h+='<div class="quien-dicta" style="background:#e8f5e9;border-color:#7cb987">Esta semana dicta <b>'+esc(f.docente)+'</b>'+(f.definido&&f.definido.por?' · lo definió '+esc(f.definido.por):'')+
        ' <button type="button" style="flex:none;min-height:34px;padding:4px 10px;margin-left:6px;font-size:12.5px;border:2px solid var(--borde);background:#fff;border-radius:8px" onclick="cambiarQuien(\''+id+'\')">Cambiar</button></div>';
   }
-  var cl={'Presente':'Presente','No asistió':'No','Llegada tarde':'Tarde','Salida temprana':'Salida'};
+  var cl={'Presente':'Presente','No asistió':'No','Ausente temporal':'Temp','Llegada tarde':'Tarde','Salida temprana':'Salida'};
   h+='<div class="seg" role="radiogroup" aria-label="Asistencia de '+esc(f.docente)+'">'+ESTADOS.map(function(e){
     var on=m.estado===e;
-    return '<button type="button" role="radio" aria-checked="'+on+'" class="b-'+cl[e]+(on?' on':'')+'" onclick="marcar(\''+id+'\',\''+(on?'':e)+'\')">'+ICONOS[e]+' '+esc(e)+'</button>';}).join('')+'</div>';
+    return '<button type="button" role="radio" aria-checked="'+on+'" class="b-'+cl[e]+(on?' on':'')+'" onclick="marcar(\''+id+'\',\''+(on?'':e)+'\')">'+ICONOS[e]+' '+esc(ETIQUETA[e]||e)+'</button>';}).join('')+'</div>';
   if(m.estado && m.estado!=='Presente') h+=detalle(id,m);
   return h+'</div>';
 }
@@ -273,7 +278,7 @@ function detalle(id,m){
   if(noAsistio) h+='<label>¿Hasta cuándo no estará?<select class="sel" onchange="campo(\''+id+'\',\'alcance\',this.value,true)">'+
      opt('',modo==='bloque'?'Solo este bloque':'Solo esta sesión',!m.alcance)+opt('JC','Toda la jornada (se registra una sola vez'+totDia+')',m.alcance==='JC')+'</select></label>';
   h+='<label>Minutos'+(noAsistio?(m.alcance==='JC'?' (toda la jornada)':' (sesión completa)'):'')+'<select class="sel" '+(noAsistio?'disabled':'')+' onchange="campo(\''+id+'\',\'minutos\',this.value)">'+
-     opt('',noAsistio?(m.alcance==='JC'?(ff.minutosDia?ff.minutosDia+' min (total del día)':'Total del día'):'Automático'):'— Elegir —',!m.minutos||noAsistio)+[5,10,15,20,30,45].map(function(x){return opt(x,x+' min',Number(m.minutos)===x&&!noAsistio);}).join('')+'</select></label>';
+     opt('',noAsistio?(m.alcance==='JC'?(ff.minutosDia?ff.minutosDia+' min (total del día)':'Total del día'):'Automático'):'— Elegir —',!m.minutos||noAsistio)+(m.estado==='Ausente temporal'?[15,30,45,60,90]:[5,10,15,20,30,45]).map(function(x){return opt(x,x+' min',Number(m.minutos)===x&&!noAsistio);}).join('')+'</select></label>';
   h+='<label>Dejó actividad de aprendizaje<select class="sel" onchange="campo(\''+id+'\',\'actividad\',this.value)">'+
      ['N/A','Sí','No'].map(function(x){return opt(x,x,(m.actividad||'N/A')===x);}).join('')+'</select></label>';
   h+='</div><div class="previo">Si el grupo lo atendió un reemplazo o practicante, la ausencia del docente se mantiene.</div><label>Observaciones<input type="text" class="obs" value="'+esc(m.obs||'')+'" oninput="campo(\''+id+'\',\'obs\',this.value,false)"></label></div>';
@@ -305,7 +310,7 @@ function marcar(id,estado){
   if(!estado){ delete marcas[d]; pintar(); return; }
   m.estado=estado;
   if(estado==='Presente'){ m={estado:'Presente'}; }
-  else { m.motivo=m.motivo||'Sin justificación'; if(estado!=='No asistió') delete m.alcance; if(estado==='No asistió') m.minutos=45; else if(Number(m.minutos)===45&&m.estado!=='No asistió') m.minutos=''; }
+  else { m.motivo=m.motivo||'Sin justificación'; if(estado==='Ausente temporal'&&m.motivo==='Sin justificación') m.motivo='Permiso por horas (personal)'; if(estado!=='No asistió') delete m.alcance; if(estado==='No asistió') m.minutos=45; else if(Number(m.minutos)===45&&m.estado!=='No asistió') m.minutos=''; }
   marcas[d]=m; pintar();
   if(m.estado&&m.estado!=='Presente'){ var c=el('d_'+id); if(c&&c.scrollIntoView) c.scrollIntoView({block:'center',behavior:'smooth'}); }   // se despliegan las opciones de la novedad
 }
@@ -323,10 +328,10 @@ function todosPresentes(){
   pintar();
 }
 function cuenta(){
-  var p=0,no=0,t=0,total=S?S.filas.length:0;
-  if(S) S.filas.forEach(function(f){var m=marcas[f.docente]; if(m&&m.estado){ if(m.estado==='No asistió')no++; else if(m.estado!=='Presente')t++; else p++; }});
+  var p=0,no=0,t=0,tp=0,total=S?S.filas.length:0;
+  if(S) S.filas.forEach(function(f){var m=marcas[f.docente]; if(m&&m.estado){ if(m.estado==='No asistió')no++; else if(m.estado==='Ausente temporal')tp++; else if(m.estado!=='Presente')t++; else p++; }});
   var d=dirActual();
-  el('estado').innerHTML='<span class="quien-chip">👤 '+esc(d||'Elegir directivo')+'</span><span>Deben estar: '+total+'</span><span class="c-ok">✔ '+p+' presentes</span><span class="c-no">✖ '+no+' no asistieron</span><span class="c-t">⏰ '+t+' tarde/salida</span><span class="c-sm">○ '+(total-p-no-t)+' sin marcar</span>';
+  el('estado').innerHTML='<span class="quien-chip">👤 '+esc(d||'Elegir directivo')+'</span><span>Deben estar: '+total+'</span><span class="c-ok">✔ '+p+' presentes</span><span class="c-no">✖ '+no+' no asistieron</span><span class="c-tp">⏳ '+tp+' permiso</span><span class="c-t">⏰ '+t+' tarde/salida</span><span class="c-sm">○ '+(total-p-no-t-tp)+' sin marcar</span>';
 }
 
 function guardar(){
@@ -337,13 +342,16 @@ function guardar(){
     var m=marcas[f.docente]; if(!m||!m.estado) return;
     if(f.alternos&&f.alternos.length&&!f.definido){ falta=falta||(f.pareja||[f.docente]).join(' / ')+': defina quién dicta esta semana'; return; }
     if(m.estado!=='Presente'){
-      if((m.estado==='Llegada tarde'||m.estado==='Salida temprana')&&!m.minutos) falta=falta||f.docente+': elija los minutos';
+      if((m.estado==='Llegada tarde'||m.estado==='Salida temprana'||m.estado==='Ausente temporal')&&!m.minutos) falta=falta||f.docente+': elija los minutos';
     }
     var ss=f.sesiones||[{sesion:S.sesion,grupoCodigo:f.grupoCodigo,area:f.area}];
     if(m.estado==='Llegada tarde') ss=ss.slice(0,1); else if(m.estado==='Salida temprana') ss=ss.slice(-1);   // la llegada tarde es de la primera sesión; la salida temprana, de la última
+    var resto=Number(m.minutos)||0;   // permiso por horas: los minutos se reparten desde la primera sesión del bloque
     ss.forEach(function(x){   // por bloque: la marca vale para cada sesión del bloque
+      var mins=m.minutos||'';
+      if(m.estado==='Ausente temporal'){ var cap=/^00/.test(String(x.grupoCodigo))?60:45, tomar=Math.min(resto,cap); if(tomar<=0) return; mins=tomar; resto-=tomar; }
       regs.push({docente:f.docente,sesion:x.sesion,grupoCodigo:x.grupoCodigo,area:x.area,estado:m.estado,motivo:m.motivo||'',
-        minutos:m.minutos||'',actividad:m.actividad||'N/A',obs:m.obs||'',atiende:m.atiende||'',alcance:m.estado==='No asistió'?(m.alcance||''):''});
+        minutos:mins,actividad:m.actividad||'N/A',obs:m.obs||'',atiende:m.atiende||'',alcance:m.estado==='No asistió'?(m.alcance||''):''});
     });
   });
   if(falta){ toast(falta); return; }

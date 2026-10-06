@@ -217,6 +217,12 @@ MOTIVOS = [  # (categoria, motivo, justificada, soporte sugerido, requiere_sopor
     ("SALUD", "Exámenes clínicos", "SI", "Constancia de cita", "SI", 5),
     ("PERMISO INSTITUCIONAL", "Permiso del rector", "SI", "Formato Permiso Docente (ya está en rectoría)", "NO", 5),
     ("PERMISO INSTITUCIONAL", "Reunión o actividad institucional", "SI", "No requiere soporte (actividad del colegio)", "NO", 5),
+    ("PERMISO INSTITUCIONAL", "Permiso por horas (personal)", "SI", "Autorización del rector o coordinación", "NO", 5),
+    ("ACTIVIDAD INSTITUCIONAL", "Comité o consejo (calidad, académico, convivencia)", "SI", "No requiere soporte (actividad del colegio)", "NO", 5),
+    ("ACTIVIDAD INSTITUCIONAL", "Reunión PTAFI con la tutora", "SI", "No requiere soporte (actividad del colegio)", "NO", 5),
+    ("ACTIVIDAD INSTITUCIONAL", "Reunión de docentes o de área", "SI", "No requiere soporte (actividad del colegio)", "NO", 5),
+    ("ACTIVIDAD INSTITUCIONAL", "Atención a padre de familia o acudiente", "SI", "No requiere soporte (actividad del colegio)", "NO", 5),
+    ("ACTIVIDAD INSTITUCIONAL", "Atención en coordinación (estudiante o acudiente)", "SI", "No requiere soporte (actividad del colegio)", "NO", 5),
     ("EVENTO EXTERNO", "Capacitación/Taller", "SI", "Citación o certificado", "SI", 5),
     ("EVENTO EXTERNO", "Evento Secretaría de Educación", "SI", "Citación / oficio de la SED", "SI", 5),
     ("ACADÉMICO DEL DOCENTE", "Tema académico del docente", "SI", "Constancia (estudios, posgrado)", "SI", 5),
@@ -230,7 +236,7 @@ MOTIVOS = [  # (categoria, motivo, justificada, soporte sugerido, requiere_sopor
     ("OTRO", "Otro", "SI", "Describir en observaciones", "SI", 5),
 ]
 TIPOS_DOCUMENTO = ["Incapacidad médica", "Constancia o cita médica", "Epicrisis", "Acta de defunción", "Citación o invitación", "Constancia de estudio", "Remisión o pasajes", "Otro soporte"]
-TIPOS = ["Presente", "No asistió", "Llegada tarde", "Llegada tarde informada", "Salida temprana", "Salida temprana informada"]
+TIPOS = ["Presente", "No asistió", "Ausente temporal", "Llegada tarde", "Llegada tarde informada", "Salida temprana", "Salida temprana informada"]
 FUENTES_NOVEDAD = ["Coordinador(a)", "Docente ausente", "Estudiantes", "Otro docente", "Rector"]
 MEDIOS = ["Inspección ocular/Ronda supervisión", "Reporte/Conversación con estudiantes", "Llamada celular", "WhatsApp directo",
           "WhatsApp grupal", "Formato Permiso Docente", "Verbal", "Copia incapacidad/licencia"]

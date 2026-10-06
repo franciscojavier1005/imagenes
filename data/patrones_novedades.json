@@ -10,6 +10,10 @@
    "(salir|sale|salio|se retira|retirara|se va|se fue)\\s+(mas\\s+)?(temprano|antes)|salida temprana|permiso para salir|se fue (antes|temprano)|se retiro|salio antes|dejo (el grupo|a los estudiantes)|abandono (el|la) (aula|salon|clase)"
   ],
   [
+   "Ausente temporal",
+   "permiso (por|de) (una|dos|tres|cuatro|media|\\d+)\\s*(hora|horas|minutos)|permiso por (horas|un rato)|(esta|estan|estuvo|salio|fue|fueron|va|van|asiste|asisten)\\s+(a|en|con)\\s+(la\\s+|el\\s+|una\\s+|un\\s+)?(reunion de (docentes|profesores|area)|comite|consejo|coordinacion|ptafi)|atendiendo (a )?(un|una|el|la|los|las)\\s+(padre|madre|acudiente|estudiante|alumno)|por (una|dos|tres|cuatro|\\d+)\\s*horas?\\b|por (media hora|un rato)|(una|dos|tres|\\d+) horas? para"
+  ],
+  [
    "No asistió",
    "no (asisti|vien[e]|vendr|va a (venir|asistir)|puede (venir|asistir)|pudo (venir|asistir)|se present|estara|podra|puede ir|fue)|falt(a|o|ara)|ausent|incapacitad|amaneci|no hay clase|no estaba|no estaban|estaba solo|estaban solos|no vino|no vinieron|no la vi|no lo vi|no se encontraba|no esta en (el|su) (aula|salon)|no ha llegado|no llego|no aparecio|no se presento|grupo solo|grupo sin (profesor|profesora|docente)|sin (profesor|profesora|docente)|estudiantes solos|solos en (el|la) (aula|salon|clase)|salon solo"
   ]
@@ -61,9 +65,39 @@
    "permiso.{0,30}(rector|rectoria)|(rector|rectoria).{0,30}(autoriz|permiso|aprob)|autorizo el rector"
   ],
   [
+   "Permiso por horas (personal)",
+   "PERMISO INSTITUCIONAL",
+   "permiso (por|de) (una|dos|tres|cuatro|media|\\d+)\\s*(hora|horas|minutos)|permiso por (horas|un rato)"
+  ],
+  [
    "Evento Secretaría de Educación",
    "EVENTO EXTERNO",
    "secretaria de educacion|\\bsed\\b|comision de servicio|mesa de trabajo|reunion en la secretaria"
+  ],
+  [
+   "Comité o consejo (calidad, académico, convivencia)",
+   "ACTIVIDAD INSTITUCIONAL",
+   "(esta|estan|estuvo|salio|fue|fueron|va|van|asiste|asisten)\\s+(a|en|con)\\s+(la\\s+|el\\s+|una\\s+|un\\s+)?(comite|consejo)\\b"
+  ],
+  [
+   "Reunión PTAFI con la tutora",
+   "ACTIVIDAD INSTITUCIONAL",
+   "(esta|estan|estuvo|salio|fue|fueron|va|van|asiste|asisten)\\s+(a|en|con)\\s+(la\\s+|el\\s+|una\\s+|un\\s+)?.{0,25}(ptafi|tutora)"
+  ],
+  [
+   "Reunión de docentes o de área",
+   "ACTIVIDAD INSTITUCIONAL",
+   "(esta|estan|estuvo|salio|fue|fueron|va|van|asiste|asisten)\\s+(a|en|con)\\s+(la\\s+|el\\s+|una\\s+|un\\s+)?reunion de (docentes|profesores|area)"
+  ],
+  [
+   "Atención a padre de familia o acudiente",
+   "ACTIVIDAD INSTITUCIONAL",
+   "atendiendo (a )?(un|una|el|la|los|las)\\s+(padre|madre|acudiente)|atencion a (padres|acudiente)"
+  ],
+  [
+   "Atención en coordinación (estudiante o acudiente)",
+   "ACTIVIDAD INSTITUCIONAL",
+   "(esta|estan|estuvo|salio|fue|fueron|va|van|asiste|asisten)\\s+(a|en|con)\\s+(la\\s+|el\\s+|una\\s+|un\\s+)?coordinacion|atendiendo (a )?(un|una)\\s+(estudiante|alumno)"
   ],
   [
    "Reunión o actividad institucional",

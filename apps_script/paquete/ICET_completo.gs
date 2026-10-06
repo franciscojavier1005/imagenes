@@ -218,7 +218,13 @@ var ATIENDE_GRUPO = ['Nadie (grupo solo)', 'Sin clase: los niños no asistieron 
 /** Motivos agregados después de la primera versión del libro: se añaden solos a la hoja Motivos si faltan. */
 var MOTIVOS_NUEVOS = [
   ['CALAMIDAD DOMÉSTICA', 'Reunión o acto escolar de hijo(a)', 'SI', 'Citación o constancia del colegio', 'SI', 5],
-  ['PERMISO INSTITUCIONAL', 'Reunión o actividad institucional', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5]
+  ['PERMISO INSTITUCIONAL', 'Reunión o actividad institucional', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
+  ['PERMISO INSTITUCIONAL', 'Permiso por horas (personal)', 'SI', 'Autorización del rector o coordinación', 'NO', 5],
+  ['ACTIVIDAD INSTITUCIONAL', 'Comité o consejo (calidad, académico, convivencia)', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
+  ['ACTIVIDAD INSTITUCIONAL', 'Reunión PTAFI con la tutora', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
+  ['ACTIVIDAD INSTITUCIONAL', 'Reunión de docentes o de área', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
+  ['ACTIVIDAD INSTITUCIONAL', 'Atención a padre de familia o acudiente', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
+  ['ACTIVIDAD INSTITUCIONAL', 'Atención en coordinación (estudiante o acudiente)', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5]
 ];
 function asegurarMotivos_() {
   var sh = hoja_('Motivos'), existentes = datos_('Motivos').map(function (m) { return m.motivo; });
@@ -363,7 +369,7 @@ function guardarRonda(p) {
         guardados++;
         return;
       }
-      var jornada = r.estado === 'No asistió' && novVals.slice(1).some(function (x) {
+      var jornada = (r.estado === 'No asistió' || r.estado === 'Ausente temporal') && novVals.slice(1).some(function (x) {
         return fechaIso_(x[1]) === fecha && x[2] === r.docente && String(x[novCol]) === 'JC' && /no asisti/i.test(String(x[3]));
       });  // ya reportado como ausencia de jornada completa: se verifica en Registro_Ronda sin duplicar minutos en Novedades
       if (r.estado !== 'Presente' && !jornada) {
@@ -536,7 +542,7 @@ function calcularResumen_(ctx) {
     return {
       fecha: n.fecha, docente: n.docente, tipo: tipo, motivo: n.motivo || '', minutos: minutos, justificada: just === 'Sí' || just === 'SI' || just === 'Si' ? 'Sí' : 'No',
       categoria: n.categoria || m.categoria || 'OTRO', grupo: resGrupo_(n.grado, n.grupo), area: n.area || '', directivo: n.directivo || '',
-      nivel: nivel[n.docente] || 'SIN NIVEL', ausencia: /no asisti/i.test(tipo), tarde: /tarde/i.test(tipo), salida: /salida/i.test(tipo)
+      nivel: nivel[n.docente] || 'SIN NIVEL', ausencia: /no asisti/i.test(tipo), temporal: /temporal/i.test(tipo), tarde: /tarde/i.test(tipo), salida: /salida/i.test(tipo)
     };
   }
   // todas las novedades (sin límite de fechas) que cumplen el filtro; de ahí salen el periodo y la tendencia
@@ -564,6 +570,7 @@ function calcularResumen_(ctx) {
     ausencias: Object.keys(ausDocDia).length,
     llegadasTarde: nov.filter(function (n) { return n.tarde; }).length,
     salidasTempranas: nov.filter(function (n) { return n.salida; }).length,
+    permisosTemporales: nov.filter(function (n) { return n.temporal; }).length,
     eventos: nov.length,
     pctJustificadas: nov.length ? Math.round(just.length / nov.length * 1000) / 10 : null,
     minutosSinJustificar: resSuma_(nov.filter(function (n) { return n.justificada !== 'Sí'; }), function (n) { return n.minutos; })
@@ -645,9 +652,9 @@ function htmlInforme_(r, fechaTexto, urlPanel) {
     '<div style="font-size:40px;font-weight:600;line-height:1.1">' + e(k.horas) + ' <span style="font-size:16px;color:#52514e;font-weight:500">horas</span></div>' +
     '<div style="font-size:13px;color:#52514e">' + e(k.sesiones) + ' sesiones de 45 min de ' + e(k.programadas) + ' programadas · cumplimiento ' + (k.cumplimiento == null ? '—' : e(k.cumplimiento) + '%') + '</div></div>' +
     '<table width="100%" cellpadding="0" cellspacing="6" style="margin-bottom:10px"><tr>' +
-    [['Docentes con novedad', k.docentesConNovedad], ['Ausencias', k.ausencias], ['Llegadas tarde', k.llegadasTarde], ['Salidas tempranas', k.salidasTempranas],
+    [['Docentes con novedad', k.docentesConNovedad], ['Ausencias', k.ausencias], ['Llegadas tarde', k.llegadasTarde], ['Salidas tempranas', k.salidasTempranas], ['Permisos por horas', k.permisosTemporales],
      ['Justificadas', k.pctJustificadas == null ? '—' : k.pctJustificadas + '%']].map(function (t) {
-      return '<td style="background:#f3f3f0;border-radius:8px;padding:8px 10px;width:20%"><div style="font-size:11.5px;color:#52514e">' + e(t[0]) + '</div><div style="font-size:20px;font-weight:600">' + e(t[1]) + '</div></td>';
+      return '<td style="background:#f3f3f0;border-radius:8px;padding:8px 10px;width:16%"><div style="font-size:11.5px;color:#52514e">' + e(t[0]) + '</div><div style="font-size:20px;font-weight:600">' + e(t[1]) + '</div></td>';
     }).join('') + '</tr></table>';
   if (!r.dia.length) {
     h += '<p style="font-size:14px">No se registraron novedades en el día.</p>';
@@ -1024,7 +1031,7 @@ function importarBandeja_() {
       pg = gtxt ? partesGrupo_(String(gtxt).split('+')[0]) : { grado: 'N/A', grupo: 'N/A' };
       area = fs1 && fs1.area ? fs1.area : (fs1 ? '(énfasis)' : 'N/A');
       jornadaTxt = 'H' + ses; codSes = 'S' + ses;
-      minutos = noAsistio ? (fs1 ? minutosSesion_(fs1.tipo === 'ENFASIS' ? fs1.grupos_enfasis : fs1.grupo) : 45) : '';
+      minutos = (noAsistio || /temporal/i.test(tipo)) ? (fs1 ? minutosSesion_(fs1.tipo === 'ENFASIS' ? fs1.grupos_enfasis : fs1.grupo) : 45) : '';
     } else {
       var gr = {}, ar = {};
       mias.forEach(function (x) { gr[x.tipo === 'ENFASIS' ? x.grupos_enfasis : x.grupo] = 1; ar[x.area || '(énfasis)'] = 1; });
@@ -1213,6 +1220,10 @@ var PATRONES = {
    "(salir|sale|salio|se retira|retirara|se va|se fue)\\s+(mas\\s+)?(temprano|antes)|salida temprana|permiso para salir|se fue (antes|temprano)|se retiro|salio antes|dejo (el grupo|a los estudiantes)|abandono (el|la) (aula|salon|clase)"
   ],
   [
+   "Ausente temporal",
+   "permiso (por|de) (una|dos|tres|cuatro|media|\\d+)\\s*(hora|horas|minutos)|permiso por (horas|un rato)|(esta|estan|estuvo|salio|fue|fueron|va|van|asiste|asisten)\\s+(a|en|con)\\s+(la\\s+|el\\s+|una\\s+|un\\s+)?(reunion de (docentes|profesores|area)|comite|consejo|coordinacion|ptafi)|atendiendo (a )?(un|una|el|la|los|las)\\s+(padre|madre|acudiente|estudiante|alumno)|por (una|dos|tres|cuatro|\\d+)\\s*horas?\\b|por (media hora|un rato)|(una|dos|tres|\\d+) horas? para"
+  ],
+  [
    "No asistió",
    "no (asisti|vien[e]|vendr|va a (venir|asistir)|puede (venir|asistir)|pudo (venir|asistir)|se present|estara|podra|puede ir|fue)|falt(a|o|ara)|ausent|incapacitad|amaneci|no hay clase|no estaba|no estaban|estaba solo|estaban solos|no vino|no vinieron|no la vi|no lo vi|no se encontraba|no esta en (el|su) (aula|salon)|no ha llegado|no llego|no aparecio|no se presento|grupo solo|grupo sin (profesor|profesora|docente)|sin (profesor|profesora|docente)|estudiantes solos|solos en (el|la) (aula|salon|clase)|salon solo"
   ]
@@ -1264,9 +1275,39 @@ var PATRONES = {
    "permiso.{0,30}(rector|rectoria)|(rector|rectoria).{0,30}(autoriz|permiso|aprob)|autorizo el rector"
   ],
   [
+   "Permiso por horas (personal)",
+   "PERMISO INSTITUCIONAL",
+   "permiso (por|de) (una|dos|tres|cuatro|media|\\d+)\\s*(hora|horas|minutos)|permiso por (horas|un rato)"
+  ],
+  [
    "Evento Secretaría de Educación",
    "EVENTO EXTERNO",
    "secretaria de educacion|\\bsed\\b|comision de servicio|mesa de trabajo|reunion en la secretaria"
+  ],
+  [
+   "Comité o consejo (calidad, académico, convivencia)",
+   "ACTIVIDAD INSTITUCIONAL",
+   "(esta|estan|estuvo|salio|fue|fueron|va|van|asiste|asisten)\\s+(a|en|con)\\s+(la\\s+|el\\s+|una\\s+|un\\s+)?(comite|consejo)\\b"
+  ],
+  [
+   "Reunión PTAFI con la tutora",
+   "ACTIVIDAD INSTITUCIONAL",
+   "(esta|estan|estuvo|salio|fue|fueron|va|van|asiste|asisten)\\s+(a|en|con)\\s+(la\\s+|el\\s+|una\\s+|un\\s+)?.{0,25}(ptafi|tutora)"
+  ],
+  [
+   "Reunión de docentes o de área",
+   "ACTIVIDAD INSTITUCIONAL",
+   "(esta|estan|estuvo|salio|fue|fueron|va|van|asiste|asisten)\\s+(a|en|con)\\s+(la\\s+|el\\s+|una\\s+|un\\s+)?reunion de (docentes|profesores|area)"
+  ],
+  [
+   "Atención a padre de familia o acudiente",
+   "ACTIVIDAD INSTITUCIONAL",
+   "atendiendo (a )?(un|una|el|la|los|las)\\s+(padre|madre|acudiente)|atencion a (padres|acudiente)"
+  ],
+  [
+   "Atención en coordinación (estudiante o acudiente)",
+   "ACTIVIDAD INSTITUCIONAL",
+   "(esta|estan|estuvo|salio|fue|fueron|va|van|asiste|asisten)\\s+(a|en|con)\\s+(la\\s+|el\\s+|una\\s+|un\\s+)?coordinacion|atendiendo (a )?(un|una)\\s+(estudiante|alumno)"
   ],
   [
    "Reunión o actividad institucional",

@@ -5,6 +5,12 @@ SALUD,Incapacidad Médica,SI,Copia incapacidad/licencia,SI,5
 SALUD,Exámenes clínicos,SI,Constancia de cita,SI,5
 PERMISO INSTITUCIONAL,Permiso del rector,SI,Formato Permiso Docente (ya está en rectoría),NO,5
 PERMISO INSTITUCIONAL,Reunión o actividad institucional,SI,No requiere soporte (actividad del colegio),NO,5
+PERMISO INSTITUCIONAL,Permiso por horas (personal),SI,Autorización del rector o coordinación,NO,5
+ACTIVIDAD INSTITUCIONAL,"Comité o consejo (calidad, académico, convivencia)",SI,No requiere soporte (actividad del colegio),NO,5
+ACTIVIDAD INSTITUCIONAL,Reunión PTAFI con la tutora,SI,No requiere soporte (actividad del colegio),NO,5
+ACTIVIDAD INSTITUCIONAL,Reunión de docentes o de área,SI,No requiere soporte (actividad del colegio),NO,5
+ACTIVIDAD INSTITUCIONAL,Atención a padre de familia o acudiente,SI,No requiere soporte (actividad del colegio),NO,5
+ACTIVIDAD INSTITUCIONAL,Atención en coordinación (estudiante o acudiente),SI,No requiere soporte (actividad del colegio),NO,5
 EVENTO EXTERNO,Capacitación/Taller,SI,Citación o certificado,SI,5
 EVENTO EXTERNO,Evento Secretaría de Educación,SI,Citación / oficio de la SED,SI,5
 ACADÉMICO DEL DOCENTE,Tema académico del docente,SI,"Constancia (estudios, posgrado)",SI,5

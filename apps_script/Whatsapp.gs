@@ -46,7 +46,7 @@ function importarBandeja_() {
       pg = gtxt ? partesGrupo_(String(gtxt).split('+')[0]) : { grado: 'N/A', grupo: 'N/A' };
       area = fs1 && fs1.area ? fs1.area : (fs1 ? '(énfasis)' : 'N/A');
       jornadaTxt = 'H' + ses; codSes = 'S' + ses;
-      minutos = noAsistio ? (fs1 ? minutosSesion_(fs1.tipo === 'ENFASIS' ? fs1.grupos_enfasis : fs1.grupo) : 45) : '';
+      minutos = (noAsistio || /temporal/i.test(tipo)) ? (fs1 ? minutosSesion_(fs1.tipo === 'ENFASIS' ? fs1.grupos_enfasis : fs1.grupo) : 45) : '';
     } else {
       var gr = {}, ar = {};
       mias.forEach(function (x) { gr[x.tipo === 'ENFASIS' ? x.grupos_enfasis : x.grupo] = 1; ar[x.area || '(énfasis)'] = 1; });

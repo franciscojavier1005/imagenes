@@ -1,6 +1,7 @@
 ﻿lista,valor
 tipo_novedad,Presente
 tipo_novedad,No asistió
+tipo_novedad,Ausente temporal
 tipo_novedad,Llegada tarde
 tipo_novedad,Llegada tarde informada
 tipo_novedad,Salida temprana

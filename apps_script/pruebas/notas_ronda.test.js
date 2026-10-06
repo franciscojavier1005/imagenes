@@ -199,4 +199,14 @@ const claveEnf='ENFASIS|'+cardsPar[0].grupoCodigo+'|'+[...par].sort().join('|');
 g.PE={clave:claveEnf,elegido:par[1],directivo:'P'}; run('definirAlternancia(PE)');
 const enfD=run(`consultarSesion('${e0[hi('dia')]}',${e0[hi('hora')]},'sesion')`).filas.filter(f=>f.tipo==='ENFASIS'&&f.claveAlt===claveEnf);
 ok(enfD.length===1&&enfD[0].docente===par[1]&&enfD[0].alternos.length===0,'énfasis en pareja: esa semana solo atiende '+'el docente definido el grupo entero');
+// ---- permiso por horas / reunión interna: ausente temporal con minutos propios
+const dT=H.Horario.slice(1).find(r=>r[hi('dia')]==='JUEVES'&&r[hi('tipo')]==='CLASE'&&Number(r[hi('hora')])===5);
+const nT0=hojas.Novedades.v.length;
+run(`guardarRonda({dia:'JUEVES',sesion:5,fecha:'2026-10-08',registros:[{docente:${JSON.stringify(dT[hi('docente')])},sesion:5,grupoCodigo:${JSON.stringify(dT[hi('grupo')])},area:'X',estado:'Ausente temporal',motivo:'Comité o consejo (calidad, académico, convivencia)',minutos:30}]})`);
+const fT=hojas.Novedades.v[hojas.Novedades.v.length-1];
+ok(hojas.Novedades.v.length===nT0+1&&fT[cc('Tipo Novedad')]==='Ausente temporal'&&fT[cc('Minutos Desatendidos')]===30&&fT[cc('Justificada')]==='Sí'&&fT[cc('Categoría motivo')]==='ACTIVIDAD INSTITUCIONAL','ausente temporal: 30 min, justificado, categoría ACTIVIDAD INSTITUCIONAL');
+const mvNombres=hojas.Motivos.v.map(r=>r[1]);
+ok(['Permiso por horas (personal)','Comité o consejo (calidad, académico, convivencia)','Reunión PTAFI con la tutora','Reunión de docentes o de área','Atención a padre de familia o acudiente','Atención en coordinación (estudiante o acudiente)'].every(n=>mvNombres.includes(n)),'los 6 motivos de permisos por horas y reuniones internas están en la hoja Motivos');
+g.RS={desde:'2026-10-08',hasta:'2026-10-08',docentes:[],motivos:[],horario:[],novedades:[{fecha:'2026-10-08',docente:'X',tipo:'Ausente temporal',motivo:'Reunión PTAFI con la tutora',minutos:60,justificada:'Sí',categoria:'ACTIVIDAD INSTITUCIONAL'}]};
+const rsm=run('calcularResumen_(RS)').kpis; ok(rsm.permisosTemporales===1&&rsm.minutos===60&&rsm.ausencias===0,'panel: el permiso por horas suma sus minutos y NO cuenta como ausencia del día');
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

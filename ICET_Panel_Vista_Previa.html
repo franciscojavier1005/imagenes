@@ -155,6 +155,32 @@
 <div id="tip" role="tooltip"></div>
 
 <script>
+/* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
+var TOKEN_KEY='icet_token', PUBLICAS={urlBase:1,listarDirectivosPublicos:1,ingresar:1,cerrarSesion:1};
+function tokenGuardado(){try{return localStorage.getItem(TOKEN_KEY)||'';}catch(e){return '';}}
+function guardarToken(t){try{localStorage.setItem(TOKEN_KEY,t);}catch(e){}}
+function borrarToken(){try{localStorage.removeItem(TOKEN_KEY);}catch(e){}}
+function irAlMenu(){ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).urlBase(); }
+function exigirSesion(){ if(window.PREVIEW||tokenGuardado()) return true; irAlMenu(); return false; }
+function srv(){
+  var ok=function(){}, fail=function(){}, self={};
+  var prox;
+  self.withSuccessHandler=function(f){ok=f;return prox;};
+  self.withFailureHandler=function(f){fail=f;return prox;};
+  prox=new Proxy(self,{get:function(t,k){
+    if(k in t||typeof k!=='string') return t[k];
+    return function(){
+      var args=[].slice.call(arguments);
+      var r=google.script.run.withSuccessHandler(ok).withFailureHandler(function(e){
+        if(/SESION_VENCIDA/.test(String(e&&e.message||e))){ borrarToken(); irAlMenu(); return; } fail(e); });
+      if(window.PREVIEW||PUBLICAS[k]) return r[k].apply(r,args);
+      return r.llamarSeguro(tokenGuardado(),k,args);
+    };
+  }});
+  return prox;
+}
+</script>
+<script>
 /* ---- Vista previa: cálculo real (Resumen.gs y Plazos.gs) sobre DATOS DE EJEMPLO; flujos en memoria ---- */
 window.__HOY='2026-10-02';
 /**
@@ -514,7 +540,7 @@ function cargar(desde,hasta){
   var f=filtros();
   if(vista==='docente'&&!f.docente){ R=null; el('contenido').replaceChildren(h('div',{class:'vacio',text:'Elija un docente para ver su informe.'})); el('rango').textContent=frango(desde,hasta); return; }
   el('contenido').classList.add('refresco');
-  google.script.run.withSuccessHandler(function(r){
+  srv().withSuccessHandler(function(r){
     R=r; el('contenido').classList.remove('refresco'); pintar();
   }).withFailureHandler(function(e){
     el('contenido').classList.remove('refresco'); el('contenido').replaceChildren(h('div',{class:'vacio',text:'Error: '+(e.message||e)}));
@@ -697,7 +723,7 @@ function pantallaRegistro(ctx){
     if(!sel.value){msg.textContent='Elija su nombre de la lista.';return;}
     if(!chk.checked){msg.textContent='Debe aceptar la autorización para continuar.';return;}
     btn.disabled=true; msg.textContent='Enviando…';
-    google.script.run.withSuccessHandler(function(){ arranque(); }).withFailureHandler(function(e){btn.disabled=false;msg.textContent=e.message||String(e);})
+    srv().withSuccessHandler(function(){ arranque(); }).withFailureHandler(function(e){btn.disabled=false;msg.textContent=e.message||String(e);})
       .solicitarAcceso({docente:sel.value,autoriza:true});}});
   el('contenido').replaceChildren(h('div',{class:'aviso-card'},[
     h('h2',{text:'Registro de docente'}),
@@ -713,7 +739,7 @@ var MS=null;
 function cargarSoportes(){
   var sec=h('section',{class:'card ancha',style:'margin-top:14px',id:'secSoportes'},[h('h2',{text:'Mis soportes'}),h('div',{class:'vacio',text:'Cargando…'})]);
   el('contenido').appendChild(sec);
-  google.script.run.withSuccessHandler(function(ms){ MS=ms; pintarSoportes(sec); })
+  srv().withSuccessHandler(function(ms){ MS=ms; pintarSoportes(sec); })
     .withFailureHandler(function(e){sec.replaceChildren(h('h2',{text:'Mis soportes'}),h('div',{class:'vacio',text:'Error: '+(e.message||e)}));}).misSoportes();
 }
 function textoPlazo(o){
@@ -732,7 +758,7 @@ function pintarSoportes(sec){
   if(!MS.autorizado){
     var chk=h('input',{type:'checkbox'}), btn=h('button',{class:'btn',text:'Aceptar y continuar',onclick:function(){
       if(!chk.checked){btn.textContent='Marque la casilla para aceptar';return;}
-      btn.disabled=true; google.script.run.withSuccessHandler(function(){CTX.autorizado=true;cargarSoportesEn(sec);}).withFailureHandler(function(e){btn.disabled=false;btn.textContent=e.message||String(e);}).aceptarAutorizacion();}});
+      btn.disabled=true; srv().withSuccessHandler(function(){CTX.autorizado=true;cargarSoportesEn(sec);}).withFailureHandler(function(e){btn.disabled=false;btn.textContent=e.message||String(e);}).aceptarAutorizacion();}});
     sec.appendChild(h('div',{class:'aviso-card',style:'margin:8px 0'},[h('h2',{text:'Autorización de tratamiento de datos'}),h('div',{class:'texto-legal',text:CTX.textoAutorizacion||''}),
       h('label',{class:'check'},[chk,h('span',{text:'He leído y acepto la autorización.'})]),btn]));
     return;
@@ -740,7 +766,7 @@ function pintarSoportes(sec){
   if(!MS.obligaciones.length){ sec.appendChild(h('div',{class:'vacio',text:'No tiene ausencias que requieran soporte.'})); return; }
   MS.obligaciones.forEach(function(o){ sec.appendChild(tarjetaObligacion(o)); });
 }
-function cargarSoportesEn(sec){ google.script.run.withSuccessHandler(function(ms){MS=ms;pintarSoportes(sec);}).misSoportes(); }
+function cargarSoportesEn(sec){ srv().withSuccessHandler(function(ms){MS=ms;pintarSoportes(sec);}).misSoportes(); }
 function tarjetaObligacion(o){
   var mias=MS.cargados.filter(function(c){return c.clave===o.clave;});
   var rech=mias.filter(function(c){return c.estado==='Rechazado'&&c.observacion;}).slice(-1)[0];
@@ -776,7 +802,7 @@ function formularioSoporte(o){
     btn.disabled=true; msg.textContent='Preparando el archivo…';
     archivoABase64(archivo.files[0],MS.maxMB,function(b64,mime){
       msg.textContent='Enviando…';
-      google.script.run.withSuccessHandler(function(r){ msg.textContent='Cargado'+(r.extemporaneo==='SI'?' (fuera de plazo)':'')+'.'; cargarSoportesEn(el('secSoportes')); })
+      srv().withSuccessHandler(function(r){ msg.textContent='Cargado'+(r.extemporaneo==='SI'?' (fuera de plazo)':'')+'.'; cargarSoportesEn(el('secSoportes')); })
         .withFailureHandler(function(e){btn.disabled=false;msg.textContent=e.message||String(e);})
         .subirSoporte({clave:o.clave,tipoDocumento:tipo.value,motivoDeclarado:motivo.value,mime:mime,base64:b64,comentario:coment.value});
     },function(m){btn.disabled=false;msg.textContent=m;});}});
@@ -789,12 +815,12 @@ function cargarGestion(){
   var sec=h('section',{class:'card ancha',id:'secGestion',style:'margin-top:14px'},[h('h2',{text:'Gestión: acceso de docentes y soportes'}),h('div',{class:'vacio',text:'Cargando…'})]);
   el('contenido').insertBefore(sec,el('contenido').querySelector('.rejilla'));
   var res={};
-  google.script.run.withSuccessHandler(function(a){res.sol=a;
-    google.script.run.withSuccessHandler(function(b){res.sop=b;pintarGestion(sec,res);}).withFailureHandler(function(e){sec.replaceChildren(h('h2',{text:'Gestión'}),h('div',{class:'vacio',text:'Error: '+(e.message||e)}));}).soportesPorRevisar();
+  srv().withSuccessHandler(function(a){res.sol=a;
+    srv().withSuccessHandler(function(b){res.sop=b;pintarGestion(sec,res);}).withFailureHandler(function(e){sec.replaceChildren(h('h2',{text:'Gestión'}),h('div',{class:'vacio',text:'Error: '+(e.message||e)}));}).soportesPorRevisar();
   }).withFailureHandler(function(e){sec.replaceChildren(h('h2',{text:'Gestión'}),h('div',{class:'vacio',text:'Error: '+(e.message||e)}));}).listarSolicitudes();
 }
 function accion(fn,args,sec){
-  google.script.run.withSuccessHandler(function(){ sec.remove(); cargarGestion(); }).withFailureHandler(function(e){alert(e.message||e);})[fn](args);
+  srv().withSuccessHandler(function(){ sec.remove(); cargarGestion(); }).withFailureHandler(function(e){alert(e.message||e);})[fn](args);
 }
 function pintarGestion(sec,res){
   var r=res.sop.resumen;
@@ -832,7 +858,7 @@ function pintarGestion(sec,res){
 
 /* ---------- arranque: según quién abre el panel ---------- */
 function arranque(){
-  google.script.run.withSuccessHandler(function(ctx){
+  srv().withSuccessHandler(function(ctx){
     CTX=ctx;
     if(ctx.rol==='sin_registro') return pantallaRegistro(ctx);
     if(ctx.rol==='pendiente') return pantallaMensaje('Solicitud enviada',['Su solicitud de acceso está pendiente de aprobación por un directivo.','Cuando la aprueben, abra de nuevo este enlace: el sistema reconocerá su cuenta automáticamente.']);
@@ -849,9 +875,9 @@ function arranque(){
   }).withFailureHandler(function(e){ el('contenido').replaceChildren(h('div',{class:'vacio',text:'Error: '+(e.message||e)})); }).contextoPanel();
 }
 
-try{ google.script.run.withSuccessHandler(function(u){ if(u){var a=el('irRonda');a.href=u+'?p=ronda';a.style.display='inline'; var m=el('irMenu'); m.href=u; m.style.display='inline';} }).urlBase(); }catch(e){}
+try{ srv().withSuccessHandler(function(u){ if(u){var a=el('irRonda');a.href=u+'?p=ronda';a.style.display='inline'; var m=el('irMenu'); m.href=u; m.style.display='inline';} }).urlBase(); }catch(e){}
 var _t=null; window.addEventListener('resize',function(){clearTimeout(_t);_t=setTimeout(pintar,200);});
-arranque();
+if(exigirSesion()) arranque();
 </script>
 </body>
 </html>

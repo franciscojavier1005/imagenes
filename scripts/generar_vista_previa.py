@@ -114,6 +114,7 @@ var DATOS = %s;
       var blob=new Blob(['\\ufeff'+csv(p)],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');
       a.href=URL.createObjectURL(blob);a.download='ronda_'+p.fecha+'_S'+p.sesion+'.csv';document.body.appendChild(a);a.click();a.remove();
       ok({ok:true,guardados:p.registros.length});},20);}};return self;};
+  window.PREVIEW=true;
   window.google={script:{run:new Proxy({},{get:function(_,k){var s=api();return k in s?s[k]:s;}})}};
 })();
 </script>
@@ -155,6 +156,7 @@ mock2 = """<script>
     cargarReunion:function(p){setTimeout(function(){var r=reun(p.id),a=ASIST[r.id]||{};
       ok({reunion:r,motivos:MOTIVOS,personas:conv(r).map(function(n){var pp=PERSONAS.filter(function(x){return x.nombre===n;})[0]||{rol:'Docente'};return {nombre:n,rol:pp.rol,registro:a[n]||null};})});},20);},
     guardarAsistenciaReunion:function(p){setTimeout(function(){var a=ASIST[p.id]=ASIST[p.id]||{};p.registros.forEach(function(x){a[x.persona]={estado:x.estado,motivo:x.motivo};});ok({guardados:p.registros.length});},20);}};return self;};
+  window.PREVIEW=true;
   window.google={script:{run:new Proxy({},{get:function(_,k){var s=api();return k in s?s[k]:s;}})}};
 })();
 </script>
@@ -169,11 +171,21 @@ print("OK reuniones", round(len(_h) / 1024), "KB", len(_tipos), "tipos")
 # ---------------------------------------------------------------- vista previa del menú de entrada
 _m = open(os.path.join(RAIZ, "apps_script", "Menu.html"), encoding="utf-8").read()
 _mock3 = """<script>
-window.google={script:{run:new Proxy({},{get:function(_,k){var ok=null,self={withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(){return self;}};
-  var fn=function(){setTimeout(function(){ok(k==='urlBase'?'#vista-previa':{rol:'directivo',nombre:'Francisco Javier Cortés'});},10);};
-  return k==='withSuccessHandler'||k==='withFailureHandler'?self[k]:fn;}})}};
+/* Vista previa del ingreso: clave de ejemplo 123456 (nada se guarda fuera de esta página). */
+(function(){
+  var DIR=[{nombre:'Francisco Javier Cortés',rol:'Coordinador académico',tieneClave:true},{nombre:'Verónica Barreiro',rol:'Coordinadora de redes de apoyo',tieneClave:true},{nombre:'Harold Angulo',rol:'Coordinador de convivencia',tieneClave:true},{nombre:'Jorge Hernández',rol:'Rector',tieneClave:true}];
+  var intentos=0, quien='';
+  var api=function(){var ok=null,fail=null,self={withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
+    urlBase:function(){setTimeout(function(){ok('#vista-previa');},5);},
+    listarDirectivosPublicos:function(){setTimeout(function(){ok(DIR);},5);},
+    ingresar:function(p){setTimeout(function(){ if(p.pin==='123456'){quien=p.nombre;intentos=0;ok({token:'t'.repeat(64),nombre:p.nombre,rol:'Coordinador'});} else {intentos++; fail({message:intentos>=5?'Demasiados intentos. Espere 15 minutos.':'Nombre o clave incorrectos.'});}},300);},
+    cerrarSesion:function(){setTimeout(function(){quien='';ok({ok:true});},5);},
+    cambiarClave:function(p){setTimeout(function(){ if(p.actual!=='123456'){fail({message:'Nombre o clave incorrectos.'});} else if(!/^\\d{6}$/.test(p.nueva)){fail({message:'La clave nueva debe tener 6 números.'});} else ok({ok:true});},200);},
+    llamarSeguro:function(t,fn){setTimeout(function(){ if(fn==='contextoPanel') ok({rol:'directivo',nombre:quien||'Francisco Javier Cortés'}); else ok({});},5);}};return self;};
+  window.google={script:{run:new Proxy({},{get:function(_,k){var s=api();return k in s?s[k]:s;}})}};
+})();
 </script>
 """
-_m = _m.replace("<script>\nvar BASE='';", _mock3 + "<script>\nvar BASE='';", 1)
+_m = _m.replace("<script>\nvar BASE='', NOMBRES=[];", _mock3 + "<script>\nvar BASE='', NOMBRES=[];", 1)
 open(os.path.join(RAIZ, "ICET_Vista_Previa_Menu.html"), "w", encoding="utf-8").write(_m)
 print("OK menu")

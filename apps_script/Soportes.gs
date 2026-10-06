@@ -100,6 +100,7 @@ function subirSoporte(p) {
 /* ------------------------------ revisión (directivos) ------------------------------ */
 /** Soportes por revisar y obligaciones vencidas, para coordinación. */
 function soportesPorRevisar() {
+  exigirDirectivo_();
   hojaOCrea_('Soportes', COL_SOPORTES);
   var obl = obligaciones_(''), por = {};
   obl.forEach(function (o) { por[o.clave] = o; });

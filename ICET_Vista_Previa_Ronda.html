@@ -150,6 +150,32 @@
 <div class="toast" id="toast"></div>
 
 <script>
+/* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
+var TOKEN_KEY='icet_token', PUBLICAS={urlBase:1,listarDirectivosPublicos:1,ingresar:1,cerrarSesion:1};
+function tokenGuardado(){try{return localStorage.getItem(TOKEN_KEY)||'';}catch(e){return '';}}
+function guardarToken(t){try{localStorage.setItem(TOKEN_KEY,t);}catch(e){}}
+function borrarToken(){try{localStorage.removeItem(TOKEN_KEY);}catch(e){}}
+function irAlMenu(){ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).urlBase(); }
+function exigirSesion(){ if(window.PREVIEW||tokenGuardado()) return true; irAlMenu(); return false; }
+function srv(){
+  var ok=function(){}, fail=function(){}, self={};
+  var prox;
+  self.withSuccessHandler=function(f){ok=f;return prox;};
+  self.withFailureHandler=function(f){fail=f;return prox;};
+  prox=new Proxy(self,{get:function(t,k){
+    if(k in t||typeof k!=='string') return t[k];
+    return function(){
+      var args=[].slice.call(arguments);
+      var r=google.script.run.withSuccessHandler(ok).withFailureHandler(function(e){
+        if(/SESION_VENCIDA/.test(String(e&&e.message||e))){ borrarToken(); irAlMenu(); return; } fail(e); });
+      if(window.PREVIEW||PUBLICAS[k]) return r[k].apply(r,args);
+      return r.llamarSeguro(tokenGuardado(),k,args);
+    };
+  }});
+  return prox;
+}
+</script>
+<script>
 /** GENERADO por scripts/generar_patrones.py desde data/patrones_novedades.json. No edite a mano. */
 var PATRONES = {
  "tipos": [
@@ -496,6 +522,7 @@ var DATOS = {"horario":[{"docente":"Landázuri Quiñones María Elia","dia":"LUN
       var blob=new Blob(['\ufeff'+csv(p)],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');
       a.href=URL.createObjectURL(blob);a.download='ronda_'+p.fecha+'_S'+p.sesion+'.csv';document.body.appendChild(a);a.click();a.remove();
       ok({ok:true,guardados:p.registros.length});},20);}};return self;};
+  window.PREVIEW=true;
   window.google={script:{run:new Proxy({},{get:function(_,k){var s=api();return k in s?s[k]:s;}})}};
 })();
 </script>
@@ -517,7 +544,7 @@ function setDir(v){try{localStorage.setItem('icet_directivo',v);}catch(e){} if(S
 function cargar(dia, ses, conservar){
   var previas=conservar?marcas:{};
   if(!conservar) el('lista').innerHTML='<div class="aviso">Cargando…</div>';
-  google.script.run.withSuccessHandler(function(r){
+  srv().withSuccessHandler(function(r){
     S=r; marcas={};
     r.filas.forEach(function(f){
       if(f.previo){
@@ -615,7 +642,7 @@ function filaPorId(id){ var d=nombrePorId(id); return S.filas.filter(function(x)
 function cambiarQuien(id){ var f=filaPorId(id); if(f){ cambiando[f.claveAlt]=true; pintar(); } }
 function definir(id,idN){
   var f=filaPorId(id), n=nombrePorId(idN); if(!f) return;
-  google.script.run.withSuccessHandler(function(){
+  srv().withSuccessHandler(function(){
     delete cambiando[f.claveAlt]; toast('Definido para toda la semana: '+n); cargar(diaSel,sesSel,true);
   }).withFailureHandler(function(e){toast('Error: '+(e.message||e));})
   .definirAlternancia({clave:f.claveAlt,elegido:n,primario:f.primario,fecha:S.fecha,directivo:dirActual()});
@@ -718,7 +745,7 @@ function guardar(){
   if(!regs.length){ toast('No hay marcas para guardar'); return; }
   if(S.dia!==S.diaHoy){ toast('Solo se guarda la ronda del día de hoy ('+S.diaHoy+')'); return; }
   el('btnGuardar').disabled=true;
-  google.script.run.withSuccessHandler(function(r){
+  srv().withSuccessHandler(function(r){
     el('btnGuardar').disabled=false; toast('Guardado: '+r.guardados+' registros'); cargar(diaSel,sesSel);
   }).withFailureHandler(function(e){el('btnGuardar').disabled=false;toast('Error: '+(e.message||e));})
   .guardarRonda({directivo:dir,dia:S.dia,sesion:S.sesion,fecha:S.fecha,registros:regs});
@@ -752,7 +779,7 @@ function enviarObs(){
   if(conAudio&&audioBlob.size>8*1024*1024){ toast('El audio supera 8 MB: grabe algo más corto'); return; }
   el('btnObs').disabled=true;
   var enviar=function(b64,mime){
-    google.script.run.withSuccessHandler(function(r){
+    srv().withSuccessHandler(function(r){
       el('btnObs').disabled=false; el('obsTexto').value=''; audioBlob=null; el('vistaAudio').style.display='none'; el('estGrab').textContent='';
       toast(r.propuestas.length?('Propuestas: '+r.propuestas.length):(texto?'Guardada: no se detectaron novedades':'Audio guardado (sin texto para analizar)')); cargarPropuestas();
     }).withFailureHandler(function(e){el('btnObs').disabled=false;toast('Error: '+(e.message||e));})
@@ -761,7 +788,7 @@ function enviarObs(){
   if(conAudio) aBase64(audioBlob,function(b){ enviar(b,audioBlob.type||'audio/webm'); }); else enviar('','');
 }
 function cargarPropuestas(){
-  google.script.run.withSuccessHandler(function(r){ listaDocs=r.docentes; listaMotivos=r.motivos; pintarPropuestas(r.propuestas); })
+  srv().withSuccessHandler(function(r){ listaDocs=r.docentes; listaMotivos=r.motivos; pintarPropuestas(r.propuestas); })
   .withFailureHandler(function(e){toast('Error: '+(e.message||e));}).listarPropuestas();
 }
 function pintarPropuestas(ps){
@@ -781,12 +808,12 @@ function resolver(i,accion){
   var p=window._ps[i], d=el('pd'+i), m=el('pm'+i);
   var arg={id:p.id,accion:accion,docente:d?d.value:p.docente,motivo:m?m.value:''};
   if(accion==='confirmar'&&!arg.docente){ toast('Elija el docente'); return; }
-  google.script.run.withSuccessHandler(function(r){ toast(accion==='descartar'?'Descartada':'Novedad '+r.estado); cargarPropuestas(); })
+  srv().withSuccessHandler(function(r){ toast(accion==='descartar'?'Descartada':'Novedad '+r.estado); cargarPropuestas(); })
   .withFailureHandler(function(e){toast('Error: '+(e.message||e));}).resolverPropuesta(arg);
 }
-try{ google.script.run.withSuccessHandler(function(u){ if(u){var a=el('irPanel');a.href=u+'?p=panel';a.style.display='inline'; var m=el('irMenu'); m.href=u; m.style.display='inline'; var b=el('irReunion'); b.href=u+'?p=reunion'; b.style.display='inline'; urlReunion=u+'?p=reunion'; if(S) pintar();} }).urlBase(); }catch(e){}
+try{ srv().withSuccessHandler(function(u){ if(u){var a=el('irPanel');a.href=u+'?p=panel';a.style.display='inline'; var m=el('irMenu'); m.href=u; m.style.display='inline'; var b=el('irReunion'); b.href=u+'?p=reunion'; b.style.display='inline'; urlReunion=u+'?p=reunion'; if(S) pintar();} }).urlBase(); }catch(e){}
 el('btnSonido').textContent=sonido?'🔔':'🔕';
-ahora();
+if(exigirSesion()) ahora();
 </script>
 </body>
 </html>

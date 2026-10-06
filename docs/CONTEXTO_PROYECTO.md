@@ -1,6 +1,6 @@
 # Contexto del proyecto — Control de asistencia docente ICET 2026
 
-> **Se actualiza en cada cambio** (regla acordada con el coordinador). Última actualización: menú de entrada (Ronda / Reuniones / Panel), reuniones 7:00-13:30, auditoría (`docs/AUDITORIA.md`).
+> **Se actualiza en cada cambio** (regla acordada con el coordinador). Última actualización: ingreso con clave sin pantallas de Google, menú de entrada (Ronda / Reuniones / Panel), reuniones 7:00-13:30, auditoría (`docs/AUDITORIA.md`).
 
 ## Quién y para qué
 Coordinador académico de una institución pública (San Andrés de Tumaco, Nariño, Colombia). Los directivos (4: coordinador académico Francisco Javier Cortés, coordinadora de redes de apoyo Verónica Barreiro, coordinador de convivencia Harold Angulo, rector Jorge Hernández) hacen **rondas** por el colegio con celular o tableta para verificar si los docentes están en su clase, registran novedades (ausencias, llegadas tarde, permisos), y consultan paneles. Los docentes después ven su informe y suben soportes. Todo sobre **Google Sheets + Apps Script** (sin servidor propio).
@@ -15,7 +15,7 @@ Coordinador académico de una institución pública (San Andrés de Tumaco, Nari
 
 ## Arquitectura
 - `apps_script/` código del libro (BACK) y pantallas: `Codigo.gs` (ronda), `Resumen.gs`/`Dashboard.gs`/`Dashboard.html` (paneles), `Plazos.gs`/`Soportes.gs` (soportes), `Acceso.gs` (roles), `Whatsapp.gs`, `Notas.gs`+`NotasRonda.gs`+`Patrones.gs` (observaciones por voz/texto), `Reuniones.gs`+`Reunion.html`, `Api.gs` + `front/Front.gs` (modo B, dos proyectos, para docentes).
-- Modo A (actual): un solo proyecto en el libro, "ejecutar como el usuario que accede"; los directivos son editores del libro. URL estable: se actualiza con Administrar implementaciones > Nueva versión (no "Nueva implementación").
+- **Ingreso con clave (desde 2026-10-06)**: aplicación publicada "Ejecutar como: Yo / Cualquier persona"; los directivos entran con nombre + clave de 6 números (`Sesion.gs`; hash SHA-256 con sal en la hoja Directivos; token de sesión 14 días, solo el hash en la hoja Sesiones; bloqueo 15 min tras 5 fallos). Toda llamada de las pantallas pasa por `llamarSeguro(token, fn, args)`; las funciones públicas además exigen `exigirDirectivo_()` y las del menú del libro `exigirEditor_()`. Motivo: los coordinadores no saben manejar «Google no ha verificado esta aplicación > Opciones avanzadas». Modo B (front/back) sigue disponible para docentes. URL estable: se actualiza con Administrar implementaciones > Nueva versión (no "Nueva implementación").
 - **Entrada**: sin parámetros se abre `Menu.html` (botones Ronda / Reuniones / Panel); `?p=ronda|reunion|panel` abre cada pantalla; todas traen el enlace «Menú». Los coordinadores no manejan tecnología: no pedirles escribir parámetros en la URL.
 - `apps_script/paquete/` lo genera `scripts/empaquetar_apps_script.py`: `ICET_completo.gs` (todos los .gs juntos, se pega en Código.gs), `Consulta.html`, `Dashboard.html`, `Reunion.html`, `appsscript.json`.
 - Datos: `scripts/construir_datos.py` (extrae de los PDF de `fuentes/` → `data/*.csv`), `generar_libro.py` (xlsx), `generar_base_datos.py`, `generar_ubicacion.py`, `generar_vista_previa.py` (HTML de prueba de la ronda y de reuniones, con servidor simulado), `generar_panel_demo.py`, `generar_patrones.py` (JSON → `Patrones.gs`).

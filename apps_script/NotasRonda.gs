@@ -71,6 +71,7 @@ function guardarNotaRonda(p) {
 
 /** Propuestas de notas de ronda pendientes (sin confirmar ni descartar). */
 function listarPropuestas() {
+  exigirDirectivo_();
   var sh = bandeja_(), v = sh.getDataRange().getValues(), cab = v[0], out = [];
   for (var i = 1; i < v.length; i++) {
     var o = {}; cab.forEach(function (c, j) { o[c] = v[i][j]; });
@@ -129,4 +130,5 @@ function purgarAudios_(ahora) {
   }
   return n;
 }
-function purgarAudios() { var n = purgarAudios_(); SpreadsheetApp.getUi().alert('Audios borrados por retención: ' + n); }
+function purgarAudios() {
+  exigirEditor_(); var n = purgarAudios_(); SpreadsheetApp.getUi().alert('Audios borrados por retención: ' + n); }

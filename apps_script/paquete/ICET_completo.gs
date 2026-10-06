@@ -20,6 +20,7 @@ function onOpen() {
     .addItem('Crear formulario de novedades (desplegables)', 'crearFormulario')
     .addItem('Actualizar horario de preescolar (una sola vez)', 'actualizarHorarioPreescolar')
     .addItem('Importar bandeja de WhatsApp (filas marcadas SI)', 'importarBandejaWhatsApp')
+    .addItem('Generar claves de ingreso de los directivos', 'generarClavesDirectivos')
     .addItem('Borrar audios de ronda antiguos', 'purgarAudios')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')
@@ -95,6 +96,7 @@ function doGet(e) {
  * También devuelve las listas para los radios (motivos, medios, fuentes).
  */
 function consultarSesion(dia, sesion, modo) {
+  exigirDirectivo_();
   asegurarMotivos_();
   var ahora = new Date();
   var auto = !dia && !sesion;
@@ -287,9 +289,8 @@ function estadosSemana_(semana) {
  */
 function definirAlternancia(p) {
   p = p || {};
-  var quien = REQ_EMAIL !== null ? identidad_() : null;
-  if (quien && quien.rol !== 'directivo') throw new Error('Solo un directivo puede definir quién dicta.');
-  var por = quien ? (quien.nombre || quien.email) : String(p.directivo || '');
+  var quien = exigirDirectivo_();
+  var por = quien.nombre || quien.email;
   var partes = String(p.clave || '').split('|');
   if (partes.length !== 4 || ['CLASE', 'ENFASIS'].indexOf(partes[0]) < 0) throw new Error('Pareja no válida.');
   var par = [partes[2], partes[3]];
@@ -319,10 +320,8 @@ function textoCod_(v) { v = String(v == null ? '' : v); return /^0\d+$/.test(v) 
 function minutosSesion_(grupoCodigo) { return /^00/.test(String(grupoCodigo).split('+')[0]) ? 60 : 45; }
 
 function guardarRonda(p) {
-  if (REQ_EMAIL !== null) {               // llamada desde el front: el directivo es quien Google identificó, no lo que diga la pantalla
-    var quien = identidad_();
-    if (quien.rol === 'directivo') p.directivo = quien.nombre || quien.email;
-  }
+  var quien = exigirDirectivo_();          // el directivo es quien inició sesión, no lo que diga la pantalla
+  p.directivo = quien.nombre || quien.email;
   var lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
@@ -409,6 +408,7 @@ function guardarRonda(p) {
 
 /* ------------------------------ formulario de Google (radios) ------------------------------ */
 function crearFormulario() {
+  exigirEditor_();
   var docentes = datos_('Docentes').map(function (d) { return d.nombre_completo; });
   var dirs = datos_('Directivos').map(function (d) { return d.nombre; });
   var listas = datos_('Listas');
@@ -437,6 +437,7 @@ function crearFormulario() {
 }
 
 function alEnviarFormulario(e) {
+  if (!e || !e.source || typeof e.source.getId !== 'function') throw new Error('Evento no válido.');   // solo lo dispara el formulario real
   var g = {};
   e.response.getItemResponses().forEach(function (i) { g[i.getItem().getTitle()] = i.getResponse(); });
   var motivos = {};
@@ -461,6 +462,7 @@ function alEnviarFormulario(e) {
 /* ------------------------------ administración ------------------------------ */
 /** Comparte el libro con los directivos; omite los correos temporales (@example.com). */
 function compartirConDirectivos() {
+  exigirEditor_();
   var ok = [], omitidos = [];
   datos_('Directivos').forEach(function (d) {
     var c = String(d.correo_temporal).trim();
@@ -472,6 +474,7 @@ function compartirConDirectivos() {
 }
 
 function mostrarUrlConsulta() {
+  exigirEditor_();
   SpreadsheetApp.getUi().alert('Para la ronda y el panel:\nImplementar > Nueva implementación > Aplicación web.\n' +
     'Ejecutar como: el usuario que accede. Quién tiene acceso: solo directivos.\nRonda: la URL. Panel: la URL con ?p=panel al final. Agréguelas a la pantalla de inicio.');
 }
@@ -499,6 +502,7 @@ function actualizarHorarioPreescolar_() {
   return { quitadas: quitadas, corregidas: corregidas };
 }
 function actualizarHorarioPreescolar() {
+  exigirEditor_();
   var r = actualizarHorarioPreescolar_();
   SpreadsheetApp.getUi().alert('Horario de preescolar actualizado.\nFilas de la sesión 2 quitadas: ' + r.quitadas + '\nPeriodos corregidos: ' + r.corregidas);
 }
@@ -796,6 +800,18 @@ var TEXTO_AUTORIZACION =
   'Solo los verán los directivos docentes. Conozco mis derechos de conocer, actualizar, rectificar y suprimir mis datos y de revocar esta autorización ' +
   '(Ley 1581 de 2012 y Decreto 1377 de 2013), que ejerzo escribiendo a [CORREO DE CONTACTO]. Se conservarán mientras dure la relación laboral y el tiempo que exija la ley.';
 
+/** Quien llama debe haber iniciado sesión como directivo (con clave, o con cuenta de Google en el modo anterior). */
+function exigirDirectivo_() {
+  var id = identidad_();
+  if (id.rol !== 'directivo') throw new Error('Debe iniciar sesión.');
+  return id;
+}
+/** Acciones del menú del libro: solo quien es editor del libro (nadie desde la aplicación web pública). */
+function exigirEditor_() {
+  var email = emailActual_();
+  if (!email || editoresLibro_().indexOf(email) < 0) throw new Error('Esta acción solo se hace desde el libro, con su cuenta.');
+}
+
 function emailActual_() {
   if (REQ_EMAIL !== null) return String(REQ_EMAIL).toLowerCase();
   try { return String(Session.getActiveUser().getEmail() || '').toLowerCase(); } catch (e) { return ''; }
@@ -899,6 +915,7 @@ function aceptarAutorizacion() {
 
 /** Directivos: solicitudes pendientes y cuentas activas. */
 function listarSolicitudes() {
+  exigirDirectivo_();
   var us = datosOCrea_('Usuarios', COL_USUARIOS);
   return {
     pendientes: us.filter(function (u) { return u.estado === 'PENDIENTE'; }).map(function (u) { return { email: u.email, docente: u.docente, fecha: u.fecha_solicitud }; }),
@@ -978,7 +995,7 @@ function correoRector_() {
 }
 
 /** Envía el informe del día al rector. Se ejecuta por disparador (lunes a viernes) o desde el menú. */
-function enviarInformeDiario(soloProbar) {
+function enviarInformeDiario_(soloProbar) {
   var hoy = new Date(), u = Number(Utilities.formatDate(hoy, TZ, 'u'));
   if (u > 5 && !soloProbar) return { enviado: false, motivo: 'fin de semana' };
   var f = ymd_(hoy), r = resumenInterno_(f, f, {});
@@ -991,15 +1008,24 @@ function enviarInformeDiario(soloProbar) {
 }
 
 function probarInformeDiario() {
-  var r = enviarInformeDiario(true);
+  exigirEditor_();
+  var r = enviarInformeDiario_(true);
   SpreadsheetApp.getUi().alert(r.enviado ? 'Informe enviado a ' + r.para
     : 'No se envió: ' + r.motivo + '.\nCuando la hoja Directivos tenga el correo real del rector, vuelva a probar.');
 }
 
 /** Programa el envío diario a las 2:30 p. m. (después de la jornada). */
+/** Función que ejecuta el reloj del libro. Es pública pero inofensiva: envía como máximo un informe por día y no devuelve datos. */
+function informeDiarioProgramado() {
+  var props = PropertiesService.getScriptProperties(), hoy = ymd_(new Date());
+  if (props.getProperty('ultimo_informe') === hoy) return;
+  props.setProperty('ultimo_informe', hoy);
+  enviarInformeDiario_(false);
+}
 function programarInformeDiario() {
-  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'enviarInformeDiario') ScriptApp.deleteTrigger(t); });
-  ScriptApp.newTrigger('enviarInformeDiario').timeBased().everyDays(1).atHour(14).nearMinute(30).inTimezone(TZ).create();
+  exigirEditor_();
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (['enviarInformeDiario', 'informeDiarioProgramado'].indexOf(t.getHandlerFunction()) >= 0) ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('informeDiarioProgramado').timeBased().everyDays(1).atHour(14).nearMinute(30).inTimezone(TZ).create();
   SpreadsheetApp.getUi().alert('Programado: el informe se enviará al rector de lunes a viernes, hacia las 2:30 p. m.');
 }
 
@@ -1073,6 +1099,7 @@ function importarBandeja_() {
 }
 
 function importarBandejaWhatsApp() {
+  exigirEditor_();
   var r = importarBandeja_();
   SpreadsheetApp.getUi().alert('Importadas a Novedades: ' + r.importadas + '\nYa estaban (duplicadas): ' + r.duplicadas +
     '\nConfirmadas pero sin docente (complete la columna docente): ' + r.sinDocente);
@@ -1181,6 +1208,7 @@ function subirSoporte(p) {
 /* ------------------------------ revisión (directivos) ------------------------------ */
 /** Soportes por revisar y obligaciones vencidas, para coordinación. */
 function soportesPorRevisar() {
+  exigirDirectivo_();
   hojaOCrea_('Soportes', COL_SOPORTES);
   var obl = obligaciones_(''), por = {};
   obl.forEach(function (o) { por[o.clave] = o; });
@@ -1574,6 +1602,7 @@ function guardarNotaRonda(p) {
 
 /** Propuestas de notas de ronda pendientes (sin confirmar ni descartar). */
 function listarPropuestas() {
+  exigirDirectivo_();
   var sh = bandeja_(), v = sh.getDataRange().getValues(), cab = v[0], out = [];
   for (var i = 1; i < v.length; i++) {
     var o = {}; cab.forEach(function (c, j) { o[c] = v[i][j]; });
@@ -1632,7 +1661,8 @@ function purgarAudios_(ahora) {
   }
   return n;
 }
-function purgarAudios() { var n = purgarAudios_(); SpreadsheetApp.getUi().alert('Audios borrados por retención: ' + n); }
+function purgarAudios() {
+  exigirEditor_(); var n = purgarAudios_(); SpreadsheetApp.getUi().alert('Audios borrados por retención: ' + n); }
 
 // ===================== Reuniones.gs =====================
 /**
@@ -1699,6 +1729,7 @@ function convocadosDe_(reunion) {
 
 /** Reuniones de una fecha (por defecto hoy), con los tipos y las personas convocables. p = {fecha?} */
 function listarReuniones(p) {
+  exigirDirectivo_();
   p = p || {};
   var fecha = p.fecha ? fechaIso_(p.fecha) : ymd_(new Date());
   var reuniones = reunionesDe_(fecha).map(function (r) {
@@ -1740,6 +1771,7 @@ function crearReunion(p) {
 
 /** Datos para registrar la asistencia de una reunión: convocados y lo ya registrado. */
 function cargarReunion(p) {
+  exigirDirectivo_();
   var r = datosOCrea_('Reuniones', COL_REUNIONES).map(reunionDeFila_).filter(function (x) { return x.id === (p && p.id); })[0];
   if (!r) throw new Error('No se encontró la reunión.');
   var a = asistenciaDe_(r.id), roles = {};
@@ -1787,6 +1819,147 @@ function reunionesEnSesiones_(fecha, sesiones, franjas) {
 /** ¿Esa persona está convocada a la reunión? */
 function convocadoA_(reunion, nombre) { return reunion.convocados === 'TODOS' || reunion.convocados.indexOf(nombre) >= 0; }
 
+// ===================== Sesion.gs =====================
+/**
+ * Ingreso con clave (sin pantallas de Google).
+ *
+ * La aplicación web se publica "Ejecutar como: yo" y "Cualquier persona": nadie tiene que iniciar sesión en Google ni aceptar permisos
+ * ("Google no ha verificado esta aplicación" ya no aparece). En su lugar, cada directivo entra con su nombre y una clave de 6 dígitos
+ * que genera el propietario desde el menú del libro. Con una clave correcta el servidor entrega un token aleatorio (se guarda solo su
+ * hash en la hoja Sesiones, 14 días) y desde ese momento TODA llamada de las pantallas pasa por llamarSeguro(), que valida el token,
+ * toma la identidad del directivo y aplica la matriz de permisos (Api.gs). Las funciones públicas llevan además su propia
+ * comprobación de identidad, de modo que nadie puede invocarlas directamente desde la consola del navegador.
+ *
+ * Claves: se guarda SHA-256(sal + clave), nunca la clave. 5 intentos fallidos bloquean al directivo 15 minutos.
+ */
+var COL_SESIONES = ['token_hash', 'nombre', 'correo', 'creada', 'expira', 'ultimo_uso'];
+var COL_CLAVE = ['pin_hash', 'pin_sal', 'intentos', 'bloqueado_hasta'];
+var SESION_DIAS = 14, PIN_INTENTOS = 5, BLOQUEO_MIN = 15;
+
+function hash_(s) {
+  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(s), Utilities.Charset.UTF_8)
+    .map(function (b) { return ('0' + (b < 0 ? b + 256 : b).toString(16)).slice(-2); }).join('');
+}
+function ahoraMs_() { return new Date().getTime(); }
+
+/** La hoja Directivos de libros anteriores no tiene las columnas de clave: se agregan al final. */
+function hojaDirectivos_() {
+  var sh = hoja_('Directivos'), cab = sh.getDataRange().getValues()[0];
+  COL_CLAVE.forEach(function (c) { if (cab.indexOf(c) < 0) { sh.getRange(1, cab.length + 1).setValue(c); cab.push(c); } });
+  return sh;
+}
+function filaDirectivo_(nombre) {
+  var sh = hojaDirectivos_(), v = sh.getDataRange().getValues(), cab = v[0], col = {};
+  cab.forEach(function (k, i) { col[k] = i; });
+  for (var i = 1; i < v.length; i++) if (String(v[i][col.nombre]).trim() === String(nombre).trim()) return { sh: sh, fila: i + 1, v: v[i], col: col };
+  return null;
+}
+
+/** Nombres que se muestran en la pantalla de ingreso (públicos). */
+function listarDirectivosPublicos() {
+  hojaDirectivos_();
+  return datos_('Directivos').map(function (d) { return { nombre: d.nombre, rol: d.rol, tieneClave: !!String(d.pin_hash || '').trim() }; });
+}
+
+function pinValido_(pin) { return /^\d{6}$/.test(String(pin)); }
+
+/** Comprueba la clave de un directivo con control de intentos. Devuelve la fila si es correcta; si no, lanza un error. */
+function verificarClave_(nombre, pin) {
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var d = filaDirectivo_(nombre);
+    if (!d) throw new Error('Nombre o clave incorrectos.');
+    var c = d.col, bloq = Number(d.v[c.bloqueado_hasta]) || 0;
+    if (bloq > ahoraMs_()) throw new Error('Demasiados intentos. Espere unos minutos e intente de nuevo.');
+    if (!String(d.v[c.pin_hash] || '').trim()) throw new Error('Aún no tiene clave. Pídala a quien administra el libro.');
+    var ok = pinValido_(pin) && igualConstante_(hash_(d.v[c.pin_sal] + pin), d.v[c.pin_hash]);
+    if (!ok) {
+      var n = (Number(d.v[c.intentos]) || 0) + 1;
+      d.sh.getRange(d.fila, c.intentos + 1).setValue(n >= PIN_INTENTOS ? 0 : n);
+      if (n >= PIN_INTENTOS) d.sh.getRange(d.fila, c.bloqueado_hasta + 1).setValue(ahoraMs_() + BLOQUEO_MIN * 60000);
+      throw new Error(n >= PIN_INTENTOS ? 'Demasiados intentos. Espere ' + BLOQUEO_MIN + ' minutos.' : 'Nombre o clave incorrectos.');
+    }
+    d.sh.getRange(d.fila, c.intentos + 1).setValue(0);
+    return d;
+  } finally { lock.releaseLock(); }
+}
+
+/** Inicia sesión. p = {nombre, pin}. Devuelve {token, nombre, rol}. */
+function ingresar(p) {
+  p = p || {};
+  var d = verificarClave_(p.nombre, p.pin);
+  var token = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
+  var ahora = ahoraMs_(), sh = hojaOCrea_('Sesiones', COL_SESIONES), v = sh.getDataRange().getValues();
+  for (var i = v.length - 1; i >= 1; i--) if (Number(v[i][4]) < ahora) sh.deleteRow(i + 1);   // limpia sesiones vencidas
+  sh.appendRow([hash_(token), d.v[d.col.nombre], String(d.v[d.col.correo_temporal]).toLowerCase(), ahora, ahora + SESION_DIAS * 86400000, ahora]);
+  return { token: token, nombre: d.v[d.col.nombre], rol: d.v[d.col.rol] };
+}
+
+function cerrarSesion(token) {
+  var h = hash_(token || ''), sh = hojaOCrea_('Sesiones', COL_SESIONES), v = sh.getDataRange().getValues();
+  for (var i = v.length - 1; i >= 1; i--) if (v[i][0] === h) sh.deleteRow(i + 1);
+  return { ok: true };
+}
+
+function validarToken_(token) {
+  if (!token || String(token).length < 40) return null;
+  var h = hash_(token), v = hojaOCrea_('Sesiones', COL_SESIONES).getDataRange().getValues(), ahora = ahoraMs_();
+  for (var i = 1; i < v.length; i++) if (igualConstante_(v[i][0], h)) return Number(v[i][4]) > ahora ? { nombre: v[i][1], correo: String(v[i][2]).toLowerCase() } : null;
+  return null;
+}
+
+/** ÚNICA puerta de entrada de las pantallas: valida el token y ejecuta la función permitida con la identidad del directivo. */
+function llamarSeguro(token, fn, args) {
+  var ses = validarToken_(token);
+  if (!ses) throw new Error('SESION_VENCIDA');
+  var out = apiDespachar_(ses.correo, fn, args);
+  if (!out.ok) throw new Error(out.error);
+  return out.data;
+}
+
+/** El directivo cambia su propia clave. p = {actual, nueva} (se ejecuta con su sesión). */
+function cambiarClave(p) {
+  p = p || {};
+  var id = exigirDirectivo_();
+  if (!pinValido_(p.nueva)) throw new Error('La clave nueva debe tener 6 números.');
+  if (String(p.nueva) === String(p.actual)) throw new Error('La clave nueva debe ser distinta.');
+  var d = verificarClave_(id.nombre, p.actual);
+  guardarClave_(d, p.nueva);
+  return { ok: true };
+}
+function guardarClave_(d, pin) {
+  var sal = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
+  d.sh.getRange(d.fila, d.col.pin_sal + 1).setValue(sal);
+  d.sh.getRange(d.fila, d.col.pin_hash + 1).setValue(hash_(sal + pin));
+  d.sh.getRange(d.fila, d.col.intentos + 1).setValue(0);
+  d.sh.getRange(d.fila, d.col.bloqueado_hasta + 1).setValue('');
+}
+function pinAleatorio_() {
+  var u = Utilities.getUuid().replace(/-/g, '').slice(0, 10);
+  return ('00000' + (parseInt(u, 16) % 1000000)).slice(-6);
+}
+
+/** Genera una clave nueva para cada directivo (o solo para los que no tienen). Devuelve las claves UNA vez; en la hoja queda solo el hash. */
+function generarClavesDirectivos_(soloFaltantes) {
+  hojaDirectivos_();
+  var out = [];
+  datos_('Directivos').forEach(function (x) {
+    var d = filaDirectivo_(x.nombre);
+    if (soloFaltantes && String(d.v[d.col.pin_hash] || '').trim()) return;
+    var pin = pinAleatorio_(); guardarClave_(d, pin); out.push({ nombre: x.nombre, pin: pin });
+  });
+  return out;
+}
+function generarClavesDirectivos() {
+  exigirEditor_();
+  var ui = SpreadsheetApp.getUi();
+  var r = ui.alert('Claves de ingreso', 'Se creará una clave de 6 números para cada directivo y se mostrarán UNA sola vez. Las claves anteriores dejarán de servir. ¿Continuar?', ui.ButtonSet.YES_NO);
+  if (r !== ui.Button.YES) return;
+  var cl = generarClavesDirectivos_(false);
+  ui.alert('Anote y entregue a cada persona su clave (no se podrán volver a ver):\n\n' + cl.map(function (x) { return x.nombre + ': ' + x.pin; }).join('\n') +
+           '\n\nCada directivo puede cambiarla desde el menú de la aplicación ("Cambiar mi clave").');
+}
+
 // ===================== Api.gs =====================
 /**
  * API del "back": el proyecto vinculado al libro, desplegado como aplicación web que se ejecuta COMO EL PROPIETARIO
@@ -1816,7 +1989,8 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   listarReuniones: ['directivo'],
   crearReunion: ['directivo'],
   cargarReunion: ['directivo'],
-  guardarAsistenciaReunion: ['directivo']
+  guardarAsistenciaReunion: ['directivo'],
+  cambiarClave: ['directivo']
 };
 
 function apiFunciones_() {
@@ -1826,7 +2000,8 @@ function apiFunciones_() {
     datosDashboard: datosDashboard, misSoportes: misSoportes, subirSoporte: subirSoporte,
     soportesPorRevisar: soportesPorRevisar, revisarSoporte: revisarSoporte,
     guardarNotaRonda: guardarNotaRonda, listarPropuestas: listarPropuestas, resolverPropuesta: resolverPropuesta, definirAlternancia: definirAlternancia,
-    listarReuniones: listarReuniones, crearReunion: crearReunion, cargarReunion: cargarReunion, guardarAsistenciaReunion: guardarAsistenciaReunion
+    listarReuniones: listarReuniones, crearReunion: crearReunion, cargarReunion: cargarReunion, guardarAsistenciaReunion: guardarAsistenciaReunion,
+    cambiarClave: cambiarClave
   };
 }
 
@@ -1838,19 +2013,24 @@ function igualConstante_(a, b) {
   return d === 0;
 }
 
-/** Ejecuta una función de la API para un correo ya verificado. Separada de doPost para poder probarla. */
-function apiEjecutar_(req, secretoEsperado) {
-  if (!secretoEsperado || !igualConstante_(req && req.secret, secretoEsperado)) return { ok: false, error: 'No autorizado' };
-  var fn = req.fn, permitidos = API_PERMISOS[fn], tabla = apiFunciones_();
+/** Ejecuta una función de la API para un correo ya verificado (por el front con secreto, o por una sesión con clave). */
+function apiDespachar_(email, fn, args) {
+  var permitidos = API_PERMISOS[fn], tabla = apiFunciones_();
   if (!permitidos || !tabla[fn]) return { ok: false, error: 'Función no permitida' };
-  REQ_EMAIL = req.email || '';
+  REQ_EMAIL = email || '';
   try {
     var rol = identidad_().rol;
     if (permitidos.indexOf('*') < 0 && permitidos.indexOf(rol) < 0) return { ok: false, error: 'Sin permiso para esta acción (' + rol + ').' };
-    return { ok: true, data: tabla[fn].apply(null, req.args || []) };
+    return { ok: true, data: tabla[fn].apply(null, args || []) };
   } catch (e) {
     return { ok: false, error: String(e && e.message || e) };
   } finally { REQ_EMAIL = null; }
+}
+
+/** Petición del proyecto "front" (modo B): exige el secreto compartido. Separada de doPost para poder probarla. */
+function apiEjecutar_(req, secretoEsperado) {
+  if (!secretoEsperado || !igualConstante_(req && req.secret, secretoEsperado)) return { ok: false, error: 'No autorizado' };
+  return apiDespachar_(req.email, req.fn, req.args);
 }
 
 function doPost(e) {

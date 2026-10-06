@@ -73,6 +73,32 @@
 <div class="toast" id="toast"></div>
 
 <script>
+/* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
+var TOKEN_KEY='icet_token', PUBLICAS={urlBase:1,listarDirectivosPublicos:1,ingresar:1,cerrarSesion:1};
+function tokenGuardado(){try{return localStorage.getItem(TOKEN_KEY)||'';}catch(e){return '';}}
+function guardarToken(t){try{localStorage.setItem(TOKEN_KEY,t);}catch(e){}}
+function borrarToken(){try{localStorage.removeItem(TOKEN_KEY);}catch(e){}}
+function irAlMenu(){ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).urlBase(); }
+function exigirSesion(){ if(window.PREVIEW||tokenGuardado()) return true; irAlMenu(); return false; }
+function srv(){
+  var ok=function(){}, fail=function(){}, self={};
+  var prox;
+  self.withSuccessHandler=function(f){ok=f;return prox;};
+  self.withFailureHandler=function(f){fail=f;return prox;};
+  prox=new Proxy(self,{get:function(t,k){
+    if(k in t||typeof k!=='string') return t[k];
+    return function(){
+      var args=[].slice.call(arguments);
+      var r=google.script.run.withSuccessHandler(ok).withFailureHandler(function(e){
+        if(/SESION_VENCIDA/.test(String(e&&e.message||e))){ borrarToken(); irAlMenu(); return; } fail(e); });
+      if(window.PREVIEW||PUBLICAS[k]) return r[k].apply(r,args);
+      return r.llamarSeguro(tokenGuardado(),k,args);
+    };
+  }});
+  return prox;
+}
+</script>
+<script>
 /* ---- Vista previa: simula el servidor con datos de ejemplo; nada se guarda fuera de esta página ---- */
 (function(){
   var TIPOS=[{"tipo": "Jornada pedagógica", "sinEstudiantes": true, "inicio": "07:00", "fin": "13:30"}, {"tipo": "Reunión de desarrollo institucional", "sinEstudiantes": true, "inicio": "07:00", "fin": "13:30"}, {"tipo": "Reunión de planeación", "sinEstudiantes": true, "inicio": "07:00", "fin": "13:30"}, {"tipo": "Capacitación en el colegio", "sinEstudiantes": true, "inicio": "07:00", "fin": "13:30"}, {"tipo": "Reunión pedagógica", "sinEstudiantes": true, "inicio": "07:00", "fin": "13:30"}, {"tipo": "Asamblea de docentes", "sinEstudiantes": true, "inicio": "07:00", "fin": "13:30"}, {"tipo": "Reunión extraordinaria del rector", "sinEstudiantes": true, "inicio": "07:00", "fin": "13:30"}, {"tipo": "Reunión informativa o actividad institucional", "sinEstudiantes": true, "inicio": "07:00", "fin": "13:30"}, {"tipo": "Consejo académico", "sinEstudiantes": false, "inicio": "08:00", "fin": "10:00"}, {"tipo": "Comité de convivencia", "sinEstudiantes": false, "inicio": "08:00", "fin": "10:00"}, {"tipo": "Comité de calidad", "sinEstudiantes": false, "inicio": "08:00", "fin": "10:00"}, {"tipo": "Reunión PTAFI con la tutora", "sinEstudiantes": false, "inicio": "08:00", "fin": "09:00"}, {"tipo": "Otra reunión", "sinEstudiantes": false, "inicio": "08:00", "fin": "09:00"}], PERSONAS=[{"nombre": "Aguirre Riascos Jorge Andrés", "rol": "Docente"}, {"nombre": "Angulo Lucero Andrés Mauricio", "rol": "Docente"}, {"nombre": "Arboleda Ortiz Luz América", "rol": "Docente"}, {"nombre": "Arizala Castro Roberto Carlos", "rol": "Docente"}, {"nombre": "Bastidas Valencia Zeneida Judith", "rol": "Docente"}, {"nombre": "Betancourth Ocampo Yohana Patricia", "rol": "Docente"}, {"nombre": "Casanova Casanova Johana Andrea", "rol": "Docente"}, {"nombre": "Casanova Quiñones Yoli del Carmen", "rol": "Docente"}, {"nombre": "Castillo Angulo Martha Cecilia", "rol": "Docente"}, {"nombre": "Castillo Cuero Daira Eneida", "rol": "Docente"}, {"nombre": "Centeno Zúñiga Claudia Patricia", "rol": "Docente"}, {"nombre": "Chillambo Quiñones María Rocío", "rol": "Docente"}, {"nombre": "Cortés Salazar María Ebelice", "rol": "Docente"}, {"nombre": "Cuéllar Gallo Nemesia", "rol": "Docente"}, {"nombre": "Cuero Bamba Berte Levi", "rol": "Docente"}, {"nombre": "Cuero Rincón Hernando Jesús", "rol": "Docente"}, {"nombre": "Escobar Cortés Liliana", "rol": "Docente"}, {"nombre": "Estacio Estupiñán Rosario", "rol": "Docente"}, {"nombre": "Fernández Vélez Alfredo Enrique", "rol": "Docente"}, {"nombre": "García Gobea Saydi Magali", "rol": "Docente"}, {"nombre": "Garzón Quiñones Sixta Janina", "rol": "Docente"}, {"nombre": "González Castillo Jólmer Jimy", "rol": "Docente"}, {"nombre": "Landázuri Quiñones María Elia", "rol": "Docente"}, {"nombre": "Landázuri Gallón Teresa", "rol": "Docente"}, {"nombre": "Lemos Guancha Miriam", "rol": "Docente"}, {"nombre": "Lozano Torres Amanda Inés", "rol": "Docente"}, {"nombre": "Martínez Álvarez Andrea Ascención", "rol": "Docente"}, {"nombre": "Meza Banguera Gladys Alicia", "rol": "Docente"}, {"nombre": "Mindineros Satizábal John Jáver", "rol": "Docente"}, {"nombre": "Montaño Anchico Favio Héctor", "rol": "Docente"}, {"nombre": "Montaño Arizala Leidis Claudina", "rol": "Docente"}, {"nombre": "Narváez Sánchez Dora Alejandra", "rol": "Docente"}, {"nombre": "Núñez Perlaza Elcy", "rol": "Docente"}, {"nombre": "Ordóñez Tenorio Jaime Marcial", "rol": "Docente"}, {"nombre": "Ortiz Araujo Adiela Carlota", "rol": "Docente"}, {"nombre": "Ponce Moncayo Ángela Paola", "rol": "Docente"}, {"nombre": "Prado Quiñones Genís Maribel", "rol": "Docente"}, {"nombre": "Preciado Torres Oleisa", "rol": "Docente"}, {"nombre": "Puches Ana Milena", "rol": "Docente"}, {"nombre": "Pulgarín Ortiz César Marino", "rol": "Docente"}, {"nombre": "Quintero Ramírez María del Carmen", "rol": "Docente"}, {"nombre": "Quiñones Cabezas Marcos Vidal", "rol": "Docente"}, {"nombre": "Ramírez Guerra Jimmy Eduardo", "rol": "Docente"}, {"nombre": "Samaniego Angulo Flor Mireya", "rol": "Docente"}, {"nombre": "Sinisterra Ana Lucía", "rol": "Docente"}, {"nombre": "Tenorio Cuero Lucy Bivian", "rol": "Docente"}, {"nombre": "Torres Segura Encarnación", "rol": "Docente"}, {"nombre": "Valencia Marínez Saidy Eufemia", "rol": "Docente"}, {"nombre": "Valencia Solís Gloria Alexa", "rol": "Docente"}, {"nombre": "Valverde Montaño María Teresa", "rol": "Docente"}, {"nombre": "Vásquez Valencia Segundo Leoncio", "rol": "Docente"}, {"nombre": "Villota Rubio Héctor Hugo", "rol": "Docente"}, {"nombre": "Villota Rubio Janeth del Carmen", "rol": "Docente"}, {"nombre": "Zamora Ordóñez Celia Pastora", "rol": "Docente"}, {"nombre": "Ortiz Estacio Martha Cecilia", "rol": "Docente"}, {"nombre": "Armero Dájome Jesús", "rol": "Docente"}, {"nombre": "Francisco Javier Cortés", "rol": "Directivo"}, {"nombre": "Verónica Barreiro", "rol": "Directivo"}, {"nombre": "Harold Angulo", "rol": "Directivo"}, {"nombre": "Jorge Hernández", "rol": "Directivo"}], MOTIVOS=["Sin justificación", "Mal estado de salud", "Incapacidad Médica", "Exámenes clínicos", "Permiso del rector", "Reunión o actividad institucional", "Permiso por horas (personal)", "Comité o consejo (calidad, académico, convivencia)", "Reunión PTAFI con la tutora", "Reunión de docentes o de área", "Atención a padre de familia o acudiente", "Atención en coordinación (estudiante o acudiente)", "Reunión de cierre de jornada", "Lluvia intensa o emergencia climática", "Sepelio o duelo de un familiar", "Capacitación/Taller", "Evento Secretaría de Educación", "Tema académico del docente", "Calamidad familiar", "Salud de hijo(a) o familiar", "Traslado hijo(a) a colegio/médico", "Reunión o acto escolar de hijo(a)", "Tema académico de hijo(a)", "Remisión otra ciudad", "Situación fortuita camino al trabajo", "Otro"], REUN=[], ASIST={}, HOY=(function(){var p=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Bogota'}).format(new Date());return p;})();
@@ -90,6 +116,7 @@
     cargarReunion:function(p){setTimeout(function(){var r=reun(p.id),a=ASIST[r.id]||{};
       ok({reunion:r,motivos:MOTIVOS,personas:conv(r).map(function(n){var pp=PERSONAS.filter(function(x){return x.nombre===n;})[0]||{rol:'Docente'};return {nombre:n,rol:pp.rol,registro:a[n]||null};})});},20);},
     guardarAsistenciaReunion:function(p){setTimeout(function(){var a=ASIST[p.id]=ASIST[p.id]||{};p.registros.forEach(function(x){a[x.persona]={estado:x.estado,motivo:x.motivo};});ok({guardados:p.registros.length});},20);}};return self;};
+  window.PREVIEW=true;
   window.google={script:{run:new Proxy({},{get:function(_,k){var s=api();return k in s?s[k]:s;}})}};
 })();
 </script>
@@ -115,7 +142,7 @@ function falla(e){toast('Error: '+(e&&e.message||e));}
 
 /* ------------------------------ lista de reuniones ------------------------------ */
 function cargarLista(fecha){
-  google.script.run.withSuccessHandler(function(r){ L=r; fechaSel=r.fecha; motivos=r.motivos; vista='lista'; el('barra').classList.remove('on'); pintarLista(); }).withFailureHandler(falla).listarReuniones({fecha:fecha||null});
+  srv().withSuccessHandler(function(r){ L=r; fechaSel=r.fecha; motivos=r.motivos; vista='lista'; el('barra').classList.remove('on'); pintarLista(); }).withFailureHandler(falla).listarReuniones({fecha:fecha||null});
 }
 function selectorDirectivo(){
   var d=dirActual(), dirs=L.personas.filter(function(p){return p.rol==='Directivo';});
@@ -160,13 +187,13 @@ function cambiaConv(){
 function crear(){
   var conv='TODOS';
   if(el('nConv').value==='SEL'){ conv=[].slice.call(document.querySelectorAll('.cv:checked')).map(function(x){return x.value;}); if(!conv.length){toast('Elija al menos una persona');return;} }
-  google.script.run.withSuccessHandler(function(r){ toast('Reunión creada'); abrir(r.id); }).withFailureHandler(falla)
+  srv().withSuccessHandler(function(r){ toast('Reunión creada'); abrir(r.id); }).withFailureHandler(falla)
   .crearReunion({tipo:el('nTipo').value,nombre:el('nNombre').value,fecha:el('nFecha').value,inicio:el('nIni').value,fin:el('nFin').value,sinEstudiantes:el('nSin').checked,convocados:conv,directivo:dirActual()});
 }
 
 /* ------------------------------ asistencia ------------------------------ */
 function abrir(id){
-  google.script.run.withSuccessHandler(function(r){
+  srv().withSuccessHandler(function(r){
     R=r.reunion; P=r.personas; motivos=r.motivos; marcas={}; vista='asist';
     P.forEach(function(p){ if(p.registro) marcas[p.nombre]={estado:p.registro.estado,motivo:p.registro.motivo||''}; });
     pintarAsist(); el('barra').classList.add('on'); window.scrollTo(0,0);
@@ -206,7 +233,7 @@ function guardar(){
   var regs=P.filter(function(p){return marcas[p.nombre]&&marcas[p.nombre].estado;}).map(function(p){return {persona:p.nombre,estado:marcas[p.nombre].estado,motivo:marcas[p.nombre].motivo||''};});
   if(!regs.length){ toast('No hay asistencia marcada'); return; }
   el('btnGuardar').disabled=true;
-  google.script.run.withSuccessHandler(function(r){ el('btnGuardar').disabled=false; toast('Guardado: '+r.guardados+' personas'); }).withFailureHandler(function(e){el('btnGuardar').disabled=false;falla(e);})
+  srv().withSuccessHandler(function(r){ el('btnGuardar').disabled=false; toast('Guardado: '+r.guardados+' personas'); }).withFailureHandler(function(e){el('btnGuardar').disabled=false;falla(e);})
   .guardarAsistenciaReunion({id:R.id,registros:regs,directivo:dirActual()});
 }
 function imprimir(){
@@ -215,8 +242,8 @@ function imprimir(){
     P.map(function(p,i){return '<tr><td>'+(i+1)+'</td><td>'+esc(p.nombre)+'</td><td>'+esc(p.rol)+'</td><td></td></tr>';}).join('')+'</tbody></table>';
   window.print();
 }
-try{ google.script.run.withSuccessHandler(function(u){ if(u){var a=el('irRonda');a.href=u+'?p=ronda';a.style.display='inline'; var m=el('irMenu'); m.href=u; m.style.display='inline';} }).urlBase(); }catch(e){}
-cargarLista(null);
+try{ srv().withSuccessHandler(function(u){ if(u){var a=el('irRonda');a.href=u+'?p=ronda';a.style.display='inline'; var m=el('irMenu'); m.href=u; m.style.display='inline';} }).urlBase(); }catch(e){}
+if(exigirSesion()) cargarLista(null);
 </script>
 </body>
 </html>

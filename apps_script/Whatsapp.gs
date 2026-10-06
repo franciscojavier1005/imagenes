@@ -67,6 +67,7 @@ function importarBandeja_() {
 }
 
 function importarBandejaWhatsApp() {
+  exigirEditor_();
   var r = importarBandeja_();
   SpreadsheetApp.getUi().alert('Importadas a Novedades: ' + r.importadas + '\nYa estaban (duplicadas): ' + r.duplicadas +
     '\nConfirmadas pero sin docente (complete la columna docente): ' + r.sinDocente);

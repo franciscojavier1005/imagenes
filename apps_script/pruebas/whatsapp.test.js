@@ -13,9 +13,10 @@ const fmt=(d,tz,p)=>{const o=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'
 const hojas={}; Object.keys(H).forEach(n=>hojas[n]=new Hoja(H[n]));
 hojas.Bandeja_WhatsApp=new Hoja([['fecha','hora','remitente','docente','tipo_novedad','motivo','categoria','justificada','confianza','mensaje','confirmar','importado']]);
 const g={Utilities:{formatDate:fmt},Logger:{log(){}},LockService:{getScriptLock:()=>({waitLock(){},releaseLock(){}})},
-  SpreadsheetApp:{getActive:()=>({getSheetByName:n=>hojas[n]}),getUi:()=>({alert(){}})},console};
+  Session:{getActiveUser:()=>({getEmail:()=>'dueno@gmail.com'})},
+  SpreadsheetApp:{getActive:()=>({getEditors:()=>[{getEmail:()=>'dueno@gmail.com'}],getOwner:()=>({getEmail:()=>'dueno@gmail.com'}),getSheetByName:n=>hojas[n],insertSheet:n=>(hojas[n]=new Hoja([]))}),getUi:()=>({alert(){}})},console};
 vm.createContext(g);
-['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Reuniones.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
+['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Reuniones.gs','Sesion.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
 let fallos=0; const ok=(c,m)=>{console.log((c?'  ok   ':'  FALLA ')+m); if(!c)fallos++;};
 const hi=H.Horario[0].indexOf.bind(H.Horario[0]);
 // un docente de bachillerato con clase el viernes

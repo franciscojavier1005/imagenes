@@ -19,6 +19,7 @@ function onOpen() {
     .addItem('Crear formulario de novedades (desplegables)', 'crearFormulario')
     .addItem('Actualizar horario de preescolar (una sola vez)', 'actualizarHorarioPreescolar')
     .addItem('Importar bandeja de WhatsApp (filas marcadas SI)', 'importarBandejaWhatsApp')
+    .addItem('Generar claves de ingreso de los directivos', 'generarClavesDirectivos')
     .addItem('Borrar audios de ronda antiguos', 'purgarAudios')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')
@@ -94,6 +95,7 @@ function doGet(e) {
  * También devuelve las listas para los radios (motivos, medios, fuentes).
  */
 function consultarSesion(dia, sesion, modo) {
+  exigirDirectivo_();
   asegurarMotivos_();
   var ahora = new Date();
   var auto = !dia && !sesion;
@@ -286,9 +288,8 @@ function estadosSemana_(semana) {
  */
 function definirAlternancia(p) {
   p = p || {};
-  var quien = REQ_EMAIL !== null ? identidad_() : null;
-  if (quien && quien.rol !== 'directivo') throw new Error('Solo un directivo puede definir quién dicta.');
-  var por = quien ? (quien.nombre || quien.email) : String(p.directivo || '');
+  var quien = exigirDirectivo_();
+  var por = quien.nombre || quien.email;
   var partes = String(p.clave || '').split('|');
   if (partes.length !== 4 || ['CLASE', 'ENFASIS'].indexOf(partes[0]) < 0) throw new Error('Pareja no válida.');
   var par = [partes[2], partes[3]];
@@ -318,10 +319,8 @@ function textoCod_(v) { v = String(v == null ? '' : v); return /^0\d+$/.test(v) 
 function minutosSesion_(grupoCodigo) { return /^00/.test(String(grupoCodigo).split('+')[0]) ? 60 : 45; }
 
 function guardarRonda(p) {
-  if (REQ_EMAIL !== null) {               // llamada desde el front: el directivo es quien Google identificó, no lo que diga la pantalla
-    var quien = identidad_();
-    if (quien.rol === 'directivo') p.directivo = quien.nombre || quien.email;
-  }
+  var quien = exigirDirectivo_();          // el directivo es quien inició sesión, no lo que diga la pantalla
+  p.directivo = quien.nombre || quien.email;
   var lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
@@ -408,6 +407,7 @@ function guardarRonda(p) {
 
 /* ------------------------------ formulario de Google (radios) ------------------------------ */
 function crearFormulario() {
+  exigirEditor_();
   var docentes = datos_('Docentes').map(function (d) { return d.nombre_completo; });
   var dirs = datos_('Directivos').map(function (d) { return d.nombre; });
   var listas = datos_('Listas');
@@ -436,6 +436,7 @@ function crearFormulario() {
 }
 
 function alEnviarFormulario(e) {
+  if (!e || !e.source || typeof e.source.getId !== 'function') throw new Error('Evento no válido.');   // solo lo dispara el formulario real
   var g = {};
   e.response.getItemResponses().forEach(function (i) { g[i.getItem().getTitle()] = i.getResponse(); });
   var motivos = {};
@@ -460,6 +461,7 @@ function alEnviarFormulario(e) {
 /* ------------------------------ administración ------------------------------ */
 /** Comparte el libro con los directivos; omite los correos temporales (@example.com). */
 function compartirConDirectivos() {
+  exigirEditor_();
   var ok = [], omitidos = [];
   datos_('Directivos').forEach(function (d) {
     var c = String(d.correo_temporal).trim();
@@ -471,6 +473,7 @@ function compartirConDirectivos() {
 }
 
 function mostrarUrlConsulta() {
+  exigirEditor_();
   SpreadsheetApp.getUi().alert('Para la ronda y el panel:\nImplementar > Nueva implementación > Aplicación web.\n' +
     'Ejecutar como: el usuario que accede. Quién tiene acceso: solo directivos.\nRonda: la URL. Panel: la URL con ?p=panel al final. Agréguelas a la pantalla de inicio.');
 }
@@ -498,6 +501,7 @@ function actualizarHorarioPreescolar_() {
   return { quitadas: quitadas, corregidas: corregidas };
 }
 function actualizarHorarioPreescolar() {
+  exigirEditor_();
   var r = actualizarHorarioPreescolar_();
   SpreadsheetApp.getUi().alert('Horario de preescolar actualizado.\nFilas de la sesión 2 quitadas: ' + r.quitadas + '\nPeriodos corregidos: ' + r.corregidas);
 }

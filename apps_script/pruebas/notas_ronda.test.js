@@ -20,7 +20,7 @@ const g={Utilities:{formatDate:fmt,getUuid:()=>'u'+Math.random().toString(36).sl
     createFolder:()=>({getId:()=>'RAIZ',createFolder:n=>({createFile:b=>{const f={b,id:'F'+archivos.length,setSharing(){},getId(){return this.id},getUrl(){return 'https://drive/'+this.id}};archivos.push(f);return f},getFoldersByName:()=>({hasNext:()=>false})}),getFoldersByName:()=>({hasNext:()=>false})}),
     getFolderById:()=>{throw new Error('no')},getFileById:id=>({setTrashed(){papelera.push(id)}})},console};
 vm.createContext(g);
-['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Reuniones.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
+['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Reuniones.gs','Sesion.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
 let fallos=0; const ok=(c,m)=>{console.log((c?'  ok   ':'  FALLA ')+m); if(!c)fallos++;};
 const run=(c)=>vm.runInContext(c,g);
 const hi=H.Horario[0].indexOf.bind(H.Horario[0]);
@@ -175,7 +175,7 @@ const antesDef=run(`consultarSesion('${ejemplo[hi('dia')]}',${ejemplo[hi('hora')
 ok(antesDef&&antesDef.alternos.length===1&&!antesDef.definido,'sin definir: la tarjeta ofrece a los dos');
 g.PD={clave:claveE,elegido:otro,primario:ejemplo[hi('docente')],directivo:'Prueba'}; run('definirAlternancia(PD)');
 const despues=run(`consultarSesion('${ejemplo[hi('dia')]}',${ejemplo[hi('hora')]},'sesion')`).filas.find(f=>f.claveAlt===claveE&&f.primario===ejemplo[hi('docente')]);
-ok(despues.docente===otro&&despues.alternos.length===0&&despues.definido.por==='Prueba','definido: ahora esa clase muestra solo a '+'quien se eligió');
+ok(despues.docente===otro&&despues.alternos.length===0&&despues.definido.por==='dueno@gmail.com','definido: ahora esa clase muestra solo a '+'quien se eligió');
 // la clase del otro docente (su par de grupos) queda con el primero: intercambio automático
 const otraClase=H.Horario.slice(1).find(r=>r[hi('tipo')]==='CLASE'&&r[hi('area')]==='ETR'&&r[hi('docente')]===otro);
 const ro=run(`consultarSesion('${otraClase[hi('dia')]}',${otraClase[hi('hora')]},'sesion')`).filas.find(f=>f.claveAlt===claveE&&f.primario===otro);

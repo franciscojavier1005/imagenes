@@ -53,7 +53,7 @@ function correoRector_() {
 }
 
 /** Envía el informe del día al rector. Se ejecuta por disparador (lunes a viernes) o desde el menú. */
-function enviarInformeDiario(soloProbar) {
+function enviarInformeDiario_(soloProbar) {
   var hoy = new Date(), u = Number(Utilities.formatDate(hoy, TZ, 'u'));
   if (u > 5 && !soloProbar) return { enviado: false, motivo: 'fin de semana' };
   var f = ymd_(hoy), r = resumenInterno_(f, f, {});
@@ -66,14 +66,23 @@ function enviarInformeDiario(soloProbar) {
 }
 
 function probarInformeDiario() {
-  var r = enviarInformeDiario(true);
+  exigirEditor_();
+  var r = enviarInformeDiario_(true);
   SpreadsheetApp.getUi().alert(r.enviado ? 'Informe enviado a ' + r.para
     : 'No se envió: ' + r.motivo + '.\nCuando la hoja Directivos tenga el correo real del rector, vuelva a probar.');
 }
 
 /** Programa el envío diario a las 2:30 p. m. (después de la jornada). */
+/** Función que ejecuta el reloj del libro. Es pública pero inofensiva: envía como máximo un informe por día y no devuelve datos. */
+function informeDiarioProgramado() {
+  var props = PropertiesService.getScriptProperties(), hoy = ymd_(new Date());
+  if (props.getProperty('ultimo_informe') === hoy) return;
+  props.setProperty('ultimo_informe', hoy);
+  enviarInformeDiario_(false);
+}
 function programarInformeDiario() {
-  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'enviarInformeDiario') ScriptApp.deleteTrigger(t); });
-  ScriptApp.newTrigger('enviarInformeDiario').timeBased().everyDays(1).atHour(14).nearMinute(30).inTimezone(TZ).create();
+  exigirEditor_();
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (['enviarInformeDiario', 'informeDiarioProgramado'].indexOf(t.getHandlerFunction()) >= 0) ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('informeDiarioProgramado').timeBased().everyDays(1).atHour(14).nearMinute(30).inTimezone(TZ).create();
   SpreadsheetApp.getUi().alert('Programado: el informe se enviará al rector de lunes a viernes, hacia las 2:30 p. m.');
 }

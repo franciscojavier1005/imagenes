@@ -21,10 +21,10 @@ const cat=Object.fromEntries(r.porCategoria.map(x=>[x.nombre,x.minutos]));
 ok(cat['CALAMIDAD DOMÉSTICA']===270&&cat['PERMISO INSTITUCIONAL']===45,'categoría desde la hoja Motivos cuando la fila no la trae');
 const v1=r.ronda.find(x=>x.sesion===1); ok(v1.marcados===0&&v1.esperados>30,'ronda sesión 1 sin marcas: '+v1.marcados+' de '+v1.esperados+' esperados');
 ok(r.kpis.programadas===EXP,'sesiones programadas jue+vie = '+r.kpis.programadas);
-const e1=vm.runInContext("enviarInformeDiario(true)",g);
+const e1=vm.runInContext("enviarInformeDiario_(true)",g);
 ok(e1.enviado===false&&e1.motivo==='correo temporal'&&correos.length===0,'con el correo temporal NO envía nada');
 H.Directivos[4][2]='rector@institucion.edu.co';   // correo real de prueba
-const e2=vm.runInContext("enviarInformeDiario(true)",g);
+const e2=vm.runInContext("enviarInformeDiario_(true)",g);
 ok(e2.enviado===true&&correos.length===1&&correos[0].to==='rector@institucion.edu.co','con correo real sí envía (1 correo)');
 ok(/ [0-9.]+ h sin atender/.test(correos[0].subject),'asunto: '+correos[0].subject);
 ok(correos[0].htmlBody.includes('?p=panel')&&!/<script/i.test(correos[0].htmlBody),'enlace al panel y sin scripts');
@@ -45,5 +45,5 @@ ok(rd.lista.length===1&&rd.lista[0].docente===M.A,'su lista contiene solo sus no
 EMAIL='desconocido@gmail.com'; let fallo=false; try{vm.runInContext("datosDashboard('2026-10-01','2026-10-02',{})",g)}catch(e){fallo=/No tiene acceso/.test(e.message)}
 ok(c=ctx('desconocido@gmail.com').rol==='sin_registro'&&fallo,'persona desconocida: rol sin_registro y el servidor rechaza la consulta del panel');
 EMAIL='';  // disparador sin sesión: el informe diario sigue funcionando
-const ei=vm.runInContext("enviarInformeDiario(true)",g); ok(ei.enviado===true,'el informe diario funciona sin sesión de usuario (disparador)');
+const ei=vm.runInContext("enviarInformeDiario_(true)",g); ok(ei.enviado===true,'el informe diario funciona sin sesión de usuario (disparador)');
 const rf=(EMAIL='dueno@gmail.com',vm.runInContext("datosDashboard('2026-10-01','2026-10-02',{nivel:'PRIMARIA'})",g)); ok(rf.kpis.eventos===2&&rf.porNivel.length===1,'filtro por nivel PRIMARIA: 2 novedades');

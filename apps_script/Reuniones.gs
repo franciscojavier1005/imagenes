@@ -62,6 +62,7 @@ function convocadosDe_(reunion) {
 
 /** Reuniones de una fecha (por defecto hoy), con los tipos y las personas convocables. p = {fecha?} */
 function listarReuniones(p) {
+  exigirDirectivo_();
   p = p || {};
   var fecha = p.fecha ? fechaIso_(p.fecha) : ymd_(new Date());
   var reuniones = reunionesDe_(fecha).map(function (r) {
@@ -103,6 +104,7 @@ function crearReunion(p) {
 
 /** Datos para registrar la asistencia de una reunión: convocados y lo ya registrado. */
 function cargarReunion(p) {
+  exigirDirectivo_();
   var r = datosOCrea_('Reuniones', COL_REUNIONES).map(reunionDeFila_).filter(function (x) { return x.id === (p && p.id); })[0];
   if (!r) throw new Error('No se encontró la reunión.');
   var a = asistenciaDe_(r.id), roles = {};

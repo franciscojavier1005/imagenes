@@ -18,7 +18,16 @@
   a.boton:active{transform:scale(.99);background:#f6f9ff}
   a.boton .ic{font-size:34px;line-height:1}
   a.boton b{display:block;font-size:19px} a.boton span{font-size:13.5px;color:#456}
-  .pie{text-align:center;font-size:12px;color:#678;margin-top:22px}
+  .caja{background:#fff;border:1px solid #d5dbe3;border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(15,42,92,.10)}
+  .caja label{display:block;font-size:14px;color:#345;margin-top:12px;font-weight:600}
+  .caja select,.caja input{width:100%;padding:14px;border:2px solid #d5dbe3;border-radius:12px;font-size:18px;background:#fff;margin-top:5px}
+  .caja input.pin{letter-spacing:.5em;text-align:center;font-size:26px}
+  .caja select:focus,.caja input:focus{outline:3px solid rgba(240,192,0,.55);outline-offset:1px}
+  .btn{width:100%;border:0;border-radius:12px;padding:15px;font-size:18px;font-weight:700;margin-top:16px;color:#fff;background:linear-gradient(135deg,#0f2a5c,#1b4a8f);box-shadow:0 2px 6px rgba(15,42,92,.35)}
+  .btn:disabled{opacity:.55}
+  .msg{margin-top:12px;font-size:14px;color:#a31515;min-height:20px;text-align:center}
+  .enlace{background:none;border:0;color:#1b4a8f;text-decoration:underline;font-size:14px;padding:8px}
+  .pie{text-align:center;font-size:12.5px;color:#678;margin-top:18px}
   .espera{text-align:center;padding:24px;color:#456}
 </style>
 </head>
@@ -29,20 +38,80 @@
   <p>I.E. ICET · Tumaco · 2026</p>
 </header>
 <main>
-  <div class="saludo" id="saludo">¿Qué desea hacer?</div>
+  <div class="saludo" id="saludo"></div>
   <div id="botones"><div class="espera">Cargando…</div></div>
-  <div class="pie">Toque una opción. Para volver aquí use «Menú» en la parte de arriba de cada pantalla.</div>
 </main>
 <script>
-window.google={script:{run:new Proxy({},{get:function(_,k){var ok=null,self={withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(){return self;}};
-  var fn=function(){setTimeout(function(){ok(k==='urlBase'?'#vista-previa':{rol:'directivo',nombre:'Francisco Javier Cortés'});},10);};
-  return k==='withSuccessHandler'||k==='withFailureHandler'?self[k]:fn;}})}};
+/* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
+var TOKEN_KEY='icet_token', PUBLICAS={urlBase:1,listarDirectivosPublicos:1,ingresar:1,cerrarSesion:1};
+function tokenGuardado(){try{return localStorage.getItem(TOKEN_KEY)||'';}catch(e){return '';}}
+function guardarToken(t){try{localStorage.setItem(TOKEN_KEY,t);}catch(e){}}
+function borrarToken(){try{localStorage.removeItem(TOKEN_KEY);}catch(e){}}
+function irAlMenu(){ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).urlBase(); }
+function exigirSesion(){ if(window.PREVIEW||tokenGuardado()) return true; irAlMenu(); return false; }
+function srv(){
+  var ok=function(){}, fail=function(){}, self={};
+  var prox;
+  self.withSuccessHandler=function(f){ok=f;return prox;};
+  self.withFailureHandler=function(f){fail=f;return prox;};
+  prox=new Proxy(self,{get:function(t,k){
+    if(k in t||typeof k!=='string') return t[k];
+    return function(){
+      var args=[].slice.call(arguments);
+      var r=google.script.run.withSuccessHandler(ok).withFailureHandler(function(e){
+        if(/SESION_VENCIDA/.test(String(e&&e.message||e))){ borrarToken(); irAlMenu(); return; } fail(e); });
+      if(window.PREVIEW||PUBLICAS[k]) return r[k].apply(r,args);
+      return r.llamarSeguro(tokenGuardado(),k,args);
+    };
+  }});
+  return prox;
+}
 </script>
 <script>
-var BASE='';
+/* Vista previa del ingreso: clave de ejemplo 123456 (nada se guarda fuera de esta página). */
+(function(){
+  var DIR=[{nombre:'Francisco Javier Cortés',rol:'Coordinador académico',tieneClave:true},{nombre:'Verónica Barreiro',rol:'Coordinadora de redes de apoyo',tieneClave:true},{nombre:'Harold Angulo',rol:'Coordinador de convivencia',tieneClave:true},{nombre:'Jorge Hernández',rol:'Rector',tieneClave:true}];
+  var intentos=0, quien='';
+  var api=function(){var ok=null,fail=null,self={withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
+    urlBase:function(){setTimeout(function(){ok('#vista-previa');},5);},
+    listarDirectivosPublicos:function(){setTimeout(function(){ok(DIR);},5);},
+    ingresar:function(p){setTimeout(function(){ if(p.pin==='123456'){quien=p.nombre;intentos=0;ok({token:'t'.repeat(64),nombre:p.nombre,rol:'Coordinador'});} else {intentos++; fail({message:intentos>=5?'Demasiados intentos. Espere 15 minutos.':'Nombre o clave incorrectos.'});}},300);},
+    cerrarSesion:function(){setTimeout(function(){quien='';ok({ok:true});},5);},
+    cambiarClave:function(p){setTimeout(function(){ if(p.actual!=='123456'){fail({message:'Nombre o clave incorrectos.'});} else if(!/^\d{6}$/.test(p.nueva)){fail({message:'La clave nueva debe tener 6 números.'});} else ok({ok:true});},200);},
+    llamarSeguro:function(t,fn){setTimeout(function(){ if(fn==='contextoPanel') ok({rol:'directivo',nombre:quien||'Francisco Javier Cortés'}); else ok({});},5);}};return self;};
+  window.google={script:{run:new Proxy({},{get:function(_,k){var s=api();return k in s?s[k]:s;}})}};
+})();
+</script>
+<script>
+var BASE='', NOMBRES=[];
 function el(id){return document.getElementById(id);}
 function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function boton(p,ic,t,d){ return '<a class="boton" target="_top" href="'+esc(BASE+'?p='+p)+'"><span class="ic">'+ic+'</span><div><b>'+t+'</b><span>'+d+'</span></div></a>'; }
+
+/* ---------- pantalla de ingreso con clave ---------- */
+function mostrarLogin(aviso){
+  el('saludo').textContent='Ingrese con su nombre y su clave';
+  el('botones').innerHTML='<div class="espera">Cargando…</div>';
+  srv().withSuccessHandler(function(lista){
+    NOMBRES=lista||[];
+    var hayClaves=NOMBRES.some(function(d){return d.tieneClave;});
+    var h='<div class="caja"><label>¿Quién es?<select id="lNombre">'+NOMBRES.map(function(d){return '<option value="'+esc(d.nombre)+'">'+esc(d.nombre)+' — '+esc(d.rol)+'</option>';}).join('')+'</select></label>'+
+      '<label>Clave (6 números)<input class="pin" id="lPin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="6" placeholder="••••••"></label>'+
+      '<button class="btn" id="lBtn" onclick="entrar()">Entrar</button><div class="msg" id="lMsg">'+esc(aviso||(hayClaves?'':'Aún no hay claves. Quien administra el libro debe crearlas (menú Asistencia ICET > Generar claves de ingreso).'))+'</div></div>'+
+      '<div class="pie">Su clave es personal. Si la olvida, pídala a quien administra el libro.</div>';
+    el('botones').innerHTML=h;
+    var p=el('lPin'); if(p){ p.addEventListener('keydown',function(e){ if(e.key==='Enter') entrar(); }); }
+  }).withFailureHandler(function(e){ el('botones').innerHTML='<div class="msg">Error: '+esc(e&&e.message||e)+'</div>'; }).listarDirectivosPublicos();
+}
+function entrar(){
+  var n=el('lNombre').value, pin=el('lPin').value.replace(/\D/g,'');
+  if(pin.length!==6){ el('lMsg').textContent='La clave tiene 6 números.'; return; }
+  el('lBtn').disabled=true; el('lMsg').textContent='';
+  srv().withSuccessHandler(function(r){ guardarToken(r.token); iniciar(); })
+   .withFailureHandler(function(e){ var b=el('lBtn'); if(b) b.disabled=false; el('lMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); el('lPin').value=''; }).ingresar({nombre:n,pin:pin});
+}
+
+/* ---------- menú ---------- */
 function pintar(rol,nombre){
   var h='';
   if(rol==='directivo'){
@@ -54,16 +123,24 @@ function pintar(rol,nombre){
     el('saludo').textContent='Bienvenido(a). Toque para continuar.';
     h+=boton('panel','📊','Mi informe y mis soportes','Ver mi asistencia, cargar soportes o pedir acceso.');
   }
+  h+='<div class="pie"><button class="enlace" onclick="formClave()">Cambiar mi clave</button> · <button class="enlace" onclick="salir()">Cerrar sesión</button></div><div id="claveForm"></div>';
   el('botones').innerHTML=h;
 }
+function formClave(){
+  el('claveForm').innerHTML='<div class="caja"><label>Clave actual<input class="pin" id="cA" type="password" inputmode="numeric" maxlength="6"></label><label>Clave nueva (6 números)<input class="pin" id="cN" type="password" inputmode="numeric" maxlength="6"></label>'+
+    '<button class="btn" onclick="cambiar()">Guardar clave nueva</button><div class="msg" id="cMsg"></div></div>';
+}
+function cambiar(){
+  srv().withSuccessHandler(function(){ el('cMsg').style.color='#1b5e20'; el('cMsg').textContent='Listo: su clave se cambió.'; el('cA').value=''; el('cN').value=''; })
+   .withFailureHandler(function(e){ el('cMsg').style.color='#a31515'; el('cMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); }).cambiarClave({actual:el('cA').value,nueva:el('cN').value});
+}
+function salir(){ var t=tokenGuardado(); borrarToken(); srv().withSuccessHandler(function(){ mostrarLogin(); }).withFailureHandler(function(){ mostrarLogin(); }).cerrarSesion(t); }
 function iniciar(){
-  var listo=false;
-  try{
-    google.script.run.withSuccessHandler(function(u){ BASE=u||''; 
-      google.script.run.withSuccessHandler(function(c){ listo=true; pintar(c&&c.rol,c&&c.nombre); })
-        .withFailureHandler(function(){ pintar('directivo',''); }).contextoPanel();
-    }).withFailureHandler(function(){ pintar('directivo',''); }).urlBase();
-  }catch(e){ pintar('directivo',''); }
+  srv().withSuccessHandler(function(u){ BASE=u||'';
+    if(!tokenGuardado()&&!window.PREVIEW){ mostrarLogin(); return; }
+    srv().withSuccessHandler(function(c){ if(!c||c.rol==='anonimo'){ borrarToken(); mostrarLogin(); } else pintar(c.rol,c.nombre); })
+      .withFailureHandler(function(){ borrarToken(); mostrarLogin(); }).contextoPanel();
+  }).withFailureHandler(function(){ mostrarLogin(); }).urlBase();
 }
 iniciar();
 </script>

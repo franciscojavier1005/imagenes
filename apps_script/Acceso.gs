@@ -21,6 +21,18 @@ var TEXTO_AUTORIZACION =
   'Solo los verán los directivos docentes. Conozco mis derechos de conocer, actualizar, rectificar y suprimir mis datos y de revocar esta autorización ' +
   '(Ley 1581 de 2012 y Decreto 1377 de 2013), que ejerzo escribiendo a [CORREO DE CONTACTO]. Se conservarán mientras dure la relación laboral y el tiempo que exija la ley.';
 
+/** Quien llama debe haber iniciado sesión como directivo (con clave, o con cuenta de Google en el modo anterior). */
+function exigirDirectivo_() {
+  var id = identidad_();
+  if (id.rol !== 'directivo') throw new Error('Debe iniciar sesión.');
+  return id;
+}
+/** Acciones del menú del libro: solo quien es editor del libro (nadie desde la aplicación web pública). */
+function exigirEditor_() {
+  var email = emailActual_();
+  if (!email || editoresLibro_().indexOf(email) < 0) throw new Error('Esta acción solo se hace desde el libro, con su cuenta.');
+}
+
 function emailActual_() {
   if (REQ_EMAIL !== null) return String(REQ_EMAIL).toLowerCase();
   try { return String(Session.getActiveUser().getEmail() || '').toLowerCase(); } catch (e) { return ''; }
@@ -124,6 +136,7 @@ function aceptarAutorizacion() {
 
 /** Directivos: solicitudes pendientes y cuentas activas. */
 function listarSolicitudes() {
+  exigirDirectivo_();
   var us = datosOCrea_('Usuarios', COL_USUARIOS);
   return {
     pendientes: us.filter(function (u) { return u.estado === 'PENDIENTE'; }).map(function (u) { return { email: u.email, docente: u.docente, fecha: u.fecha_solicitud }; }),

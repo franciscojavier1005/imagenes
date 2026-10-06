@@ -26,7 +26,8 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   listarReuniones: ['directivo'],
   crearReunion: ['directivo'],
   cargarReunion: ['directivo'],
-  guardarAsistenciaReunion: ['directivo']
+  guardarAsistenciaReunion: ['directivo'],
+  cambiarClave: ['directivo']
 };
 
 function apiFunciones_() {
@@ -36,7 +37,8 @@ function apiFunciones_() {
     datosDashboard: datosDashboard, misSoportes: misSoportes, subirSoporte: subirSoporte,
     soportesPorRevisar: soportesPorRevisar, revisarSoporte: revisarSoporte,
     guardarNotaRonda: guardarNotaRonda, listarPropuestas: listarPropuestas, resolverPropuesta: resolverPropuesta, definirAlternancia: definirAlternancia,
-    listarReuniones: listarReuniones, crearReunion: crearReunion, cargarReunion: cargarReunion, guardarAsistenciaReunion: guardarAsistenciaReunion
+    listarReuniones: listarReuniones, crearReunion: crearReunion, cargarReunion: cargarReunion, guardarAsistenciaReunion: guardarAsistenciaReunion,
+    cambiarClave: cambiarClave
   };
 }
 
@@ -48,19 +50,24 @@ function igualConstante_(a, b) {
   return d === 0;
 }
 
-/** Ejecuta una función de la API para un correo ya verificado. Separada de doPost para poder probarla. */
-function apiEjecutar_(req, secretoEsperado) {
-  if (!secretoEsperado || !igualConstante_(req && req.secret, secretoEsperado)) return { ok: false, error: 'No autorizado' };
-  var fn = req.fn, permitidos = API_PERMISOS[fn], tabla = apiFunciones_();
+/** Ejecuta una función de la API para un correo ya verificado (por el front con secreto, o por una sesión con clave). */
+function apiDespachar_(email, fn, args) {
+  var permitidos = API_PERMISOS[fn], tabla = apiFunciones_();
   if (!permitidos || !tabla[fn]) return { ok: false, error: 'Función no permitida' };
-  REQ_EMAIL = req.email || '';
+  REQ_EMAIL = email || '';
   try {
     var rol = identidad_().rol;
     if (permitidos.indexOf('*') < 0 && permitidos.indexOf(rol) < 0) return { ok: false, error: 'Sin permiso para esta acción (' + rol + ').' };
-    return { ok: true, data: tabla[fn].apply(null, req.args || []) };
+    return { ok: true, data: tabla[fn].apply(null, args || []) };
   } catch (e) {
     return { ok: false, error: String(e && e.message || e) };
   } finally { REQ_EMAIL = null; }
+}
+
+/** Petición del proyecto "front" (modo B): exige el secreto compartido. Separada de doPost para poder probarla. */
+function apiEjecutar_(req, secretoEsperado) {
+  if (!secretoEsperado || !igualConstante_(req && req.secret, secretoEsperado)) return { ok: false, error: 'No autorizado' };
+  return apiDespachar_(req.email, req.fn, req.args);
 }
 
 function doPost(e) {

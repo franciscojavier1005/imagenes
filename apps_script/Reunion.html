@@ -72,6 +72,32 @@
 <div class="toast" id="toast"></div>
 
 <script>
+/* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
+var TOKEN_KEY='icet_token', PUBLICAS={urlBase:1,listarDirectivosPublicos:1,ingresar:1,cerrarSesion:1};
+function tokenGuardado(){try{return localStorage.getItem(TOKEN_KEY)||'';}catch(e){return '';}}
+function guardarToken(t){try{localStorage.setItem(TOKEN_KEY,t);}catch(e){}}
+function borrarToken(){try{localStorage.removeItem(TOKEN_KEY);}catch(e){}}
+function irAlMenu(){ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).urlBase(); }
+function exigirSesion(){ if(window.PREVIEW||tokenGuardado()) return true; irAlMenu(); return false; }
+function srv(){
+  var ok=function(){}, fail=function(){}, self={};
+  var prox;
+  self.withSuccessHandler=function(f){ok=f;return prox;};
+  self.withFailureHandler=function(f){fail=f;return prox;};
+  prox=new Proxy(self,{get:function(t,k){
+    if(k in t||typeof k!=='string') return t[k];
+    return function(){
+      var args=[].slice.call(arguments);
+      var r=google.script.run.withSuccessHandler(ok).withFailureHandler(function(e){
+        if(/SESION_VENCIDA/.test(String(e&&e.message||e))){ borrarToken(); irAlMenu(); return; } fail(e); });
+      if(window.PREVIEW||PUBLICAS[k]) return r[k].apply(r,args);
+      return r.llamarSeguro(tokenGuardado(),k,args);
+    };
+  }});
+  return prox;
+}
+</script>
+<script>
 var L=null;          // respuesta de listarReuniones
 var R=null, P=[], marcas={}, motivos=[], vista='lista', fechaSel=null;
 var sonido=(function(){try{return localStorage.getItem('icet_sonido')!=='no';}catch(e){return true;}})(), audioCtx=null;
@@ -93,7 +119,7 @@ function falla(e){toast('Error: '+(e&&e.message||e));}
 
 /* ------------------------------ lista de reuniones ------------------------------ */
 function cargarLista(fecha){
-  google.script.run.withSuccessHandler(function(r){ L=r; fechaSel=r.fecha; motivos=r.motivos; vista='lista'; el('barra').classList.remove('on'); pintarLista(); }).withFailureHandler(falla).listarReuniones({fecha:fecha||null});
+  srv().withSuccessHandler(function(r){ L=r; fechaSel=r.fecha; motivos=r.motivos; vista='lista'; el('barra').classList.remove('on'); pintarLista(); }).withFailureHandler(falla).listarReuniones({fecha:fecha||null});
 }
 function selectorDirectivo(){
   var d=dirActual(), dirs=L.personas.filter(function(p){return p.rol==='Directivo';});
@@ -138,13 +164,13 @@ function cambiaConv(){
 function crear(){
   var conv='TODOS';
   if(el('nConv').value==='SEL'){ conv=[].slice.call(document.querySelectorAll('.cv:checked')).map(function(x){return x.value;}); if(!conv.length){toast('Elija al menos una persona');return;} }
-  google.script.run.withSuccessHandler(function(r){ toast('Reunión creada'); abrir(r.id); }).withFailureHandler(falla)
+  srv().withSuccessHandler(function(r){ toast('Reunión creada'); abrir(r.id); }).withFailureHandler(falla)
   .crearReunion({tipo:el('nTipo').value,nombre:el('nNombre').value,fecha:el('nFecha').value,inicio:el('nIni').value,fin:el('nFin').value,sinEstudiantes:el('nSin').checked,convocados:conv,directivo:dirActual()});
 }
 
 /* ------------------------------ asistencia ------------------------------ */
 function abrir(id){
-  google.script.run.withSuccessHandler(function(r){
+  srv().withSuccessHandler(function(r){
     R=r.reunion; P=r.personas; motivos=r.motivos; marcas={}; vista='asist';
     P.forEach(function(p){ if(p.registro) marcas[p.nombre]={estado:p.registro.estado,motivo:p.registro.motivo||''}; });
     pintarAsist(); el('barra').classList.add('on'); window.scrollTo(0,0);
@@ -184,7 +210,7 @@ function guardar(){
   var regs=P.filter(function(p){return marcas[p.nombre]&&marcas[p.nombre].estado;}).map(function(p){return {persona:p.nombre,estado:marcas[p.nombre].estado,motivo:marcas[p.nombre].motivo||''};});
   if(!regs.length){ toast('No hay asistencia marcada'); return; }
   el('btnGuardar').disabled=true;
-  google.script.run.withSuccessHandler(function(r){ el('btnGuardar').disabled=false; toast('Guardado: '+r.guardados+' personas'); }).withFailureHandler(function(e){el('btnGuardar').disabled=false;falla(e);})
+  srv().withSuccessHandler(function(r){ el('btnGuardar').disabled=false; toast('Guardado: '+r.guardados+' personas'); }).withFailureHandler(function(e){el('btnGuardar').disabled=false;falla(e);})
   .guardarAsistenciaReunion({id:R.id,registros:regs,directivo:dirActual()});
 }
 function imprimir(){
@@ -193,8 +219,8 @@ function imprimir(){
     P.map(function(p,i){return '<tr><td>'+(i+1)+'</td><td>'+esc(p.nombre)+'</td><td>'+esc(p.rol)+'</td><td></td></tr>';}).join('')+'</tbody></table>';
   window.print();
 }
-try{ google.script.run.withSuccessHandler(function(u){ if(u){var a=el('irRonda');a.href=u+'?p=ronda';a.style.display='inline'; var m=el('irMenu'); m.href=u; m.style.display='inline';} }).urlBase(); }catch(e){}
-cargarLista(null);
+try{ srv().withSuccessHandler(function(u){ if(u){var a=el('irRonda');a.href=u+'?p=ronda';a.style.display='inline'; var m=el('irMenu'); m.href=u; m.style.display='inline';} }).urlBase(); }catch(e){}
+if(exigirSesion()) cargarLista(null);
 </script>
 </body>
 </html>

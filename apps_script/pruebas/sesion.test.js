@@ -124,6 +124,8 @@ EMAIL='dueno@gmail.com';
   ok(/Función no permitida|SESION_VENCIDA/.test(falla(`llamarSeguro(LT2.token,'consultarSesion',['VIERNES',3,'bloque'])`)||'SESION_VENCIDA'),'al restablecer se cierran las sesiones abiertas de esa persona');
   ok(/incorrectos/.test(falla(`ingresar({nombre:${JSON.stringify(a2.nombre)},pin:'135790'})`)||''),'la clave anterior deja de servir');
   ok(run(`ingresar({nombre:${JSON.stringify(a2.nombre)},pin:'${rs.pin}'})`).debeCambiar===true,'la clave restablecida es temporal: debe elegir una propia');
+  const rs2=run(`restablecerClave_(${JSON.stringify(a2.nombre)},'246810')`); ok(rs2.pin==='246810'&&run(`ingresar({nombre:${JSON.stringify(a2.nombre)},pin:'246810'})`).debeCambiar===true,'el administrador puede asignar una clave temporal elegida por él');
+  ok(/6 números/.test(falla(`restablecerClave_(${JSON.stringify(a2.nombre)},'12')`)||''),'la clave elegida debe tener 6 números');
   ok(!JSON.stringify(hojas.Directivos.v).includes(rs.pin+'"')&&!JSON.stringify(hojas.Directivos.v).includes('135790'),'las claves no se guardan en claro (no se pueden consultar, solo restablecer)');
 }
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

@@ -2484,12 +2484,13 @@ function generarClavesDirectivos() {
 }
 
 /** Restablece la clave de UN directivo (solo el propietario del libro): genera una temporal, desbloquea y cierra sus sesiones abiertas. Devuelve la clave una vez. */
-function restablecerClave_(nombre) {
+function restablecerClave_(nombre, pinElegido) {
   exigirEditor_();
   hojaDirectivos_();
   var d = filaDirectivo_(nombre);
   if (!d) throw new Error('No se encontró a ' + nombre + '.');
-  var pin = pinAleatorio_(); guardarClave_(d, pin, true);
+  if (pinElegido && !pinValido_(pinElegido)) throw new Error('La clave debe tener 6 números.');
+  var pin = pinElegido ? String(pinElegido) : pinAleatorio_(); guardarClave_(d, pin, true);
   var sh = hojaOCrea_('Sesiones', COL_SESIONES), v = sh.getDataRange().getValues();
   for (var i = v.length - 1; i >= 1; i--) if (v[i][1] === d.v[d.col.nombre]) sh.deleteRow(i + 1);
   return { nombre: d.v[d.col.nombre], pin: pin };
@@ -2501,7 +2502,11 @@ function restablecerClaveDirectivo() {
   if (r.getSelectedButton() !== ui.Button.OK) return;
   var n = Number(String(r.getResponseText()).trim());
   if (!(n >= 1 && n <= nombres.length)) { ui.alert('Número no válido.'); return; }
-  var out = restablecerClave_(nombres[n - 1]);
+  var r2 = ui.prompt('Clave temporal de ' + nombres[n - 1], 'Escriba la clave temporal de 6 números que quiere asignarle, o deje vacío para que se genere una al azar.', ui.ButtonSet.OK_CANCEL);
+  if (r2.getSelectedButton() !== ui.Button.OK) return;
+  var elegido = String(r2.getResponseText()).trim();
+  var out;
+  try { out = restablecerClave_(nombres[n - 1], elegido); } catch (e) { ui.alert(e.message); return; }
   ui.alert('Clave temporal de ' + out.nombre + ': ' + out.pin + '\n\nEntréguesela; al ingresar deberá elegir una clave propia. Se cerraron sus sesiones abiertas.');
 }
 

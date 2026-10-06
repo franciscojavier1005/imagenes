@@ -154,6 +154,19 @@ function claveTemporalParaTodosEnRegistro() {
   return cl;
 }
 
+/** Diagnóstico de claves para el administrador (ejecutar desde el editor; solo escribe en el Registro de ejecución, nunca muestra claves). */
+function diagnosticoClaves() {
+  exigirEditor_();
+  hojaDirectivos_();
+  var l = [];
+  datos_('Directivos').forEach(function (x) {
+    var h = String(x.pin_hash || ''), sal = String(x.pin_sal || '');
+    l.push(x.nombre + ' · huella ' + (/^[0-9a-f]{64}$/.test(h) ? 'OK' : 'MAL (' + typeof x.pin_hash + ', ' + h.length + ' car.)') + ' · sal ' + (/^[0-9a-f]{64}$/.test(sal) ? 'OK' : 'MAL (' + sal.length + ' car.)') +
+      ' · intentos ' + (x.intentos === '' ? 0 : x.intentos) + ' · bloqueado hasta ' + (Number(x.bloqueado_hasta) > ahoraMs_() ? 'SÍ' : 'no') + ' · clave temporal ' + (x.clave_temporal || 'no') + ' · correo_temporal ' + (String(x.correo_temporal || '').trim() ? 'tiene' : 'VACÍO'));
+  });
+  Logger.log('DIAGNÓSTICO DE CLAVES\n' + l.join('\n'));
+}
+
 /** Restablece la clave de UN directivo (solo el propietario del libro): genera una temporal, desbloquea y cierra sus sesiones abiertas. Devuelve la clave una vez. */
 function restablecerClave_(nombre, pinElegido) {
   exigirEditor_();

@@ -31,7 +31,7 @@ const datos=["consultarSesion('VIERNES',3,'bloque')","guardarRonda({dia:'VIERNES
   "guardarAsistenciaReunion({id:'x',registros:[]})","guardarNotaRonda({texto:'hola mundo'})","datosDashboard('2026-10-01','2026-10-02',{})"];
 const bloqueadas=datos.filter(c=>falla(c)!==null).length;
 ok(bloqueadas===datos.length,`un visitante sin sesión NO puede leer ni escribir datos (${bloqueadas} de ${datos.length} funciones bloqueadas)`);
-const menu=["crearFormulario()","compartirConDirectivos()","mostrarUrlConsulta()","actualizarHorarioPreescolar()","programarInformeDiario()","purgarAudios()","importarBandejaWhatsApp()","probarInformeDiario()","generarClavesDirectivos()","restablecerClaveDirectivo()","claveTemporalParaTodosEnRegistro()","restablecerClave_('x')"];
+const menu=["crearFormulario()","compartirConDirectivos()","mostrarUrlConsulta()","actualizarHorarioPreescolar()","programarInformeDiario()","purgarAudios()","importarBandejaWhatsApp()","probarInformeDiario()","generarClavesDirectivos()","restablecerClaveDirectivo()","claveTemporalParaTodosEnRegistro()","diagnosticoClaves()","restablecerClave_('x')"];
 ok(menu.every(c=>/solo se hace desde el libro/.test(falla(c)||'')),'las acciones del menú del libro no se pueden ejecutar desde la aplicación pública');
 ok(/Evento no válido/.test(falla("alEnviarFormulario({})")||''),'el disparador del formulario rechaza eventos falsos');
 ok(run("informeDiarioProgramado()")===undefined,'la función del reloj no devuelve datos');
@@ -125,8 +125,8 @@ EMAIL='dueno@gmail.com';
   ok(/Función no permitida|SESION_VENCIDA/.test(falla(`llamarSeguro(LT2.token,'consultarSesion',['VIERNES',3,'bloque'])`)||'SESION_VENCIDA'),'al restablecer se cierran las sesiones abiertas de esa persona');
   ok(/incorrectos/.test(falla(`ingresar({nombre:${JSON.stringify(a2.nombre)},pin:'135790'})`)||''),'la clave anterior deja de servir');
   ok(run(`ingresar({nombre:${JSON.stringify(a2.nombre)},pin:'${rs.pin}'})`).debeCambiar===true,'la clave restablecida es temporal: debe elegir una propia');
-  const rs2=run(`restablecerClave_(${JSON.stringify(a2.nombre)},'246810')`); ok(rs2.pin==='246810'&&run(`ingresar({nombre:${JSON.stringify(a2.nombre)},pin:'246810'})`).debeCambiar===true,'el administrador puede asignar una clave temporal elegida por él');
-  ok(/6 números/.test(falla(`restablecerClave_(${JSON.stringify(a2.nombre)},'12')`)||''),'la clave elegida debe tener 6 números');
+  EMAIL='dueno@gmail.com'; const rs2=run(`restablecerClave_(${JSON.stringify(a2.nombre)},'246810')`); ok(rs2.pin==='246810'&&run(`ingresar({nombre:${JSON.stringify(a2.nombre)},pin:'246810'})`).debeCambiar===true,'el administrador puede asignar una clave temporal elegida por él');
+  ok(/6 números/.test(falla(`restablecerClave_(${JSON.stringify(a2.nombre)},'12')`)||''),'la clave elegida debe tener 6 números'); EMAIL='';
   ok(!JSON.stringify(hojas.Directivos.v).includes(rs.pin+'"')&&!JSON.stringify(hojas.Directivos.v).includes('135790'),'las claves no se guardan en claro (no se pueden consultar, solo restablecer)');
 }
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

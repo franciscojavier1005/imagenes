@@ -2,7 +2,7 @@
 El libro que ya tiene en Google Sheets se conserva. El código nuevo **crea solo** lo que falta: hojas `Alternancias`, `Semana_Alternancia`, `Reuniones`, `Asistencia_Reunion`, `Sesiones`, `Notas_Ronda`; columnas de clave en `Directivos`; columnas nuevas de `Bandeja_WhatsApp`; y los motivos nuevos en `Motivos`. Solo hay que hacer a mano (todo opcional salvo el punto 3):
 1. En la hoja `Directivos`, columna `nombre`: dejar el nombre corto de cada coordinador (primer nombre y primer apellido: Francisco Cortés, Verónica Barreiro, Harold Angulo, Jorge Hernández). Hágalo **antes** de generar las claves.
 2. En `LEEME`, celda A2: pegar la línea de autoría (opcional).
-3. Menú **Asistencia ICET > Actualizar horario de preescolar** (una vez) y **Generar claves de ingreso de los directivos**.
+3. Menú **Asistencia ICET > Actualizar horario de preescolar** (una vez) y **Generar claves de ingreso de los directivos** (registra además su correo como coordinador académico) y **Programar informe diario** (envío a la 1:35 p. m.).
 4. En `Docentes`, columna `nota` de Armero y Terán: quitar la mención "OPS" si la tiene (opcional; no afecta nada).
 
 ---

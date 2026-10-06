@@ -92,7 +92,7 @@ function doGet(e) {
     return ContentService.createTextOutput('ICET API').setMimeType(ContentService.MimeType.TEXT);
   }
   var pag = (e && e.parameter && e.parameter.p) || 'menu';   // sin parámetros abre el menú de entrada
-  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y jornadas'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'] };
+  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y jornadas'], horarios: ['Horarios', 'ICET - Horarios y consultas'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'] };
   var pg = PAGINAS[pag] || PAGINAS.menu;
   return HtmlService.createHtmlOutputFromFile(pg[0])
     .setTitle(pg[1])
@@ -908,7 +908,8 @@ function contextoPanel() {
   if (id.rol === 'directivo') {
     var docs = datos_('Docentes').filter(function (d) { return d.nivel !== 'REEMPLAZADO'; }), niveles = {};
     docs.forEach(function (d) { niveles[d.nivel] = 1; });
-    return { rol: 'directivo', nombre: id.nombre, vistaInicial: id.vistaInicial,
+    var ec = estadoCorreo_(id);
+    return { rol: 'directivo', nombre: id.nombre, vistaInicial: id.vistaInicial, necesitaCorreo: ec.necesitaCorreo, correo: ec.correo || '', informes: ec.informes || null,
              docentes: docs.map(function (d) { return { nombre: d.nombre_completo, nivel: d.nivel }; }), niveles: Object.keys(niveles).sort() };
   }
   if (id.rol === 'docente') {
@@ -1022,45 +1023,90 @@ function urlBase() { return ScriptApp.getService().getUrl(); }
 /* ------------------------------ informe diario al rector ------------------------------ */
 var NOMBRE_DIA_ = ['', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
 
+/** Correo real de un directivo: la columna `correo` (la captura el propio directivo al ingresar) o, si no hay, un correo_temporal que no sea de ejemplo. */
+function correoDe_(d) {
+  var c = String(d.correo || '').trim(), t = String(d.correo_temporal || '').trim();
+  if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c)) return c;
+  return t && !/@example\.com$/i.test(t) && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(t) ? t : '';
+}
+/** Quién recibe cada tipo de informe ('dia', 'semana', 'mes'): directivos con correo real que no lo hayan desactivado. */
+function destinatarios_(tipo) {
+  hojaDirectivos_();
+  var out = [];
+  datos_('Directivos').forEach(function (d) {
+    var c = correoDe_(d), pref = String(d['informe_' + tipo] || '').trim().toUpperCase();
+    if (c && pref !== 'NO' && out.indexOf(c) < 0) out.push(c);
+  });
+  return out;
+}
 function correoRector_() {
   var r = datos_('Directivos').filter(function (d) { return /rector/i.test(String(d.rol)); })[0];
-  var c = r ? String(r.correo_temporal).trim() : '';
-  return c && !/@example\.com$/i.test(c) ? c : '';
+  return r ? correoDe_(r) : '';
 }
 
-/** Envía el informe del día al rector. Se ejecuta por disparador (lunes a viernes) o desde el menú. */
-function enviarInformeDiario_(soloProbar) {
+/** Incumplimientos reportados en un periodo (sección del informe por correo). */
+function htmlIncumplimientos_(desde, hasta) {
+  var l = datosOCrea_('Incumplimientos', COL_INCUMPL).filter(function (r) { var f = fechaIso_(limpiaTxt_(r.fecha)); return f >= desde && f <= hasta; });
+  if (!l.length) return '';
+  var e = resEsc_;
+  return '<div style="margin-top:12px;border-left:4px solid #7b1fa2;padding:6px 10px;background:#f6e9fa"><div style="font-weight:600;color:#5a1273">Incumplimientos reportados (' + l.length + ')</div>' +
+    l.map(function (r) { return '<div style="font-size:13px;margin-top:6px"><b>' + e(r.docente) + '</b> · ' + e(String(r.tipo).replace('Incumplimiento: ', '')) + ' · ' + e(r.sesiones) +
+      (Number(r.reincidencia) > 1 ? ' · ' + e(r.reincidencia) + '.º reporte' : '') + '<br>' + e(r.descripcion) + ' <span style="color:#74736d">(' + e(r.registrado_por) + ')</span></div>'; }).join('') + '</div>';
+}
+
+/**
+ * Envía el informe del día, de la semana o del mes a los directivos con correo. tipo: 'dia' | 'semana' | 'mes'.
+ * soloA: lista de correos (prueba). Devuelve {enviado, para:[...], motivo?}.
+ */
+function enviarInformes_(tipo, soloProbar, soloA) {
   var hoy = new Date(), u = Number(Utilities.formatDate(hoy, TZ, 'u'));
   if (u > 5 && !soloProbar) return { enviado: false, motivo: 'fin de semana' };
-  var f = ymd_(hoy), r = resumenInterno_(f, f, {});
-  var fechaTexto = NOMBRE_DIA_[u] + ' ' + Utilities.formatDate(hoy, TZ, "d 'de' MMMM 'de' yyyy");
-  var cuerpo = htmlInforme_(r, fechaTexto, ScriptApp.getService().getUrl() + '?p=panel');
-  var para = correoRector_();
-  if (!para) { Logger.log('Informe NO enviado: el correo del rector es temporal (hoja Directivos).'); return { enviado: false, motivo: 'correo temporal', html: cuerpo }; }
-  MailApp.sendEmail({ to: para, subject: 'ICET - Asistencia docente ' + f + ': ' + r.kpis.horas + ' h sin atender', htmlBody: cuerpo, name: 'Control de asistencia ICET' });
-  return { enviado: true, para: para };
+  var f = ymd_(hoy), desde = f, nombre = 'del día', fechaTexto = NOMBRE_DIA_[u] + ' ' + Utilities.formatDate(hoy, TZ, "d 'de' MMMM 'de' yyyy");
+  if (tipo === 'semana') { desde = lunesDe_(f); nombre = 'de la semana'; fechaTexto = 'Semana del ' + desde + ' al ' + f; }
+  if (tipo === 'mes') { desde = f.slice(0, 8) + '01'; nombre = 'del mes'; fechaTexto = 'Mes de ' + Utilities.formatDate(hoy, TZ, 'MMMM yyyy') + ' (hasta el ' + f + ')'; }
+  var r = resumenInterno_(desde, f, {});
+  var cuerpo = htmlInforme_(r, fechaTexto, ScriptApp.getService().getUrl() + '?p=panel') + htmlIncumplimientos_(desde, f);
+  var para = soloA || destinatarios_(tipo);
+  if (!para.length) { Logger.log('Informe NO enviado: ningún directivo tiene correo real registrado.'); return { enviado: false, motivo: 'sin correos', html: cuerpo }; }
+  para.forEach(function (c) {
+    MailApp.sendEmail({ to: c, subject: 'ICET - Informe ' + nombre + ' (' + f + '): ' + r.kpis.horas + ' h sin atender', htmlBody: cuerpo, name: 'Control de asistencia ICET' });
+  });
+  return { enviado: true, para: para, tipo: tipo };
 }
+/** Compatibilidad: informe del día. */
+function enviarInformeDiario_(soloProbar) { var r = enviarInformes_('dia', soloProbar); if (r.enviado) r.para = r.para.join(', '); return r; }
 
+/** Prueba desde el menú del libro: se envía el informe del día solo a quien lo pide. */
 function probarInformeDiario() {
   exigirEditor_();
-  var r = enviarInformeDiario_(true);
-  SpreadsheetApp.getUi().alert(r.enviado ? 'Informe enviado a ' + r.para
-    : 'No se envió: ' + r.motivo + '.\nCuando la hoja Directivos tenga el correo real del rector, vuelva a probar.');
+  var yo = emailActual_(), r = enviarInformes_('dia', true, yo ? [yo] : []);
+  SpreadsheetApp.getUi().alert(r.enviado ? 'Informe de prueba enviado a ' + yo + '.'
+    : 'No se envió: ' + (r.motivo || 'sin correo') + '.');
 }
 
-/** Programa el envío diario a las 2:30 p. m. (después de la jornada). */
-/** Función que ejecuta el reloj del libro. Es pública pero inofensiva: envía como máximo un informe por día y no devuelve datos. */
+/** ¿Es hoy el último día hábil (lunes a viernes) del mes? */
+function ultimoHabilDelMes_(f) {
+  var s = resSumaDias_(f, 1), d = resDia_(s);
+  while (d === 0 || d === 6) { s = resSumaDias_(s, 1); d = resDia_(s); }
+  return s.slice(0, 7) !== f.slice(0, 7);
+}
+/**
+ * Función que ejecuta el reloj del libro (lunes a viernes, hacia la 1:35 p. m., al terminar la jornada). Pública pero inofensiva:
+ * envía como máximo una vez por día y no devuelve datos. Los viernes agrega el informe de la semana y el último día hábil del mes, el del mes.
+ */
 function informeDiarioProgramado() {
   var props = PropertiesService.getScriptProperties(), hoy = ymd_(new Date());
   if (props.getProperty('ultimo_informe') === hoy) return;
   props.setProperty('ultimo_informe', hoy);
-  enviarInformeDiario_(false);
+  enviarInformes_('dia', false);
+  if (Number(Utilities.formatDate(new Date(), TZ, 'u')) === 5) enviarInformes_('semana', false);
+  if (ultimoHabilDelMes_(hoy)) enviarInformes_('mes', false);
 }
 function programarInformeDiario() {
   exigirEditor_();
   ScriptApp.getProjectTriggers().forEach(function (t) { if (['enviarInformeDiario', 'informeDiarioProgramado'].indexOf(t.getHandlerFunction()) >= 0) ScriptApp.deleteTrigger(t); });
-  ScriptApp.newTrigger('informeDiarioProgramado').timeBased().everyDays(1).atHour(14).nearMinute(30).inTimezone(TZ).create();
-  SpreadsheetApp.getUi().alert('Programado: el informe se enviará al rector de lunes a viernes, hacia las 2:30 p. m.');
+  ScriptApp.newTrigger('informeDiarioProgramado').timeBased().everyDays(1).atHour(13).nearMinute(35).inTimezone(TZ).create();
+  SpreadsheetApp.getUi().alert('Programado: de lunes a viernes, hacia la 1:35 p. m., se envía el informe del día a los directivos con correo registrado (los viernes también el de la semana; el último día hábil del mes, el del mes).');
 }
 
 // ===================== Whatsapp.gs =====================
@@ -1932,6 +1978,112 @@ function actualizarSeguimiento(p) {
   } finally { lock.releaseLock(); }
 }
 
+// ===================== Horarios.gs =====================
+/**
+ * Consulta de horarios (solo lectura) para los coordinadores: horario semanal de un docente o de un grupo de bachillerato (6° a 11° y CS),
+ * quiénes deben estar ahora, directores de grupo y docentes de bachillerato por área. Tiene en cuenta las parejas que alternan cada
+ * semana: si un directivo ya definió quién dicta esa semana (Semana_Alternancia) se muestra el horario efectivo; si no, se muestran
+ * los dos nombres como "por definir". Primaria y preescolar no se consultan aquí.
+ */
+function esBachillerato_(codigo) { return /^(0[6-9]|1[01])\d\d$/.test(String(codigo)) || /^CS\d{3}$/.test(String(codigo)); }
+
+/**
+ * Horario de bachillerato de una semana con las alternancias aplicadas. Devuelve filas
+ * {dia, hora, inicio, fin, grupoCodigo, grupo, area, tipo, docente, posibles:[...], pendiente, equipo}
+ * (una fila por celda; en parejas por definir, docente = el titular y posibles = los dos).
+ */
+function horarioEfectivo_(semana) {
+  var altern = alternancias_(), estados = estadosSemana_(semana), nombres = mapaGrupos_(), filas = [], pares = {};
+  datos_('Horario').forEach(function (h) {
+    var enf = h.tipo === 'ENFASIS', cod = String(enf ? h.grupos_enfasis : h.grupo).split('+')[0];
+    if (!(h.tipo === 'CLASE' || enf) || !esBachillerato_(cod)) return;
+    var base = { dia: h.dia, hora: Number(h.hora), inicio: hhmm_(h.inicio), fin: hhmm_(h.fin), grupoCodigo: String(enf ? h.grupos_enfasis : h.grupo), tipo: h.tipo,
+                 grupo: enf ? 'ÉNFASIS ' + String(h.grupos_enfasis).split('+').map(function (g) { return nombres[g] || g; }).join(' + ') : (nombres[h.grupo] || h.grupo),
+                 area: h.area || '(énfasis)', docente: h.docente, posibles: [], pendiente: false, equipo: enf && /^EQUIPO/.test(String(h.alternancia)) };
+    var par = h.tipo === 'CLASE' ? altern[h.area + '|' + h.docente] : '';
+    if (par) {                                           // clase de una pareja que alterna: el estado de la semana decide quién la dicta
+      var pareja = [h.docente, par].sort(), st = estados['CLASE|' + h.area + '|' + pareja.join('|')];
+      if (st) base.docente = st.intercambio === 'SI' ? par : h.docente;
+      else { base.pendiente = true; base.posibles = pareja; }
+      filas.push(base); return;
+    }
+    if (enf && /^PAREJA/.test(String(h.alternancia))) {  // énfasis en pareja: un solo grupo, un docente por semana
+      var k = h.dia + '|' + h.hora + '|' + h.grupos_enfasis, ya = pares[k];
+      if (!ya) { pares[k] = { fila: base, nombres: [h.docente] }; filas.push(base); return; }
+      ya.nombres.push(h.docente);
+      var pj = ya.nombres.slice().sort(), s2 = estados['ENFASIS|' + h.grupos_enfasis + '|' + pj.join('|')];
+      if (s2) ya.fila.docente = s2.elegido; else { ya.fila.pendiente = true; ya.fila.posibles = pj; }
+      return;
+    }
+    filas.push(base);
+  });
+  return filas;
+}
+
+/** Docentes de bachillerato con sus áreas, grupos, áreas y días disponibles. */
+function catalogoHorarios_() {
+  var filas = horarioEfectivo_(lunesDe_(ymd_(new Date()))), docs = {}, info = {};
+  datos_('Docentes').forEach(function (d) { info[d.nombre_completo] = d; });
+  filas.forEach(function (f) { (f.posibles.length ? f.posibles : [f.docente]).forEach(function (n) { docs[n] = 1; }); });
+  var lista = Object.keys(docs).sort().map(function (n) { var d = info[n] || {}; return { nombre: n, areas: String(d.areas || ''), nota: String(d.nota || '') }; });
+  var grupos = datos_('Grupos').filter(function (g) { return esBachillerato_(g.grupo); }).map(function (g) { return { codigo: g.grupo, nombre: g.nombre }; });
+  grupos.sort(function (a, b) { return claveGrupo_(a.codigo) - claveGrupo_(b.codigo); });
+  var areas = {}; lista.forEach(function (d) { d.areas.split('/').forEach(function (a) { a = a.trim(); if (a) areas[a] = 1; }); });
+  return { docentes: lista, grupos: grupos, areas: Object.keys(areas).sort(), franjas: datos_('Franjas').map(function (f) { return { hora: Number(f.hora), inicio: hhmm_(f.inicio), fin: hhmm_(f.fin) }; }) };
+}
+
+function directoresDeGrupo_() {
+  var nombres = mapaGrupos_(), dir = datos_('Direccion_Grupo'), tienen = {};
+  var lista = dir.map(function (g) {
+    var docs = [g.docente_1, g.docente_2].filter(function (x) { return String(x || '').trim(); });
+    docs.forEach(function (n) { tienen[n] = 1; });
+    return { codigo: g.grupo, nombre: nombres[g.grupo] || g.nombre, directores: docs, modalidad: g.modalidad || '' };
+  });
+  lista.sort(function (a, b) { return claveGrupo_(a.codigo) - claveGrupo_(b.codigo); });
+  var bach = {}; horarioEfectivo_(lunesDe_(ymd_(new Date()))).forEach(function (f) { (f.posibles.length ? f.posibles : [f.docente]).forEach(function (n) { bach[n] = 1; }); });
+  var sin = Object.keys(bach).filter(function (n) { return !tienen[n]; }).sort();
+  return { grupos: lista, sinDireccion: sin };
+}
+
+/**
+ * Consultas de horarios. p = {modo, ...}
+ *  'catalogo'  -> docentes de bachillerato, grupos, áreas, franjas
+ *  'docente'   -> {docente, fecha?}  horario semanal (alternancias de esa semana aplicadas)
+ *  'grupo'     -> {grupo, fecha?}    horario semanal del grupo
+ *  'ahora'     -> {dia?, sesion?}    quiénes deben estar (por bloque), sin necesidad de haber hecho la ronda
+ *  'directores'-> directores de grupo de todos los cursos y docentes de bachillerato sin dirección
+ */
+function consultaHorarios(p) {
+  exigirDirectivo_();
+  p = p || {};
+  var fecha = p.fecha ? fechaIso_(p.fecha) : ymd_(new Date()), semana = lunesDe_(fecha);
+  if (p.modo === 'catalogo') return catalogoHorarios_();
+  if (p.modo === 'directores') return directoresDeGrupo_();
+  if (p.modo === 'docente') {
+    var nom = String(p.docente || '');
+    var celdas = horarioEfectivo_(semana).filter(function (f) { return f.docente === nom || f.posibles.indexOf(nom) >= 0; });
+    return { modo: 'docente', docente: nom, semana: semana, celdas: celdas.map(function (f) {
+      var otros = f.posibles.filter(function (n) { return n !== nom; });
+      return { dia: f.dia, hora: f.hora, inicio: f.inicio, fin: f.fin, grupo: f.grupo, area: f.area, tipo: f.tipo, equipo: f.equipo, pendiente: f.pendiente,
+               alternaCon: f.pendiente ? otros[0] : '', titular: f.pendiente && f.docente === nom };
+    }) };
+  }
+  if (p.modo === 'grupo') {
+    var cod = String(p.grupo || '');
+    var cel = horarioEfectivo_(semana).filter(function (f) { return f.grupoCodigo.split('+').indexOf(cod) >= 0; });
+    return { modo: 'grupo', grupo: (mapaGrupos_()[cod] || cod), semana: semana, celdas: cel.map(function (f) {
+      return { dia: f.dia, hora: f.hora, inicio: f.inicio, fin: f.fin, area: f.area, tipo: f.tipo, equipo: f.equipo, pendiente: f.pendiente, docentes: f.pendiente ? f.posibles : [f.docente] };
+    }) };
+  }
+  if (p.modo === 'ahora') {
+    var r = consultarSesion(p.dia || null, p.sesion || null, 'bloque');
+    return { modo: 'ahora', dia: r.dia, sesion: r.sesion, bloque: r.bloque, franja: r.franja, hora: r.hora, sinEstudiantes: !!r.sinEstudiantes, nota: r.nota,
+             reuniones: r.reuniones, filas: r.filas.map(function (f) { return { docente: f.docente, alternos: f.alternos, definido: !!f.definido, grupo: f.grupo, area: f.area, tipo: f.tipo, nota: f.nota,
+               sesiones: f.sesiones.map(function (x) { return x.sesion; }) }; }) };
+  }
+  throw new Error('Consulta no válida.');
+}
+
 // ===================== Sesion.gs =====================
 /**
  * Ingreso con clave (sin pantallas de Google).
@@ -1946,7 +2098,7 @@ function actualizarSeguimiento(p) {
  * Claves: se guarda SHA-256(sal + clave), nunca la clave. 5 intentos fallidos bloquean al directivo 15 minutos.
  */
 var COL_SESIONES = ['token_hash', 'nombre', 'correo', 'creada', 'expira', 'ultimo_uso'];
-var COL_CLAVE = ['pin_hash', 'pin_sal', 'intentos', 'bloqueado_hasta'];
+var COL_CLAVE = ['pin_hash', 'pin_sal', 'intentos', 'bloqueado_hasta', 'correo', 'informe_dia', 'informe_semana', 'informe_mes'];
 var SESION_DIAS = 14, PIN_INTENTOS = 5, BLOQUEO_MIN = 15;
 
 function hash_(s) {
@@ -2069,8 +2221,44 @@ function generarClavesDirectivos() {
   var r = ui.alert('Claves de ingreso', 'Se creará una clave de 6 números para cada directivo y se mostrarán UNA sola vez. Las claves anteriores dejarán de servir. ¿Continuar?', ui.ButtonSet.YES_NO);
   if (r !== ui.Button.YES) return;
   var cl = generarClavesDirectivos_(false);
-  ui.alert('Anote y entregue a cada persona su clave (no se podrán volver a ver):\n\n' + cl.map(function (x) { return x.nombre + ': ' + x.pin; }).join('\n') +
+  var correoP = registrarCorreoPropietario_();
+  ui.alert((correoP ? 'Se registró el correo del propietario (' + correoP + ') para el informe del coordinador académico.\n\n' : '') + 'Anote y entregue a cada persona su clave (no se podrán volver a ver):\n\n' + cl.map(function (x) { return x.nombre + ': ' + x.pin; }).join('\n') +
            '\n\nCada directivo puede cambiarla desde el menú de la aplicación ("Cambiar mi clave").');
+}
+
+/** El directivo registra su correo (la primera vez que ingresa) y elige qué informes quiere recibir. p = {correo, dia, semana, mes} */
+function guardarCorreo(p) {
+  p = p || {};
+  var id = exigirDirectivo_(), correo = String(p.correo || '').trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo) || /@example\.com$/.test(correo)) throw new Error('Escriba un correo válido.');
+  var d = filaDirectivo_(id.nombre);
+  if (!d) throw new Error('No se encontró su registro.');
+  var c = d.col, si = function (v) { return v === false || v === 'NO' ? 'NO' : 'SI'; };
+  d.sh.getRange(d.fila, c.correo + 1).setValue(correo);
+  d.sh.getRange(d.fila, c.informe_dia + 1).setValue(si(p.dia));
+  d.sh.getRange(d.fila, c.informe_semana + 1).setValue(si(p.semana));
+  d.sh.getRange(d.fila, c.informe_mes + 1).setValue(si(p.mes));
+  return { ok: true };
+}
+/** Datos del correo del directivo que ingresó (para la pantalla de inicio). */
+function estadoCorreo_(id) {
+  hojaDirectivos_();
+  var d = filaDirectivo_(id.nombre);
+  if (!d) return { necesitaCorreo: false };
+  var v = d.v, c = d.col, correo = String(v[c.correo] || '').trim();
+  return { necesitaCorreo: !correo, correo: correo, informes: { dia: String(v[c.informe_dia]) !== 'NO', semana: String(v[c.informe_semana]) !== 'NO', mes: String(v[c.informe_mes]) !== 'NO' } };
+}
+/** El propietario del libro es el coordinador académico: su correo se registra solo (a los demás se les pide al ingresar). */
+function registrarCorreoPropietario_() {
+  var dueno = '';
+  try { dueno = String(Session.getEffectiveUser().getEmail() || '').toLowerCase(); } catch (e) { /* sin dato */ }
+  if (!dueno) return '';
+  hojaDirectivos_();
+  var fila = datos_('Directivos').filter(function (x) { return /acad[eé]mico/i.test(String(x.rol)) && !String(x.correo || '').trim(); })[0];
+  if (!fila) return '';
+  var d = filaDirectivo_(fila.nombre);
+  d.sh.getRange(d.fila, d.col.correo + 1).setValue(dueno);
+  return dueno;
 }
 
 // ===================== Api.gs =====================
@@ -2105,7 +2293,9 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   guardarAsistenciaReunion: ['directivo'],
   cambiarClave: ['directivo'],
   listarIncumplimientos: ['directivo'],
-  actualizarSeguimiento: ['directivo']
+  actualizarSeguimiento: ['directivo'],
+  consultaHorarios: ['directivo'],
+  guardarCorreo: ['directivo']
 };
 
 function apiFunciones_() {
@@ -2117,7 +2307,9 @@ function apiFunciones_() {
     guardarNotaRonda: guardarNotaRonda, listarPropuestas: listarPropuestas, resolverPropuesta: resolverPropuesta, definirAlternancia: definirAlternancia,
     listarReuniones: listarReuniones, crearReunion: crearReunion, cargarReunion: cargarReunion, guardarAsistenciaReunion: guardarAsistenciaReunion,
     cambiarClave: cambiarClave,
-    listarIncumplimientos: listarIncumplimientos, actualizarSeguimiento: actualizarSeguimiento
+    listarIncumplimientos: listarIncumplimientos, actualizarSeguimiento: actualizarSeguimiento,
+    consultaHorarios: consultaHorarios,
+    guardarCorreo: guardarCorreo
   };
 }
 

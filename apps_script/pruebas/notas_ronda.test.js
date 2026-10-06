@@ -20,7 +20,7 @@ const g={Utilities:{formatDate:fmt,getUuid:()=>'u'+Math.random().toString(36).sl
     createFolder:()=>({getId:()=>'RAIZ',createFolder:n=>({createFile:b=>{const f={b,id:'F'+archivos.length,setSharing(){},getId(){return this.id},getUrl(){return 'https://drive/'+this.id}};archivos.push(f);return f},getFoldersByName:()=>({hasNext:()=>false})}),getFoldersByName:()=>({hasNext:()=>false})}),
     getFolderById:()=>{throw new Error('no')},getFileById:id=>({setTrashed(){papelera.push(id)}})},console};
 vm.createContext(g);
-['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Reuniones.gs','Incumplimientos.gs','Sesion.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
+['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Reuniones.gs','Incumplimientos.gs','Horarios.gs','Sesion.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
 let fallos=0; const ok=(c,m)=>{console.log((c?'  ok   ':'  FALLA ')+m); if(!c)fallos++;};
 const run=(c)=>vm.runInContext(c,g);
 const hi=H.Horario[0].indexOf.bind(H.Horario[0]);
@@ -277,4 +277,29 @@ EMAIL=''; ok(/Debe iniciar sesión/.test(falla("listarIncumplimientos({})")||'')
 // panel: kpi
 g.RS2={desde:'2026-10-06',hasta:'2026-10-08',docentes:[],motivos:[],horario:[],novedades:[{fecha:'2026-10-06',docente:'X',tipo:'Incumplimiento: no atiende al grupo',motivo:'Sin justificación',minutos:45,justificada:'No',categoria:'INCUMPLIMIENTO'}]};
 const k2=run('calcularResumen_(RS2)').kpis; ok(k2.incumplimientos===1&&k2.minutos===45&&k2.ausencias===0&&k2.minutosSinJustificar===45,'panel: cuenta incumplimientos, suma sus minutos como injustificados y no los mezcla con ausencias');
+// ---- consulta de horarios (solo bachillerato)
+const cat=run("consultaHorarios({modo:'catalogo'})");
+ok(cat.docentes.length>20&&cat.docentes.length<45&&cat.grupos.length===18&&cat.grupos[0].codigo==='0601'&&cat.grupos[2].codigo==='CS101'&&cat.areas.includes('ETR'),`catálogo: ${cat.docentes.length} docentes de bachillerato, 18 grupos (6° a 11° con CS tras los sextos y novenos) y áreas`);
+const soloPrim=H.Docentes.slice(1).filter(r=>r[H.Docentes[0].indexOf('nivel')]==='PRIMARIA').map(r=>r[H.Docentes[0].indexOf('nombre_completo')]);
+ok(soloPrim.every(n=>!cat.docentes.some(d=>d.nombre===n)),'primaria y preescolar no aparecen en la consulta de horarios');
+const dH=ejemplo[hi('docente')], parH=[dH,otro]; const claveH='CLASE|ETR|'+[...parH].sort().join('|');
+const semHoy=run("lunesDe_(ymd_(new Date()))");
+// sin definir esta semana (se borra la fila de prueba para comprobar el caso "por definir")
+const sa=hojas.Semana_Alternancia.v; for(let i=sa.length-1;i>=1;i--) if(sa[i][1]===claveH) sa.splice(i,1);
+const d0=run(`consultaHorarios({modo:'docente',docente:${JSON.stringify(dH)}})`);
+ok(d0.celdas.length>0&&d0.celdas.some(c=>c.pendiente&&c.alternaCon===otro),'horario de un docente: sus clases en pareja salen "por definir" con el nombre de quien alterna');
+g.PH={clave:claveH,elegido:otro,primario:dH,directivo:'P'}; run('definirAlternancia(PH)');
+const d1=run(`consultaHorarios({modo:'docente',docente:${JSON.stringify(dH)}})`), o1=run(`consultaHorarios({modo:'docente',docente:${JSON.stringify(otro)}})`);
+const suyasD=d1.celdas.filter(c=>c.area==='ETR'&&c.tipo==='CLASE'), suyasO=o1.celdas.filter(c=>c.area==='ETR'&&c.tipo==='CLASE');
+ok(suyasD.every(c=>!c.pendiente)&&suyasO.every(c=>!c.pendiente)&&suyasD.length>0&&suyasO.length>0,'ya definida la semana: cada docente ve su horario efectivo (sin "por definir")');
+const slotsOriginalesD=H.Horario.slice(1).filter(r=>r[hi('tipo')]==='CLASE'&&r[hi('area')]==='ETR'&&r[hi('docente')]===dH).length, slotsOriginalesO=H.Horario.slice(1).filter(r=>r[hi('tipo')]==='CLASE'&&r[hi('area')]==='ETR'&&r[hi('docente')]===otro).length;
+ok(suyasD.length===slotsOriginalesO&&suyasO.length===slotsOriginalesD,'con el intercambio, cada uno tiene las clases de ética/religión del otro ('+suyasD.length+' y '+suyasO.length+')');
+run("definirAlternancia({clave:'"+claveH+"',elegido:'"+dH+"',primario:'"+dH+"',directivo:'P'})");
+const codG=cat.grupos[3].codigo, gr=run(`consultaHorarios({modo:'grupo',grupo:'${codG}'})`);
+ok(gr.celdas.length>=30&&gr.celdas.every(c=>c.docentes.length>=1)&&new Set(gr.celdas.map(c=>c.dia)).size===5,`horario semanal de un grupo: ${gr.celdas.length} celdas, 5 días, con docentes`);
+hojas.Reuniones.v.splice(1);   // se quitan las reuniones de prueba (la jornada pedagógica suspende la ronda)
+const ah=run("consultaHorarios({modo:'ahora',dia:'MARTES',sesion:3})"); ok(ah.filas.length>30&&ah.bloque===2&&/08:20 - 09:50/.test(ah.franja),'«quiénes deben estar ahora»: lista del bloque sin haber hecho la ronda ('+ah.filas.length+' docentes)');
+const di=run("consultaHorarios({modo:'directores'})"); ok(di.grupos.length>=33&&di.grupos[0].codigo==='0001'&&di.grupos[di.grupos.length-1].codigo.startsWith('11')&&di.sinDireccion.length>=1,`directores de grupo: ${di.grupos.length} cursos de preescolar a 11°, y ${di.sinDireccion.length} docentes de bachillerato sin dirección`);
+ok(di.grupos.filter(x=>x.directores.length===2).length>=1,'los grupos compartidos (bachillerato) muestran dos directores');
+EMAIL=''; ok(/Debe iniciar sesión/.test(falla("consultaHorarios({modo:'catalogo'})")||''),'sin sesión no se puede consultar'); EMAIL='dueno@gmail.com';
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

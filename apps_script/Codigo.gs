@@ -91,7 +91,7 @@ function doGet(e) {
     return ContentService.createTextOutput('ICET API').setMimeType(ContentService.MimeType.TEXT);
   }
   var pag = (e && e.parameter && e.parameter.p) || 'menu';   // sin parámetros abre el menú de entrada
-  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y jornadas'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'] };
+  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y jornadas'], horarios: ['Horarios', 'ICET - Horarios y consultas'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'] };
   var pg = PAGINAS[pag] || PAGINAS.menu;
   return HtmlService.createHtmlOutputFromFile(pg[0])
     .setTitle(pg[1])

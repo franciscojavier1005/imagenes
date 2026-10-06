@@ -20,7 +20,7 @@ const g={Utilities:{formatDate:fmt,getUuid:()=>crypto.randomUUID(),base64Decode:
   ScriptApp:{getService:()=>({getUrl:()=>'https://x/exec'}),getProjectTriggers:()=>[],newTrigger:()=>({timeBased:()=>({everyDays:()=>({atHour:()=>({nearMinute:()=>({inTimezone:()=>({create(){}})})})})})})},
   MailApp:{sendEmail(){}},DriveApp:{},console};
 vm.createContext(g);
-['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Reuniones.gs','Incumplimientos.gs','Sesion.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
+['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Reuniones.gs','Incumplimientos.gs','Horarios.gs','Sesion.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
 let fallos=0; const ok=(c,m)=>{console.log((c?'  ok   ':'  FALLA ')+m); if(!c)fallos++;};
 const run=(c)=>vm.runInContext(c,g); const falla=(c)=>{try{run(c);return null}catch(e){return String(e.message)}};
 
@@ -74,4 +74,26 @@ ok(/incorrectos/.test(falla(`llamarSeguro(L3.token,'cambiarClave',[{actual:'9999
 ok(/6 números/.test(falla(`llamarSeguro(L3.token,'cambiarClave',[{actual:'${ana.pin}',nueva:'12'}])`)||''),'la clave nueva debe tener 6 números');
 run(`llamarSeguro(L3.token,'cambiarClave',[{actual:'${ana.pin}',nueva:'482916'}])`);
 ok(/incorrectos/.test(falla(`ingresar({nombre:${JSON.stringify(ana.nombre)},pin:'${ana.pin}'})`)||'')&&!!run(`ingresar({nombre:${JSON.stringify(ana.nombre)},pin:'482916'})`).token,'después de cambiarla, la anterior no sirve y la nueva sí');
+// ---- 6) correo de los directivos e informes
+const iM=()=>hojas.Directivos.v[0].indexOf('correo');
+EMAIL='';
+g.Session.getEffectiveUser=()=>({getEmail:()=>'Dueno@Gmail.com'});
+ok(run("registrarCorreoPropietario_()")==='dueno@gmail.com','el correo del propietario se registra solo en la fila del coordinador académico');
+const filaAc=hojas.Directivos.v.find(r=>/acad/i.test(r[hojas.Directivos.v[0].indexOf('rol')]));
+ok(filaAc[iM()]==='dueno@gmail.com','queda guardado en la hoja Directivos');
+const otro=claves.find(c=>c.nombre!==filaAc[0]&&c.nombre!==rec.nombre);
+g.L4=run(`ingresar({nombre:${JSON.stringify(otro.nombre)},pin:'${otro.pin}'})`);
+let cx=run(`llamarSeguro(L4.token,'contextoPanel',[])`);
+ok(cx.necesitaCorreo===true,'un coordinador sin correo: la pantalla le pide registrarlo');
+ok(/válido/.test(falla(`llamarSeguro(L4.token,'guardarCorreo',[{correo:'no es correo'}])`)||'')&&/válido/.test(falla(`llamarSeguro(L4.token,'guardarCorreo',[{correo:'a@example.com'}])`)||''),'correo inválido o de ejemplo: se rechaza');
+run(`llamarSeguro(L4.token,'guardarCorreo',[{correo:'Coord@Correo.com',dia:true,semana:false,mes:true}])`);
+cx=run(`llamarSeguro(L4.token,'contextoPanel',[])`);
+ok(cx.necesitaCorreo===false&&cx.correo==='coord@correo.com'&&cx.informes.semana===false&&cx.informes.dia===true,'queda guardado con sus preferencias y ya no se vuelve a pedir');
+ok(run("destinatarios_('dia')").join()==='dueno@gmail.com,coord@correo.com'&&run("destinatarios_('semana')").join()==='dueno@gmail.com','destinatarios según preferencia de cada informe');
+const dueno0=run("destinatarios_('mes')").length; ok(dueno0===2,'informe mensual: 2 destinatarios');
+const enviados=[]; g.MailApp.sendEmail=o=>enviados.push(o);
+const rs=run("enviarInformes_('semana',true)"); ok(rs.enviado&&enviados.length===1&&/de la semana/.test(enviados[0].subject),'informe semanal solo a quien lo pidió');
+const rm=run("enviarInformes_('mes',true)"); ok(rm.enviado&&enviados.length===3&&/del mes/.test(enviados[2].subject),'informe mensual a los 2 con correo');
+const rp=run("enviarInformes_('dia',true,['x@y.com'])"); ok(rp.para.join()==='x@y.com'&&enviados.length===4,'la prueba envía solo a la dirección indicada');
+ok(run("ultimoHabilDelMes_('2026-10-30')")===true&&run("ultimoHabilDelMes_('2026-10-29')")===false&&run("ultimoHabilDelMes_('2026-09-30')")===true,'último día hábil del mes (30-oct sí, 29-oct no, 30-sep sí)');
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

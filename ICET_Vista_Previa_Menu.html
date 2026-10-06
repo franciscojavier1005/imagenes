@@ -81,8 +81,9 @@ function srv(){
     listarDirectivosPublicos:function(){setTimeout(function(){ok(DIR);},5);},
     ingresar:function(p){setTimeout(function(){ if(p.pin==='123456'){quien=p.nombre;intentos=0;ok({token:'t'.repeat(64),nombre:p.nombre,rol:'Coordinador'});} else {intentos++; fail({message:intentos>=5?'Demasiados intentos. Espere 15 minutos.':'Nombre o clave incorrectos.'});}},300);},
     cerrarSesion:function(){setTimeout(function(){quien='';ok({ok:true});},5);},
+    guardarCorreo:function(p){setTimeout(function(){ if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(p.correo)){fail({message:'Escriba un correo válido.'});} else {window.CORREO_OK=true;ok({ok:true});} },200);},
     cambiarClave:function(p){setTimeout(function(){ if(p.actual!=='123456'){fail({message:'Nombre o clave incorrectos.'});} else if(!/^\d{6}$/.test(p.nueva)){fail({message:'La clave nueva debe tener 6 números.'});} else ok({ok:true});},200);},
-    llamarSeguro:function(t,fn){setTimeout(function(){ if(fn==='contextoPanel') ok({rol:'directivo',nombre:quien||'Francisco Cortés'}); else ok({});},5);}};return self;};
+    llamarSeguro:function(t,fn){setTimeout(function(){ if(fn==='contextoPanel') ok({rol:'directivo',nombre:quien||'Francisco Cortés',necesitaCorreo:quien!=='Francisco Cortés'&&!window.CORREO_OK}); else ok({});},5);}};return self;};
   window.google={script:{run:new Proxy({},{get:function(_,k){var s=api();return k in s?s[k]:s;}})}};
 })();
 </script>
@@ -116,19 +117,38 @@ function entrar(){
 }
 
 /* ---------- menú ---------- */
-function pintar(rol,nombre){
+function pintar(rol,nombre,c){
   var h='';
+  CTX=c||{}; CTX.nombre=nombre;
   if(rol==='directivo'){
     el('saludo').textContent='Bienvenido(a)'+(nombre?', '+nombre:'')+'. ¿Qué desea hacer?';
     h+=boton('ronda','📋','Ronda de aula','Lo normal: verificar quién está en clase (por bloque).');
     h+=boton('reunion','👥','Reuniones y jornadas','Asistencia de reuniones, jornada pedagógica, consejos y comités.');
+    h+=boton('horarios','🗓','Horarios y consultas','Horario de un docente o grupo, quiénes deben estar ahora y directores de grupo.');
     h+=boton('panel','📊','Panel e informes','Ver cifras, tendencias y el informe del periodo.');
+    if(CTX.necesitaCorreo) h+='<div id="correoForm">'+formCorreo(true)+'</div>';
   } else {
     el('saludo').textContent='Bienvenido(a). Toque para continuar.';
     h+=boton('panel','📊','Mi informe y mis soportes','Ver mi asistencia, cargar soportes o pedir acceso.');
   }
-  h+='<div class="pie"><button class="enlace" onclick="formClave()">Cambiar mi clave</button> · <button class="enlace" onclick="salir()">Cerrar sesión</button></div><div id="claveForm"></div>';
+  h+='<div class="pie">'+(rol==='directivo'&&!CTX.necesitaCorreo?'<button class="enlace" onclick="abrirCorreo()">Mi correo e informes</button> · ':'')+'<button class="enlace" onclick="formClave()">Cambiar mi clave</button> · <button class="enlace" onclick="salir()">Cerrar sesión</button></div><div id="claveForm"></div>';
   el('botones').innerHTML=h;
+}
+var CTX={};
+function formCorreo(primera){
+  var inf=CTX.informes||{dia:true,semana:true,mes:true};
+  return '<div class="caja"><b>'+(primera?'Registre su correo':'Mi correo e informes')+'</b><div class="msg" style="color:#555">'+(primera?'Solo se pide esta vez. ':'')+'Recibirá por correo la síntesis de asistencia al terminar la jornada.</div>'+
+    '<label>Correo electrónico<input id="kMail" type="email" autocomplete="email" value="'+esc(CTX.correo||'')+'" placeholder="nombre@correo.com"></label>'+
+    '<label style="display:block"><input type="checkbox" id="kDia"'+(inf.dia?' checked':'')+'> Informe del día (1:35 p. m.)</label>'+
+    '<label style="display:block"><input type="checkbox" id="kSem"'+(inf.semana?' checked':'')+'> Informe de la semana (viernes)</label>'+
+    '<label style="display:block"><input type="checkbox" id="kMes"'+(inf.mes?' checked':'')+'> Informe del mes (último día hábil)</label>'+
+    '<button class="btn" onclick="guardarMail()">Guardar</button><div class="msg" id="kMsg"></div></div>';
+}
+function abrirCorreo(){ el('claveForm').innerHTML=formCorreo(false); }
+function guardarMail(){
+  var p={correo:el('kMail').value,dia:el('kDia').checked,semana:el('kSem').checked,mes:el('kMes').checked};
+  srv().withSuccessHandler(function(){ CTX.necesitaCorreo=false; CTX.correo=p.correo; CTX.informes={dia:p.dia,semana:p.semana,mes:p.mes}; el('kMsg').style.color='#1b5e20'; el('kMsg').textContent='Listo: correo guardado.'; setTimeout(function(){ pintar('directivo',CTX.nombre,CTX); },900); })
+   .withFailureHandler(function(e){ el('kMsg').style.color='#a31515'; el('kMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); }).guardarCorreo(p);
 }
 function formClave(){
   el('claveForm').innerHTML='<div class="caja"><label>Clave actual<input class="pin" id="cA" type="password" inputmode="numeric" maxlength="6"></label><label>Clave nueva (6 números)<input class="pin" id="cN" type="password" inputmode="numeric" maxlength="6"></label>'+
@@ -142,7 +162,7 @@ function salir(){ var t=tokenGuardado(); borrarToken(); srv().withSuccessHandler
 function iniciar(){
   srv().withSuccessHandler(function(u){ BASE=u||'';
     if(!tokenGuardado()&&!window.PREVIEW){ mostrarLogin(); return; }
-    srv().withSuccessHandler(function(c){ if(!c||c.rol==='anonimo'){ borrarToken(); mostrarLogin(); } else pintar(c.rol,c.nombre); })
+    srv().withSuccessHandler(function(c){ if(!c||c.rol==='anonimo'){ borrarToken(); mostrarLogin(); } else pintar(c.rol,c.nombre,c); })
       .withFailureHandler(function(){ borrarToken(); mostrarLogin(); }).contextoPanel();
   }).withFailureHandler(function(){ mostrarLogin(); }).urlBase();
 }

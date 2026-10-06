@@ -33,7 +33,7 @@
 11. Pendiente de confirmar: si los docentes 1 y 2 (6° y 7°) también se alternan entre sí.
 
 ## 4. Pendientes
-Correos reales de directivos (hoy temporales), huella (pospuesta), modo B para docentes, reuniones en el panel, confirmar parejas de docentes 1 y 2, texto jurídico de autorización de datos.
+Correos reales de directivos (se capturan al primer ingreso), huella (pospuesta), modo B para docentes, reuniones en el panel, confirmar parejas de docentes 1 y 2, texto jurídico de autorización de datos.
 
 ## 5. Qué sustituir en Apps Script (una sola vez, con los archivos de `apps_script/paquete/`; ver también `docs/DESPLIEGUE.md`)
 1. `Código.gs` ← contenido completo de `ICET_completo.gs`.
@@ -47,3 +47,4 @@ Correos reales de directivos (hoy temporales), huella (pospuesta), modo B para d
 9. (Nuevo) El código ya incluye `Incumplimientos.gs` dentro de `ICET_completo.gs`: no hay archivos adicionales.
 10. Implementación: *Ejecutar como*: Yo; *Acceso*: Cualquier persona. Menú **Generar claves de ingreso** y entregar las claves.
 11. Abrir la URL **sin nada al final**: aparece el ingreso con clave y luego el menú.
+12. (Nuevo) HTML **nuevo** `Horarios` ← `Horarios.html`; reemplazar también `Menu.html` (tarjeta de correo) y `ICET_completo.gs`. Menú **Programar informe diario** (una vez) y volver a **Generar claves** solo si faltan claves (registra el correo del propietario). No hay que volver a subir el libro.

@@ -5,10 +5,10 @@ let correos=[], logs=[], EMAIL='dueno@gmail.com';
 const fmt=(d,tz,p)=>{const o=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'}).formatToParts(d).reduce((a,x)=>(a[x.type]=x.value,a),{});
   if(p==='yyyy-MM-dd')return `${o.year}-${o.month}-${o.day}`; if(p==='u')return String({Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6,Sun:7}[o.weekday]); return `${Number(o.day)} de ${new Intl.DateTimeFormat('es',{timeZone:tz,month:'long'}).format(d)} de ${o.year}`;};
 const g={Utilities:{formatDate:fmt},Logger:{log:m=>logs.push(m)},
-  SpreadsheetApp:{getActive:()=>({getEditors:()=>[{getEmail:()=>'dueno@gmail.com'}],getOwner:()=>({getEmail:()=>'dueno@gmail.com'}),getSheetByName:n=>({getDataRange:()=>({getValues:()=>JSON.parse(JSON.stringify(H[n]))})})}),getUi:()=>({alert:()=>{}})},
+  SpreadsheetApp:{getActive:()=>({getEditors:()=>[{getEmail:()=>'dueno@gmail.com'}],getOwner:()=>({getEmail:()=>'dueno@gmail.com'}),getSheetByName:n=>({getRange:(r,c)=>({setValue:v=>{H[n][0][c-1]=v}}),getDataRange:()=>({getValues:()=>JSON.parse(JSON.stringify(H[n]))})})}),getUi:()=>({alert:()=>{}})},
   ScriptApp:{getService:()=>({getUrl:()=>'https://script.google.com/macros/s/ID/exec'})},MailApp:{sendEmail:o=>correos.push(o)},Session:{getActiveUser:()=>({getEmail:()=>EMAIL})},HtmlService:{},console};
 vm.createContext(g);
-['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Soportes.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
+['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Soportes.gs','Reuniones.gs','Incumplimientos.gs','Horarios.gs','Sesion.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
 const EXP=H.Horario.slice(1).filter(r=>['JUEVES','VIERNES'].includes(r[H.Horario[0].indexOf('dia')])).length;
 const r=vm.runInContext("datosDashboard('2026-10-01','2026-10-02')",g);
 const ok=(c,m)=>{try{assert.ok(c);console.log('  ok  ',m)}catch(e){console.log('  FALLA',m);process.exitCode=1}};
@@ -22,7 +22,7 @@ ok(cat['CALAMIDAD DOMÉSTICA']===270&&cat['PERMISO INSTITUCIONAL']===45,'categor
 const v1=r.ronda.find(x=>x.sesion===1); ok(v1.marcados===0&&v1.esperados>30,'ronda sesión 1 sin marcas: '+v1.marcados+' de '+v1.esperados+' esperados');
 ok(r.kpis.programadas===EXP,'sesiones programadas jue+vie = '+r.kpis.programadas);
 const e1=vm.runInContext("enviarInformeDiario_(true)",g);
-ok(e1.enviado===false&&e1.motivo==='correo temporal'&&correos.length===0,'con el correo temporal NO envía nada');
+ok(e1.enviado===false&&e1.motivo==='sin correos'&&correos.length===0,'con el correo temporal NO envía nada');
 H.Directivos[4][2]='rector@institucion.edu.co';   // correo real de prueba
 const e2=vm.runInContext("enviarInformeDiario_(true)",g);
 ok(e2.enviado===true&&correos.length===1&&correos[0].to==='rector@institucion.edu.co','con correo real sí envía (1 correo)');

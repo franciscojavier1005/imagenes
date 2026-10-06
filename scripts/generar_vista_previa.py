@@ -180,8 +180,9 @@ _mock3 = """<script>
     listarDirectivosPublicos:function(){setTimeout(function(){ok(DIR);},5);},
     ingresar:function(p){setTimeout(function(){ if(p.pin==='123456'){quien=p.nombre;intentos=0;ok({token:'t'.repeat(64),nombre:p.nombre,rol:'Coordinador'});} else {intentos++; fail({message:intentos>=5?'Demasiados intentos. Espere 15 minutos.':'Nombre o clave incorrectos.'});}},300);},
     cerrarSesion:function(){setTimeout(function(){quien='';ok({ok:true});},5);},
+    guardarCorreo:function(p){setTimeout(function(){ if(!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(p.correo)){fail({message:'Escriba un correo válido.'});} else {window.CORREO_OK=true;ok({ok:true});} },200);},
     cambiarClave:function(p){setTimeout(function(){ if(p.actual!=='123456'){fail({message:'Nombre o clave incorrectos.'});} else if(!/^\\d{6}$/.test(p.nueva)){fail({message:'La clave nueva debe tener 6 números.'});} else ok({ok:true});},200);},
-    llamarSeguro:function(t,fn){setTimeout(function(){ if(fn==='contextoPanel') ok({rol:'directivo',nombre:quien||'Francisco Cortés'}); else ok({});},5);}};return self;};
+    llamarSeguro:function(t,fn){setTimeout(function(){ if(fn==='contextoPanel') ok({rol:'directivo',nombre:quien||'Francisco Cortés',necesitaCorreo:quien!=='Francisco Cortés'&&!window.CORREO_OK}); else ok({});},5);}};return self;};
   window.google={script:{run:new Proxy({},{get:function(_,k){var s=api();return k in s?s[k]:s;}})}};
 })();
 </script>
@@ -189,3 +190,32 @@ _mock3 = """<script>
 _m = _m.replace("<script>\nvar BASE='', NOMBRES=[];", _mock3 + "<script>\nvar BASE='', NOMBRES=[];", 1)
 open(os.path.join(RAIZ, "ICET_Vista_Previa_Menu.html"), "w", encoding="utf-8").write(_m)
 print("OK menu")
+
+
+# ---------------------------------------------------------------- vista previa de Horarios (datos calculados con el código real)
+import subprocess, tempfile
+_tmp = os.path.join(tempfile.gettempdir(), "horarios_demo.json")
+if os.path.exists(os.path.join(RAIZ, "apps_script", "pruebas", "hojas.json")):
+    subprocess.run(["node", os.path.join(RAIZ, "apps_script", "pruebas", "exportar_horarios_demo.js"), _tmp], check=True)
+    _datos_h = open(_tmp, encoding="utf-8").read()
+    _mock4 = """<script>
+/* Vista previa de Horarios: respuestas calculadas con el código real sobre los datos del libro. */
+(function(){
+  var D=%s;
+  var api=function(){var ok=null,fail=null,self={withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
+    urlBase:function(){setTimeout(function(){ok('#vista-previa');},5);},
+    consultaHorarios:function(p){setTimeout(function(){
+      if(p.modo==='catalogo') ok(D.catalogo); else if(p.modo==='directores') ok(D.directores);
+      else if(p.modo==='docente') ok(D.docente[p.docente]); else if(p.modo==='grupo') ok(D.grupo[p.grupo]);
+      else { var k=(p.dia||'JUEVES')+'|'+(p.sesion||1); ok(D.ahora[k]||D.ahora['JUEVES|1']); } },20);},
+    llamarSeguro:function(){setTimeout(function(){ok({});},5);}};return self;};
+  window.PREVIEW=true;
+  window.google={script:{run:new Proxy({},{get:function(_,k){var s=api();return k in s?s[k]:s;}})}};
+})();
+</script>
+""" % _datos_h
+    _hh = open(os.path.join(RAIZ, "apps_script", "Horarios.html"), encoding="utf-8").read()
+    _i = _hh.index("<script>")
+    _hh = _hh[:_i] + _mock4 + _hh[_i:]
+    open(os.path.join(RAIZ, "ICET_Vista_Previa_Horarios.html"), "w", encoding="utf-8").write(_hh)
+    print("OK horarios", round(len(_hh) / 1024), "KB")

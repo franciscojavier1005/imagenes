@@ -11,7 +11,7 @@
  * Claves: se guarda SHA-256(sal + clave), nunca la clave. 5 intentos fallidos bloquean al directivo 15 minutos.
  */
 var COL_SESIONES = ['token_hash', 'nombre', 'correo', 'creada', 'expira', 'ultimo_uso'];
-var COL_CLAVE = ['pin_hash', 'pin_sal', 'intentos', 'bloqueado_hasta'];
+var COL_CLAVE = ['pin_hash', 'pin_sal', 'intentos', 'bloqueado_hasta', 'correo', 'informe_dia', 'informe_semana', 'informe_mes'];
 var SESION_DIAS = 14, PIN_INTENTOS = 5, BLOQUEO_MIN = 15;
 
 function hash_(s) {
@@ -134,6 +134,42 @@ function generarClavesDirectivos() {
   var r = ui.alert('Claves de ingreso', 'Se creará una clave de 6 números para cada directivo y se mostrarán UNA sola vez. Las claves anteriores dejarán de servir. ¿Continuar?', ui.ButtonSet.YES_NO);
   if (r !== ui.Button.YES) return;
   var cl = generarClavesDirectivos_(false);
-  ui.alert('Anote y entregue a cada persona su clave (no se podrán volver a ver):\n\n' + cl.map(function (x) { return x.nombre + ': ' + x.pin; }).join('\n') +
+  var correoP = registrarCorreoPropietario_();
+  ui.alert((correoP ? 'Se registró el correo del propietario (' + correoP + ') para el informe del coordinador académico.\n\n' : '') + 'Anote y entregue a cada persona su clave (no se podrán volver a ver):\n\n' + cl.map(function (x) { return x.nombre + ': ' + x.pin; }).join('\n') +
            '\n\nCada directivo puede cambiarla desde el menú de la aplicación ("Cambiar mi clave").');
+}
+
+/** El directivo registra su correo (la primera vez que ingresa) y elige qué informes quiere recibir. p = {correo, dia, semana, mes} */
+function guardarCorreo(p) {
+  p = p || {};
+  var id = exigirDirectivo_(), correo = String(p.correo || '').trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo) || /@example\.com$/.test(correo)) throw new Error('Escriba un correo válido.');
+  var d = filaDirectivo_(id.nombre);
+  if (!d) throw new Error('No se encontró su registro.');
+  var c = d.col, si = function (v) { return v === false || v === 'NO' ? 'NO' : 'SI'; };
+  d.sh.getRange(d.fila, c.correo + 1).setValue(correo);
+  d.sh.getRange(d.fila, c.informe_dia + 1).setValue(si(p.dia));
+  d.sh.getRange(d.fila, c.informe_semana + 1).setValue(si(p.semana));
+  d.sh.getRange(d.fila, c.informe_mes + 1).setValue(si(p.mes));
+  return { ok: true };
+}
+/** Datos del correo del directivo que ingresó (para la pantalla de inicio). */
+function estadoCorreo_(id) {
+  hojaDirectivos_();
+  var d = filaDirectivo_(id.nombre);
+  if (!d) return { necesitaCorreo: false };
+  var v = d.v, c = d.col, correo = String(v[c.correo] || '').trim();
+  return { necesitaCorreo: !correo, correo: correo, informes: { dia: String(v[c.informe_dia]) !== 'NO', semana: String(v[c.informe_semana]) !== 'NO', mes: String(v[c.informe_mes]) !== 'NO' } };
+}
+/** El propietario del libro es el coordinador académico: su correo se registra solo (a los demás se les pide al ingresar). */
+function registrarCorreoPropietario_() {
+  var dueno = '';
+  try { dueno = String(Session.getEffectiveUser().getEmail() || '').toLowerCase(); } catch (e) { /* sin dato */ }
+  if (!dueno) return '';
+  hojaDirectivos_();
+  var fila = datos_('Directivos').filter(function (x) { return /acad[eé]mico/i.test(String(x.rol)) && !String(x.correo || '').trim(); })[0];
+  if (!fila) return '';
+  var d = filaDirectivo_(fila.nombre);
+  d.sh.getRange(d.fila, d.col.correo + 1).setValue(dueno);
+  return dueno;
 }

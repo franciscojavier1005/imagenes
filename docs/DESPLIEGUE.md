@@ -1,3 +1,12 @@
+# Actualizar el libro de Drive sin perder datos (no hay que subir otro libro)
+El libro que ya tiene en Google Sheets se conserva. El código nuevo **crea solo** lo que falta: hojas `Alternancias`, `Semana_Alternancia`, `Reuniones`, `Asistencia_Reunion`, `Sesiones`, `Notas_Ronda`; columnas de clave en `Directivos`; columnas nuevas de `Bandeja_WhatsApp`; y los motivos nuevos en `Motivos`. Solo hay que hacer a mano (todo opcional salvo el punto 3):
+1. En la hoja `Directivos`, columna `nombre`: dejar el nombre corto de cada coordinador (primer nombre y primer apellido: Francisco Cortés, Verónica Barreiro, Harold Angulo, Jorge Hernández). Hágalo **antes** de generar las claves.
+2. En `LEEME`, celda A2: pegar la línea de autoría (opcional).
+3. Menú **Asistencia ICET > Actualizar horario de preescolar** (una vez) y **Generar claves de ingreso de los directivos**.
+4. En `Docentes`, columna `nota` de Armero y Terán: quitar la mención "OPS" si la tiene (opcional; no afecta nada).
+
+---
+
 # Ingreso con clave (modo recomendado ahora): sin pantallas de Google
 
 Los coordinadores no tienen que iniciar sesión en Google ni pasar por «Google no ha verificado esta aplicación > Opciones avanzadas». La aplicación se publica **como el propietario** y para **cualquier persona**; cada directivo entra con su nombre y una **clave de 6 números**.

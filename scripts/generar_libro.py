@@ -70,7 +70,7 @@ GR = {g["grupo"]: g for g in leer_d("grupos.csv")}
 lm = wb.create_sheet("LEEME")
 for t in [
     "ICET 2026 - Control de asistencia docente",
-    "Autor: Francisco Javier Cortés Cabezas · Coordinador académico · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026",
+    "Autor: Francisco Javier Cortés Cabezas · Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026",
     "",
     "RONDA (hoja principal): al abrirla muestra, sin filtros, quién debe estar en cada grupo en la sesión actual.",
     "  - Día y sesión se calculan con la hora del dispositivo. En Google Sheets: Archivo > Configuración > zona horaria (GMT-05:00 Bogotá).",
@@ -107,7 +107,7 @@ fr = hoja(wb, "Franjas", [[c for c in leer("franjas.csv")[0]]] + [[int(x) if x.i
 gr = hoja(wb, "Grupos", leer("grupos.csv"))
 mot = hoja(wb, "Motivos", leer("motivos.csv"))
 dir_ = hoja(wb, "Directivos", [["nombre", "rol", "correo_temporal"],
-    ["Francisco Javier Cortés", "Coordinador académico", "coordinador.academico.temporal@example.com"],
+    ["Francisco Cortés", "Coordinador académico", "coordinador.academico.temporal@example.com"],
     ["Verónica Barreiro", "Coordinadora de redes de apoyo", "coordinadora.redes.temporal@example.com"],
     ["Harold Angulo", "Coordinador de convivencia", "coordinador.convivencia.temporal@example.com"],
     ["Jorge Hernández", "Rector", "rector.temporal@example.com"]])
@@ -258,6 +258,6 @@ wb._sheets = [wb[n] for n in orden]
 wb.active = 1
 wb.properties.creator = "Francisco Javier Cortés Cabezas"
 wb.properties.title = "ICET 2026 - Control de asistencia docente"
-wb.properties.description = "Sistema de control de asistencia docente. Autor: Francisco Javier Cortés Cabezas, coordinador académico, I.E. ICET, Tumaco (Nariño). © 2026"
+wb.properties.description = "Sistema de control de asistencia docente. Autor: Francisco Javier Cortés Cabezas, coordinador académico; especialista en informática y telemática, magíster en educación, doctorando en desarrollo de la educación. I.E. ICET, Tumaco (Nariño). © 2026"
 wb.save(OUT)
 print("OK", OUT)

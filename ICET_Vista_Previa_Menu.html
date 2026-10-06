@@ -43,7 +43,7 @@
 <main>
   <div class="saludo" id="saludo"></div>
   <div id="botones"><div class="espera">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b> · Coordinador académico, I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -74,7 +74,7 @@ function srv(){
 <script>
 /* Vista previa del ingreso: clave de ejemplo 123456 (nada se guarda fuera de esta página). */
 (function(){
-  var DIR=[{nombre:'Francisco Javier Cortés',rol:'Coordinador académico',tieneClave:true},{nombre:'Verónica Barreiro',rol:'Coordinadora de redes de apoyo',tieneClave:true},{nombre:'Harold Angulo',rol:'Coordinador de convivencia',tieneClave:true},{nombre:'Jorge Hernández',rol:'Rector',tieneClave:true}];
+  var DIR=[{nombre:'Francisco Cortés',rol:'Coordinador académico',tieneClave:true},{nombre:'Verónica Barreiro',rol:'Coordinadora de redes de apoyo',tieneClave:true},{nombre:'Harold Angulo',rol:'Coordinador de convivencia',tieneClave:true},{nombre:'Jorge Hernández',rol:'Rector',tieneClave:true}];
   var intentos=0, quien='';
   var api=function(){var ok=null,fail=null,self={withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
     urlBase:function(){setTimeout(function(){ok('#vista-previa');},5);},
@@ -82,7 +82,7 @@ function srv(){
     ingresar:function(p){setTimeout(function(){ if(p.pin==='123456'){quien=p.nombre;intentos=0;ok({token:'t'.repeat(64),nombre:p.nombre,rol:'Coordinador'});} else {intentos++; fail({message:intentos>=5?'Demasiados intentos. Espere 15 minutos.':'Nombre o clave incorrectos.'});}},300);},
     cerrarSesion:function(){setTimeout(function(){quien='';ok({ok:true});},5);},
     cambiarClave:function(p){setTimeout(function(){ if(p.actual!=='123456'){fail({message:'Nombre o clave incorrectos.'});} else if(!/^\d{6}$/.test(p.nueva)){fail({message:'La clave nueva debe tener 6 números.'});} else ok({ok:true});},200);},
-    llamarSeguro:function(t,fn){setTimeout(function(){ if(fn==='contextoPanel') ok({rol:'directivo',nombre:quien||'Francisco Javier Cortés'}); else ok({});},5);}};return self;};
+    llamarSeguro:function(t,fn){setTimeout(function(){ if(fn==='contextoPanel') ok({rol:'directivo',nombre:quien||'Francisco Cortés'}); else ok({});},5);}};return self;};
   window.google={script:{run:new Proxy({},{get:function(_,k){var s=api();return k in s?s[k]:s;}})}};
 })();
 </script>

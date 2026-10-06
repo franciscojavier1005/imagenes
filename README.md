@@ -1,6 +1,6 @@
 # ICET 2026 - Control de asistencia docente
 
-**Autor:** Francisco Javier Cortés Cabezas · Coordinador académico · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026. Diseño, especificaciones y dirección del sistema.
+**Autor:** Francisco Javier Cortés Cabezas · Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026. Diseño, especificaciones y dirección del sistema.
 
 - `fuentes/`: PDF de asignación académica, dirección de grupo y Word de asistencia (originales).
 - `scripts/`: extracción (`extraer_horarios.py`), datos (`construir_datos.py`), validación (`validar.py`) y libro (`generar_libro.py`; `direccion_grupo.py` con la dirección de grupo 2026).
@@ -49,7 +49,7 @@ Nada pasa a `Novedades` sin esa confirmación y no se duplica una ausencia ya re
 - Un solo selector **Motivo** (empieza en "Sin justificación"); ya no hay un selector aparte de "Justificación" que repetía lo mismo. Si el motivo es "Sin justificación" la ausencia cuenta como injustificada.
 - **¿Quién atendió al grupo?** (nadie / reemplazo / practicante / otro docente o directivo): se anota, pero **no cambia** que el docente no asistió.
 - Imagen institucional: escudo de ICET (recortado de `LOGO ORIENTACIÓN ESCOLAR ICET 40.jpg`, copia en `apps_script/recursos/`), azul marino y dorado.
-- Directivos: Francisco Javier Cortés (coordinador académico), Verónica Barreiro (coordinadora de redes de apoyo), Harold Angulo (coordinador de convivencia) y Jorge Hernández (rector); correos aún temporales.
+- Directivos: Francisco Cortés (coordinador académico), Verónica Barreiro (coordinadora de redes de apoyo), Harold Angulo (coordinador de convivencia) y Jorge Hernández (rector); correos aún temporales.
 
 ## Ronda por bloque
 La ronda verifica por **bloque** (2 sesiones: S1-2, S3-4, S5-6, S7-8) o, si se prefiere, por sesión (selector "Por bloque / Por sesión" en el encabezado; se recuerda en cada dispositivo). En bloque, una visita en cualquier momento del bloque vale para sus dos sesiones: una tarjeta por docente y la marca se guarda como las dos sesiones (Registro_Ronda y Novedades, 45 min cada una; 60 en preescolar). La llegada tarde se anota en la primera sesión y la salida temprana en la última. "Toda la jornada" sigue registrándose una sola vez.

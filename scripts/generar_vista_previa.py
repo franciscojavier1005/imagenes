@@ -36,7 +36,7 @@ datos = {
     "motivos": rd("motivos.csv"),
     "listas": rd("listas.csv"),
     "directivos": [d["nombre"] for d in csv.DictReader(open(os.path.join(D, "directivos.csv"), encoding="utf-8-sig"))]
-                  if os.path.exists(os.path.join(D, "directivos.csv")) else ["Francisco Javier Cortés", "Verónica Barreiro", "Harold Angulo", "Jorge Hernández"],
+                  if os.path.exists(os.path.join(D, "directivos.csv")) else ["Francisco Cortés", "Verónica Barreiro", "Harold Angulo", "Jorge Hernández"],
 }
 
 mock = """<script>
@@ -173,7 +173,7 @@ _m = open(os.path.join(RAIZ, "apps_script", "Menu.html"), encoding="utf-8").read
 _mock3 = """<script>
 /* Vista previa del ingreso: clave de ejemplo 123456 (nada se guarda fuera de esta página). */
 (function(){
-  var DIR=[{nombre:'Francisco Javier Cortés',rol:'Coordinador académico',tieneClave:true},{nombre:'Verónica Barreiro',rol:'Coordinadora de redes de apoyo',tieneClave:true},{nombre:'Harold Angulo',rol:'Coordinador de convivencia',tieneClave:true},{nombre:'Jorge Hernández',rol:'Rector',tieneClave:true}];
+  var DIR=[{nombre:'Francisco Cortés',rol:'Coordinador académico',tieneClave:true},{nombre:'Verónica Barreiro',rol:'Coordinadora de redes de apoyo',tieneClave:true},{nombre:'Harold Angulo',rol:'Coordinador de convivencia',tieneClave:true},{nombre:'Jorge Hernández',rol:'Rector',tieneClave:true}];
   var intentos=0, quien='';
   var api=function(){var ok=null,fail=null,self={withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
     urlBase:function(){setTimeout(function(){ok('#vista-previa');},5);},
@@ -181,7 +181,7 @@ _mock3 = """<script>
     ingresar:function(p){setTimeout(function(){ if(p.pin==='123456'){quien=p.nombre;intentos=0;ok({token:'t'.repeat(64),nombre:p.nombre,rol:'Coordinador'});} else {intentos++; fail({message:intentos>=5?'Demasiados intentos. Espere 15 minutos.':'Nombre o clave incorrectos.'});}},300);},
     cerrarSesion:function(){setTimeout(function(){quien='';ok({ok:true});},5);},
     cambiarClave:function(p){setTimeout(function(){ if(p.actual!=='123456'){fail({message:'Nombre o clave incorrectos.'});} else if(!/^\\d{6}$/.test(p.nueva)){fail({message:'La clave nueva debe tener 6 números.'});} else ok({ok:true});},200);},
-    llamarSeguro:function(t,fn){setTimeout(function(){ if(fn==='contextoPanel') ok({rol:'directivo',nombre:quien||'Francisco Javier Cortés'}); else ok({});},5);}};return self;};
+    llamarSeguro:function(t,fn){setTimeout(function(){ if(fn==='contextoPanel') ok({rol:'directivo',nombre:quien||'Francisco Cortés'}); else ok({});},5);}};return self;};
   window.google={script:{run:new Proxy({},{get:function(_,k){var s=api();return k in s?s[k]:s;}})}};
 })();
 </script>

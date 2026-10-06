@@ -1,7 +1,7 @@
 // ===================== Codigo.gs =====================
 /**
  * ICET 2026 - Control de asistencia docente (ronda de verificación)
- * Autor: Francisco Javier Cortés Cabezas, coordinador académico, I.E. ICET (Tumaco, Nariño). © 2026
+ * Autor: Francisco Javier Cortés Cabezas, coordinador académico; especialista en informática y telemática, magíster en educación, doctorando en desarrollo de la educación. I.E. ICET (Tumaco, Nariño). © 2026
  *
  * Instalación: abrir el libro en Google Sheets > Extensiones > Apps Script,
  * pegar este archivo como Codigo.gs y crear el archivo HTML "Consulta" con Consulta.html.
@@ -15,7 +15,7 @@
  * Sistema de control de asistencia docente - I.E. ICET, San Andrés de Tumaco (Nariño, Colombia).
  * Autor: Francisco Javier Cortés Cabezas, coordinador académico. © 2026.
  */
-var AUTORIA = 'Sistema de control de asistencia docente\nAutor: Francisco Javier Cortés Cabezas\nCoordinador académico · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia)\n© 2026';
+var AUTORIA = 'Sistema de control de asistencia docente\nAutor: Francisco Javier Cortés Cabezas\nCoordinador académico\nEspecialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación\nI.E. ICET, San Andrés de Tumaco (Nariño, Colombia)\n© 2026';
 
 var TZ = 'America/Bogota';
 var DIAS = ['', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
@@ -703,7 +703,7 @@ function htmlInforme_(r, fechaTexto, urlPanel) {
   }
   h += '<p style="font-size:12.5px;color:#52514e">Ronda de verificación (docentes verificados/esperados): ' + e(ronda || 'sin registros') + '</p>' +
        (urlPanel ? '<p><a href="' + e(urlPanel) + '" style="color:#1c5cab">Abrir el panel completo</a></p>' : '') +
-       '<p style="font-size:11.5px;color:#74736d;border-top:1px solid #e6e5e0;padding-top:8px">Información confidencial de uso directivo (Ley 1581 de 2012).<br>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas, coordinador académico, I.E. ICET.</p></div>';
+       '<p style="font-size:11.5px;color:#74736d;border-top:1px solid #e6e5e0;padding-top:8px">Información confidencial de uso directivo (Ley 1581 de 2012).<br>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas, coordinador académico; especialista en informática y telemática, magíster en educación, doctorando en desarrollo de la educación. I.E. ICET.</p></div>';
   return h;
 }
 

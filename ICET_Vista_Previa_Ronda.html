@@ -529,7 +529,7 @@ var DATOS = {"horario":[{"docente":"Landázuri Quiñones María Elia","dia":"LUN
   }
   var api=function(){var ok=null,fail=null,self={
     withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
-    urlBase:function(){setTimeout(function(){ok('');},0);},
+    urlBase:function(){setTimeout(function(){ok('#vista-previa');},0);},
     consultarSesion:function(d,s,m){setTimeout(function(){ok(consultar(d,s,m));},20);},
     guardarNotaRonda:function(p){setTimeout(function(){
       if(!String(p.texto||'').trim()){ok({id:'n',propuestas:[],audioGuardado:false});return;}

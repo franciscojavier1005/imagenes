@@ -99,7 +99,7 @@ var DATOS = %s;
   }
   var api=function(){var ok=null,fail=null,self={
     withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
-    urlBase:function(){setTimeout(function(){ok('');},0);},
+    urlBase:function(){setTimeout(function(){ok('#vista-previa');},0);},
     consultarSesion:function(d,s,m){setTimeout(function(){ok(consultar(d,s,m));},20);},
     guardarNotaRonda:function(p){setTimeout(function(){
       if(!String(p.texto||'').trim()){ok({id:'n',propuestas:[],audioGuardado:false});return;}
@@ -146,7 +146,7 @@ mock2 = """<script>
   function conv(r){return r.convocados==='TODOS'?PERSONAS.map(function(p){return p.nombre;}):r.convocados;}
   var api=function(){var ok=null,fail=null,self={
     withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
-    urlBase:function(){setTimeout(function(){ok('');},0);},
+    urlBase:function(){setTimeout(function(){ok('#vista-previa');},0);},
     listarReuniones:function(p){setTimeout(function(){var f=(p&&p.fecha)||HOY;
       ok({fecha:f,tipos:TIPOS,personas:PERSONAS,motivos:MOTIVOS,reuniones:REUN.filter(function(r){return r.fecha===f;}).map(function(r){var a=ASIST[r.id]||{},c=conv(r);
         return Object.assign({},r,{convocadosN:c.length,registrados:c.filter(function(n){return a[n];}).length});})});},20);},

@@ -115,7 +115,7 @@ function srv(){
   function conv(r){return r.convocados==='TODOS'?PERSONAS.map(function(p){return p.nombre;}):r.convocados;}
   var api=function(){var ok=null,fail=null,self={
     withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
-    urlBase:function(){setTimeout(function(){ok('');},0);},
+    urlBase:function(){setTimeout(function(){ok('#vista-previa');},0);},
     listarReuniones:function(p){setTimeout(function(){var f=(p&&p.fecha)||HOY;
       ok({fecha:f,tipos:TIPOS,personas:PERSONAS,motivos:MOTIVOS,reuniones:REUN.filter(function(r){return r.fecha===f;}).map(function(r){var a=ASIST[r.id]||{},c=conv(r);
         return Object.assign({},r,{convocadosN:c.length,registrados:c.filter(function(n){return a[n];}).length});})});},20);},

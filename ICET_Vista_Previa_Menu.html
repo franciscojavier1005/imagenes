@@ -15,10 +15,13 @@
   header h1{margin:10px 0 2px;font-size:21px} header p{margin:0;font-size:14px;opacity:.9}
   main{max-width:560px;margin:0 auto;padding:18px 14px 30px}
   .saludo{font-size:15px;color:#345;margin:2px 0 14px;text-align:center}
-  a.boton{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--azul);background:#fff;border:2px solid #d5dbe3;border-left:8px solid var(--oro);border-radius:16px;padding:18px 16px;margin:14px 0;box-shadow:0 2px 8px rgba(15,42,92,.10)}
-  a.boton:active{transform:scale(.99);background:#f6f9ff}
-  a.boton .ic{font-size:34px;line-height:1}
-  a.boton b{display:block;font-size:19px} a.boton span{font-size:13.5px;color:#456}
+  a.boton{--c:#f0c000;position:relative;display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--azul);background:linear-gradient(180deg,#ffffff,#f3f6fb);border:1px solid #cfd8e5;border-left:10px solid var(--c);border-radius:16px;padding:16px 16px;margin:16px 0;
+    box-shadow:0 5px 0 rgba(15,42,92,.16),0 8px 16px rgba(15,42,92,.14),inset 0 1px 0 #fff;transition:transform .08s,box-shadow .08s}
+  a.boton:hover{transform:translateY(-1px);box-shadow:0 6px 0 rgba(15,42,92,.16),0 12px 20px rgba(15,42,92,.16),inset 0 1px 0 #fff}
+  a.boton:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(15,42,92,.16),0 2px 6px rgba(15,42,92,.12),inset 0 1px 0 #fff}
+  a.boton .ic{display:flex;align-items:center;justify-content:center;flex:none;width:56px;height:56px;border-radius:14px;font-size:30px;line-height:1;background:color-mix(in srgb,var(--c) 14%,#fff);border:1px solid color-mix(in srgb,var(--c) 40%,#fff)}
+  a.boton b{color:var(--c);filter:brightness(.82)}
+  a.boton b{display:block;font-size:19px;margin-bottom:2px} a.boton span{font-size:13.5px;color:#456}
   .caja{background:#fff;border:1px solid #d5dbe3;border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(15,42,92,.10)}
   .caja label{display:block;font-size:14px;color:#345;margin-top:12px;font-weight:600}
   .caja select,.caja input{width:100%;padding:14px;border:2px solid #d5dbe3;border-radius:12px;font-size:18px;background:#fff;margin-top:5px}
@@ -92,7 +95,8 @@ function srv(){
 var BASE='', NOMBRES=[];
 function el(id){return document.getElementById(id);}
 function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-function boton(p,ic,t,d){ return '<a class="boton" target="_top" href="'+esc(BASE+'?p='+p)+'"><span class="ic">'+ic+'</span><div><b>'+t+'</b><span>'+d+'</span></div></a>'; }
+var COLORES={ronda:'#2f8f5b',novedad:'#d9822b',reunion:'#6b5bb5',horarios:'#1e88a8',panel:'#2c4a7c'};
+function boton(p,ic,t,d){ return '<a class="boton" style="--c:'+(COLORES[p]||'#f0c000')+'" target="_top" href="'+esc(BASE+'?p='+p)+'"><span class="ic">'+ic+'</span><div><b>'+t+'</b><span>'+d+'</span></div></a>'; }
 
 /* ---------- pantalla de ingreso con clave ---------- */
 function mostrarLogin(aviso){

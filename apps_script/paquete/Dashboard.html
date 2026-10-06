@@ -37,7 +37,7 @@
   h1{margin:0;font-size:20px;font-weight:600}
   .sub{color:var(--text-secondary);font-size:13px}
   header.top .sub{color:#d6deee}
-  header.top .enlaces a,header.top .enlaces button{color:#f0c000}
+  header.top .enlaces a,header.top .enlaces button{color:#fff}
   .enlaces a,.enlaces button{color:var(--accent);font-size:13px;margin-left:12px;background:none;border:0;cursor:pointer;text-decoration:underline;font-family:inherit}
   /* filtros: una fila sobre el contenido */
   .filtros{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 18px;padding-bottom:14px;border-bottom:1px solid var(--grid)}
@@ -122,6 +122,11 @@
   .autoria{margin:26px auto 10px;padding:0 12px;text-align:center;font-size:11px;line-height:1.4;color:#8a94a0;max-width:640px}
   .autoria b{font-weight:600}
   @media print{.autoria{display:none}}
+
+  /* enlaces del encabezado como botones en relieve */
+  a[id^="ir"]:not([style*="none"]),header .enlaces button{display:inline-block!important;text-decoration:none!important;color:#fff!important;font-weight:700;font-size:13px;line-height:1;padding:9px 13px;margin:3px 3px 3px 0;border-radius:10px;border:1px solid rgba(255,255,255,.45);
+    background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.10));box-shadow:0 3px 0 rgba(0,0,0,.35),0 4px 8px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.55);cursor:pointer;font-family:inherit}
+  a[id^="ir"]:not([style*="none"]):active,header .enlaces button:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.4)}
 </style>
 </head>
 <body>

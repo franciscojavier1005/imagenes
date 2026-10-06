@@ -52,6 +52,11 @@
   .ok{color:#1b5e20;font-weight:600} .mal{color:#a31515;font-weight:600}
   .link{background:none;border:0;color:#a31515;text-decoration:underline;font-size:13px;padding:4px}
   @media print{header,.tabs,.ctrl,.dias,.btn,.autoria{display:none!important} body{background:#fff} .card{box-shadow:none;border:0} table.hor{min-width:0}}
+
+  /* enlaces del encabezado como botones en relieve */
+  a[id^="ir"]:not([style*="none"]),header .enlaces button{display:inline-block!important;text-decoration:none!important;color:#fff!important;font-weight:700;font-size:13px;line-height:1;padding:9px 13px;margin:3px 3px 3px 0;border-radius:10px;border:1px solid rgba(255,255,255,.45);
+    background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.10));box-shadow:0 3px 0 rgba(0,0,0,.35),0 4px 8px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.55);cursor:pointer;font-family:inherit}
+  a[id^="ir"]:not([style*="none"]):active,header .enlaces button:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.4)}
 </style>
 </head>
 <body>

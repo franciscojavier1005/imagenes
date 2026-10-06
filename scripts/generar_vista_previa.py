@@ -66,10 +66,13 @@ var DATOS = %s;
         grupo:enf?'ÉNFASIS '+String(gc).split('+').map(function(g){return DATOS.grupos[g]||g;}).join(' + '):(DATOS.grupos[gc]||gc),
         area:h.area||'(énfasis)',tipo:h.tipo,
         nota:[/^00/.test(h.grupo)?'Preescolar '+DATOS.preesc[h.dia+h.hora]:'',h.alternancia,h.equipo_enfasis?'Con: '+h.equipo_enfasis:''].filter(Boolean).join(' · '),
-        dir:h.tipo==='AREAS_MULTIPLES'?'':(d.dir||''),modalidad:d.modalidad||'',previo:null,alternos:(h.tipo==='CLASE'&&DATOS.altern[h.area+'|'+h.docente])?[DATOS.altern[h.area+'|'+h.docente]]:[],minutosDia:(DATOS.totdia[h.dia+'|'+h.docente]||0),
+        dir:h.tipo==='AREAS_MULTIPLES'?'':(d.dir||''),modalidad:d.modalidad||'',previo:null,_par:(h.tipo==='ENFASIS'&&/^PAREJA/.test(h.alternancia))?h.hora+'|'+h.grupos_enfasis:'',alternos:(h.tipo==='CLASE'&&DATOS.altern[h.area+'|'+h.docente])?[DATOS.altern[h.area+'|'+h.docente]]:[],minutosDia:(DATOS.totdia[h.dia+'|'+h.docente]||0),
         sesiones:[{sesion:Number(h.hora),grupoCodigo:gc,area:h.area||'(énfasis)',grupo:enf?'ÉNFASIS '+String(gc).split('+').map(function(g){return DATOS.grupos[g]||g;}).join(' + '):(DATOS.grupos[gc]||gc)}]};
     });
-    if(out.modo==='bloque'){var por={},uni=[];out.filas.forEach(function(f){var k=por[f.docente];if(!k){por[f.docente]=f;uni.push(f);}else k.sesiones=k.sesiones.concat(f.sesiones);});
+    var pares={},sp=[];out.filas.forEach(function(f){if(!f._par){sp.push(f);return;}var k=pares[f._par];if(!k){pares[f._par]=f;sp.push(f);return;}
+      var pri=f.docente<k.docente?f:k,otro=pri===f?k:f;pri.alternos=(pri.alternos||[]).concat([otro.docente]);if(pri===f){pares[f._par]=f;sp[sp.indexOf(k)]=f;}});
+    out.filas=sp;out.filas.forEach(function(f){delete f._par;});
+    if(out.modo==='bloque'){var por={},uni=[];out.filas.forEach(function(f){var k=por[f.docente];if(!k){por[f.docente]=f;uni.push(f);}else{k.sesiones=k.sesiones.concat(f.sesiones);f.alternos.forEach(function(a){if(k.alternos.indexOf(a)<0)k.alternos.push(a);});}});
       uni.forEach(function(f){var gs=f.sesiones.map(function(x){return x.grupo;}).filter(function(g,i,a){return a.indexOf(g)===i;});
         if(gs.length>1)f.nota=[f.sesiones.map(function(x){return 'S'+x.sesion+': '+x.grupo;}).join(' · '),f.nota].filter(Boolean).join(' · ');
         else if(f.sesiones.length===1&&hs.length>1)f.nota=['Solo S'+f.sesiones[0].sesion,f.nota].filter(Boolean).join(' · ');});

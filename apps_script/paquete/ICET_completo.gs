@@ -148,18 +148,32 @@ function consultarSesion(dia, sesion, modo) {
       modalidad: (direccion[String(enf ? h.grupos_enfasis : h.grupo).split('+')[0]] || {}).modalidad || '',
       sesiones: [{ sesion: Number(h.hora), grupoCodigo: enf ? h.grupos_enfasis : h.grupo, area: h.area || '(énfasis)',
                    grupo: enf ? 'ÉNFASIS ' + String(h.grupos_enfasis).split('+').map(function (g) { return nombres[g] || g; }).join(' + ') : (nombres[h.grupo] || h.grupo) }],
+      _par: h.tipo === 'ENFASIS' && /^PAREJA/.test(String(h.alternancia)) ? h.hora + '|' + h.grupos_enfasis : '',
       alternos: h.tipo === 'CLASE' && altern[h.area + '|' + h.docente] ? [altern[h.area + '|' + h.docente]] : [],   // pareja que alterna por semana: se elige quién dicta
       minutosDia: totDia[h.docente] || 0,
       reporte: reportes[h.docente] || null,
       previo: ya ? { estado: ya.estado, motivo: ya.motivo, minutos: ya.minutos, observaciones: ya.observaciones, atendidoPor: ya.atendido_por || '' } : null
     };
   });
+  // énfasis en pareja (7°): un solo grupo que atiende un docente por semana, no se divide: una tarjeta con los dos nombres
+  var pares = {}, sinPar = [];
+  out.filas.forEach(function (f) {
+    if (!f._par) { sinPar.push(f); return; }
+    var k = pares[f._par];
+    if (!k) { pares[f._par] = f; sinPar.push(f); return; }
+    var pri = f.docente < k.docente ? f : k, otro = pri === f ? k : f;
+    pri.alternos = (pri.alternos || []).concat([otro.docente]);
+    if (pri === f) { pares[f._par] = f; sinPar[sinPar.indexOf(k)] = f; }
+  });
+  out.filas = sinPar;
+  out.filas.forEach(function (f) { delete f._par; });
   if (out.modo === 'bloque') {   // una tarjeta por docente: sus sesiones del bloque quedan juntas
     var por = {}, uni = [];
     out.filas.forEach(function (f) {
       var k = por[f.docente];
       if (!k) { por[f.docente] = f; uni.push(f); return; }
       k.sesiones = k.sesiones.concat(f.sesiones);
+      f.alternos.forEach(function (a) { if (k.alternos.indexOf(a) < 0) k.alternos.push(a); });
     });
     uni.forEach(function (f) {
       var gs = f.sesiones.map(function (x) { return x.grupo; }).filter(function (g, i, a) { return a.indexOf(g) === i; });
@@ -199,12 +213,15 @@ function asegurarMotivos_() {
 /** Parejas que alternan cada semana (hoja Alternancias; si no existe se crea con las dos parejas de ética y religión). */
 var ALTERNANCIAS_DEFECTO = [
   ['ETR', 'Casanova Quiñones Yoli del Carmen', 'Castillo Angulo Martha Cecilia', 'Alternan cada semana (Ética / Religión) entre 7° y 8° (+ CS 2)'],
-  ['ETR', 'Estacio Estupiñán Rosario', 'Montaño Arizala Leidis Claudina', 'Alternan cada semana (Ética / Religión) entre 9° - 10°-1 y 10°-2 - 11°']
+  ['ETR', 'Estacio Estupiñán Rosario', 'Montaño Arizala Leidis Claudina', 'Alternan cada semana (Ética / Religión) entre 9° - 10°-1 y 10°-2 - 11°'],
+  ['CSI', 'Quintero Ramírez María del Carmen', 'Ortiz Araujo Adiela Carlota', 'Alternan cada semana (Sociales / Inglés) entre 7° y 8° (+ CS 2)'],
+  ['CSI', 'Betancourth Ocampo Yohana Patricia', 'Pulgarín Ortiz César Marino', 'Alternan cada semana (Sociales / Inglés) entre 9° - 10°-1 y 10°-2 - 11°']
 ];
 /** area|docente -> el otro docente de la pareja. */
 function alternancias_() {
   var sh = hojaOCrea_('Alternancias', ['area', 'docente_a', 'docente_b', 'nota']);
-  if (sh.getDataRange().getValues().length < 2) ALTERNANCIAS_DEFECTO.forEach(function (f) { sh.appendRow(f); });
+  var areas = {}; datos_('Alternancias').forEach(function (a) { areas[a.area] = 1; });
+  ALTERNANCIAS_DEFECTO.forEach(function (f) { if (!areas[f[0]]) sh.appendRow(f); });   // un área sin ninguna pareja recibe las de la versión inicial (no toca lo que ya editó)
   var m = {};
   datos_('Alternancias').forEach(function (a) {
     m[a.area + '|' + a.docente_a] = a.docente_b; m[a.area + '|' + a.docente_b] = a.docente_a;

@@ -64,3 +64,4 @@ function marcarEstudiantes(p) { return llamar_('marcarEstudiantes', [p]); }
 function levantarMarcaEstudiante(p) { return llamar_('levantarMarcaEstudiante', [p]); }
 function agregarEstudiante(p) { return llamar_('agregarEstudiante', [p]); }
 function moverEstudiante(p) { return llamar_('moverEstudiante', [p]); }
+function agregarGrupoProyecto(p) { return llamar_('agregarGrupoProyecto', [p]); }

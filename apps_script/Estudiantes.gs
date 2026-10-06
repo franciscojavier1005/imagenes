@@ -6,6 +6,7 @@
  *
  * Sistema de control de asistencia docente - I.E. ICET. Autor: Francisco Javier Cortés Cabezas.
  */
+var COL_GRUPOS_PROY = ['tipo', 'nombre', 'creado_por', 'fecha'];
 var COL_MARCAS_EST = ['id', 'clave', 'grupo', 'curso', 'apellidos', 'nombres', 'tipo', 'nota', 'registrado_por', 'fecha_registro', 'estado', 'levantada_por', 'fecha_levantada'];
 var TIPOS_MARCA_EST = [   // cat: grupo en la pantalla; emo/color: distintivo visual; nombre: pide el nombre del proyecto o programa (queda en la nota)
   { id: 'NO_ASISTE', texto: 'No asiste (posible deserción)', cat: 'Alertas y seguimiento', emo: '🚫', color: '#c62828' },
@@ -13,10 +14,14 @@ var TIPOS_MARCA_EST = [   // cat: grupo en la pantalla; emo/color: distintivo vi
   { id: 'FUGA', texto: 'Se fuga con frecuencia (se evade de clase)', cat: 'Alertas y seguimiento', emo: '🏃', color: '#b8860b' },
   { id: 'CONVIVENCIA', texto: 'Dificultad de convivencia o conducta violenta', cat: 'Alertas y seguimiento', emo: '⚠️', color: '#ad1457' },
   { id: 'SPA', texto: 'Caso de consumo de SPA', cat: 'Alertas y seguimiento', emo: '🚭', color: '#6d4c41' },
+  { id: 'SALUD_MENTAL', texto: 'Salud mental o condición psiquiátrica (para orientación)', cat: 'Alertas y seguimiento', emo: '🧠', color: '#5e35b1' },
   { id: 'ORIENTACION', texto: 'Remitido a orientación escolar', cat: 'Alertas y seguimiento', emo: '🧭', color: '#6a1b9a' },
   { id: 'MATRICULA_COND', texto: 'Matrícula condicional', cat: 'Alertas y seguimiento', emo: '📝', color: '#d84315' },
   { id: 'PROYECTO', texto: 'Proyecto interno del colegio', cat: 'Proyectos y programas', emo: '📘', color: '#1565c0', nombre: true },
-  { id: 'REDES_APOYO', texto: 'Proyecto de redes de apoyo', cat: 'Proyectos y programas', emo: '🤲', color: '#00897b', nombre: true },
+  { id: 'REDES_APOYO', texto: 'Beneficiario de red de apoyo u ONG', cat: 'Proyectos y programas', emo: '🤲', color: '#00897b', nombre: true },
+  { id: 'GRUPO_ARTISTICO', texto: 'Grupo artístico o cultural (danza, música, banda de paz…)', cat: 'Grupos, selecciones y clubes', emo: '🎭', color: '#8e24aa', nombre: true },
+  { id: 'SELECCION', texto: 'Selección o equipo deportivo (atletismo, fútbol sala, natación…)', cat: 'Grupos, selecciones y clubes', emo: '🏆', color: '#ef6c00', nombre: true },
+  { id: 'CLUB', texto: 'Club académico o científico (robótica, matemáticas…)', cat: 'Grupos, selecciones y clubes', emo: '🔬', color: '#0277bd', nombre: true },
   { id: 'SENA_ARTICULACION', texto: 'Articulación con el SENA (media técnica)', cat: 'Proyectos y programas', emo: '🛠️', color: '#2e7d32', nombre: true },
   { id: 'SENA_CURSO', texto: 'Aprendiz SENA (curso o programa)', cat: 'Proyectos y programas', emo: '🎓', color: '#558b2f', nombre: true },
   { id: 'NUEVO', texto: 'Estudiante nuevo (llegó en el año)', cat: 'Matrícula', emo: '🆕', color: '#2e7d32' },
@@ -25,6 +30,7 @@ var TIPOS_MARCA_EST = [   // cat: grupo en la pantalla; emo/color: distintivo vi
   { id: 'OTRA_INSTITUCION', texto: 'Matriculado en otra institución', cat: 'Matrícula', emo: '🏫', color: '#6d4c41', nombre: true },
   { id: 'RETIRADO', texto: 'Retirado formalmente', cat: 'Matrícula', emo: '📤', color: '#546e7a' },
   { id: 'CANCELADA', texto: 'Matrícula cancelada', cat: 'Matrícula', emo: '⛔', color: '#37474f' },
+  { id: 'SALUD', texto: 'Condición de salud o tratamiento médico', cat: 'Condición o población', emo: '🩺', color: '#00695c' },
   { id: 'LACTANTE', texto: 'Estudiante lactante', cat: 'Condición o población', emo: '🍼', color: '#c2185b' },
   { id: 'GESTANTE', texto: 'Estudiante gestante', cat: 'Condición o población', emo: '🤰', color: '#8e24aa' },
   { id: 'EXTRANJERO', texto: 'Población extranjera (venezolana, ecuatoriana u otra)', cat: 'Condición o población', emo: '🌎', color: '#0277bd' },
@@ -39,6 +45,36 @@ var TIPOS_MARCA_EST = [   // cat: grupo en la pantalla; emo/color: distintivo vi
 function quitaTildes_(s) { return String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g, ''); }
 function codGrupoEst_(g) { g = String(g == null ? '' : g).replace(/^'/, '').trim().toUpperCase(); return /^\d+$/.test(g) && g.length < 4 ? ('0000' + g).slice(-4) : g; }   // Sheets puede quitar el cero de «0101»
 function claveEst_(g, a, n) { return codGrupoEst_(g) + '|' + quitaTildes_(a).trim().toUpperCase().replace(/\s+/g, ' ') + '|' + quitaTildes_(n).trim().toUpperCase().replace(/\s+/g, ' '); }
+
+/** Nombres de grupos, selecciones, clubes y proyectos ya creados (hoja Grupos_Proyectos + los usados en marcas vigentes), sin repetir. */
+function catalogoGrupos_() {
+  var vistos = {}, out = [];
+  function agrega(tipoTexto, nombre) {
+    nombre = String(nombre || '').trim(); if (!nombre) return;
+    var k = tipoTexto + '|' + quitaTildes_(nombre).toUpperCase(); if (vistos[k]) return; vistos[k] = 1; out.push({ tipo: tipoTexto, nombre: nombre });
+  }
+  datosOCrea_('Grupos_Proyectos', COL_GRUPOS_PROY).forEach(function (r) { agrega(r.tipo, r.nombre); });
+  var conNombre = {}; TIPOS_MARCA_EST.forEach(function (t) { if (t.nombre) conNombre[t.texto] = 1; });
+  datosOCrea_('Marcas_Estudiantes', COL_MARCAS_EST).forEach(function (m) { if (m.estado === 'Vigente' && conNombre[m.tipo]) agrega(m.tipo, m.nota); });
+  return out.sort(function (a, b) { return a.tipo < b.tipo ? -1 : (a.tipo > b.tipo ? 1 : (a.nombre < b.nombre ? -1 : 1)); });
+}
+/** Si el nombre ya existe (ignorando mayúsculas y tildes) devuelve su escritura original. */
+function canonGrupo_(tipoTexto, nombre) {
+  var n = quitaTildes_(nombre).toUpperCase(), hit = catalogoGrupos_().filter(function (c) { return c.tipo === tipoTexto && quitaTildes_(c.nombre).toUpperCase() === n; })[0];
+  return hit ? hit.nombre : String(nombre).trim().replace(/\s+/g, ' ');
+}
+/** Crea (sin asignar a nadie) el nombre de un grupo, selección, club o proyecto para tenerlo en la lista. p = {tipo, nombre} */
+function agregarGrupoProyecto(p) {
+  var quien = exigirDirectivo_(), por = quien.nombre || quien.email;
+  p = p || {};
+  var tipo = TIPOS_MARCA_EST.filter(function (t) { return t.id === p.tipo && t.nombre; })[0];
+  if (!tipo) throw new Error('Elija el tipo de grupo o proyecto.');
+  var nombre = String(p.nombre || '').trim().replace(/\s+/g, ' ').slice(0, 100);
+  if (nombre.length < 3) throw new Error('Escriba el nombre.');
+  if (catalogoGrupos_().some(function (c) { return c.tipo === tipo.texto && quitaTildes_(c.nombre).toUpperCase() === quitaTildes_(nombre).toUpperCase(); })) throw new Error('Ese nombre ya existe.');
+  hojaOCrea_('Grupos_Proyectos', COL_GRUPOS_PROY).appendRow([tipo.texto, nombre, por, ahoraTxt_()]);
+  return { ok: true };
+}
 
 function listadoEstudiantes_() {
   var sh = SpreadsheetApp.getActive().getSheetByName('Estudiantes');
@@ -67,7 +103,7 @@ function datosEstudiantes() {
     return m ? { g: e.g, no: e.no, a: e.a, n: e.n, m: m } : { g: e.g, no: e.no, a: e.a, n: e.n };
   });
   orden.sort(function (x, y) { return claveGrupo_(x) - claveGrupo_(y); });
-  return { grupos: orden.map(function (c) { return grupos[c]; }), estudiantes: est, tipos: TIPOS_MARCA_EST };
+  return { grupos: orden.map(function (c) { return grupos[c]; }), estudiantes: est, tipos: TIPOS_MARCA_EST, catalogo: catalogoGrupos_() };
 }
 
 /** Pone una marca a uno o varios estudiantes. p = {items:[{g, a, n}], tipo, nota?} */
@@ -84,16 +120,21 @@ function marcarEstudiantes(p) {
   lista.forEach(function (e) { existe[claveEst_(e.g, e.a, e.n)] = e; });
   var lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
-    var sh = hojaOCrea_('Marcas_Estudiantes', COL_MARCAS_EST), v = sh.getDataRange().getValues(), c = {}, ya = {};
+    var sh = hojaOCrea_('Marcas_Estudiantes', COL_MARCAS_EST), v = sh.getDataRange().getValues(), c = {}, ya = {}, nombrePorTexto = {};
+    TIPOS_MARCA_EST.forEach(function (t) { if (t.nombre) nombrePorTexto[t.texto] = 1; });
     v[0].forEach(function (k, i) { c[k] = i; });
-    for (var i = 1; i < v.length; i++) if (v[i][c.estado] === 'Vigente') ya[v[i][c.clave] + '|' + v[i][c.tipo]] = 1;
+    for (var i = 1; i < v.length; i++) if (v[i][c.estado] === 'Vigente') ya[v[i][c.clave] + '|' + v[i][c.tipo] + '|' + (nombrePorTexto[v[i][c.tipo]] ? v[i][c.nota] : '')] = 1;
     var res = { marcados: 0, yaTenian: 0 }, nota = String(p.nota || '').trim().slice(0, 300);
+    if (tipo.nombre) {   // el nombre del grupo o proyecto se escribe igual siempre y se agrega a la lista de nombres
+      nota = canonGrupo_(tipo.texto, nota);
+      if (!catalogoGrupos_().some(function (c) { return c.tipo === tipo.texto && c.nombre === nota; })) hojaOCrea_('Grupos_Proyectos', COL_GRUPOS_PROY).appendRow([tipo.texto, nota, por, ahoraTxt_()]);
+    }
     items.forEach(function (it) {
       var k = claveEst_(it.g, it.a, it.n), e = existe[k];
       if (!e) return;
-      if (ya[k + '|' + tipo.texto]) { res.yaTenian++; return; }
+      if (ya[k + '|' + tipo.texto + '|' + (tipo.nombre ? nota : '')]) { res.yaTenian++; return; }
       sh.appendRow([Utilities.getUuid(), k, e.g, e.curso, e.a, e.n, tipo.texto, nota, por, ahoraTxt_(), 'Vigente', '', '']);
-      ya[k + '|' + tipo.texto] = 1; res.marcados++;
+      ya[k + '|' + tipo.texto + '|' + (tipo.nombre ? nota : '')] = 1; res.marcados++;
     });
     if (!res.marcados && !res.yaTenian) throw new Error('No se encontró a los estudiantes elegidos.');
     return res;

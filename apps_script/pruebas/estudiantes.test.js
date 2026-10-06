@@ -31,7 +31,7 @@ hojas.Estudiantes=new Hoja([['grupo','curso','no','apellidos','nombres'],
   [701,'7°-1',1,'ROJAS LOPEZ','LAURA'],[701,'7°-1',2,'SOTO','PEDRO PABLO'],['CS101','CS 1-1',1,'DIAZ','MARTA']]);
 let d=run('datosEstudiantes()');
 ok(d.estudiantes.length===6&&d.grupos.map(x=>x.codigo).join()==='0601,CS101,0701'&&d.grupos[2].total===2,'grupos con totales; «701» se normaliza a 0701 y CS 1 queda tras los sextos');
-ok(d.tipos.length===26&&['REDES_APOYO','SENA_ARTICULACION','SENA_CURSO','PROYECTO','NO_LISTADO','OTRA_INSTITUCION','NUEVO','PROMOVIDO','CONVIVENCIA','MATRICULA_COND','SPA','LACTANTE','GESTANTE','EXTRANJERO','DISCAPACIDAD','DESPLAZADO','MADRE_SUSTITUTA','DEPORTISTA','SOBRESALIENTE','COLABORADOR'].every(i=>d.tipos.some(t=>t.id===i))&&d.tipos.every(t=>t.cat&&t.emo&&/^#[0-9a-f]{6}$/i.test(t.color)),'26 tipos de marca en 5 categorías, cada uno con emoji y color');
+ok(d.tipos.length===31&&['REDES_APOYO','SENA_ARTICULACION','SENA_CURSO','SALUD_MENTAL','SALUD','GRUPO_ARTISTICO','SELECCION','CLUB','PROYECTO','NO_LISTADO','OTRA_INSTITUCION','NUEVO','PROMOVIDO','CONVIVENCIA','MATRICULA_COND','SPA','LACTANTE','GESTANTE','EXTRANJERO','DISCAPACIDAD','DESPLAZADO','MADRE_SUSTITUTA','DEPORTISTA','SOBRESALIENTE','COLABORADOR'].every(i=>d.tipos.some(t=>t.id===i))&&d.tipos.every(t=>t.cat&&t.emo&&/^#[0-9a-f]{6}$/i.test(t.color)),'31 tipos de marca en 6 categorías, cada uno con emoji y color');
 run("marcarEstudiantes({items:[{g:'CS101',a:'DIAZ',n:'MARTA'}],tipo:'EXTRANJERO',nota:'Venezolana'})");
 run("marcarEstudiantes({items:[{g:'CS101',a:'DIAZ',n:'MARTA'}],tipo:'DEPORTISTA',nota:'Voleibol'})");
 ok(run('datosEstudiantes()').estudiantes.find(e=>e.a==='DIAZ').m.length===2,'se pueden combinar condiciones y fortalezas en el mismo estudiante');
@@ -39,6 +39,15 @@ ok(run('datosEstudiantes()').estudiantes.find(e=>e.a==='DIAZ').m.length===2,'se 
 ok(/Escriba el nombre/.test(falla("marcarEstudiantes({items:[{g:'0601',a:'ZUÑIGA',n:'CARLOS'}],tipo:'SENA_ARTICULACION'})")||''),'articulación SENA, redes de apoyo y proyectos piden el nombre del proyecto o programa');
 run("marcarEstudiantes({items:[{g:'0601',a:'ZUÑIGA',n:'CARLOS'}],tipo:'SENA_ARTICULACION',nota:'Técnico en sistemas'})");
 ok(run('datosEstudiantes()').estudiantes.find(e=>e.a==='ZUÑIGA').m[0].nota==='Técnico en sistemas','el nombre queda en la marca (y se puede buscar por él)');
+// grupos, selecciones y clubes: catálogo de nombres
+run("agregarGrupoProyecto({tipo:'CLUB',nombre:'Club de robótica'})");
+ok(/ya existe/.test(falla("agregarGrupoProyecto({tipo:'CLUB',nombre:'club de ROBÓTICA'})")||'')&&/Escriba el nombre/.test(falla("agregarGrupoProyecto({tipo:'CLUB',nombre:''})")||'')&&/Elija el tipo/.test(falla("agregarGrupoProyecto({tipo:'NO_ASISTE',nombre:'Algo largo'})")||''),'crear nombres de grupos: no repite (ignora mayúsculas y tildes), exige nombre y un tipo que lo admita');
+run("marcarEstudiantes({items:[{g:'0601',a:'ZUÑIGA',n:'CARLOS'}],tipo:'CLUB',nota:'club de robotica'})");
+run("marcarEstudiantes({items:[{g:'0601',a:'ZUÑIGA',n:'CARLOS'}],tipo:'SELECCION',nota:'Fútbol sala'})");
+run("marcarEstudiantes({items:[{g:'0601',a:'ZUÑIGA',n:'CARLOS'}],tipo:'SELECCION',nota:'Natación'})");
+let dd=run('datosEstudiantes()'); const zu=dd.estudiantes.find(e=>e.a==='ZUÑIGA');
+ok(zu.m.filter(x=>/Club/.test(x.tipo))[0].nota==='Club de robótica'&&zu.m.filter(x=>/Selección/.test(x.tipo)).length===2,'el nombre se escribe siempre igual y un estudiante puede estar en varios equipos o clubes');
+ok(dd.catalogo.some(c=>c.nombre==='Fútbol sala')&&dd.catalogo.some(c=>c.nombre==='Natación')&&dd.catalogo.filter(c=>c.nombre==='Club de robótica').length===1,'los nombres usados entran solos al catálogo (sin repetirse)');
 // marcar varios a la vez
 g.M1={items:[{g:'0601',a:'PEREZ GOMEZ',n:'ANA MARIA'},{g:'0601',a:'ALVAREZ RIOS',n:'JOSE LUIS'}],tipo:'NO_ASISTE',nota:'No viene desde el 15 de septiembre'};
 let r=run('marcarEstudiantes(M1)');

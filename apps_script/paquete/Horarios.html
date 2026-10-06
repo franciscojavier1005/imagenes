@@ -208,11 +208,22 @@ function pintaEstCtl(){
   el('estCtl').innerHTML='<label>Grupo <select id="eg" onchange="filtraEst()">'+opt('','Todos los grupos',true)+EST.grupos.map(function(g){return opt(g.codigo,g.curso+' ('+g.total+')',false);}).join('')+'</select></label>'+
     '<label>Buscar por apellido, nombre o proyecto <input type="text" id="eq" placeholder="Ej.: quiñones, ana, nombre de un proyecto…" oninput="filtraEst()"></label>'+
     '<label>Mostrar <select id="em" onchange="filtraEst()">'+opt('','Todos',true)+opt('*','Con alguna marca',false)+opt('-','Sin marcas',false)+gruposTipos(function(t){return opt(t.texto,t.emo+' '+t.texto,false);})+'</select></label>'+
-    '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="formNuevo()">➕ Agregar estudiante</button><button class="btn" onclick="selTodos()">☑ Seleccionar todos los de la lista</button><button class="btn" onclick="window.print()">🖨 Imprimir esta lista</button></div>';
+    (EST.catalogo&&EST.catalogo.length?'<label>Grupo, selección, club o proyecto <select id="ep" onchange="filtraEst()">'+opt('','Todos',true)+catPorTipo().map(function(c){return '<optgroup label="'+esc(c[0])+'">'+c[1].map(function(n){return opt(c[0]+'||'+n,n,false);}).join('')+'</optgroup>';}).join('')+'</select></label>':'<input type="hidden" id="ep" value="">')+
+    '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="formGrupoProy()">🏷 Nuevo grupo o proyecto</button><button class="btn" onclick="formNuevo()">➕ Agregar estudiante</button><button class="btn" onclick="selTodos()">☑ Seleccionar todos los de la lista</button><button class="btn" onclick="window.print()">🖨 Imprimir esta lista</button></div>';
 }
 function gruposTipos(fn){
   var cats=[],por={}; EST.tipos.forEach(function(t){ if(!por[t.cat]){por[t.cat]=[];cats.push(t.cat);} por[t.cat].push(t); });
   return cats.map(function(c){return '<optgroup label="'+esc(c)+'">'+por[c].map(fn).join('')+'</optgroup>';}).join('');
+}
+function catPorTipo(){ var por={},ord=[]; (EST.catalogo||[]).forEach(function(c){ if(!por[c.tipo]){por[c.tipo]=[];ord.push(c.tipo);} por[c.tipo].push(c.nombre); }); return ord.map(function(t){return [t,por[t]];}); }
+function formGrupoProy(){
+  var ts=EST.tipos.filter(function(t){return t.nombre;});
+  modal('<h2 style="margin:0 0 4px;color:#0f2a5c">Nuevo grupo, selección, club o proyecto</h2><div class="sub">Crea el nombre para tenerlo en la lista; luego asigna a los estudiantes con «Marcar».</div>'+
+    '<label>Tipo<select id="gt">'+ts.map(function(t){return opt(t.id,t.emo+' '+t.texto,false);}).join('')+'</select></label><label>Nombre<input type="text" id="gn" maxlength="100" placeholder="Ej.: Danza folclórica, Club de robótica, Fútbol sala sub-15…"></label>'+
+    '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn prim" style="flex:1" onclick="guardaGrupoProy()">Crear</button><button class="btn" onclick="cierra()">Cancelar</button></div><div id="mm" class="sub" style="margin-top:6px;color:#a31515"></div>');
+}
+function guardaGrupoProy(){
+  srv().withSuccessHandler(function(){ cierra(); cargaEst(true); }).withFailureHandler(function(e){ el('mm').textContent=String(e&&e.message||e).replace(/^Error: /,''); }).agregarGrupoProyecto({tipo:el('gt').value,nombre:el('gn').value});
 }
 function selTodos(){ VIS.forEach(function(e){ SEL[kEst(e)]=e; }); pintaEst(); }
 function filtraEst(){
@@ -221,6 +232,7 @@ function filtraEst(){
   VIS=EST.estudiantes.filter(function(e){
     if(g&&e.g!==g) return false;
     var tx=sinTild(e.a+' '+e.n+' '+(e.m||[]).map(function(x){return x.nota;}).join(' ')); if(q.some(function(w){return tx.indexOf(w)<0;})) return false;
+    var ep=el('ep')?el('ep').value:''; if(ep){ var pp=ep.split('||'); if(!(e.m||[]).some(function(x){return x.tipo===pp[0]&&x.nota===pp[1];})) return false; }
     var mm=e.m||[]; if(m==='*') return mm.length>0; if(m==='-') return mm.length===0; if(m) return mm.some(function(x){return x.tipo===m;}); return true; });
   pintaEst();
 }
@@ -252,13 +264,13 @@ function abreMarca(idx){
     (lista.length===1?'<div style="margin-top:8px"><button class="btn" onclick="formMover()">⬆️ Pasarlo a otro grupo (promovido)</button></div>':'')+
     '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn prim" style="flex:1" onclick="guardaMarca()">Guardar marca</button><button class="btn" onclick="cierra()">Cancelar</button></div><div id="mm" class="sub" style="margin-top:6px;color:#a31515"></div>');
 }
-function nombresUsados(tipoTexto){ var u={}; EST.estudiantes.forEach(function(e){(e.m||[]).forEach(function(x){ if(x.tipo===tipoTexto&&x.nota) u[x.nota]=1; });}); return Object.keys(u).sort(); }
+function nombresUsados(tipoTexto){ return (EST.catalogo||[]).filter(function(c){return c.tipo===tipoTexto;}).map(function(c){return c.nombre;}); }
 document.addEventListener('change',function(ev){
   if(!ev.target||ev.target.name!=='mt') return;
   var t=EST.tipos.filter(function(x){return x.id===ev.target.value;})[0], l=el('mnl'); if(!t||!l) return;
   l.firstChild.nodeValue=t.nombre?'Nombre del proyecto, programa o institución (obligatorio)':'Nota (opcional): por qué, desde cuándo, qué se hizo';
   var us=nombresUsados(t.texto), nm=el('mnu'); if(nm) nm.remove();
-  if(t.nombre&&us.length){ var d=document.createElement('div'); d.id='mnu'; d.className='sub'; d.innerHTML='Ya usados (toque para elegir): '+us.map(function(n){return '<span class="bd" style="background:#546e7a" onclick="el(\'mn\').value=this.textContent">'+esc(n)+'</span>';}).join(''); l.parentNode.insertBefore(d,l.nextSibling); }
+  if(t.nombre&&us.length){ var d=document.createElement('div'); d.id='mnu'; d.className='sub'; d.innerHTML='Nombres existentes (toque para elegir): '+us.map(function(n){return '<span class="bd" style="background:#546e7a" onclick="el(\'mn\').value=this.textContent">'+esc(n)+'</span>';}).join(''); l.parentNode.insertBefore(d,l.nextSibling); }
 });
 function guardaMarca(){
   var r=document.querySelector('input[name=mt]:checked'); if(!r){ el('mm').textContent='Elija el tipo de marca.'; return; }

@@ -128,7 +128,7 @@
   <div class="quien" id="quien"></div>
   <input class="buscar" id="q" type="search" placeholder="Buscar docente o grupo" oninput="pintar()">
   <div id="lista"><div class="aviso">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-c</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-d</div>
 </main>
 <div class="barra">
   <div class="estado" id="estado" aria-live="polite"></div>
@@ -706,8 +706,11 @@ function detalle(id,m){
      opt('','— Sin dato —',!m.atiende)+ATIENDE.map(function(x){return opt(x,x,m.atiende===x);}).join('')+'</select></label>';
   if(noAsistio) h+='<label>¿Hasta cuándo no estará?<select class="sel" onchange="campo(\''+id+'\',\'alcance\',this.value,true)">'+
      opt('',modo==='bloque'?'Solo este bloque':'Solo esta sesión',!m.alcance)+opt('JC','Toda la jornada (se registra una sola vez'+totDia+')',m.alcance==='JC')+'</select></label>';
-  h+='<label>Minutos'+(noAsistio?(m.alcance==='JC'?' (toda la jornada)':' (sesión completa)'):'')+'<select class="sel" '+(noAsistio?'disabled':'')+' onchange="campo(\''+id+'\',\'minutos\',this.value)">'+
-     opt('',noAsistio?(m.alcance==='JC'?(ff.minutosDia?ff.minutosDia+' min (total del día)':'Total del día'):'Automático'):'— Elegir —',!m.minutos||noAsistio)+(m.estado==='Ausente temporal'?[15,30,45,60,90]:[5,10,15,20,30,45]).map(function(x){return opt(x,x+' min',Number(m.minutos)===x&&!noAsistio);}).join('')+'</select></label>';
+  var parcial=(m.estado==='Ausente temporal'||m.estado==='Salida temprana'), resto=parcial&&m.alcance==='RESTO';
+  if(parcial) h+='<label>¿Por cuánto tiempo?<select class="sel" onchange="campo(\''+id+'\',\'alcance\',this.value,true)">'+
+     opt('','Un tiempo corto (elija los minutos)',!m.alcance)+opt('RESTO','Hasta el final de la jornada (se calcula solo'+(ff.minutosResto?': '+ff.minutosResto+' min':'')+')',m.alcance==='RESTO')+'</select></label>';
+  h+='<label>Minutos'+(noAsistio?(m.alcance==='JC'?' (toda la jornada)':' (sesión completa)'):'')+'<select class="sel" '+((noAsistio||resto)?'disabled':'')+' onchange="campo(\''+id+'\',\'minutos\',this.value)">'+
+     opt('',noAsistio?(m.alcance==='JC'?(ff.minutosDia?ff.minutosDia+' min (total del día)':'Total del día'):'Automático'):(resto?(ff.minutosResto||'')+' min (hasta el final de la jornada)':'— Elegir —'),!m.minutos||noAsistio||resto)+(m.estado==='Ausente temporal'||m.estado==='Salida temprana'?[15,30,45,60,90,120,150,180,210,240,270]:[5,10,15,20,30,45,60,90,120]).map(function(x){return opt(x,x+' min'+(x>=60?' ('+(x/60).toFixed(x%60?1:0).replace('.0','')+' h)':''),Number(m.minutos)===x&&!noAsistio&&!resto);}).join('')+'</select></label>';
   h+='<label>Dejó actividad de aprendizaje<select class="sel" onchange="campo(\''+id+'\',\'actividad\',this.value)">'+
      ['N/A','Sí','No'].map(function(x){return opt(x,x,(m.actividad||'N/A')===x);}).join('')+'</select></label>';
   h+='</div><div class="previo">Si el grupo lo atendió un reemplazo, practicante o auxiliar, la ausencia del docente se mantiene.</div><label>Observaciones<input type="text" class="obs" value="'+esc(m.obs||'')+'" oninput="campo(\''+id+'\',\'obs\',this.value,false)"></label></div>';
@@ -739,7 +742,7 @@ function marcar(id,estado){
   if(!estado){ delete marcas[d]; pintar(); return; }
   m.estado=estado;
   if(estado==='Presente'){ m={estado:'Presente'}; }
-  else { m.motivo=m.motivo||'Sin justificación'; if(estado==='Ausente temporal'&&m.motivo==='Sin justificación') m.motivo='Permiso por horas (personal)'; if(estado!=='No asistió') delete m.alcance; if(estado==='No asistió') m.minutos=45; else if(Number(m.minutos)===45&&m.estado!=='No asistió') m.minutos=''; }
+  else { m.motivo=m.motivo||'Sin justificación'; if(estado==='Ausente temporal'&&m.motivo==='Sin justificación') m.motivo='Permiso por horas (personal)'; if(estado!=='No asistió'&&estado!=='Ausente temporal'&&estado!=='Salida temprana') delete m.alcance; if(estado==='No asistió'&&m.alcance==='RESTO') delete m.alcance; if((estado==='Ausente temporal'||estado==='Salida temprana')&&m.alcance==='JC') delete m.alcance; if(estado==='No asistió') m.minutos=45; else if(Number(m.minutos)===45&&m.estado!=='No asistió') m.minutos=''; }
   marcas[d]=m; pintar();
   if(m.estado&&m.estado!=='Presente'){ var c=el('d_'+id); if(c&&c.scrollIntoView) c.scrollIntoView({block:'center',behavior:'smooth'}); }   // se despliegan las opciones de la novedad
 }
@@ -782,17 +785,18 @@ function guardar(){
       else if(!m.incVerifico) falta=falta||f.docente+': confirme que lo verificó personalmente';
     }
     if(m.estado!=='Presente'){
-      if((m.estado==='Llegada tarde'||m.estado==='Salida temprana'||m.estado==='Ausente temporal')&&!m.minutos) falta=falta||f.docente+': elija los minutos';
+      if((m.estado==='Llegada tarde'||m.estado==='Salida temprana'||m.estado==='Ausente temporal')&&!m.minutos&&m.alcance!=='RESTO') falta=falta||f.docente+': elija los minutos';
     }
     var ss=f.sesiones||[{sesion:S.sesion,grupoCodigo:f.grupoCodigo,area:f.area}];
     if(m.estado==='Incumplimiento'&&m.incTipo==='DESPIDIO'&&m.incAlcance==='RESTO') ss=ss.slice(0,1);   // desde la primera sesión hasta el final de la jornada
     if(m.estado==='Llegada tarde') ss=ss.slice(0,1); else if(m.estado==='Salida temprana') ss=ss.slice(-1);   // la llegada tarde es de la primera sesión; la salida temprana, de la última
+    if(m.alcance==='RESTO'&&(m.estado==='Ausente temporal'||m.estado==='Salida temprana')) ss=(f.sesiones||ss).slice(0,1);   // hasta el final de la jornada: desde la primera sesión del bloque; el servidor calcula el tiempo
     var resto=Number(m.minutos)||0;   // permiso por horas: los minutos se reparten desde la primera sesión del bloque
     ss.forEach(function(x){   // por bloque: la marca vale para cada sesión del bloque
-      var mins=m.minutos||'';
-      if(m.estado==='Ausente temporal'){ var cap=/^00/.test(String(x.grupoCodigo))?60:45, tomar=Math.min(resto,cap); if(tomar<=0) return; mins=tomar; resto-=tomar; }
+      var mins=m.alcance==='RESTO'?'':(m.minutos||'');
+      if(m.estado==='Ausente temporal'&&m.alcance!=='RESTO'){ var cap=/^00/.test(String(x.grupoCodigo))?60:45, tomar=Math.min(resto,cap); if(tomar<=0) return; mins=tomar; resto-=tomar; }
       regs.push({docente:f.docente,sesion:x.sesion,grupoCodigo:x.grupoCodigo,area:x.area,estado:m.estado,motivo:m.motivo||'',
-        minutos:mins,actividad:m.actividad||'N/A',obs:m.obs||'',atiende:m.atiende||'',alcance:m.estado==='No asistió'?(m.alcance||''):'',
+        minutos:mins,actividad:m.actividad||'N/A',obs:m.obs||'',atiende:m.atiende||'',alcance:(m.estado==='No asistió'||m.alcance==='RESTO')?(m.alcance||''):'',
         incumplimiento:m.estado==='Incumplimiento'?{tipo:m.incTipo,donde:m.incDonde||'',alcance:m.incAlcance||'',explicacion:m.incExplic||''}:undefined});
     });
   });

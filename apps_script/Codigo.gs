@@ -226,6 +226,11 @@ function consultarSesion(dia, sesion, modo) {
       for (var i = 0; i < reun.length; i++) if (convocadoA_(reun[i], f.docente)) { f.reunion = { id: reun[i].id, nombre: reun[i].nombre, inicio: reun[i].inicio, fin: reun[i].fin, estado: reun[i].asistencia[f.docente] || '' }; break; }
     });
   }
+  out.filas.forEach(function (f) {   // minutos que le quedan a ese docente desde esta sesión hasta el final de la jornada (para «hasta el final»)
+    var desde = Math.min.apply(null, f.sesiones.map(function (x) { return x.sesion; })), tot = 0;
+    horarioDia.forEach(function (h) { if (h.docente === f.docente && Number(h.hora) >= desde) tot += minutosSesion_(h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo); });
+    f.minutosResto = tot;
+  });
   out.filas.forEach(function (f) {   // fuera con estudiantes (salida pedagógica, intercolegiados, charla...): no se marca ausente
     var e = externas[f.docente];
     if (e && (e.jc || f.sesiones.some(function (x) { return e.sesiones[x.sesion]; }))) f.externa = { motivo: e.motivo, texto: e.texto };
@@ -442,6 +447,9 @@ function guardarRonda(p) {
       var hrow = pre ? hz.filter(function (h) { return h.docente === r.docente && h.dia === p.dia && Number(h.hora) === sesion; })[0] : null;
       var franja = hrow ? hhmm_(hrow.inicio) + ' - ' + hhmm_(hrow.fin) : franjaBase;   // preescolar tiene sus propios periodos
       var minutos = r.estado === 'No asistió' ? minutosSesion_(r.grupoCodigo) : (Number(r.minutos) || '');
+      // salida temprana o permiso por horas «hasta el final de la jornada»: el tiempo se calcula solo (todas sus sesiones desde esta hasta la última)
+      var resto = (r.estado === 'Salida temprana' || r.estado === 'Ausente temporal') && r.alcance === 'RESTO';
+      if (resto) { minutos = 0; hz.forEach(function (h) { if (h.docente === r.docente && h.dia === p.dia && Number(h.hora) >= sesion) minutos += minutosSesion_(h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo); }); }
       // 1) Registro_Ronda: una fila por docente-fecha-sesión (se reemplaza si ya existía)
       var fila = [ahora, fecha, p.dia, sesion, franja, r.docente, textoCod_(r.grupoCodigo), r.area, r.estado,
                   r.motivo || '', just, minutos, r.obs || '', p.directivo || '', atiende];
@@ -458,7 +466,7 @@ function guardarRonda(p) {
         var fechaStr = fecha.split('-').reverse().map(Number).join('/');
         var sj = String(novVals[j][novCol]), mj = sj.match(/^S(\d)$/);
         if (novVals[j][3] === TIPO_EXTERNA) continue;   // la salida con estudiantes se anula solo desde la pantalla de novedades
-        if ((fj === fecha || fj === fechaStr) && novVals[j][2] === r.docente && (sj === 'S' + sesion || (inc && inc.resto && mj && Number(mj[1]) >= sesion))) {
+        if ((fj === fecha || fj === fechaStr) && novVals[j][2] === r.docente && (sj === 'S' + sesion || sj === 'S' + sesion + '-FIN' || ((inc && inc.resto || resto) && mj && Number(mj[1]) >= sesion))) {
           nov.deleteRow(j + 1); novVals.splice(j, 1);
         }
       }
@@ -484,6 +492,12 @@ function guardarRonda(p) {
       var jornada = (r.estado === 'No asistió' || r.estado === 'Ausente temporal') && novVals.slice(1).some(function (x) {
         return fechaIso_(x[1]) === fecha && x[2] === r.docente && String(x[novCol]) === 'JC' && /no asisti/i.test(String(x[3]));
       });  // ya reportado como ausencia de jornada completa: se verifica en Registro_Ronda sin duplicar minutos en Novedades
+      if (!jornada && !resto && (r.estado === 'No asistió' || r.estado === 'Ausente temporal' || r.estado === 'Salida temprana')) {   // ya cubierto por una salida «hasta el final de la jornada» registrada desde una sesión anterior
+        jornada = novVals.slice(1).some(function (x) {
+          var mf = String(x[novCol]).match(/^S(\d)-FIN$/);
+          return mf && fechaIso_(x[1]) === fecha && x[2] === r.docente && Number(mf[1]) < sesion;
+        });
+      }
       if (inc) {   // el incumplimiento siempre queda en la hoja Incumplimientos; en Novedades suma minutos salvo que la jornada completa ya los contenga
         var jc = novVals.slice(1).some(function (x) { return fechaIso_(x[1]) === fecha && x[2] === r.docente && String(x[novCol]) === 'JC' && /no asisti/i.test(String(x[3])); });
         var pgi = partesGrupo_(String(r.grupoCodigo).split('+')[0]);
@@ -500,7 +514,8 @@ function guardarRonda(p) {
         var nf = [ahora, fecha, r.docente, r.estado, r.actividad || 'N/A', r.motivo || '', r.obs || '',
                   r.fuente || FUENTE_RONDA, r.medio || MEDIO_RONDA, pg.grado, pg.grupo, r.area,
                   'H' + sesion + ' ' + franja + (pre ? '' : ' Bloque ' + Math.ceil(sesion / 2)), minutos, p.directivo || '',
-                  'S' + sesion, just, m.categoria || '', atiende];
+                  'S' + sesion + (resto ? '-FIN' : ''), just, m.categoria || '', atiende];
+        if (resto) nf[12] = 'H' + sesion + ' ' + franja + ' · resto de la jornada';
         nov.appendRow(nf); novVals.push(nf);
       }
       guardados++;

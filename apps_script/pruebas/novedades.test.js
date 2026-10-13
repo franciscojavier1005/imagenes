@@ -157,4 +157,30 @@ ok(run('personasReunion_()').some(x=>x.nombre===tut&&x.rol==='Tutora PTAFI'),'la
   const ult=hojas.Registro_Ronda.v.filter(r=>r[5]===C).slice(-1)[0];
   ok(ult&&ult[9]==='Cita médica'&&ult[14]==='Se despachó al grupo temprano (autorizado)'&&ult[10]==='Sí','la ronda guarda motivo «Cita médica» (justificada) y «se despachó al grupo temprano» como quién atendió');
 }
+
+// ---- 10) permiso por horas o salida temprana «hasta el final de la jornada»
+{
+  const sd=delDia(B,'JUEVES').sort((a,b)=>Number(a[hi('hora')])-Number(b[hi('hora')]));
+  const desde=Number(sd[1][hi('hora')]);   // desde su segunda sesión
+  const esperado=sd.filter(r=>Number(r[hi('hora')])>=desde).reduce((a,r)=>a+minGrupo(r),0);
+  g.SR=desde; const fr=run("consultarSesion('JUEVES',SR,'sesion')").filas.find(f=>f.docente===B);
+  ok(fr.minutosResto===esperado,'la pantalla recibe los minutos que le quedan desde esa sesión ('+fr.minutosResto+')');
+  const n0=hojas.Novedades.v.length;
+  g.RGR={dia:'JUEVES',sesion:desde,registros:[{docente:B,grupoCodigo:fr.grupoCodigo,area:fr.area,estado:'Salida temprana',motivo:'Cita médica',alcance:'RESTO'}]};
+  run('guardarRonda(RGR)');
+  const nuevas=hojas.Novedades.v.filter(r=>r[2]===B&&r[3]==='Salida temprana');
+  ok(nuevas.length===1&&nuevas[0][13]===esperado&&nuevas[0][15]==='S'+desde+'-FIN','se guarda una sola novedad con todo el tiempo hasta el final ('+esperado+' min) y marca S'+desde+'-FIN');
+  // en un bloque posterior, marcarlo ausente no suma de nuevo
+  const ult=Number(sd[sd.length-1][hi('hora')]);
+  if(ult>desde){
+    g.SU=ult; const fu=run("consultarSesion('JUEVES',SU,'sesion')").filas.find(f=>f.docente===B);
+    const n1=hojas.Novedades.v.length;
+    g.RGU={dia:'JUEVES',sesion:ult,registros:[{docente:B,grupoCodigo:fu.grupoCodigo,area:fu.area,estado:'No asistió',motivo:'Cita médica'}]}; run('guardarRonda(RGU)');
+    ok(hojas.Novedades.v.length===n1,'si en una sesión posterior se marca ausente, no se suman minutos otra vez (ya los cubre «hasta el final»)');
+  }
+  // corregir a un tiempo corto reemplaza la fila de «hasta el final»
+  g.RGS={dia:'JUEVES',sesion:desde,registros:[{docente:B,grupoCodigo:fr.grupoCodigo,area:fr.area,estado:'Salida temprana',motivo:'Cita médica',minutos:30}]}; run('guardarRonda(RGS)');
+  const fin=hojas.Novedades.v.filter(r=>r[2]===B&&r[3]==='Salida temprana'&&String(r[15]).endsWith('-FIN')).length, cor=hojas.Novedades.v.filter(r=>r[2]===B&&r[3]==='Salida temprana'&&r[15]==='S'+desde&&r[13]===30).length;
+  ok(fin===0&&cor===1,'al corregir a 30 min, desaparece la fila «hasta el final» y queda la de 30 min');
+}
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

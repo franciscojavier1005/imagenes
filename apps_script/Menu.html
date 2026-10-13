@@ -47,7 +47,7 @@
 <main>
   <div class="saludo" id="saludo"></div>
   <div id="botones"><div class="espera">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.06-c</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-a</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -117,18 +117,18 @@ function pintar(rol,nombre,c){
     h+=boton('reunion','👥','Reuniones y actividades','Asistencia en reuniones y en actividades institucionales generales (entrega de boletines, clausura...).');
     h+=boton('horarios','🗓','Horarios y consultas','Horario de un docente o grupo, quiénes deben estar ahora y directores de grupo.');
     h+=boton('panel','📊','Panel e informes','Ver cifras, tendencias y el informe del periodo.');
-    if(CTX.necesitaCorreo) h+='<div id="correoForm">'+formCorreo(true)+'</div>';
+    if(CTX.necesitaCorreo) h+='<div class="sub" style="margin:6px 4px 0;color:#456">✉ Aún no recibe informes por correo. Si lo desea, <button class="enlace" onclick="abrirCorreo()">registre su correo</button> (opcional, de cualquier proveedor).</div>';
   } else {
     el('saludo').textContent='Bienvenido(a). Toque para continuar.';
     h+=boton('panel','📊','Mi informe y mis soportes','Ver mi asistencia, cargar soportes o pedir acceso.');
   }
-  h+='<div class="pie">'+(rol==='directivo'&&!CTX.necesitaCorreo?'<button class="enlace" onclick="abrirCorreo()">Mi correo e informes</button> · ':'')+'<button class="enlace" onclick="formClave()">Cambiar mi clave</button> · <button class="enlace" onclick="salir()">Cerrar sesión</button></div><div id="claveForm"></div>';
+  h+='<div class="pie">'+(rol==='directivo'?'<button class="enlace" onclick="abrirCorreo()">Mi correo e informes</button> · ':'')+'<button class="enlace" onclick="formClave()">Cambiar mi clave</button> · <button class="enlace" onclick="salir()">Cerrar sesión</button></div><div id="claveForm"></div>';
   el('botones').innerHTML=h;
 }
 var CTX={};
 function formCorreo(primera){
   var inf=CTX.informes||{dia:true,semana:true,mes:true};
-  return '<div class="caja"><b>'+(primera?'Registre su correo':'Mi correo e informes')+'</b><div class="msg" style="color:#555">'+(primera?'Solo se pide esta vez. ':'')+'Recibirá por correo la síntesis de asistencia al terminar la jornada.</div>'+
+  return '<div class="caja"><b>'+(primera?'Registre su correo (opcional)':'Mi correo e informes')+'</b><div class="msg" style="color:#555">'+'Es opcional y puede ser de cualquier proveedor (Gmail, Outlook, Yahoo, institucional…). Con él recibirá la síntesis de asistencia y podrá enviarse informes desde el panel.</div>'+
     '<label>Correo electrónico<input id="kMail" type="email" autocomplete="email" value="'+esc(CTX.correo||'')+'" placeholder="nombre@correo.com"></label>'+
     '<label style="display:flex;flex-direction:row;align-items:center;gap:8px"><input type="checkbox" style="width:auto;margin:0" id="kDia"'+(inf.dia?' checked':'')+'> Informe del día (1:35 p. m.)</label>'+
     '<label style="display:flex;flex-direction:row;align-items:center;gap:8px"><input type="checkbox" style="width:auto;margin:0" id="kSem"'+(inf.semana?' checked':'')+'> Informe de la semana (viernes)</label>'+

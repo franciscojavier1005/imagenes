@@ -129,4 +129,21 @@ EMAIL='dueno@gmail.com';
   ok(/6 números/.test(falla(`restablecerClave_(${JSON.stringify(a2.nombre)},'12')`)||''),'la clave elegida debe tener 6 números'); EMAIL='';
   ok(!JSON.stringify(hojas.Directivos.v).includes(rs.pin+'"')&&!JSON.stringify(hojas.Directivos.v).includes('135790'),'las claves no se guardan en claro (no se pueden consultar, solo restablecer)');
 }
+// ---- 8) enviar el informe a mi correo (cualquier proveedor), pedido en el momento
+{
+  EMAIL='dueno@gmail.com'; const cl3=run("claveTemporalParaTodosEnRegistro()"); EMAIL='';
+  const cabD=hojas.Directivos.v[0], iC=cabD.indexOf('correo'), iN=cabD.indexOf('nombre'), iR=cabD.indexOf('rol');
+  const fila=hojas.Directivos.v.find((r,i)=>i>0&&!/acad/i.test(r[iR])&&!String(r[iC]||'').trim()); const dir=cl3.find(x=>x.nombre===fila[iN]);
+  g.LM=run(`ingresar({nombre:${JSON.stringify(dir.nombre)},pin:'${dir.pin}'})`);
+  const llam=(fn,arg)=>run(`llamarSeguro(LM.token,'${fn}',[${JSON.stringify(arg)}])`);
+  const enviadosM=[]; g.MailApp.sendEmail=o=>enviadosM.push(o);
+  ok(falla(`llamarSeguro(LM.token,'enviarInformeAMi',[{desde:'2026-10-01',hasta:'2026-10-02'}])`)==='NECESITA_CORREO'&&enviadosM.length===0,'sin correo registrado: el servidor pide el correo (no es obligatorio al ingresar)');
+  ok(/válido/.test(falla(`llamarSeguro(LM.token,'enviarInformeAMi',[{desde:'2026-10-01',hasta:'2026-10-02',correo:'no-es-correo'}])`)||''),'correo inválido: se rechaza');
+  const rm=llam('enviarInformeAMi',{desde:'2026-10-01',hasta:'2026-10-02',correo:'Rector@Hotmail.com',recordar:true});
+  ok(rm.para==='rector@hotmail.com'&&enviadosM.length===1&&enviadosM[0].to==='rector@hotmail.com'&&/Informe del 2026-10-01 al 2026-10-02/.test(enviadosM[0].subject),'se envía a un correo que no es de Google y queda el informe del periodo');
+  ok(hojas.Directivos.v.find(r=>r[iN]===dir.nombre)[iC]==='rector@hotmail.com','con «recordar» el correo queda guardado');
+  llam('enviarInformeAMi',{desde:'2026-10-01',hasta:'2026-10-02'}); ok(enviadosM.length===2&&enviadosM[1].to==='rector@hotmail.com','la siguiente vez se envía solo, sin volver a pedir el correo');
+  ok(/fechas/.test(falla(`llamarSeguro(LM.token,'enviarInformeAMi',[{desde:'2026-10-05',hasta:'2026-10-01'}])`)||''),'fechas al revés: se rechaza');
+  ok(falla("enviarInformeAMi({desde:'2026-10-01',hasta:'2026-10-02'})")!==null,'sin sesión no se puede usar');
+}
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

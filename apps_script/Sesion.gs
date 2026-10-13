@@ -194,11 +194,13 @@ function restablecerClaveDirectivo() {
   ui.alert('Clave temporal de ' + out.nombre + ': ' + out.pin + '\n\nEntréguesela; al ingresar deberá elegir una clave propia. Se cerraron sus sesiones abiertas.');
 }
 
+function correoValido_(c) { c = String(c || '').trim().toLowerCase(); return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c) && !/@example\.com$/.test(c); }
+
 /** El directivo registra su correo (la primera vez que ingresa) y elige qué informes quiere recibir. p = {correo, dia, semana, mes} */
 function guardarCorreo(p) {
   p = p || {};
   var id = exigirDirectivo_(), correo = String(p.correo || '').trim().toLowerCase();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo) || /@example\.com$/.test(correo)) throw new Error('Escriba un correo válido.');
+  if (!correoValido_(correo)) throw new Error('Escriba un correo válido.');
   var d = filaDirectivo_(id.nombre);
   if (!d) throw new Error('No se encontró su registro.');
   var c = d.col, si = function (v) { return v === false || v === 'NO' ? 'NO' : 'SI'; };

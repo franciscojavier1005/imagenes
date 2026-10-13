@@ -96,6 +96,28 @@ function enviarInformes_(tipo, soloProbar, soloA) {
   });
   return { enviado: true, para: para, tipo: tipo };
 }
+/**
+ * El directivo se envía a sí mismo el informe del periodo que está viendo. El correo puede ser de cualquier proveedor (no solo Google) y se pide
+ * en ese momento si aún no lo tiene registrado: p = {desde, hasta, correo?, recordar?}. Sin correo registrado ni enviado responde NECESITA_CORREO.
+ */
+function enviarInformeAMi(p) {
+  var id = exigirDirectivo_();
+  p = p || {};
+  var desde = String(p.desde || ''), hasta = String(p.hasta || '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(desde) || !/^\d{4}-\d{2}-\d{2}$/.test(hasta) || hasta < desde || hasta > resSumaDias_(desde, 400)) throw new Error('Revise las fechas del informe.');
+  var correo = String(p.correo || '').trim().toLowerCase();
+  if (correo) {
+    if (!correoValido_(correo)) throw new Error('Escriba un correo válido.');
+    if (p.recordar) { var ec0 = estadoCorreo_(id), inf = ec0.informes || { dia: true, semana: true, mes: true }; guardarCorreo({ correo: correo, dia: inf.dia, semana: inf.semana, mes: inf.mes }); }
+  } else {
+    correo = String(estadoCorreo_(id).correo || '');
+  }
+  if (!correo) throw new Error('NECESITA_CORREO');
+  var r = resumenInterno_(desde, hasta, {});
+  var cuerpo = htmlInforme_(r, 'Del ' + desde + ' al ' + hasta, ScriptApp.getService().getUrl() + '?p=panel') + htmlReunionesInforme_(desde, hasta) + htmlIncumplimientos_(desde, hasta);
+  MailApp.sendEmail({ to: correo, subject: 'ICET - Informe del ' + desde + ' al ' + hasta + ': ' + r.kpis.horas + ' h sin atender', htmlBody: cuerpo, name: 'Control de asistencia ICET' });
+  return { ok: true, para: correo };
+}
 /** Compatibilidad: informe del día. */
 function enviarInformeDiario_(soloProbar) { var r = enviarInformes_('dia', soloProbar); if (r.enviado) r.para = r.para.join(', '); return r; }
 

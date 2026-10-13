@@ -1108,6 +1108,28 @@ function enviarInformes_(tipo, soloProbar, soloA) {
   });
   return { enviado: true, para: para, tipo: tipo };
 }
+/**
+ * El directivo se envía a sí mismo el informe del periodo que está viendo. El correo puede ser de cualquier proveedor (no solo Google) y se pide
+ * en ese momento si aún no lo tiene registrado: p = {desde, hasta, correo?, recordar?}. Sin correo registrado ni enviado responde NECESITA_CORREO.
+ */
+function enviarInformeAMi(p) {
+  var id = exigirDirectivo_();
+  p = p || {};
+  var desde = String(p.desde || ''), hasta = String(p.hasta || '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(desde) || !/^\d{4}-\d{2}-\d{2}$/.test(hasta) || hasta < desde || hasta > resSumaDias_(desde, 400)) throw new Error('Revise las fechas del informe.');
+  var correo = String(p.correo || '').trim().toLowerCase();
+  if (correo) {
+    if (!correoValido_(correo)) throw new Error('Escriba un correo válido.');
+    if (p.recordar) { var ec0 = estadoCorreo_(id), inf = ec0.informes || { dia: true, semana: true, mes: true }; guardarCorreo({ correo: correo, dia: inf.dia, semana: inf.semana, mes: inf.mes }); }
+  } else {
+    correo = String(estadoCorreo_(id).correo || '');
+  }
+  if (!correo) throw new Error('NECESITA_CORREO');
+  var r = resumenInterno_(desde, hasta, {});
+  var cuerpo = htmlInforme_(r, 'Del ' + desde + ' al ' + hasta, ScriptApp.getService().getUrl() + '?p=panel') + htmlReunionesInforme_(desde, hasta) + htmlIncumplimientos_(desde, hasta);
+  MailApp.sendEmail({ to: correo, subject: 'ICET - Informe del ' + desde + ' al ' + hasta + ': ' + r.kpis.horas + ' h sin atender', htmlBody: cuerpo, name: 'Control de asistencia ICET' });
+  return { ok: true, para: correo };
+}
 /** Compatibilidad: informe del día. */
 function enviarInformeDiario_(soloProbar) { var r = enviarInformes_('dia', soloProbar); if (r.enviado) r.para = r.para.join(', '); return r; }
 
@@ -2771,11 +2793,13 @@ function restablecerClaveDirectivo() {
   ui.alert('Clave temporal de ' + out.nombre + ': ' + out.pin + '\n\nEntréguesela; al ingresar deberá elegir una clave propia. Se cerraron sus sesiones abiertas.');
 }
 
+function correoValido_(c) { c = String(c || '').trim().toLowerCase(); return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c) && !/@example\.com$/.test(c); }
+
 /** El directivo registra su correo (la primera vez que ingresa) y elige qué informes quiere recibir. p = {correo, dia, semana, mes} */
 function guardarCorreo(p) {
   p = p || {};
   var id = exigirDirectivo_(), correo = String(p.correo || '').trim().toLowerCase();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(correo) || /@example\.com$/.test(correo)) throw new Error('Escriba un correo válido.');
+  if (!correoValido_(correo)) throw new Error('Escriba un correo válido.');
   var d = filaDirectivo_(id.nombre);
   if (!d) throw new Error('No se encontró su registro.');
   var c = d.col, si = function (v) { return v === false || v === 'NO' ? 'NO' : 'SI'; };
@@ -2849,7 +2873,8 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   levantarMarcaEstudiante: ['directivo'],
   agregarEstudiante: ['directivo'],
   moverEstudiante: ['directivo'],
-  agregarGrupoProyecto: ['directivo']
+  agregarGrupoProyecto: ['directivo'],
+  enviarInformeAMi: ['directivo']
 };
 
 function apiFunciones_() {
@@ -2867,7 +2892,8 @@ function apiFunciones_() {
     datosNovedades: datosNovedades, registrarNovedad: registrarNovedad, quitarNovedad: quitarNovedad,
     datosEstudiantes: datosEstudiantes, marcarEstudiantes: marcarEstudiantes, levantarMarcaEstudiante: levantarMarcaEstudiante,
     agregarEstudiante: agregarEstudiante, moverEstudiante: moverEstudiante,
-    agregarGrupoProyecto: agregarGrupoProyecto
+    agregarGrupoProyecto: agregarGrupoProyecto,
+    enviarInformeAMi: enviarInformeAMi
   };
 }
 

@@ -127,7 +127,7 @@
   <div class="quien" id="quien"></div>
   <input class="buscar" id="q" type="search" placeholder="Buscar docente o grupo" oninput="pintar()">
   <div id="lista"><div class="aviso">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-e</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-f</div>
 </main>
 <div class="barra">
   <div class="estado" id="estado" aria-live="polite"></div>
@@ -384,7 +384,7 @@ function marcar(id,estado){
   if(!estado){ delete marcas[d]; pintar(); return; }
   m.estado=estado;
   if(estado==='Presente'){ m={estado:'Presente'}; }
-  else { m.motivo=m.motivo||'Sin justificación'; if(estado==='Ausente temporal'&&m.motivo==='Sin justificación') m.motivo='Permiso por horas (personal)'; if(estado!=='No asistió'&&estado!=='Ausente temporal'&&estado!=='Salida temprana') delete m.alcance; if(estado==='No asistió'&&m.alcance==='RESTO') delete m.alcance; if((estado==='Ausente temporal'||estado==='Salida temprana')&&m.alcance==='JC') delete m.alcance; if(estado==='No asistió') m.minutos=45; else if(Number(m.minutos)===45&&m.estado!=='No asistió') m.minutos=''; }
+  else { m.motivo=m.motivo||'Sin justificación'; if(estado==='Ausente temporal'&&m.motivo==='Sin justificación') m.motivo='Permiso por horas (personal)'; if(estado!=='No asistió'&&estado!=='Ausente temporal'&&estado!=='Salida temprana') delete m.alcance; if((estado==='Ausente temporal'||estado==='Salida temprana')&&!m.minutos) m.minutos=90; if(estado==='No asistió'&&m.alcance==='RESTO') delete m.alcance; if((estado==='Ausente temporal'||estado==='Salida temprana')&&m.alcance==='JC') delete m.alcance; if(estado==='No asistió') m.minutos=45; else if(Number(m.minutos)===45&&m.estado!=='No asistió') m.minutos=''; }
   marcas[d]=m; pintar();
   if(m.estado&&m.estado!=='Presente'){ var c=el('d_'+id); if(c&&c.scrollIntoView) c.scrollIntoView({block:'center',behavior:'smooth'}); }   // se despliegan las opciones de la novedad
 }

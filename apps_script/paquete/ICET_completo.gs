@@ -271,7 +271,10 @@ var MOTIVOS_NUEVOS = [
   ['ACTIVIDAD INSTITUCIONAL', 'Salida pedagógica o recorrido con estudiantes', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
   ['ACTIVIDAD INSTITUCIONAL', 'Paseo o salida recreativa con estudiantes', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
   ['ACTIVIDAD INSTITUCIONAL', 'Intercolegiados o evento deportivo con estudiantes', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
-  ['ACTIVIDAD INSTITUCIONAL', 'Charla o actividad externa con estudiantes', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5]
+  ['ACTIVIDAD INSTITUCIONAL', 'Charla o actividad externa con estudiantes', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
+  ['ACTIVIDAD INSTITUCIONAL', 'Visita a empresa, institución o feria con estudiantes', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
+  ['ACTIVIDAD INSTITUCIONAL', 'Salida cultural o artística con estudiantes', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
+  ['ACTIVIDAD INSTITUCIONAL', 'Otra salida con estudiantes (escribir en el detalle)', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5]
 ];
 function asegurarMotivos_() {
   var sh = hoja_('Motivos'), existentes = datos_('Motivos').map(function (m) { return m.motivo; });
@@ -1903,9 +1906,11 @@ var TIPOS_REUNION = [
   { tipo: 'Comité de calidad', sinEstudiantes: false, inicio: '08:00', fin: '10:00' },
   { tipo: 'Reunión PTAFI con la tutora', sinEstudiantes: false, inicio: '08:00', fin: '09:00' },
   { tipo: 'Entrega de boletines', sinEstudiantes: false, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Aseo general', sinEstudiantes: true, inicio: '07:00', fin: '09:00' },
+  { tipo: 'Examen general periódico', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
   { tipo: 'Clausura', sinEstudiantes: true, inicio: '08:00', fin: '12:00' },
   { tipo: 'Actividad institucional general', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
-  { tipo: 'Otra reunión', sinEstudiantes: false, inicio: '08:00', fin: '09:00' }
+  { tipo: 'Otra reunión o actividad (escriba el nombre)', sinEstudiantes: false, inicio: '08:00', fin: '09:00' }
 ];
 
 function limpiaTxt_(v) { return String(v == null ? '' : v).replace(/^'/, ''); }
@@ -1981,6 +1986,7 @@ function crearReunion(p) {
   var por = nombreRegistrador_(p);
   var def = TIPOS_REUNION.filter(function (t) { return t.tipo === p.tipo; })[0];
   if (!def) throw new Error('Elija el tipo de reunión.');
+  if (/^Otra/.test(def.tipo) && String(p.nombre || '').trim().length < 3) throw new Error('Escriba el nombre de la reunión o actividad.');
   var ini = hora_(p.inicio), fin = hora_(p.fin);
   if (!ini || !fin || fin <= ini) throw new Error('Revise la hora de inicio y de fin.');
   var fecha = p.fecha ? fechaIso_(p.fecha) : ymd_(new Date());
@@ -2257,7 +2263,7 @@ var TIPOS_NOVEDAD = [
   { id: 'EXTERNA', texto: 'Salida pedagógica o actividad con estudiantes fuera del colegio', tipo: TIPO_EXTERNA, pide: 'rango_o_dia' }
 ];
 /** Motivos de las salidas con estudiantes (se agregan solos a la hoja Motivos si faltan; ver asegurarMotivos_). */
-var MOTIVOS_EXTERNA = ['Salida pedagógica o recorrido con estudiantes', 'Paseo o salida recreativa con estudiantes', 'Intercolegiados o evento deportivo con estudiantes',
+var MOTIVOS_EXTERNA = ['Visita a empresa, institución o feria con estudiantes', 'Salida cultural o artística con estudiantes', 'Otra salida con estudiantes (escribir en el detalle)', 'Salida pedagógica o recorrido con estudiantes', 'Paseo o salida recreativa con estudiantes', 'Intercolegiados o evento deportivo con estudiantes',
   'Charla o actividad externa con estudiantes'];
 
 function aMin_(hhmm) { var m = String(hhmm || '').match(/^(\d{1,2}):(\d{2})$/); return m ? Number(m[1]) * 60 + Number(m[2]) : null; }

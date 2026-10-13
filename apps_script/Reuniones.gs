@@ -25,9 +25,11 @@ var TIPOS_REUNION = [
   { tipo: 'Comité de calidad', sinEstudiantes: false, inicio: '08:00', fin: '10:00' },
   { tipo: 'Reunión PTAFI con la tutora', sinEstudiantes: false, inicio: '08:00', fin: '09:00' },
   { tipo: 'Entrega de boletines', sinEstudiantes: false, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Aseo general', sinEstudiantes: true, inicio: '07:00', fin: '09:00' },
+  { tipo: 'Examen general periódico', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
   { tipo: 'Clausura', sinEstudiantes: true, inicio: '08:00', fin: '12:00' },
   { tipo: 'Actividad institucional general', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
-  { tipo: 'Otra reunión', sinEstudiantes: false, inicio: '08:00', fin: '09:00' }
+  { tipo: 'Otra reunión o actividad (escriba el nombre)', sinEstudiantes: false, inicio: '08:00', fin: '09:00' }
 ];
 
 function limpiaTxt_(v) { return String(v == null ? '' : v).replace(/^'/, ''); }
@@ -103,6 +105,7 @@ function crearReunion(p) {
   var por = nombreRegistrador_(p);
   var def = TIPOS_REUNION.filter(function (t) { return t.tipo === p.tipo; })[0];
   if (!def) throw new Error('Elija el tipo de reunión.');
+  if (/^Otra/.test(def.tipo) && String(p.nombre || '').trim().length < 3) throw new Error('Escriba el nombre de la reunión o actividad.');
   var ini = hora_(p.inicio), fin = hora_(p.fin);
   if (!ini || !fin || fin <= ini) throw new Error('Revise la hora de inicio y de fin.');
   var fecha = p.fecha ? fechaIso_(p.fecha) : ymd_(new Date());

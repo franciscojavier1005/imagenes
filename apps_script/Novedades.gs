@@ -21,7 +21,7 @@ var TIPOS_NOVEDAD = [
   { id: 'EXTERNA', texto: 'Salida pedagógica o actividad con estudiantes fuera del colegio', tipo: TIPO_EXTERNA, pide: 'rango_o_dia' }
 ];
 /** Motivos de las salidas con estudiantes (se agregan solos a la hoja Motivos si faltan; ver asegurarMotivos_). */
-var MOTIVOS_EXTERNA = ['Salida pedagógica o recorrido con estudiantes', 'Paseo o salida recreativa con estudiantes', 'Intercolegiados o evento deportivo con estudiantes',
+var MOTIVOS_EXTERNA = ['Visita a empresa, institución o feria con estudiantes', 'Salida cultural o artística con estudiantes', 'Otra salida con estudiantes (escribir en el detalle)', 'Salida pedagógica o recorrido con estudiantes', 'Paseo o salida recreativa con estudiantes', 'Intercolegiados o evento deportivo con estudiantes',
   'Charla o actividad externa con estudiantes'];
 
 function aMin_(hhmm) { var m = String(hhmm || '').match(/^(\d{1,2}):(\d{2})$/); return m ? Number(m[1]) * 60 + Number(m[2]) : null; }

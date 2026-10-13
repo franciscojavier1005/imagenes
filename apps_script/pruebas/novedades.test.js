@@ -183,4 +183,15 @@ ok(run('personasReunion_()').some(x=>x.nombre===tut&&x.rol==='Tutora PTAFI'),'la
   const fin=hojas.Novedades.v.filter(r=>r[2]===B&&r[3]==='Salida temprana'&&String(r[15]).endsWith('-FIN')).length, cor=hojas.Novedades.v.filter(r=>r[2]===B&&r[3]==='Salida temprana'&&r[15]==='S'+desde&&r[13]===30).length;
   ok(fin===0&&cor===1,'al corregir a 30 min, desaparece la fila «hasta el final» y queda la de 30 min');
 }
+
+// ---- 11) reuniones: nuevas actividades y «otra» con nombre obligatorio; salidas con estudiantes
+{
+  const tr=run('TIPOS_REUNION').map(t=>t.tipo);
+  ok(['Comité de calidad','Consejo académico','Entrega de boletines','Aseo general','Examen general periódico'].every(t=>tr.includes(t))&&tr.some(t=>/^Otra reunión o actividad/.test(t)),'reuniones: comité de calidad, consejo académico, entrega de boletines, aseo general, examen general periódico y «otra» con nombre');
+  const otra=run('TIPOS_REUNION').find(t=>/^Otra reunión o actividad/.test(t.tipo)).tipo;
+  g.OT={tipo:otra,inicio:'08:00',fin:'09:00',convocados:'TODOS'};
+  ok(/nombre/i.test(falla('crearReunion(OT)')||''),'«otra reunión o actividad» exige escribir el nombre');
+  g.OT.nombre='Simulacro de evacuación'; ok(!!run('crearReunion(OT)').id,'con nombre se crea');
+  const dn2=run('datosNovedades()'); ok(dn2.motivosExterna.length>=7&&dn2.motivosExterna.every(m=>dn2.motivos.some(x=>x.motivo===m)),'salidas con estudiantes: '+dn2.motivosExterna.length+' motivos (incluye visita, salida cultural y «otra salida»)');
+}
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

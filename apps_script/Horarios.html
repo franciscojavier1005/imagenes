@@ -46,7 +46,10 @@
   #lote{display:none} body.imprimiendo #lote{display:block} body.imprimiendo main>:not(#lote){display:none!important} .pag{page-break-after:always;break-after:page;padding:6px} .pag h2{font-size:20px;color:var(--azul);margin:0}
 
   .est{display:flex;gap:8px;align-items:flex-start;padding:8px 6px;border-bottom:1px solid #eef1f5} .est .ei{flex:1;min-width:0;font-size:14px} .est .ei small{color:#567;margin-left:4px}
-  .est.ret{opacity:.6} .est input[type=checkbox]{width:22px;height:22px;margin-top:2px;flex:none}
+  .est.sh-ret{background:#ffcdd2;border-left:6px solid #c62828} .est.sh-des{background:#ffe4e0;border-left:6px solid #e53935} .est.sh-aus{background:#ffe0b2;border-left:6px solid #ef6c00} .est.sh-fuga{background:#f8bbd9;border-left:6px solid #d81b60}
+  .leyenda{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px;font-size:12px} .leyenda span{border-radius:10px;padding:3px 9px;border-left:6px solid;color:#1b2430}
+  @media print{.est{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  .est.ret{opacity:1} .est input[type=checkbox]{width:22px;height:22px;margin-top:2px;flex:none}
   .bd{display:inline-block;font-size:11.5px;font-weight:700;color:#fff;border-radius:10px;padding:2px 8px;margin:3px 4px 0 0;cursor:pointer;line-height:1.5} .est .ei .bd small{font-weight:400;color:#fff;opacity:.92;margin-left:0}
   .btn.mini{min-height:34px;padding:6px 10px;font-size:12.5px;flex:none}
   .barra{position:sticky;bottom:0;background:#0f2a5c;color:#fff;border-radius:12px;padding:10px 12px;display:flex;gap:8px;align-items:center;justify-content:space-between;margin:10px 0;box-shadow:0 -2px 10px rgba(0,0,0,.25)}
@@ -73,7 +76,7 @@
   <div class="ctrl" id="ctrl"></div>
   <div id="res"><div class="aviso">Cargando…</div></div>
   <div id="lote"></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-g</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-h</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -254,10 +257,11 @@ function pintaEst(){
   var marc=VIS.filter(function(e){return e.m&&e.m.length;}).length, nsel=Object.keys(SEL).length, ult='';
   var h='<div class="card"><h2>Estudiantes</h2><div class="sub">'+VIS.length+' estudiantes'+(marc?' · '+marc+' con marcas':'')+(el('eg')&&el('eg').value?'':' (elija un grupo para ver su lista completa)')+'</div>';
   var corte=VIS.slice(0,700);
+  h+='<div class="leyenda"><span style="background:#ffcdd2;border-color:#c62828">🔴 Retirado, matrícula cancelada u otra institución</span><span style="background:#ffe4e0;border-color:#e53935">🟥 No asiste (posible deserción)</span><span style="background:#ffe0b2;border-color:#ef6c00">🟠 Se ausenta con frecuencia</span><span style="background:#f8bbd9;border-color:#d81b60">🌸 Se fuga con frecuencia</span></div>';
   h+=corte.map(function(e,i){
     var cab=(e.g!==ult&&!(el('eg')&&el('eg').value))?'<div class="gr">'+esc((EST.grupos.filter(function(x){return x.codigo===e.g;})[0]||{}).curso||e.g)+'</div>':''; ult=e.g;
-    var ret=(e.m||[]).some(function(x){return /Retirado|cancelada|otra institución/.test(x.tipo);});
-    var fila=cab+'<div class="est'+(ret?' ret':'')+'"><input type="checkbox" '+(SEL[kEst(e)]?'checked ':'')+'onchange="selEst('+VIS.indexOf(e)+',this.checked)"><div class="ei"><b>'+esc(e.a)+'</b> '+esc(e.n)+'<small>N.º '+e.no+' · '+esc(e.g)+'</small><div>'+
+    var tp=(e.m||[]).map(function(x){return x.tipo;}).join('|'), sh=/Retirado|cancelada|otra institución/.test(tp)?' sh-ret':(/No asiste/.test(tp)?' sh-des':(/Se ausenta/.test(tp)?' sh-aus':(/Se fuga/.test(tp)?' sh-fuga':'')));
+    var fila=cab+'<div class="est'+sh+'"><input type="checkbox" '+(SEL[kEst(e)]?'checked ':'')+'onchange="selEst('+VIS.indexOf(e)+',this.checked)"><div class="ei"><b>'+esc(e.a)+'</b> '+esc(e.n)+'<small>N.º '+e.no+' · '+esc(e.g)+'</small><div>'+
       (e.m||[]).map(function(x){var c=EMO[x.tipo]||['•','#555']; return '<span class="bd" style="background:'+c[1]+'" title="'+esc((x.nota||'')+' · '+x.por+' · '+x.fecha+' (toque para levantar)')+'" onclick="levanta(\''+esc(x.id)+'\')">'+c[0]+' '+esc(x.tipo)+(x.nota?' <small>· '+esc(x.nota.slice(0,40))+'</small>':'')+'</span>';}).join('')+'</div></div>'+
       '<button class="btn mini" onclick="abreMarca(['+VIS.indexOf(e)+'])">Marcar</button></div>';
     var sig=corte[i+1]; if(!sig||sig.g!==e.g) fila+=resumenGrupo(e.g);   // consolidado al final de cada grupo

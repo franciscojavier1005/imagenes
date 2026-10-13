@@ -127,7 +127,7 @@
   <div class="quien" id="quien"></div>
   <input class="buscar" id="q" type="search" placeholder="Buscar docente o grupo" oninput="pintar()">
   <div id="lista"><div class="aviso">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-a</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-b</div>
 </main>
 <div class="barra">
   <div class="estado" id="estado" aria-live="polite"></div>
@@ -307,10 +307,11 @@ function filaPorId(id){ var d=nombrePorId(id); return S.filas.filter(function(x)
 function cambiarQuien(id){ var f=filaPorId(id); if(f){ cambiando[f.claveAlt]=true; pintar(); } }
 function definir(id,idN){
   var f=filaPorId(id), n=nombrePorId(idN); if(!f) return;
-  srv().withSuccessHandler(function(){
-    delete cambiando[f.claveAlt]; toast('Definido para toda la semana: '+n); cargar(diaSel,sesSel,true);
+  var corrige=!!(f.definido&&f.docente!==n);
+  srv().withSuccessHandler(function(r){
+    delete cambiando[f.claveAlt]; toast('Definido para toda la semana: '+n+(r&&r.corregidos?' · corregidas '+(r.corregidos.registro+r.corregidos.novedades)+' filas ya registradas':'')); cargar(diaSel,sesSel,true);
   }).withFailureHandler(function(e){toast('Error: '+(e.message||e));})
-  .definirAlternancia({clave:f.claveAlt,elegido:n,primario:f.primario,fecha:S.fecha,directivo:dirActual()});
+  .definirAlternancia({clave:f.claveAlt,elegido:n,primario:f.primario,fecha:S.fecha,directivo:dirActual(),antes:corrige?f.docente:'',corregirRegistrado:corrige&&confirm('Ya había definido a '+f.docente+' esta semana. ¿Pasar también a '+n+' lo que ya se registró esta semana de esta pareja (marcas de ronda y novedades por sesión)?\n\nAceptar: sí, corregirlo.  Cancelar: dejar lo anterior como está.')});
 }
 
 /* Controles de la novedad: los que no corresponden quedan desactivados */

@@ -310,6 +310,49 @@ function estadosSemana_(semana) {
  * clave 'CLASE|area|docenteA|docenteB' (parejas de la hoja Alternancias: se guarda si la pareja intercambia sus grupos; primario = a quién
  * le corresponde la clase en el horario) o 'ENFASIS|grupos|docenteA|docenteB' (énfasis en pareja: se guarda quién atiende el grupo completo).
  */
+/**
+ * Corrige lo ya registrado en la semana cuando se descubre que quien dictaba era otro docente de la pareja: pasa las marcas de la ronda
+ * (Registro_Ronda) y las novedades por sesión (Novedades) de «antes» a «despues», solo en las sesiones de esa pareja. No toca las ausencias de
+ * jornada completa (JC). Devuelve cuántas filas cambió.
+ */
+function corregirRegistrosPar_(semana, clave, antes, despues) {
+  var partes = String(clave).split('|'), hz = datos_('Horario'), res = { registro: 0, novedades: 0 };
+  function delPar(h) { return partes[0] === 'ENFASIS' ? (h.tipo === 'ENFASIS' && String(h.grupos_enfasis) === partes[1]) : (h.tipo === 'CLASE' && h.area === partes[1]); }
+  var propios = {}, nuevos = {};
+  hz.forEach(function (h) {
+    if (!delPar(h)) return;
+    var k = h.dia + '|' + Number(h.hora);
+    if (h.docente === antes) propios[k] = h; else if (h.docente === despues) nuevos[k] = h;
+  });
+  var fechas = {}; for (var d = 0; d < 5; d++) fechas[resSumaDias_(semana, d)] = DIAS[d + 1];
+  var rsh = hoja_('Registro_Ronda'), rv = rsh.getDataRange().getValues(), rc = {};
+  rv[0].forEach(function (k, i) { rc[k] = i; });
+  for (var i = 1; i < rv.length; i++) {
+    var f = fechaIso_(rv[i][rc.fecha]), dia = fechas[f];
+    if (!dia || rv[i][rc.docente] !== antes) continue;
+    var h = propios[dia + '|' + Number(rv[i][rc.sesion])]; if (!h) continue;
+    rsh.getRange(i + 1, rc.docente + 1).setValue(despues);
+    var n = nuevos[dia + '|' + Number(rv[i][rc.sesion])]; if (n) rsh.getRange(i + 1, rc.area + 1).setValue(n.area || '(énfasis)');
+    res.registro++;
+  }
+  var nsh = hoja_('Novedades'), nv = nsh.getDataRange().getValues(), nc = {};
+  nv[0].forEach(function (k, i) { nc[k] = i; });
+  for (var j = 1; j < nv.length; j++) {
+    var fj = fechaIso_(nv[j][nc['Fecha Novedad']]), dj = fechas[fj], ses = String(nv[j][nc['Sesiones']]).match(/^S(\d)$/);
+    if (!dj || !ses || nv[j][nc['Docente']] !== antes) continue;
+    var hj = propios[dj + '|' + Number(ses[1])]; if (!hj) continue;
+    nsh.getRange(j + 1, nc['Docente'] + 1).setValue(despues);
+    var nj = nuevos[dj + '|' + Number(ses[1])]; if (nj) nsh.getRange(j + 1, nc['Área/Asignatura'] + 1).setValue(nj.area || '(énfasis)');
+    res.novedades++;
+  }
+  return res;
+}
+/** Bitácora de correcciones (quién, cuándo y qué se cambió). */
+function bitacora_(accion, detalle) {
+  var quien = identidad_();
+  hojaOCrea_('Bitacora_Cambios', ['fecha_hora', 'quien', 'accion', 'detalle']).appendRow([ahoraTxt_(), quien.nombre || quien.email, accion, String(detalle).slice(0, 500)]);
+}
+
 function definirAlternancia(p) {
   p = p || {};
   var quien = exigirDirectivo_();
@@ -332,8 +375,13 @@ function definirAlternancia(p) {
     for (var i = 1; i < v.length; i++) if (fechaIso_(String(v[i][0]).replace(/^'/, '')) === semana && v[i][1] === p.clave) { fila = i + 1; break; }
     var datos = ["'" + semana, p.clave, p.elegido, inter, por, ahoraTxt_()];
     if (fila > 0) sh.getRange(fila, 1, 1, datos.length).setValues([datos]); else sh.appendRow(datos);
+    var corregidos = null;
+    if (p.antes && p.antes !== p.elegido && par.indexOf(p.antes) >= 0) {   // se corrige quién dicta: opcionalmente también lo ya registrado
+      if (p.corregirRegistrado) corregidos = corregirRegistrosPar_(semana, p.clave, p.antes, p.elegido);
+      bitacora_('Cambió quién dicta', par.join(' / ') + ' (' + semana + '): de ' + p.antes + ' a ' + p.elegido + (corregidos ? ' · corrigió ' + corregidos.registro + ' marcas de ronda y ' + corregidos.novedades + ' novedades' : ' · sin tocar lo ya registrado'));
+    }
   } finally { lock.releaseLock(); }
-  return { ok: true, semana: semana, intercambio: inter };
+  return { ok: true, semana: semana, intercambio: inter, corregidos: corregidos };
 }
 
 /** Google Sheets convierte '0101' en el número 101: los códigos con cero inicial se escriben como texto (apóstrofo). */

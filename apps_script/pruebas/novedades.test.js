@@ -117,4 +117,31 @@ EMAIL='dueno@gmail.com';
 const iN=H.Docentes[0].indexOf('nivel'), iNom=H.Docentes[0].indexOf('nombre_completo'), fila=hojas.Docentes.v.findIndex((r,i)=>i>0&&r[iN]==='PRIMARIA');
 hojas.Docentes.v[fila][iN]='TUTORA PTAFI'; const tut=hojas.Docentes.v[fila][iNom];
 ok(run('personasReunion_()').some(x=>x.nombre===tut&&x.rol==='Tutora PTAFI'),'la tutora PTAFI figura entre las personas de las reuniones (rol "Tutora PTAFI")');
+
+// ---- 8) corregir quién dicta (énfasis en pareja) cuando se registró con el docente equivocado
+{
+  let fe=null, ses=null;
+  for(const sn of [1,2,3,4,5,6,7,8]){ const rr=run(`consultarSesion('JUEVES',${sn},'sesion')`); fe=rr.filas.find(f=>/^ENFASIS/.test(f.claveAlt||'')&&!f.definido); if(fe){ses=sn;break;} }
+  ok(!!fe&&fe.alternos.length===1,'hay un énfasis en pareja sin definir en el horario de prueba ('+(fe&&fe.claveAlt)+')');
+  if(fe){
+    const par=fe.pareja, X=par[0], Y=par[1];
+    g.D1={clave:fe.claveAlt,elegido:X,primario:fe.primario,fecha:'2026-10-08'}; run('definirAlternancia(D1)');
+    g.SES=ses; const r2=run("consultarSesion('JUEVES',SES,'sesion')"); const f2=r2.filas.find(f=>f.claveAlt===fe.claveAlt);
+    ok(f2.docente===X&&f2.definido,'primero se definió a '+X);
+    // se registra la ronda con X como ausente por error
+    g.RG9={dia:'JUEVES',sesion:ses,registros:[{docente:X,grupoCodigo:f2.grupoCodigo,area:f2.area,estado:'No asistió',motivo:'Sin justificación'}]}; run('guardarRonda(RG9)');
+    const nReg=hojas.Registro_Ronda.v.filter(r=>r[5]===X&&String(r[1]).slice(0,10)==='2026-10-08'&&Number(r[3])===ses).length, nNov=hojas.Novedades.v.filter(r=>r[2]===X&&r[15]==='S'+ses).length;
+    ok(nReg===1&&nNov>=1,'quedó registrada la ausencia de '+X);
+    // otro directivo corrige: dicta Y, y pasa lo ya registrado
+    g.D2={clave:fe.claveAlt,elegido:Y,primario:fe.primario,fecha:'2026-10-08',antes:X,corregirRegistrado:true}; const rc=run('definirAlternancia(D2)');
+    ok(rc.corregidos&&rc.corregidos.registro===1&&rc.corregidos.novedades>=1,'corrige lo ya registrado: '+JSON.stringify(rc.corregidos));
+    ok(hojas.Registro_Ronda.v.filter(r=>r[5]===X&&String(r[1]).slice(0,10)==='2026-10-08'&&Number(r[3])===ses).length===0&&hojas.Registro_Ronda.v.filter(r=>r[5]===Y&&String(r[1]).slice(0,10)==='2026-10-08'&&Number(r[3])===ses).length===1,'la marca de la ronda pasó de '+X+' a '+Y);
+    ok(hojas.Novedades.v.filter(r=>r[2]===Y&&r[15]==='S'+ses).length>=1&&hojas.Novedades.v.filter(r=>r[2]===X&&r[15]==='S'+ses).length===0,'la novedad por sesión también');
+    const bit=hojas.Bitacora_Cambios&&hojas.Bitacora_Cambios.v.slice(-1)[0];
+    ok(bit&&/Cambió quién dicta/.test(bit[2])&&bit[3].includes(X)&&bit[3].includes(Y)&&bit[1],'queda en la bitácora: quién cambió, cuándo y de quién a quién');
+    // cambiar sin corregir lo registrado no toca nada
+    g.D3={clave:fe.claveAlt,elegido:X,primario:fe.primario,fecha:'2026-10-08',antes:Y}; const r3=run('definirAlternancia(D3)');
+    ok(r3.corregidos===null&&hojas.Registro_Ronda.v.filter(r=>r[5]===Y&&String(r[1]).slice(0,10)==='2026-10-08'&&Number(r[3])===ses).length===1,'sin marcar «corregir lo registrado» solo cambia quién dicta de ahí en adelante');
+  }
+}
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

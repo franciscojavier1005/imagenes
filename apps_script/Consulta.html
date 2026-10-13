@@ -39,6 +39,7 @@
   .nombre{font-weight:600;font-size:16px}
   .meta{font-size:13px;color:#566}
   .nota{font-size:12px;color:#7a5200;margin-top:2px}
+  .estado .c-falta{background:#ffb300;color:#3b2a00;font-weight:800;border-radius:12px;padding:2px 9px;box-shadow:0 1px 0 rgba(0,0,0,.25)} .estado .c-falta.ok{background:#2e7d32;color:#fff}
   .reporte{font-size:12.5px;background:#fff3cd;color:#664d03;border-radius:8px;padding:6px 9px;margin-top:6px}
   .previo{font-size:12px;color:#555;margin-top:2px}
   .detalle{margin-top:8px;padding:8px 10px 10px;background:#fff;border:1px dashed var(--borde);border-radius:10px}
@@ -127,7 +128,7 @@
   <div class="quien" id="quien"></div>
   <input class="buscar" id="q" type="search" placeholder="Buscar docente o grupo" oninput="pintar()">
   <div id="lista"><div class="aviso">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-f</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-g</div>
 </main>
 <div class="barra">
   <div class="estado" id="estado" aria-live="polite"></div>
@@ -410,7 +411,10 @@ function cuenta(){
   var p=0,no=0,t=0,tp=0,rn=0,ic=0,total=S?S.filas.length:0;
   if(S) S.filas.forEach(function(f){ if(enReunion(f)){ rn++; return; } var m=marcas[f.docente]; if(m&&m.estado){ if(m.estado==='No asistió')no++; else if(m.estado==='Incumplimiento')ic++; else if(m.estado==='Ausente temporal')tp++; else if(m.estado!=='Presente')t++; else p++; }});
   var d=dirActual();
-  el('estado').innerHTML='<span class="quien-chip">👤 '+esc(d||'Elegir directivo')+'</span><span>Deben estar: '+total+'</span><span class="c-ok">✔ '+p+' presentes</span><span class="c-no">✖ '+no+' no asistieron</span><span class="c-inc">⚠ '+ic+' reporte</span><span class="c-rn">📋 '+rn+' en reunión</span><span class="c-tp">⏳ '+tp+' permiso</span><span class="c-t">⏰ '+t+' tarde/salida</span><span class="c-sm">○ '+(total-p-no-t-tp-rn-ic)+' sin marcar</span>';
+  var faltan=total-p-no-t-tp-rn-ic;
+  el('estado').innerHTML='<span class="quien-chip">👤 '+esc(d||'Elegir directivo')+'</span><span>Deben estar: '+total+'</span>'+
+    (total?(faltan>0?'<span class="c-falta">❗ Faltan por reportar: '+faltan+'</span>':'<span class="c-falta ok">✔ Todos reportados</span>'):'')+
+    '<span class="c-ok">✔ '+p+' presentes</span><span class="c-no">✖ '+no+' no asistieron</span><span class="c-tp">⏳ '+tp+' permiso</span><span class="c-t">⏰ '+t+' tarde/salida</span><span class="c-rn">📋 '+rn+' en reunión o salida</span><span class="c-inc">⚠ '+ic+' reporte</span>';
 }
 
 function guardar(){

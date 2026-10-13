@@ -40,6 +40,7 @@
   .meta{font-size:13px;color:#566}
   .nota{font-size:12px;color:#7a5200;margin-top:2px}
   .estado .c-falta{background:#ffb300;color:#3b2a00;font-weight:800;border-radius:12px;padding:2px 9px;box-shadow:0 1px 0 rgba(0,0,0,.25)} .estado .c-falta.ok{background:#2e7d32;color:#fff}
+  .estado .c-sg{background:#fff3cd;color:#664d03;font-weight:700;border:1px dashed #e0b400}
   .reporte{font-size:12.5px;background:#fff3cd;color:#664d03;border-radius:8px;padding:6px 9px;margin-top:6px}
   .previo{font-size:12px;color:#555;margin-top:2px}
   .detalle{margin-top:8px;padding:8px 10px 10px;background:#fff;border:1px dashed var(--borde);border-radius:10px}
@@ -129,7 +130,7 @@
   <div class="quien" id="quien"></div>
   <input class="buscar" id="q" type="search" placeholder="Buscar docente o grupo" oninput="pintar()">
   <div id="lista"><div class="aviso">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-h</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-i</div>
 </main>
 <div class="barra">
   <div class="estado" id="estado" aria-live="polite"></div>
@@ -576,6 +577,8 @@ function cargar(dia, ses, conservar){
           obs:f.previo.observaciones||'', atiende:f.previo.atendidoPor||''};
       }
     });
+    INI={}; Object.keys(marcas).forEach(function(d){ INI[d]=JSON.stringify(marcas[d]); });   // lo que ya estaba guardado en el libro
+    var rec=conservar?0:recuperaBorrador(r); if(rec) setTimeout(function(){ toast('Se recuperaron '+rec+' marcas que no se habían guardado: revise y toque Guardar'); },400);
     Object.keys(previas).forEach(function(d){ if(r.filas.some(function(f){return f.docente===d;})&&previas[d]&&previas[d].estado) marcas[d]=previas[d]; });   // al definir quién dicta no se pierde lo marcado
     diaSel=r.dia; sesSel=r.sesion;
     el('dia').value=r.dia; el('sesion').textContent=r.sinEstudiantes?'📋 Reunión':(r.sesion?(r.modo==='bloque'?('Bloque '+r.bloque):('Sesión '+r.sesion)):'Descanso'); el('modo').value=modo;
@@ -767,6 +770,30 @@ function todosPresentes(){
   if(salto) toast(salto+' sin marcar: defina quién dicta (alternan por semana)'); else tono('ok');
   pintar();
 }
+/* Borrador en el teléfono: si se cae la señal o la página se recarga, las marcas aún no guardadas se recuperan solas. */
+var INI={};
+function claveBorrador(){ return S?[S.fecha,S.dia,S.modo,(S.modo==='bloque'?S.bloque:S.sesion)].join('|'):''; }
+function sinGuardar(){ var n=0; Object.keys(marcas).forEach(function(d){ var m=marcas[d]; if(m&&m.estado&&JSON.stringify(m)!==INI[d]) n++; }); return n; }
+function guardaBorrador(){
+  try{
+    if(!S) return; var k=claveBorrador(), solo={}, todos=JSON.parse(localStorage.getItem('icet_borradores')||'{}'), lim=Date.now()-2*86400000;
+    Object.keys(marcas).forEach(function(d){ var m=marcas[d]; if(m&&m.estado&&JSON.stringify(m)!==INI[d]) solo[d]=m; });
+    Object.keys(todos).forEach(function(x){ if(!todos[x]||todos[x].t<lim) delete todos[x]; });
+    if(Object.keys(solo).length) todos[k]={t:Date.now(),m:solo}; else delete todos[k];
+    localStorage.setItem('icet_borradores',JSON.stringify(todos));
+  }catch(e){}
+}
+function borraBorrador(){ try{ var todos=JSON.parse(localStorage.getItem('icet_borradores')||'{}'); delete todos[claveBorrador()]; localStorage.setItem('icet_borradores',JSON.stringify(todos)); }catch(e){} }
+function recuperaBorrador(r){
+  try{
+    var todos=JSON.parse(localStorage.getItem('icet_borradores')||'{}'), b=todos[claveBorrador()], n=0;
+    if(!b||!b.m) return 0;
+    Object.keys(b.m).forEach(function(d){ if(r.filas.some(function(f){return f.docente===d;})){ marcas[d]=b.m[d]; n++; } });
+    return n;
+  }catch(e){ return 0; }
+}
+window.addEventListener('online',function(){ if(S&&sinGuardar()) toast('Volvió la conexión. Toque Guardar para enviar sus marcas.'); });
+window.addEventListener('offline',function(){ if(S) toast('Sin conexión: siga marcando; se guarda un borrador en este teléfono.'); });
 function cuenta(){
   var p=0,no=0,t=0,tp=0,rn=0,ic=0,total=S?S.filas.length:0;
   if(S) S.filas.forEach(function(f){ if(enReunion(f)){ rn++; return; } var m=marcas[f.docente]; if(m&&m.estado){ if(m.estado==='No asistió')no++; else if(m.estado==='Incumplimiento')ic++; else if(m.estado==='Ausente temporal')tp++; else if(m.estado!=='Presente')t++; else p++; }});
@@ -774,7 +801,8 @@ function cuenta(){
   var faltan=total-p-no-t-tp-rn-ic;
   el('estado').innerHTML='<span class="quien-chip">👤 '+esc(d||'Elegir directivo')+'</span><span>Deben estar: '+total+'</span>'+
     (total?(faltan>0?'<span class="c-falta">❗ Faltan por reportar: '+faltan+'</span>':'<span class="c-falta ok">✔ Todos reportados</span>'):'')+
-    '<span class="c-ok">✔ '+p+' presentes</span><span class="c-no">✖ '+no+' no asistieron</span><span class="c-tp">⏳ '+tp+' permiso</span><span class="c-t">⏰ '+t+' tarde/salida</span><span class="c-rn">📋 '+rn+' en reunión o salida</span><span class="c-inc">⚠ '+ic+' reporte</span>';
+    '<span class="c-ok">✔ '+p+' presentes</span><span class="c-no">✖ '+no+' no asistieron</span><span class="c-tp">⏳ '+tp+' permiso</span><span class="c-t">⏰ '+t+' tarde/salida</span><span class="c-rn">📋 '+rn+' en reunión o salida</span><span class="c-inc">⚠ '+ic+' reporte</span>'+(sinGuardar()?'<span class="c-sg">💾 '+sinGuardar()+' sin guardar</span>':'');
+  guardaBorrador();
 }
 
 function guardar(){
@@ -811,8 +839,8 @@ function guardar(){
   if(S.dia!==S.diaHoy){ toast('Solo se guarda la ronda del día de hoy ('+S.diaHoy+')'); return; }
   el('btnGuardar').disabled=true;
   srv().withSuccessHandler(function(r){
-    el('btnGuardar').disabled=false; toast('Guardado: '+r.guardados+' registros'); cargar(diaSel,sesSel);
-  }).withFailureHandler(function(e){el('btnGuardar').disabled=false;toast('Error: '+(e.message||e));})
+    el('btnGuardar').disabled=false; borraBorrador(); toast('Guardado: '+r.guardados+' registros'); cargar(diaSel,sesSel);
+  }).withFailureHandler(function(e){el('btnGuardar').disabled=false;guardaBorrador();toast('No se pudo guardar ('+String(e&&e.message||e).slice(0,60)+'). Sus marcas siguen aquí y quedaron en un borrador en este teléfono: toque Guardar cuando vuelva la señal.');})
   .guardarRonda({directivo:dir,dia:S.dia,sesion:S.sesion,fecha:S.fecha,registros:regs});
 }
 

@@ -77,7 +77,7 @@
   .quien-dicta{margin-top:8px;padding:8px;background:#fff8e1;border:1px dashed #e0b400;border-radius:10px;font-size:13px}
   .quien-dicta .op{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
   .quien-dicta button{border:2px solid var(--borde);background:#fff;border-radius:10px;padding:8px 10px;font-weight:600;font-size:14px;min-height:44px;flex:1 1 140px;text-align:left}
-  .quien-dicta button.on{background:var(--azul);border-color:var(--azul);color:#fff}
+  .quien-dicta button.on{background:#2e7d32;border-color:#1b5e20;color:#fff;box-shadow:0 0 0 3px rgba(46,125,50,.28)} .quien-dicta button.on::before{content:'✓ '}
   .barra .cuenta{flex:1;font-size:12px;min-width:0}
   .barra button{border:0;border-radius:10px;padding:12px 10px;font-weight:700;font-size:14px;min-height:46px}
   .todos{background:#e8f5e9;color:var(--ok)} .guardar{background:linear-gradient(135deg,#0f2a5c,#1b4a8f);color:#fff;box-shadow:0 2px 6px rgba(15,42,92,.35)}
@@ -127,7 +127,7 @@
   <div class="quien" id="quien"></div>
   <input class="buscar" id="q" type="search" placeholder="Buscar docente o grupo" oninput="pintar()">
   <div id="lista"><div class="aviso">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-b</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-c</div>
 </main>
 <div class="barra">
   <div class="estado" id="estado" aria-live="polite"></div>
@@ -283,7 +283,7 @@ function tarjeta(f){
   if(f.reunion&&!f.externa){ var er=enReunion(f); h+='<div class="reporte" style="'+(er?'background:#e1f3e4;color:#1b5e20':'')+'">📋 '+(er?'<b>En reunión:</b> ':'Convocado a: ')+esc(f.reunion.nombre)+' ('+esc(f.reunion.inicio)+' a '+esc(f.reunion.fin)+')'+(er?' · '+esc(f.reunion.estado)+': no se marca ausente':' · asistencia aún sin registrar')+'</div>'; }
   var ck=esc(f.claveAlt||'').replace(/'/g,'');
   if(par.length&&mostrarElegir){
-    h+='<div class="quien-dicta"><b>¿Quién dicta esta semana?</b> <span style="color:#6b5a00">(queda guardado de lunes a viernes)</span><div class="op">'+par.map(function(n){
+    h+='<div class="quien-dicta"><b>¿Quién dicta esta semana?</b> <span style="color:#6b5a00">(queda guardado de lunes a viernes; si no está seguro, déjelo pendiente y pregunte)</span><div class="op">'+par.map(function(n){
       return '<button type="button" class="'+(f.definido&&f.docente===n?'on':'')+'" onclick="definir(\''+id+'\',\''+idDe(n)+'\')">'+esc(n)+'</button>';}).join('')+'</div></div>';
   } else if(par.length){
     h+='<div class="quien-dicta" style="background:#e8f5e9;border-color:#7cb987">Esta semana dicta <b>'+esc(f.docente)+'</b>'+(f.definido&&f.definido.por?' · lo definió '+esc(f.definido.por):'')+
@@ -307,6 +307,8 @@ function filaPorId(id){ var d=nombrePorId(id); return S.filas.filter(function(x)
 function cambiarQuien(id){ var f=filaPorId(id); if(f){ cambiando[f.claveAlt]=true; pintar(); } }
 function definir(id,idN){
   var f=filaPorId(id), n=nombrePorId(idN); if(!f) return;
+  if(!confirm('¿Confirma que esta semana le corresponde a '+n+' ('+f.area+(f.grupo?' · '+f.grupo:'')+')?\n\nSi no está seguro, pulse Cancelar, deje la tarjeta pendiente y pregunte al docente o a la coordinación.')) return;
+  var bs=document.querySelectorAll('#d_'+id+' .quien-dicta .op button'); for(var i=0;i<bs.length;i++){ var esEste=(bs[i].getAttribute('onclick')||'').indexOf("'"+idN+"'")>=0; bs[i].classList.toggle('on',esEste); bs[i].disabled=true; if(esEste) bs[i].textContent=bs[i].textContent.replace(/ · guardando…$/,'')+' · guardando…'; }   // se ve enseguida cuál quedó elegido
   var corrige=!!(f.definido&&f.docente!==n);
   srv().withSuccessHandler(function(r){
     delete cambiando[f.claveAlt]; toast('Definido para toda la semana: '+n+(r&&r.corregidos?' · corregidas '+(r.corregidos.registro+r.corregidos.novedades)+' filas ya registradas':'')); cargar(diaSel,sesSel,true);
@@ -315,7 +317,7 @@ function definir(id,idN){
 }
 
 /* Controles de la novedad: los que no corresponden quedan desactivados */
-var ATIENDE=['Nadie (grupo solo)','Sin clase: los niños no asistieron (padres avisados)','Reemplazo (docente)','Practicante','Auxiliar o persona de apoyo del docente','Otro docente o directivo'];
+var ATIENDE=['Nadie (grupo solo)','Se despachó al grupo temprano (autorizado)','Sin clase: los niños no asistieron (padres avisados)','Reemplazo (docente)','Practicante','Auxiliar o persona de apoyo del docente','Otro docente o directivo'];
 function detalleInc(id,m){
   var h='<div class="detalle"><div class="rej">';
   h+='<label>¿Qué ocurrió?<select class="sel" onchange="campo(\''+id+'\',\'incTipo\',this.value,true)">'+opt('','— Elegir —',!m.incTipo)+

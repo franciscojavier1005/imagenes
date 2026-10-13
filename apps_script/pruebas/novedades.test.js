@@ -144,4 +144,17 @@ ok(run('personasReunion_()').some(x=>x.nombre===tut&&x.rol==='Tutora PTAFI'),'la
     ok(r3.corregidos===null&&hojas.Registro_Ronda.v.filter(r=>r[5]===Y&&String(r[1]).slice(0,10)==='2026-10-08'&&Number(r[3])===ses).length===1,'sin marcar «corregir lo registrado» solo cambia quién dicta de ahí en adelante');
   }
 }
+
+// ---- 9) cita médica y «se despachó al grupo temprano»
+{
+  const dm=run('datosNovedades()');
+  ok(dm.motivos.some(m=>m.motivo==='Cita médica'&&m.categoria==='SALUD'&&m.justificada==='SI'),'el motivo «Cita médica» existe (se agrega solo a libros anteriores)');
+  const dd=delDia(C,'JUEVES')[0]; g.SX=Number(dd[hi('hora')]);
+  const fx=run("consultarSesion('JUEVES',SX,'sesion')").filas.find(f=>f.docente===C);
+  g.RGX={dia:'JUEVES',sesion:g.SX,registros:[{docente:C,grupoCodigo:fx.grupoCodigo,area:fx.area,estado:'No asistió',motivo:'Cita médica',atiende:'Se despachó al grupo temprano (autorizado)'}]};
+  // C ya tiene una salida pedagógica anulada arriba: se usa B (permiso por horas) si C estuviera fuera
+  run('guardarRonda(RGX)');
+  const ult=hojas.Registro_Ronda.v.filter(r=>r[5]===C).slice(-1)[0];
+  ok(ult&&ult[9]==='Cita médica'&&ult[14]==='Se despachó al grupo temprano (autorizado)'&&ult[10]==='Sí','la ronda guarda motivo «Cita médica» (justificada) y «se despachó al grupo temprano» como quién atendió');
+}
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

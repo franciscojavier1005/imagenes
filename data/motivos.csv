@@ -2,6 +2,7 @@
 SIN JUSTIFICACIÓN,Sin justificación,NO,Cualquier soporte que la justifique,SI,3
 SALUD,Mal estado de salud,SI,Constancia médica o incapacidad,SI,5
 SALUD,Incapacidad Médica,SI,Copia incapacidad/licencia,SI,5
+SALUD,Cita médica,SI,Constancia o comprobante de la cita médica,SI,5
 SALUD,Exámenes clínicos,SI,Constancia de cita,SI,5
 PERMISO INSTITUCIONAL,Permiso del rector,SI,Formato Permiso Docente (ya está en rectoría),NO,5
 PERMISO INSTITUCIONAL,Reunión o actividad institucional,SI,No requiere soporte (actividad del colegio),NO,5

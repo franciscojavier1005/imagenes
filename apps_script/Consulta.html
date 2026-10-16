@@ -129,7 +129,7 @@
   <div class="quien" id="quien"></div>
   <input class="buscar" id="q" type="search" placeholder="Buscar docente o grupo" oninput="pintar()">
   <div id="lista"><div class="aviso">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.16-c</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.16-d</div>
 </main>
 <div class="barra">
   <div class="estado" id="estado" aria-live="polite"></div>
@@ -163,6 +163,7 @@
   <div id="propuestas"></div>
  </div>
 </div>
+<div id="barraRed" style="display:none;position:sticky;top:0;z-index:60;background:#a31515;color:#fff;font-weight:700;font-size:14px;padding:9px 12px;text-align:center"></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -457,8 +458,16 @@ function avisaOtrosBorradores(){
   }catch(e){}
 }
 function irBorrador(dia,m,ses){ modo=m; try{localStorage.setItem('icet_modo',m);}catch(e){} cargar(dia,ses); }
-window.addEventListener('online',function(){ if(S&&sinGuardar()) toast('Volvió la conexión. Toque Guardar para enviar sus marcas.'); });
-window.addEventListener('offline',function(){ if(S) toast('Sin conexión: siga marcando; se guarda un borrador en este teléfono.'); });
+function barraRed(){
+  var b=el('barraRed'), n=S?sinGuardar():0, off=navigator.onLine===false;
+  if(off){ b.style.background='#a31515'; b.textContent='📵 Sin conexión · '+(n?n+' marcas pendientes: quedan en este teléfono, toque Guardar cuando vuelva la señal':'siga marcando, se guarda un borrador en este teléfono'); b.style.display='block'; }
+  else if(n){ b.style.background='#8a5a00'; b.textContent='💾 Tiene '+n+' marcas sin guardar: toque Guardar'; b.style.display='block'; }
+  else b.style.display='none';
+}
+window.addEventListener('online',function(){ barraRed(); if(S&&sinGuardar()) toast('Volvió la conexión. Toque Guardar para enviar sus marcas.'); });
+window.addEventListener('offline',function(){ barraRed(); if(S) toast('Sin conexión: siga marcando; se guarda un borrador en este teléfono.'); });
+window.addEventListener('beforeunload',function(e){ if(S&&sinGuardar()){ e.preventDefault(); e.returnValue=''; } });
+setInterval(barraRed,3000);
 function cuenta(){
   var p=0,no=0,t=0,tp=0,rn=0,ic=0,total=S?S.filas.length:0;
   if(S) S.filas.forEach(function(f){ if(enReunion(f)){ rn++; return; } var m=marcas[f.docente]; if(m&&m.estado){ if(m.estado==='No asistió')no++; else if(m.estado==='Incumplimiento')ic++; else if(m.estado==='Ausente temporal')tp++; else if(m.estado!=='Presente')t++; else p++; }});
@@ -467,7 +476,7 @@ function cuenta(){
   el('estado').innerHTML='<span class="quien-chip">👤 '+esc(d||'Elegir directivo')+'</span><span>Deben estar: '+total+'</span>'+
     (total?(faltan>0?'<span class="c-falta">❗ Faltan por reportar: '+faltan+'</span>':'<span class="c-falta ok">✔ Todos reportados</span>'):'')+
     '<span class="c-ok">✔ '+p+' presentes</span><span class="c-no">✖ '+no+' no asistieron</span><span class="c-tp">⏳ '+tp+' permiso</span><span class="c-t">⏰ '+t+' tarde/salida</span><span class="c-rn">📋 '+rn+' en reunión o salida</span><span class="c-inc">⚠ '+ic+' reporte</span>'+(sinGuardar()?'<span class="c-sg">💾 '+sinGuardar()+' sin guardar</span>':'');
-  guardaBorrador();
+  guardaBorrador(); barraRed();
 }
 
 function guardar(){

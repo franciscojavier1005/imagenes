@@ -70,3 +70,7 @@ Coordinador académico de una institución pública (San Andrés de Tumaco, Nari
 ## Actualización 2026-10-16 (versión 2026.10.16-c)
 - Por defecto todos los directivos ven todas las rondas y pueden filtrarlas por directivo (sección Rondas del panel). Restricción opcional del desarrollador: columna `ve_todo` en la hoja Directivos (se crea sola); en NO, ese directivo solo ve sus propias rondas (servidor: `soloSusRondas_`; informe por correo incluido). Vacío o SI = ve todo.
 - PDF: botón Imprimir del panel > "Guardar como PDF" (las rondas se despliegan al imprimir).
+
+## Actualización 2026-10-16 (versión 2026.10.16-d)
+- Ronda: barra fija de conexión (roja "📵 Sin conexión · N marcas pendientes…" / ámbar "💾 N marcas sin guardar") y advertencia del navegador al cerrar con marcas sin guardar. Cambia solo Consulta.html (y el sello de versión).
+- Propuesta (sin código): `docs/PROPUESTA_ORIENTACION_Y_NOTAS.md` — roles/ambientes por rol con la misma URL, módulo de orientación escolar y PTAFI, módulo del docente (novedades propias y descargos con soportes), registro de notas/indicadores/boletines con aislamiento por docente. Pendiente de simulacro con el rector.

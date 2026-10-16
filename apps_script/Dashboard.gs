@@ -188,12 +188,19 @@ function rondasInterno_(desde, hasta, directivo) {
   });
   return { bloques: bloques, directivos: Object.keys(dirs).sort() };
 }
+/** Si en la hoja Directivos la columna `ve_todo` dice NO para quien inició sesión, solo ve sus propias rondas (vacío o SI = ve todas). */
+function soloSusRondas_(id) {
+  var nom = id.nombre || id.email, f = datos_('Directivos').filter(function (d) { return d.nombre === nom; })[0];
+  return !!f && String(f.ve_todo || '').trim().toUpperCase() === 'NO' ? nom : '';
+}
 function informeRondas(p) {
-  exigirDirectivo_();
+  var id = exigirDirectivo_(), propio = soloSusRondas_(id);
   p = p || {};
   var desde = String(p.desde || ''), hasta = String(p.hasta || p.desde || '');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(desde) || !/^\d{4}-\d{2}-\d{2}$/.test(hasta) || hasta < desde || hasta > resSumaDias_(desde, 400)) throw new Error('Revise las fechas del informe.');
-  return rondasInterno_(desde, hasta, String(p.directivo || ''));
+  var r = rondasInterno_(desde, hasta, propio || String(p.directivo || ''));
+  if (propio) { r.directivos = [propio]; r.soloPropias = true; }
+  return r;
 }
 /** HTML del informe de rondas para correo. conPresentes=false (semana o mes) deja solo los conteos de presentes. */
 function htmlRondas_(desde, hasta, directivo, conPresentes) {
@@ -229,7 +236,7 @@ function enviarRondasAMi(p) {
     correo = String(estadoCorreo_(id).correo || '');
   }
   if (!correo) throw new Error('NECESITA_CORREO');
-  var cuerpo = htmlRondas_(desde, hasta, String(p.directivo || ''), hasta === desde);
+  var cuerpo = htmlRondas_(desde, hasta, soloSusRondas_(id) || String(p.directivo || ''), hasta === desde);
   MailApp.sendEmail({ to: correo, subject: 'ICET - Rondas del ' + desde + (hasta !== desde ? ' al ' + hasta : ''), htmlBody: cuerpo, name: 'Control de asistencia ICET' });
   return { ok: true, para: correo };
 }

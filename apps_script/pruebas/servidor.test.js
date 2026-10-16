@@ -63,3 +63,13 @@ correos.length=0; H.Directivos[4][2]='rector@institucion.edu.co';
 const er=vm.runInContext("enviarRondasAMi({desde:'2026-10-05',hasta:'2026-10-05',correo:'yo@correo.com'})",g);
 ok(er.ok&&correos.length===1&&correos[0].to==='yo@correo.com'&&/Beto Dos/.test(correos[0].htmlBody),'enviarRondasAMi manda el informe al correo indicado');
 const ed=vm.runInContext("enviarInformeDiario_(true)",g); ok(ed.enviado,'informe diario sigue funcionando');
+/* restricción opcional: ve_todo = NO deja al directivo ver solo sus propias rondas */
+const ND=H.Directivos[0].indexOf('nombre'), CT=H.Directivos[0].indexOf('correo_temporal');
+H.Directivos[0].push('ve_todo'); H.Directivos.slice(1).forEach(r=>r.push(''));
+H.Directivos[1][CT]='verónica@x.com'; H.Directivos[1][H.Directivos[0].length-1]='NO'; const nomV=H.Directivos[1][ND];
+H.Registro_Ronda.push(fil(1,'Eva Seis','Presente','','',nomV));
+EMAIL='verónica@x.com';
+const rv=vm.runInContext("informeRondas({desde:'2026-10-05',hasta:'2026-10-05',directivo:''})",g);
+ok(rv.soloPropias&&rv.bloques.every(b=>b.directivo===nomV)&&rv.bloques.length===1,'ve_todo=NO: solo ve sus propias rondas aunque pida todas');
+EMAIL='dueno@gmail.com';
+ok(vm.runInContext("informeRondas({desde:'2026-10-05',hasta:'2026-10-05'})",g).bloques.length>=2,'sin la marca NO, quien administra ve todas');

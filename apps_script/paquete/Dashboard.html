@@ -157,7 +157,7 @@
     <div class="vacio">Cargando…</div>
   </div>
   <div class="pie" id="pie"></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.16-b</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.16-c</div>
 </div>
 </div>
 <div id="tip" role="tooltip"></div>
@@ -420,6 +420,7 @@ function pintar(){
 
 /* ---------- rondas guardadas: presentes, no asistieron, permisos y novedades por bloque ---------- */
 var RONDAS=null;
+window.addEventListener('beforeprint',function(){ document.querySelectorAll('details').forEach(function(d){d.open=true;}); });   // al imprimir o guardar PDF salen desplegadas las rondas
 function cargarRondas(){
   var sec=h('section',{class:'card ancha',id:'secRondas',style:'margin-top:14px'},[h('h2',{text:'📋 Rondas de verificación'}),h('div',{class:'vacio',text:'Cargando…'})]);
   var viejo=el('secRondas'); if(viejo) viejo.remove();
@@ -432,8 +433,8 @@ function cargarRondas(){
 function pintarRondas(sec,r,dsel){
   var sel=h('select',{id:'rDir',onchange:function(){ pintarRondas(sec,RONDAS,sel.value); }},[h('option',{value:'',text:'Todos los directivos'})].concat(r.directivos.map(function(d){var o=h('option',{value:d,text:d}); if(d===dsel) o.selected=true; return o;})));
   var btn=h('button',{class:'p',text:'✉ Enviarme estas rondas',onclick:function(){ ENVIO='rondas'; enviarMiInforme(); }});
-  var cab=h('div',{style:'display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0'},[sel,btn]);
-  var bl=r.bloques.filter(function(b){return !sel.value||b.directivo===sel.value;}).reverse();
+  var cab=h('div',{style:'display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0'},r.soloPropias?[h('span',{class:'sub',text:'Solo se muestran sus rondas.'}),btn]:[sel,btn]);
+  var bl=r.bloques.filter(function(b){return r.soloPropias||!sel.value||b.directivo===sel.value;}).reverse();
   var cats=[['noAsistieron','✖ No asistieron','#a31515'],['permisos','⏳ Permiso por horas','#8a5a00'],['tardes','⏰ Llegada tarde / salida temprana','#8a5a00'],['fuera','📋 En reunión o actividad externa','#245'],['incumplimientos','⚠ Incumplimientos','#7b1fa2']];
   var items=bl.map(function(b){
     var det=h('details',{},[h('summary',{style:'cursor:pointer;font-weight:600',text:fFecha(b.fecha)+' · Bloque '+b.bloque+' · ronda de '+(b.directivo||'—')+' · ✔ '+b.presentes.length+' presentes de '+b.total+(b.noAsistieron.length?' · ✖ '+b.noAsistieron.length+' no asistieron':'')+((b.permisos.length+b.tardes.length+b.incumplimientos.length)?' · con novedad: '+(b.permisos.length+b.tardes.length+b.incumplimientos.length):'')})]);

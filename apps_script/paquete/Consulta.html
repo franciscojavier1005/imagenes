@@ -129,7 +129,7 @@
   <div class="quien" id="quien"></div>
   <input class="buscar" id="q" type="search" placeholder="Buscar docente o grupo" oninput="pintar()">
   <div id="lista"><div class="aviso">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-j</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.16-a</div>
 </main>
 <div class="barra">
   <div class="estado" id="estado" aria-live="polite"></div>
@@ -226,7 +226,7 @@ function cargar(dia, ses, conservar){
     var cr=el('chipReunion'); if(r.reuniones&&r.reuniones.length){ cr.style.display='inline'; cr.textContent='📋 '+r.reuniones[0].nombre+(r.sinEstudiantes?' · sin estudiantes':''); } else { cr.style.display='none'; }
     el('franja').textContent=r.franja||r.nota; el('reloj').textContent='Hora: '+r.hora;
     el('total').textContent=r.filas.length+' docentes';
-    pintarQuien(); pintar();
+    pintarQuien(); pintar(); avisaOtrosBorradores();
   }).withFailureHandler(function(e){el('lista').innerHTML='<div class="aviso">Error: '+esc(e.message||e)+'</div>';}).consultarSesion(dia||null, ses||null, modo);
 }
 function ahora(){cargar(null,null);}
@@ -442,6 +442,19 @@ function recuperaBorrador(r){
     return n;
   }catch(e){ return 0; }
 }
+function avisaOtrosBorradores(){
+  var b=el('otrosBorr'); if(!b){ b=document.createElement('div'); b.id='otrosBorr'; b.className='aviso'; b.style.cssText='background:#fff4d6;border:2px solid #e0a800;color:#6b4e00;margin:8px 0'; el('lista').parentNode.insertBefore(b,el('lista')); }
+  b.style.display='none'; b.innerHTML='';
+  try{
+    var todos=JSON.parse(localStorage.getItem('icet_borradores')||'{}'), k0=claveBorrador(), h=[];
+    Object.keys(todos).forEach(function(k){ var p=k.split('|'); if(k===k0||p[0]!==S.fecha||!todos[k]||!todos[k].m) return;
+      var n=Object.keys(todos[k].m).length; if(!n) return;
+      var u=p[2]==='bloque'?('Bloque '+p[3]):('Sesión '+p[3]), ses=p[2]==='bloque'?(2*Number(p[3])-1):Number(p[3]);
+      h.push('<button style="margin:4px 6px 0 0;padding:8px 12px;border-radius:8px;border:1px solid #e0a800;background:#fff;font-size:14px" onclick="irBorrador(\''+p[1]+'\',\''+p[2]+'\','+ses+')">'+esc(p[1]+' · '+u)+' ('+n+')</button>'); });
+    if(h.length){ b.innerHTML='💾 Tiene marcas sin guardar en otro momento de hoy:<br>'+h.join(''); b.style.display='block'; }
+  }catch(e){}
+}
+function irBorrador(dia,m,ses){ modo=m; try{localStorage.setItem('icet_modo',m);}catch(e){} cargar(dia,ses); }
 window.addEventListener('online',function(){ if(S&&sinGuardar()) toast('Volvió la conexión. Toque Guardar para enviar sus marcas.'); });
 window.addEventListener('offline',function(){ if(S) toast('Sin conexión: siga marcando; se guarda un borrador en este teléfono.'); });
 function cuenta(){

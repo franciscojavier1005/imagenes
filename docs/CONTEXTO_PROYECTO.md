@@ -58,3 +58,6 @@ Coordinador académico de una institución pública (San Andrés de Tumaco, Nari
 - Ronda (Consulta.html): botón rojo "↺ Limpiar" junto a "Todos presentes"; descarta las marcas aún no guardadas (vuelve al estado guardado, borra el borrador) sin confirmar, con aviso "↩ Deshacer".
 - Estudiantes (Horarios.html): "✕ Quitar marca" por fila y en la barra de selección; el modal lista cada marca (tipo, nota, quién/cuándo) con "Quitar" y "Quitar todas"; el modal Marcar muestra "Ya tiene:". Servidor: `levantarMarcasEstudiante({ids})` (Estudiantes.gs, Api.gs, Front.gs); la marca queda en la hoja como 'Levantada' con quién y cuándo.
 - Archivos a reemplazar: Código.gs (ICET_completo.gs), Consulta.html, Horarios.html (más los demás HTML por el sello de versión).
+
+## Actualización 2026-10-16 (versión 2026.10.16-a)
+- Ronda: además del borrador por bloque/sesión (localStorage `icet_borradores`, 2 días), si al recargar la página cae en otro bloque se muestra un aviso amarillo con botones para ir al bloque/sesión de hoy que tiene marcas sin guardar (`avisaOtrosBorradores`, `irBorrador`). Archivo a reemplazar: Consulta.html (y sello de versión en los demás HTML).

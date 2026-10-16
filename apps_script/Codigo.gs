@@ -117,6 +117,7 @@ function consultarSesion(dia, sesion, modo) {
     sesionesBloque: [],
     filas: [], motivos: datos_('Motivos'), listas: datos_('Listas'),
     directivos: datos_('Directivos').map(function (d) { return d.nombre; }),
+    sesionDe: (function () { try { var i = identidad_(); return i.rol === 'directivo' ? (i.nombre || '') : ''; } catch (e) { return ''; } })(),   // quien inició sesión: sale preseleccionado como responsable de la ronda
     nota: s ? '' : (auto ? 'Descanso o fuera de jornada' : 'Sesión no válida')
   };
   if (!s) return out;
@@ -402,8 +403,12 @@ function textoCod_(v) { v = String(v == null ? '' : v); return /^0\d+$/.test(v) 
 function minutosSesion_(grupoCodigo) { return /^00/.test(String(grupoCodigo).split('+')[0]) ? 60 : 45; }
 
 function guardarRonda(p) {
-  var quien = exigirDirectivo_();          // el directivo es quien inició sesión, no lo que diga la pantalla
-  p.directivo = quien.nombre || quien.email;
+  var quien = exigirDirectivo_();
+  // el responsable de la ronda es quien inició sesión, salvo que preste su teléfono o su sesión a otro directivo registrado: ese nombre sí se acepta
+  var sesionDe = quien.nombre || quien.email, elegido = String(p.directivo || '').trim();
+  var valido = elegido && datos_('Directivos').some(function (d) { return d.nombre === elegido; });
+  p.directivo = valido ? elegido : sesionDe;
+  if (valido && elegido !== sesionDe) bitacora_('Ronda con sesión prestada', 'La ronda de ' + (p.fecha || '') + ' (sesión ' + (p.sesion || '') + ') la hizo ' + elegido + ' con la sesión de ' + sesionDe);
   var lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {

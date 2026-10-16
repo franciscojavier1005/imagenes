@@ -118,6 +118,7 @@ function consultarSesion(dia, sesion, modo) {
     sesionesBloque: [],
     filas: [], motivos: datos_('Motivos'), listas: datos_('Listas'),
     directivos: datos_('Directivos').map(function (d) { return d.nombre; }),
+    sesionDe: (function () { try { var i = identidad_(); return i.rol === 'directivo' ? (i.nombre || '') : ''; } catch (e) { return ''; } })(),   // quien inició sesión: sale preseleccionado como responsable de la ronda
     nota: s ? '' : (auto ? 'Descanso o fuera de jornada' : 'Sesión no válida')
   };
   if (!s) return out;
@@ -403,8 +404,12 @@ function textoCod_(v) { v = String(v == null ? '' : v); return /^0\d+$/.test(v) 
 function minutosSesion_(grupoCodigo) { return /^00/.test(String(grupoCodigo).split('+')[0]) ? 60 : 45; }
 
 function guardarRonda(p) {
-  var quien = exigirDirectivo_();          // el directivo es quien inició sesión, no lo que diga la pantalla
-  p.directivo = quien.nombre || quien.email;
+  var quien = exigirDirectivo_();
+  // el responsable de la ronda es quien inició sesión, salvo que preste su teléfono o su sesión a otro directivo registrado: ese nombre sí se acepta
+  var sesionDe = quien.nombre || quien.email, elegido = String(p.directivo || '').trim();
+  var valido = elegido && datos_('Directivos').some(function (d) { return d.nombre === elegido; });
+  p.directivo = valido ? elegido : sesionDe;
+  if (valido && elegido !== sesionDe) bitacora_('Ronda con sesión prestada', 'La ronda de ' + (p.fecha || '') + ' (sesión ' + (p.sesion || '') + ') la hizo ' + elegido + ' con la sesión de ' + sesionDe);
   var lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
@@ -1167,7 +1172,7 @@ function enviarInformes_(tipo, soloProbar, soloA) {
   if (tipo === 'semana') { desde = lunesDe_(f); nombre = 'de la semana'; fechaTexto = 'Semana del ' + desde + ' al ' + f; }
   if (tipo === 'mes') { desde = f.slice(0, 8) + '01'; nombre = 'del mes'; fechaTexto = 'Mes de ' + Utilities.formatDate(hoy, TZ, 'MMMM yyyy') + ' (hasta el ' + f + ')'; }
   var r = resumenInterno_(desde, f, {});
-  var cuerpo = htmlInforme_(r, fechaTexto, ScriptApp.getService().getUrl() + '?p=panel') + htmlReunionesInforme_(desde, f) + htmlIncumplimientos_(desde, f);
+  var cuerpo = htmlInforme_(r, fechaTexto, ScriptApp.getService().getUrl() + '?p=panel') + htmlReunionesInforme_(desde, f) + htmlIncumplimientos_(desde, f) + htmlRondas_(desde, f, '', tipo === 'dia');
   var para = soloA || destinatarios_(tipo);
   if (!para.length) { Logger.log('Informe NO enviado: ningún directivo tiene correo real registrado.'); return { enviado: false, motivo: 'sin correos', html: cuerpo }; }
   para.forEach(function (c) {
@@ -1193,7 +1198,7 @@ function enviarInformeAMi(p) {
   }
   if (!correo) throw new Error('NECESITA_CORREO');
   var r = resumenInterno_(desde, hasta, {});
-  var cuerpo = htmlInforme_(r, 'Del ' + desde + ' al ' + hasta, ScriptApp.getService().getUrl() + '?p=panel') + htmlReunionesInforme_(desde, hasta) + htmlIncumplimientos_(desde, hasta);
+  var cuerpo = htmlInforme_(r, 'Del ' + desde + ' al ' + hasta, ScriptApp.getService().getUrl() + '?p=panel') + htmlReunionesInforme_(desde, hasta) + htmlIncumplimientos_(desde, hasta) + htmlRondas_(desde, hasta, '', hasta === desde);
   MailApp.sendEmail({ to: correo, subject: 'ICET - Informe del ' + desde + ' al ' + hasta + ': ' + r.kpis.horas + ' h sin atender', htmlBody: cuerpo, name: 'Control de asistencia ICET' });
   return { ok: true, para: correo };
 }
@@ -1231,6 +1236,86 @@ function programarInformeDiario() {
   ScriptApp.getProjectTriggers().forEach(function (t) { if (['enviarInformeDiario', 'informeDiarioProgramado'].indexOf(t.getHandlerFunction()) >= 0) ScriptApp.deleteTrigger(t); });
   ScriptApp.newTrigger('informeDiarioProgramado').timeBased().everyDays(1).atHour(13).nearMinute(35).inTimezone(TZ).create();
   SpreadsheetApp.getUi().alert('Programado: de lunes a viernes, hacia la 1:35 p. m., se envía el informe del día a los directivos con correo registrado (los viernes también el de la semana; el último día hábil del mes, el del mes).');
+}
+
+/* ------------------------------ informe de rondas (quién estuvo, quién no, quién tiene novedad) ------------------------------ */
+var PRIORIDAD_RONDA_ = ['Presente', 'En reunión', 'En actividad externa', 'Llegada tarde', 'Salida temprana', 'Ausente temporal', 'No asistió'];
+function escRonda_(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function categoriaRonda_(estado) {
+  if (estado === 'Presente') return 'presentes';
+  if (estado === 'No asistió') return 'noAsistieron';
+  if (estado === 'Ausente temporal') return 'permisos';
+  if (estado === 'Llegada tarde' || estado === 'Salida temprana') return 'tardes';
+  if (estado === 'En reunión' || estado === 'En actividad externa') return 'fuera';
+  return 'incumplimientos';
+}
+/**
+ * Rondas guardadas entre dos fechas, una por (fecha, bloque, directivo). Cada docente aparece una sola vez por bloque, con su situación más
+ * seria. directivo: nombre exacto o vacío para todos. Devuelve {bloques:[{fecha,dia,bloque,directivo,presentes:[],noAsistieron:[],...}], directivos:[]}.
+ */
+function rondasInterno_(desde, hasta, directivo) {
+  var mapa = {}, dirs = {};
+  datos_('Registro_Ronda').forEach(function (r) {
+    var f = fechaIso_(r.fecha); if (f < desde || f > hasta) return;
+    var d = String(r.directivo || ''); if (d) dirs[d] = 1;
+    if (directivo && d !== directivo) return;
+    var b = Math.ceil(Number(r.sesion) / 2), k = f + '|' + b + '|' + d;
+    var o = mapa[k] || (mapa[k] = { fecha: f, dia: r.dia, bloque: b, directivo: d, porDocente: {} });
+    var ant = o.porDocente[r.docente], pr = PRIORIDAD_RONDA_.indexOf(r.estado);
+    if (!ant || pr > PRIORIDAD_RONDA_.indexOf(ant.estado) || (pr < 0 && ant.estado === 'Presente')) o.porDocente[r.docente] = { docente: r.docente, estado: r.estado, motivo: r.motivo || '', minutos: r.minutos || '', obs: r.observaciones || '' };
+  });
+  var bloques = Object.keys(mapa).sort().map(function (k) {
+    var o = mapa[k], out = { fecha: o.fecha, dia: o.dia, bloque: o.bloque, directivo: o.directivo, presentes: [], noAsistieron: [], permisos: [], tardes: [], fuera: [], incumplimientos: [] };
+    Object.keys(o.porDocente).sort().forEach(function (n) { var x = o.porDocente[n]; out[categoriaRonda_(x.estado)].push(x); });
+    out.total = Object.keys(o.porDocente).length;
+    return out;
+  });
+  return { bloques: bloques, directivos: Object.keys(dirs).sort() };
+}
+function informeRondas(p) {
+  exigirDirectivo_();
+  p = p || {};
+  var desde = String(p.desde || ''), hasta = String(p.hasta || p.desde || '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(desde) || !/^\d{4}-\d{2}-\d{2}$/.test(hasta) || hasta < desde || hasta > resSumaDias_(desde, 400)) throw new Error('Revise las fechas del informe.');
+  return rondasInterno_(desde, hasta, String(p.directivo || ''));
+}
+/** HTML del informe de rondas para correo. conPresentes=false (semana o mes) deja solo los conteos de presentes. */
+function htmlRondas_(desde, hasta, directivo, conPresentes) {
+  var r = rondasInterno_(desde, hasta, directivo || '');
+  if (!r.bloques.length) return '<h3 style="font-family:Arial;color:#0f2a5c">Rondas</h3><p style="font-family:Arial;font-size:14px;color:#456">No hay rondas guardadas en este periodo.</p>';
+  var sec = [['noAsistieron', '✖ No asistieron', '#a31515'], ['permisos', '⏳ Permiso por horas', '#8a5a00'], ['tardes', '⏰ Llegada tarde o salida temprana', '#8a5a00'], ['fuera', '📋 En reunión o actividad externa', '#245'], ['incumplimientos', '⚠ Incumplimientos', '#7b1fa2']];
+  var h = '<h3 style="font-family:Arial;color:#0f2a5c;margin-bottom:4px">Rondas de verificación</h3>';
+  r.bloques.forEach(function (b) {
+    h += '<div style="font-family:Arial;font-size:14px;border:1px solid #d5dbe3;border-radius:8px;padding:8px 10px;margin:8px 0"><b>' + escRonda_(b.dia + ' ' + b.fecha + ' · Bloque ' + b.bloque) + '</b> · ronda de ' + escRonda_(b.directivo || '—') +
+         ' · <span style="color:#1b5e20">✔ ' + b.presentes.length + ' presentes</span> de ' + b.total;
+    sec.forEach(function (s) {
+      var l = b[s[0]]; if (!l.length) return;
+      h += '<div style="margin-top:5px;color:' + s[2] + '"><b>' + s[1] + ' (' + l.length + ')</b>: ' + l.map(function (x) {
+        return escRonda_(x.docente) + (x.motivo ? ' <i>(' + escRonda_(x.motivo) + (x.minutos ? ', ' + escRonda_(x.minutos) + ' min' : '') + ')</i>' : '');
+      }).join('; ') + '</div>';
+    });
+    if (conPresentes && b.presentes.length) h += '<div style="margin-top:5px;color:#1b5e20"><b>✔ Presentes</b>: ' + b.presentes.map(function (x) { return escRonda_(x.docente); }).join('; ') + '</div>';
+    h += '</div>';
+  });
+  return h;
+}
+/** El directivo se envía a sí mismo el informe de rondas del periodo (y, si quiere, solo de un directivo). p = {desde, hasta, directivo?, correo?, recordar?}. */
+function enviarRondasAMi(p) {
+  var id = exigirDirectivo_();
+  p = p || {};
+  var desde = String(p.desde || ''), hasta = String(p.hasta || p.desde || '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(desde) || !/^\d{4}-\d{2}-\d{2}$/.test(hasta) || hasta < desde || hasta > resSumaDias_(desde, 400)) throw new Error('Revise las fechas del informe.');
+  var correo = String(p.correo || '').trim().toLowerCase();
+  if (correo) {
+    if (!correoValido_(correo)) throw new Error('Escriba un correo válido.');
+    if (p.recordar) { var ec0 = estadoCorreo_(id), inf = ec0.informes || { dia: true, semana: true, mes: true }; guardarCorreo({ correo: correo, dia: inf.dia, semana: inf.semana, mes: inf.mes }); }
+  } else {
+    correo = String(estadoCorreo_(id).correo || '');
+  }
+  if (!correo) throw new Error('NECESITA_CORREO');
+  var cuerpo = htmlRondas_(desde, hasta, String(p.directivo || ''), hasta === desde);
+  MailApp.sendEmail({ to: correo, subject: 'ICET - Rondas del ' + desde + (hasta !== desde ? ' al ' + hasta : ''), htmlBody: cuerpo, name: 'Control de asistencia ICET' });
+  return { ok: true, para: correo };
 }
 
 // ===================== Whatsapp.gs =====================
@@ -2963,7 +3048,9 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   moverEstudiante: ['directivo'],
   agregarGrupoProyecto: ['directivo'],
   enviarInformeAMi: ['directivo'],
-  levantarMarcasEstudiante: ['directivo']
+  levantarMarcasEstudiante: ['directivo'],
+  informeRondas: ['directivo'],
+  enviarRondasAMi: ['directivo']
 };
 
 function apiFunciones_() {
@@ -2983,7 +3070,8 @@ function apiFunciones_() {
     agregarEstudiante: agregarEstudiante, moverEstudiante: moverEstudiante,
     agregarGrupoProyecto: agregarGrupoProyecto,
     enviarInformeAMi: enviarInformeAMi,
-    levantarMarcasEstudiante: levantarMarcasEstudiante
+    levantarMarcasEstudiante: levantarMarcasEstudiante,
+    informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi
   };
 }
 

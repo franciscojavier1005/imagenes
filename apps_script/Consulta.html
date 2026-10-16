@@ -129,7 +129,7 @@
   <div class="quien" id="quien"></div>
   <input class="buscar" id="q" type="search" placeholder="Buscar docente o grupo" oninput="pintar()">
   <div id="lista"><div class="aviso">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.16-a</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.16-b</div>
 </main>
 <div class="barra">
   <div class="estado" id="estado" aria-live="polite"></div>
@@ -205,7 +205,8 @@ function el(id){return document.getElementById(id);}
 function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function toast(t){var x=el('toast');x.textContent=t;x.style.display='block';setTimeout(function(){x.style.display='none';},2600);}
 function dirActual(){try{return localStorage.getItem('icet_directivo')||'';}catch(e){return '';}}
-function setDir(v){try{localStorage.setItem('icet_directivo',v);}catch(e){} if(S) cuenta();}
+var sesionVista=false, seEligio=false;
+function setDir(v){seEligio=true; try{localStorage.setItem('icet_directivo',v);}catch(e){} if(S) cuenta();}
 
 function cargar(dia, ses, conservar){
   var previas=conservar?marcas:{};
@@ -242,6 +243,7 @@ function cambiaDia(){ cargar(el('dia').value, sesSel||1); }
 
 function pintarQuien(){
   var d=dirActual();
+  if(!sesionVista&&S.sesionDe&&S.directivos.indexOf(S.sesionDe)>=0){ sesionVista=true; if(!seEligio){ d=S.sesionDe; try{localStorage.setItem('icet_directivo',d);}catch(e){} } }   // al abrir: aparece quien inició sesión; se puede cambiar por otro directivo
   el('quien').innerHTML='<label><b>Ronda a cargo de:</b><select class="sel" style="margin-top:4px" onchange="setDir(this.value)">'+
     opt('','— Elegir directivo —',!d)+S.directivos.map(function(n){return opt(n,n,n===d);}).join('')+'</select></label>';
 }
@@ -502,9 +504,40 @@ function guardar(){
   if(S.dia!==S.diaHoy){ toast('Solo se guarda la ronda del día de hoy ('+S.diaHoy+')'); return; }
   el('btnGuardar').disabled=true;
   srv().withSuccessHandler(function(r){
-    el('btnGuardar').disabled=false; borraBorrador(); toast('Guardado: '+r.guardados+' registros'); cargar(diaSel,sesSel);
+    el('btnGuardar').disabled=false; var res=resumenRonda(); borraBorrador(); toast('Guardado: '+r.guardados+' registros'); cargar(diaSel,sesSel); muestraResumen(res);
   }).withFailureHandler(function(e){el('btnGuardar').disabled=false;guardaBorrador();toast('No se pudo guardar ('+String(e&&e.message||e).slice(0,60)+'). Sus marcas siguen aquí y quedaron en un borrador en este teléfono: toque Guardar cuando vuelva la señal.');})
   .guardarRonda({directivo:dir,dia:S.dia,sesion:S.sesion,fecha:S.fecha,registros:regs});
+}
+
+/* ---------- resumen que se muestra al terminar de guardar la ronda ---------- */
+function resumenRonda(){
+  var g={pres:[],no:[],perm:[],tarde:[],fuera:[],inc:[],falta:[]};
+  S.filas.forEach(function(f){
+    var m=marcas[f.docente], t=m&&m.estado, x=f.docente+(m&&m.motivo&&t!=='Presente'?' ('+m.motivo+(m.minutos?', '+m.minutos+' min':'')+')':'');
+    if(!t){ (enReunion(f)?g.fuera:g.falta).push(f.docente); return; }
+    if(t==='Presente') g.pres.push(f.docente); else if(t==='No asistió') g.no.push(x); else if(t==='Ausente temporal') g.perm.push(x);
+    else if(t==='Llegada tarde'||t==='Salida temprana') g.tarde.push(t+': '+x); else if(t==='En reunión'||t==='En actividad externa') g.fuera.push(x); else g.inc.push(x);
+  });
+  return {g:g,titulo:(S.modo==='bloque'?'Bloque '+S.bloque:'Sesión '+S.sesion)+' · '+S.dia+' '+S.fecha};
+}
+function muestraResumen(res){
+  var g=res.g, v=el('velo'); if(v) v.remove();
+  v=document.createElement('div'); v.id='velo'; v.style.cssText='position:fixed;inset:0;background:rgba(10,20,40,.55);display:flex;align-items:center;justify-content:center;z-index:98;padding:14px';
+  function bloque(tit,col,l,abre){ return l.length?'<div style="margin-top:10px;color:'+col+'"><b>'+tit+' ('+l.length+')</b><div style="color:#234;font-size:13.5px;margin-top:2px">'+l.map(esc).join('<br>')+'</div></div>':''; }
+  v.innerHTML='<div style="background:#fff;border-radius:16px;padding:16px;max-width:460px;width:100%;max-height:88vh;overflow:auto"><h2 style="margin:0 0 2px;font-size:18px">✔ Ronda guardada</h2><div style="font-size:13px;color:#456">'+esc(res.titulo)+'</div>'+
+    '<div style="margin-top:10px;font-size:15px"><b style="color:#1b5e20">✔ '+g.pres.length+' presentes</b> · <b style="color:#a31515">✖ '+g.no.length+' no asistieron</b></div>'+
+    bloque('✖ No asistieron','#a31515',g.no)+bloque('⏳ Permiso por horas','#8a5a00',g.perm)+bloque('⏰ Tarde / salida temprana','#8a5a00',g.tarde)+bloque('📋 En reunión o actividad externa','#245',g.fuera)+bloque('⚠ Incumplimientos','#7b1fa2',g.inc)+bloque('❗ Sin reportar','#a31515',g.falta)+
+    '<details style="margin-top:10px"><summary style="cursor:pointer;color:#1b5e20"><b>Ver presentes ('+g.pres.length+')</b></summary><div style="font-size:13.5px;color:#234;margin-top:4px">'+g.pres.map(esc).join('<br>')+'</div></details>'+
+    '<div style="display:flex;gap:8px;margin-top:14px"><button style="flex:1;padding:12px;border:0;border-radius:10px;background:#0f2a5c;color:#fff;font-weight:700;font-size:15px" onclick="enviarRondaHoy()">✉ Enviarme este informe</button><button style="padding:12px;border:0;border-radius:10px;background:#e6edf5;font-weight:700" onclick="el(\'velo\').remove()">Cerrar</button></div><div id="mRonda" style="color:#a31515;font-size:13px;margin-top:8px"></div></div>';
+  document.body.appendChild(v);
+}
+function enviarRondaHoy(correo){
+  var p={desde:S.fecha,hasta:S.fecha}; if(correo){ p.correo=correo; p.recordar=true; }
+  el('mRonda').style.color='#456'; el('mRonda').textContent='Enviando…';
+  srv().withSuccessHandler(function(r){ el('mRonda').style.color='#1b5e20'; el('mRonda').textContent='Informe de las rondas de hoy enviado a '+r.para; })
+   .withFailureHandler(function(e){ var m=String(e&&e.message||e).replace(/^Error: /,'');
+     if(/NECESITA_CORREO/.test(m)){ var c=window.prompt('¿A qué correo se lo enviamos? (cualquier proveedor; se recordará para sus informes)'); if(c) enviarRondaHoy(c); else { el('mRonda').style.color='#a31515'; el('mRonda').textContent='Falta el correo.'; } }
+     else { el('mRonda').style.color='#a31515'; el('mRonda').textContent=m; } }).enviarRondasAMi(p);
 }
 
 /* ---------- observación de la ronda (voz o texto) ---------- */

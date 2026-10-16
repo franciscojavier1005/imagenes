@@ -46,6 +46,10 @@ EMAIL='nuevo@gmail.com'; f('contextoPanel()'); ok(ultimaPeticion.cuerpo.email===
 EMAIL='dueno@gmail.com'; const fr=hojas.Horario.v.slice(1).find(r=>r[2]==='VIERNES'&&r[8]==='CLASE');
 f(`guardarRonda({directivo:'Alguien Falso',dia:'VIERNES',sesion:3,fecha:'2026-10-02',registros:[{docente:${JSON.stringify(fr[1])},grupoCodigo:'0601',area:'CAS',estado:'Presente',motivo:'',minutos:'',actividad:'N/A',obs:''}]})`);
 ok(hojas.Registro_Ronda.v[hojas.Registro_Ronda.v.length-1][13]==='dueno@gmail.com','guardarRonda: el directivo registrado es el que Google identificó, no el nombre que envió la pantalla');
+const otro=hojas.Directivos.v[1][hojas.Directivos.v[0].indexOf('nombre')];
+f(`guardarRonda({directivo:${JSON.stringify(otro)},dia:'VIERNES',sesion:3,fecha:'2026-10-02',registros:[{docente:${JSON.stringify(fr[1])},grupoCodigo:'0601',area:'CAS',estado:'Presente',motivo:'',minutos:'',actividad:'N/A',obs:''}]})`);
+ok(hojas.Registro_Ronda.v[hojas.Registro_Ronda.v.length-1][13]===otro,'sesión prestada: si elige a otro directivo registrado, la ronda queda a su nombre');
+ok(f('consultarSesion("VIERNES",3,"bloque")').sesionDe!==undefined,'la ronda informa quién inició sesión para preseleccionarlo');
 // secreto equivocado / respuesta rara / back caído
 propsFront.API_SECRET='otro-secreto'; ok(/No autorizado/.test(falla('contextoPanel()')),'con un secreto distinto el back rechaza al front'); propsFront.API_SECRET=SECRETO;
 responder='<html>error de Google</html>'; ok(/no respondió/.test(falla('contextoPanel()')),'respuesta que no es JSON: mensaje claro'); responder=null;

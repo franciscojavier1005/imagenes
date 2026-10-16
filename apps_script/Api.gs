@@ -42,7 +42,9 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   moverEstudiante: ['directivo'],
   agregarGrupoProyecto: ['directivo'],
   enviarInformeAMi: ['directivo'],
-  levantarMarcasEstudiante: ['directivo']
+  levantarMarcasEstudiante: ['directivo'],
+  informeRondas: ['directivo'],
+  enviarRondasAMi: ['directivo']
 };
 
 function apiFunciones_() {
@@ -62,7 +64,8 @@ function apiFunciones_() {
     agregarEstudiante: agregarEstudiante, moverEstudiante: moverEstudiante,
     agregarGrupoProyecto: agregarGrupoProyecto,
     enviarInformeAMi: enviarInformeAMi,
-    levantarMarcasEstudiante: levantarMarcasEstudiante
+    levantarMarcasEstudiante: levantarMarcasEstudiante,
+    informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi
   };
 }
 

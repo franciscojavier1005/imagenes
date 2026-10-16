@@ -61,3 +61,8 @@ Coordinador académico de una institución pública (San Andrés de Tumaco, Nari
 
 ## Actualización 2026-10-16 (versión 2026.10.16-a)
 - Ronda: además del borrador por bloque/sesión (localStorage `icet_borradores`, 2 días), si al recargar la página cae en otro bloque se muestra un aviso amarillo con botones para ir al bloque/sesión de hoy que tiene marcas sin guardar (`avisaOtrosBorradores`, `irBorrador`). Archivo a reemplazar: Consulta.html (y sello de versión en los demás HTML).
+
+## Actualización 2026-10-16 (versión 2026.10.16-b)
+- Informe de rondas: al guardar la ronda se abre el resumen (presentes, no asistieron con su motivo —incapacidad, etc.—, permisos, tarde/salida, reunión/externa, incumplimientos, sin reportar) con "✉ Enviarme este informe" (rondas de hoy). Panel (Dashboard.html): sección "📋 Rondas de verificación" por bloque, filtro por directivo y envío por correo. Servidor (Dashboard.gs): `rondasInterno_`, `informeRondas`, `htmlRondas_`, `enviarRondasAMi`; el informe diario/semanal/mensual por correo y "Enviarme el informe" ahora incluyen las rondas (día/un solo día con lista de presentes; semana/mes con conteos).
+- Sesión prestada: la ronda abre con el directivo que inició sesión preseleccionado (`sesionDe`), se puede cambiar por otro directivo registrado; `guardarRonda` acepta ese nombre si está en la hoja Directivos (si no, usa el de la sesión) y deja constancia en Bitacora_Cambios cuando difiere.
+- URL: "Nueva implementación" crea otra dirección; para conservarla, siempre Administrar implementaciones > lápiz > Nueva versión.

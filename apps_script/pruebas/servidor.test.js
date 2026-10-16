@@ -47,3 +47,19 @@ ok(c=ctx('desconocido@gmail.com').rol==='sin_registro'&&fallo,'persona desconoci
 EMAIL='';  // disparador sin sesión: el informe diario sigue funcionando
 const ei=vm.runInContext("enviarInformeDiario_(true)",g); ok(ei.enviado===true,'el informe diario funciona sin sesión de usuario (disparador)');
 const rf=(EMAIL='dueno@gmail.com',vm.runInContext("datosDashboard('2026-10-01','2026-10-02',{nivel:'PRIMARIA'})",g)); ok(rf.kpis.eventos===2&&rf.porNivel.length===1,'filtro por nivel PRIMARIA: 2 novedades');
+/* informe de rondas: quién estuvo, quién no y quién tiene novedad */
+EMAIL='dueno@gmail.com';
+const fil=(s,doc,est,mot,min,dir)=>['2026-10-05','2026-10-05','LUNES',s,'',doc,'6-1','Área',est,mot,'',min,'',dir,''];
+H.Registro_Ronda.push(fil(1,'Ana Uno','Presente','','','Verónica'),fil(2,'Ana Uno','Presente','','','Verónica'),fil(1,'Beto Dos','No asistió','Incapacidad','','Verónica'),fil(2,'Beto Dos','No asistió','Incapacidad','','Verónica'),
+  fil(1,'Carla Tres','Llegada tarde','Cita médica',20,'Verónica'),fil(2,'Carla Tres','Presente','','','Verónica'),fil(3,'Dani <b>','Presente','','','Harold'));
+const ir=vm.runInContext("informeRondas({desde:'2026-10-05',hasta:'2026-10-05'})",g);
+ok(ir.bloques.length===2&&ir.directivos.join()==='Harold,Verónica','rondas agrupadas por bloque y directivo: '+ir.bloques.length+' bloques');
+const b1=ir.bloques.find(x=>x.bloque===1);
+ok(b1.presentes.length===1&&b1.noAsistieron.length===1&&b1.noAsistieron[0].motivo==='Incapacidad'&&b1.tardes.length===1&&b1.total===3,'cada docente una sola vez por bloque, con su situación más seria');
+ok(vm.runInContext("informeRondas({desde:'2026-10-05',hasta:'2026-10-05',directivo:'Harold'})",g).bloques.length===1,'filtro por directivo');
+const hh=vm.runInContext("htmlRondas_('2026-10-05','2026-10-05','',true)",g);
+ok(/Beto Dos/.test(hh)&&/Incapacidad/.test(hh)&&!/<b>\)/.test(hh)&&/Dani &lt;b&gt;/.test(hh)&&!/<script/i.test(hh),'el HTML lista a los ausentes con su motivo y escapa el texto');
+correos.length=0; H.Directivos[4][2]='rector@institucion.edu.co';
+const er=vm.runInContext("enviarRondasAMi({desde:'2026-10-05',hasta:'2026-10-05',correo:'yo@correo.com'})",g);
+ok(er.ok&&correos.length===1&&correos[0].to==='yo@correo.com'&&/Beto Dos/.test(correos[0].htmlBody),'enviarRondasAMi manda el informe al correo indicado');
+const ed=vm.runInContext("enviarInformeDiario_(true)",g); ok(ed.enviado,'informe diario sigue funcionando');

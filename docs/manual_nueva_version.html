@@ -1,0 +1,97 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Cómo publicar cambios sin cambiar la dirección</title>
+<style>
+@page{size:A4;margin:16mm 14mm}
+body{font-family:Arial,Helvetica,sans-serif;color:#1d2a3a;font-size:13.5px;line-height:1.45;margin:0}
+h1{font-size:26px;color:#0f2a5c;margin:0 0 6px}h2{font-size:19px;color:#0f2a5c;margin:0 0 8px}
+.pag{page-break-after:always;padding:2px 0}.pag:last-child{page-break-after:auto}
+.paso{display:inline-block;background:#0f2a5c;color:#fff;border-radius:50%;width:30px;height:30px;line-height:30px;text-align:center;font-weight:700;margin-right:8px}
+.caja{border:2px solid #d5dbe3;border-radius:10px;padding:10px 12px;margin:10px 0;background:#f7f9fc}
+.ok{border-color:#2e7d32;background:#eef7ee}.mal{border-color:#c62828;background:#fdeeee}.av{border-color:#e0a800;background:#fff8e1}
+.mock{border:1px solid #9aa7b8;border-radius:8px;background:#fff;margin:10px 0;overflow:hidden;font-size:12.5px;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.bar{background:#e8edf3;padding:6px 10px;border-bottom:1px solid #c5ceda;display:flex;justify-content:space-between;align-items:center}
+.btn{display:inline-block;padding:5px 12px;border-radius:6px;background:#1a73e8;color:#fff;font-weight:700}
+.btn.g{background:#e8edf3;color:#234;border:1px solid #9aa7b8}
+.res{outline:3px solid #e53935;outline-offset:2px;border-radius:6px}
+.menu{border:1px solid #9aa7b8;border-radius:6px;width:240px;margin:6px 0 6px auto;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.2)}
+.menu div{padding:7px 12px}.menu .sel{background:#fdecea;font-weight:700;outline:3px solid #e53935}
+.fila{display:flex;gap:8px;align-items:center;padding:7px 10px;border-bottom:1px solid #e3e8ef}
+.flecha{color:#e53935;font-weight:700}
+table{border-collapse:collapse;width:100%}td,th{border:1px solid #c5ceda;padding:6px 8px;text-align:left;font-size:13px}
+.pie{font-size:10.5px;color:#789;margin-top:8px}
+code{background:#eef1f6;padding:1px 5px;border-radius:4px}
+</style></head><body>
+
+<div class="pag">
+<h1>Cómo publicar cambios sin que los directivos reciban una dirección nueva</h1>
+<div style="color:#456;margin-bottom:12px">Manual rápido · Sistema de control de asistencia · I.E. ICET, Tumaco · versión del manual: octubre de 2026</div>
+<div class="caja ok"><b>La idea clave</b><br>La dirección (URL) pertenece a una <b>implementación</b>. Cada vez que usted elige <b>"Nueva implementación"</b>, Google crea <u>otra dirección distinta</u> y a los directivos les toca recibir el enlace nuevo.<br>Si en cambio edita la implementación que ya existe y elige <b>"Nueva versión"</b>, la dirección <u>no cambia</u> y todos ven el cambio al abrir la aplicación. <b>No hay que mandar nada.</b></div>
+<table>
+<tr><th></th><th>Nueva implementación</th><th>Nueva versión (lápiz)</th></tr>
+<tr><td>¿Cambia la dirección?</td><td style="color:#c62828"><b>Sí</b>, hay que reenviarla</td><td style="color:#2e7d32"><b>No</b>, sigue igual</td></tr>
+<tr><td>¿Cuándo usarla?</td><td>Solo la primera vez</td><td><b>Siempre</b> que haya cambios</td></tr>
+</table>
+<div class="caja av"><b>Lo único que se hace una sola vez</b><br>Repartir la dirección a los directivos (de la implementación que quede como definitiva) y que cada uno la agregue a la pantalla de inicio de su celular. De ahí en adelante, usted solo publica versiones nuevas.</div>
+<h2 style="margin-top:14px">Lo que necesita antes de empezar</h2>
+<ul><li>Los archivos que le entrega Claude: <code>ICET_completo.gs</code> y los <code>.html</code> que se indiquen en cada entrega.</li>
+<li>Entrar con la cuenta de Google dueña del libro y abrir <b>Extensiones &gt; Apps Script</b> en el libro de Google Sheets.</li></ul>
+<div class="pie">Las imágenes de este manual son esquemas fieles a los pasos; los colores y la posición de los botones pueden variar un poco según la versión del editor de Google.</div>
+</div>
+
+<div class="pag">
+<h2><span class="paso">1</span>Pegar los archivos nuevos</h2>
+<p>En el editor de Apps Script, a la izquierda están los archivos. Para cada archivo que le indiquen:</p>
+<div class="mock"><div class="bar"><b>Apps Script · Control de asistencia</b><span>Guardar &nbsp; ▶ Ejecutar &nbsp; <span class="btn">Implementar ▾</span></span></div>
+<div style="display:flex"><div style="width:32%;border-right:1px solid #c5ceda;padding:8px"><b>Archivos</b>
+<div class="fila" style="padding:4px 0"><span class="res">Código.gs</span> <span class="flecha">◀ pegar ICET_completo.gs</span></div>
+<div class="fila" style="padding:4px 0">Consulta <span class="flecha">◀ HTML</span></div><div class="fila" style="padding:4px 0">Dashboard</div><div class="fila" style="padding:4px 0">Horarios</div><div class="fila" style="padding:4px 0">Menu</div></div>
+<div style="padding:10px;color:#789;font-family:monospace">// ===== Codigo.gs =====<br>function doGet(e) { ... }<br>...</div></div></div>
+<ol><li><b>Código.gs:</b> toque ese archivo, seleccione todo (<code>Ctrl+A</code>), borre y pegue el contenido completo de <code>ICET_completo.gs</code>.</li>
+<li><b>Cada HTML</b> (Consulta, Dashboard, Horarios…): toque el archivo con ese nombre, seleccione todo y pegue el contenido del <code>.html</code> nuevo. El nombre no lleva la extensión.</li></ol>
+<div class="caja av">Pegue el contenido <u>dentro del archivo que ya existe</u>. No cree archivos nuevos con el mismo nombre.</div>
+<h2 style="margin-top:14px"><span class="paso">2</span>Guardar</h2>
+<p>Toque el icono del disquete (💾) o <code>Ctrl+S</code>. Debe quedar sin círculo de "cambios sin guardar".</p>
+</div>
+
+<div class="pag">
+<h2><span class="paso">3</span>Implementar &gt; Administrar implementaciones</h2>
+<p>Arriba a la derecha, toque el botón azul <b>Implementar</b> y elija <b>Administrar implementaciones</b>. <u>No</u> elija "Nueva implementación".</p>
+<div class="bar" style="border:1px solid #9aa7b8;border-radius:8px"><b>Apps Script · Control de asistencia</b><span class="btn">Implementar ▾</span></div>
+<div class="menu"><div>Nueva implementación</div><div class="sel">Administrar implementaciones</div><div>Probar implementaciones</div></div>
+<div class="caja mal"><b>No elija</b> "Nueva implementación": crea una dirección nueva. Tampoco use "Probar implementaciones": esa dirección es solo para el programador.</div>
+
+<h2 style="margin-top:14px"><span class="paso">4</span>Lápiz &gt; Nueva versión &gt; Implementar</h2>
+<div class="mock"><div class="bar"><b>Administrar implementaciones</b><span>✕</span></div>
+<div style="padding:10px"><div class="fila" style="border:1px solid #c5ceda;border-radius:6px">
+<span>🌐 Aplicación web · <b>Activa</b></span><span style="margin-left:auto" class="res">✏️ Editar (lápiz)</span></div>
+<div style="margin-top:10px"><b>Versión</b><div style="border:1px solid #9aa7b8;border-radius:6px;padding:6px 10px;margin:4px 0" class="res">Nueva versión ▾ &nbsp; <span style="color:#789">(antes decía, por ejemplo, "Versión 12")</span></div>
+<div>Descripción: <i>opcional (ej.: "informe de rondas")</i></div>
+<div style="margin-top:6px">Ejecutar como: <b>Yo</b> &nbsp;·&nbsp; Quién tiene acceso: <b>Cualquier persona</b></div>
+<div style="text-align:right;margin-top:10px"><span class="btn g">Cancelar</span> <span class="btn res">Implementar</span></div></div></div></div>
+<ol><li>Toque el <b>lápiz</b> de la implementación activa.</li>
+<li>En <b>Versión</b>, despliegue la lista y elija <b>Nueva versión</b>.</li>
+<li>Compruebe que diga <b>Ejecutar como: Yo</b> y <b>Quién tiene acceso: Cualquier persona</b>.</li>
+<li>Toque <b>Implementar</b>. Si pide autorizar permisos, acéptelos.</li></ol>
+</div>
+
+<div class="pag">
+<h2><span class="paso">5</span>Comprobar que funcionó</h2>
+<div class="caja ok">Abra la aplicación con la <b>misma dirección de siempre</b>. Al final de la pantalla debe verse el número de versión, por ejemplo <code>versión 2026.10.16-d</code>. Si es el que le indicó Claude, el cambio quedó publicado.</div>
+<div class="mock" style="max-width:340px"><div class="bar"><b>Ronda · ICET</b></div><div style="padding:10px;color:#789">… pantalla de la aplicación …</div>
+<div style="padding:6px 10px;font-size:11px;color:#678;border-top:1px solid #e3e8ef" class="res">Control de asistencia · versión 2026.10.16-d</div></div>
+<div class="caja">La dirección termina en <code>/exec</code> y el bloque de letras y números del medio (el ID) <b>es el mismo</b> de siempre. Si el ID cambió, se creó una implementación nueva por error.</div>
+
+<h2 style="margin-top:12px">¿Y los directivos qué hacen?</h2>
+<ul><li><b>Nada.</b> Abren la aplicación desde el icono o el enlace de siempre.</li>
+<li>Si ven una versión vieja, que cierren la pestaña y la abran de nuevo, o que recarguen la página (deslizar hacia abajo en el celular). Si tienen marcas sin guardar, que primero toquen <b>Guardar</b>.</li></ul>
+
+<h2 style="margin-top:12px">Si algo sale mal</h2>
+<table>
+<tr><th>Qué pasa</th><th>Qué hacer</th></tr>
+<tr><td>Se creó una "Nueva implementación" por error</td><td>La dirección nueva sirve, pero los demás siguen en la vieja. Vuelva a <b>Administrar implementaciones</b>, edite (lápiz) la <u>vieja</u> con <b>Nueva versión</b> y use la nueva solo para archivarla (<i>Archivar</i>).</td></tr>
+<tr><td>Hay varias implementaciones activas</td><td>Quédese con la que usan los directivos y archive las demás para no confundirse.</td></tr>
+<tr><td>Pide permisos o dice "no autorizado"</td><td>Acepte los permisos con la cuenta dueña. Verifique <b>Ejecutar como: Yo</b> y <b>Cualquier persona</b>.</td></tr>
+<tr><td>El pie no muestra la versión nueva</td><td>Revise que pegó el archivo correcto, que guardó (💾) y que eligió <b>Nueva versión</b>, no solo "Implementar" sin cambiar la versión.</td></tr>
+</table>
+<div class="pie">Sistema de control de asistencia de directivos · I.E. ICET · autor: Francisco Javier Cortés Cabezas</div>
+</div>
+</body></html>

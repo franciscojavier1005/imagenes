@@ -41,6 +41,13 @@ Al iniciar sesión, la pantalla de inicio muestra solo los botones que correspon
 
 Mismo mecanismo: rol propio, hoja propia (`PTAFI_Seguimiento`: estudiante, tema, fecha, observación, compromiso, estado) y pantallas independientes. Sin acceso a rondas ni a orientación.
 
+## 3.2 Comunicación de los directivos con orientación y PTAFI
+
+- **Revisar informes:** los directivos ven los **informes de gestión** de las orientadoras y de la tutora PTAFI (cantidad de casos por tipo y estado, citas cumplidas, actividades realizadas), sin el relato reservado de los casos (ver reglas de confidencialidad del punto 2).
+- **Remitir reportes a las orientadoras:** un directivo (o, más adelante, un docente) puede **remitir** una situación de un estudiante a una orientadora; llega a su bandeja como caso nuevo "Remitido por …" y el directivo ve solo su estado (recibido, en atención, cerrado).
+- **Asignar tareas y actividades:** hoja `Tareas_Orientacion` (id, asignada a [orientadora 1, orientadora 2 o tutora PTAFI], asignada por, descripción, fecha límite, estado: Pendiente/En curso/Hecha, nota de cumplimiento). Cada una ve **sus** tareas con alertas de vencimiento; los directivos ven el tablero completo de cumplimiento.
+- Todo con bitácora (quién asignó, quién cambió el estado y cuándo).
+
 ## 3.1 Módulo del docente: novedades propias y descargos
 
 Ya existe la base: el docente entra con su correo/PIN, ve **solo su informe** y puede entregar **soportes** (incapacidad, cita, acta…) con plazos de 3 o 5 días hábiles. Se amplía así:

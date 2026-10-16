@@ -2666,6 +2666,24 @@ function moverEstudiante(p) {
   } finally { lock.releaseLock(); }
 }
 
+/** Levanta varias marcas a la vez (queda anotado quién y cuándo). p = {ids:[...]} */
+function levantarMarcasEstudiante(p) {
+  var quien = exigirDirectivo_(), por = quien.nombre || quien.email, ids = {};
+  ((p && p.ids) || []).forEach(function (i) { ids[String(i)] = 1; });
+  if (!Object.keys(ids).length) throw new Error('Elija al menos una marca.');
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var sh = hojaOCrea_('Marcas_Estudiantes', COL_MARCAS_EST), v = sh.getDataRange().getValues(), c = {}, n = 0, ahora = ahoraTxt_();
+    v[0].forEach(function (k, i) { c[k] = i; });
+    for (var i = 1; i < v.length; i++) {
+      if (!ids[String(v[i][c.id])] || v[i][c.estado] !== 'Vigente') continue;
+      sh.getRange(i + 1, c.estado + 1).setValue('Levantada'); sh.getRange(i + 1, c.levantada_por + 1).setValue(por); sh.getRange(i + 1, c.fecha_levantada + 1).setValue(ahora); n++;
+    }
+    if (!n) throw new Error('Esas marcas ya estaban levantadas.');
+    return { levantadas: n };
+  } finally { lock.releaseLock(); }
+}
+
 // ===================== Sesion.gs =====================
 /**
  * Ingreso con clave (sin pantallas de Google).
@@ -2944,7 +2962,8 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   agregarEstudiante: ['directivo'],
   moverEstudiante: ['directivo'],
   agregarGrupoProyecto: ['directivo'],
-  enviarInformeAMi: ['directivo']
+  enviarInformeAMi: ['directivo'],
+  levantarMarcasEstudiante: ['directivo']
 };
 
 function apiFunciones_() {
@@ -2963,7 +2982,8 @@ function apiFunciones_() {
     datosEstudiantes: datosEstudiantes, marcarEstudiantes: marcarEstudiantes, levantarMarcaEstudiante: levantarMarcaEstudiante,
     agregarEstudiante: agregarEstudiante, moverEstudiante: moverEstudiante,
     agregarGrupoProyecto: agregarGrupoProyecto,
-    enviarInformeAMi: enviarInformeAMi
+    enviarInformeAMi: enviarInformeAMi,
+    levantarMarcasEstudiante: levantarMarcasEstudiante
   };
 }
 

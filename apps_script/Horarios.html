@@ -51,7 +51,7 @@
   @media print{.est{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
   .est.ret{opacity:1} .est input[type=checkbox]{width:22px;height:22px;margin-top:2px;flex:none}
   .bd{display:inline-block;font-size:11.5px;font-weight:700;color:#fff;border-radius:10px;padding:2px 8px;margin:3px 4px 0 0;cursor:pointer;line-height:1.5} .est .ei .bd small{font-weight:400;color:#fff;opacity:.92;margin-left:0}
-  .btn.mini{min-height:34px;padding:6px 10px;font-size:12.5px;flex:none}
+  .btn.quitar{background:#fde3e1;color:#a31515;border:1px solid #e57373} .btn.mini{min-height:34px;padding:6px 10px;font-size:12.5px;flex:none}
   .barra{position:sticky;bottom:0;background:#0f2a5c;color:#fff;border-radius:12px;padding:10px 12px;display:flex;gap:8px;align-items:center;justify-content:space-between;margin:10px 0;box-shadow:0 -2px 10px rgba(0,0,0,.25)}
   .velo{position:fixed;inset:0;background:rgba(10,20,40,.55);display:flex;align-items:flex-end;justify-content:center;z-index:30} .modal{background:#fff;border-radius:16px 16px 0 0;padding:14px;width:100%;max-width:560px;max-height:92vh;overflow:auto}
   @media(min-width:700px){.velo{align-items:center}.modal{border-radius:16px}}
@@ -76,7 +76,7 @@
   <div class="ctrl" id="ctrl"></div>
   <div id="res"><div class="aviso">Cargando…</div></div>
   <div id="lote"></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-i</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-j</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -263,13 +263,13 @@ function pintaEst(){
     var tp=(e.m||[]).map(function(x){return x.tipo;}).join('|'), sh=/Retirado|cancelada|otra institución/.test(tp)?' sh-ret':(/No asiste/.test(tp)?' sh-des':(/Se ausenta/.test(tp)?' sh-aus':(/Se fuga/.test(tp)?' sh-fuga':'')));
     var fila=cab+'<div class="est'+sh+'"><input type="checkbox" '+(SEL[kEst(e)]?'checked ':'')+'onchange="selEst('+VIS.indexOf(e)+',this.checked)"><div class="ei"><b>'+esc(e.a)+'</b> '+esc(e.n)+'<small>N.º '+e.no+' · '+esc(e.g)+'</small><div>'+
       (e.m||[]).map(function(x){var c=EMO[x.tipo]||['•','#555']; return '<span class="bd" style="background:'+c[1]+'" title="'+esc((x.nota||'')+' · '+x.por+' · '+x.fecha+' (toque para levantar)')+'" onclick="levanta(\''+esc(x.id)+'\')">'+c[0]+' '+esc(x.tipo)+(x.nota?' <small>· '+esc(x.nota.slice(0,40))+'</small>':'')+'</span>';}).join('')+'</div></div>'+
-      '<button class="btn mini" onclick="abreMarca(['+VIS.indexOf(e)+'])">Marcar</button></div>';
+      '<div style="display:flex;flex-direction:column;gap:5px;flex:none"><button class="btn mini" onclick="abreMarca(['+VIS.indexOf(e)+'])">Marcar</button>'+((e.m||[]).length?'<button class="btn mini quitar" onclick="abreQuitar(['+VIS.indexOf(e)+'])">✕ Quitar marca</button>':'')+'</div></div>';
     var sig=corte[i+1]; if(!sig||sig.g!==e.g) fila+=resumenGrupo(e.g);   // consolidado al final de cada grupo
     return fila;
   }).join('')||'<div class="aviso">Sin resultados.</div>';
   if(VIS.length>700) h+='<div class="aviso">Se muestran los primeros 700: afine la búsqueda.</div>';
   h+='</div>';
-  if(nsel) h+='<div class="barra"><span><b>'+nsel+'</b> seleccionado(s)</span><span><button class="btn mini" onclick="abreMarca(null)">Marcar…</button> <button class="btn mini" onclick="SEL={};pintaEst()">Quitar selección</button></span></div>';
+  if(nsel) h+='<div class="barra"><span><b>'+nsel+'</b> seleccionado(s)</span><span><button class="btn mini" onclick="abreMarca(null)">Marcar…</button> <button class="btn mini quitar" onclick="abreQuitar(null)">✕ Quitar marca…</button> <button class="btn mini" onclick="SEL={};pintaEst()">Quitar selección</button></span></div>';
   el('res').innerHTML=h;
 }
 function resumenGrupo(cod){
@@ -293,7 +293,8 @@ function abreMarca(idx){
   var lista=idx?idx.map(function(i){return VIS[i];}):Object.keys(SEL).map(function(k){return SEL[k];});
   if(!lista.length) return;
   window.MARCA_LISTA=lista;
-  modal('<h2 style="margin:0 0 4px;color:#0f2a5c">Marcar a '+lista.length+' estudiante'+(lista.length>1?'s':'')+'</h2><div class="sub">'+esc(lista.slice(0,3).map(function(e){return e.a+' '+e.n;}).join(' · '))+(lista.length>3?' …':'')+'</div>'+
+  var tiene=lista.length===1&&(lista[0].m||[]).length?'<div class="sub" style="margin-top:6px"><b>Ya tiene:</b> '+(lista[0].m||[]).map(function(x){var c=EMO[x.tipo]||['•','#555']; return '<span class="bd" style="background:'+c[1]+';cursor:default">'+c[0]+' '+esc(x.tipo)+'</span>';}).join('')+' <button class="enlace" style="color:#a31515;text-decoration:underline;border:0;background:none" onclick="cierra();abreQuitar(['+VIS.indexOf(lista[0])+'])">Quitar marcas…</button></div>':'';
+  modal('<h2 style="margin:0 0 4px;color:#0f2a5c">Marcar a '+lista.length+' estudiante'+(lista.length>1?'s':'')+'</h2><div class="sub">'+esc(lista.slice(0,3).map(function(e){return e.a+' '+e.n;}).join(' · '))+(lista.length>3?' …':'')+'</div>'+tiene+
     (function(){var cats=[],por={}; EST.tipos.forEach(function(t){ if(!por[t.cat]){por[t.cat]=[];cats.push(t.cat);} por[t.cat].push(t); }); return cats.map(function(c){return '<div class="gr" style="font-size:13px;margin-top:8px">'+esc(c)+'</div>'+por[c].map(function(t){return '<label class="op"><input type="radio" name="mt" value="'+t.id+'"> '+t.emo+' '+esc(t.texto)+'</label>';}).join('');}).join('');})()+
     '<label id="mnl">Nota (opcional): por qué, desde cuándo, qué se hizo<textarea id="mn" maxlength="300" list="nomProy"></textarea></label><datalist id="nomProy"></datalist>'+
     (lista.length===1?'<div style="margin-top:8px"><button class="btn" onclick="formMover()">⬆️ Pasarlo a otro grupo (promovido)</button></div>':'')+
@@ -311,6 +312,25 @@ function guardaMarca(){
   var r=document.querySelector('input[name=mt]:checked'); if(!r){ el('mm').textContent='Elija el tipo de marca.'; return; }
   var items=window.MARCA_LISTA.map(function(e){return {g:e.g,a:e.a,n:e.n};});
   srv().withSuccessHandler(function(x){ cierra(); SEL={}; cargaEst(true); }).withFailureHandler(function(e){ el('mm').textContent=String(e&&e.message||e).replace(/^Error: /,''); }).marcarEstudiantes({items:items,tipo:r.value,nota:el('mn').value});
+}
+function abreQuitar(idx){
+  var lista=idx?idx.map(function(i){return VIS[i];}):Object.keys(SEL).map(function(k){return SEL[k];});
+  if(!lista.length) return;
+  var h='<h2 style="margin:0 0 4px;color:#a31515">Quitar marcas</h2>';
+  if(lista.length===1){
+    var e=lista[0]; h+='<div class="sub"><b>'+esc(e.a+' '+e.n)+'</b> tiene estas marcas. Toque «Quitar» en la que desea eliminar:</div>'+
+      ((e.m||[]).length?(e.m||[]).map(function(x){var c=EMO[x.tipo]||['•','#555']; return '<div class="reg" style="display:flex;gap:8px;align-items:center;justify-content:space-between"><div><span class="bd" style="background:'+c[1]+';cursor:default">'+c[0]+' '+esc(x.tipo)+'</span><small>'+esc(x.nota||'')+(x.nota?' · ':'')+'puesta por '+esc(x.por)+' el '+esc(x.fecha)+'</small></div><button class="btn mini quitar" onclick="quitaMarcas([\''+esc(x.id)+'\'])">Quitar</button></div>';}).join(''):'<div class="aviso">No tiene marcas.</div>');
+    if((e.m||[]).length>1) h+='<div style="margin-top:8px"><button class="btn quitar" onclick="quitaMarcas(['+(e.m||[]).map(function(x){return '\''+esc(x.id)+'\'';}).join(',')+'])">Quitar todas</button></div>';
+  } else {
+    var por={}, orden=[]; lista.forEach(function(e){ (e.m||[]).forEach(function(x){ if(!por[x.tipo]){por[x.tipo]=[];orden.push(x.tipo);} por[x.tipo].push(x.id); }); });
+    h+='<div class="sub">Entre los '+lista.length+' estudiantes elegidos hay estas marcas. Elija cuál quitar de todos los que la tengan:</div>'+
+      (orden.length?orden.map(function(t){var c=EMO[t]||['•','#555']; return '<div class="reg" style="display:flex;gap:8px;align-items:center;justify-content:space-between"><span class="bd" style="background:'+c[1]+';cursor:default">'+c[0]+' '+esc(t)+' · '+por[t].length+'</span><button class="btn mini quitar" onclick="quitaMarcas(['+por[t].map(function(i){return '\''+esc(i)+'\'';}).join(',')+'])">Quitar de '+por[t].length+'</button></div>';}).join(''):'<div class="aviso">Ninguno de los elegidos tiene marcas.</div>');
+  }
+  h+='<div style="margin-top:12px"><button class="btn" onclick="cierra()">Cerrar</button></div><div id="mm" class="sub" style="margin-top:6px;color:#a31515"></div>';
+  modal(h);
+}
+function quitaMarcas(ids){
+  srv().withSuccessHandler(function(r){ cierra(); SEL={}; cargaEst(true); }).withFailureHandler(function(e){ var m=el('mm'); if(m) m.textContent=String(e&&e.message||e).replace(/^Error: /,''); }).levantarMarcasEstudiante({ids:ids});
 }
 function levanta(id){
   if(!confirm('¿Levantar esta marca? Queda anotado quién y cuándo (no se borra el historial).')) return;

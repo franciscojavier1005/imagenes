@@ -82,7 +82,7 @@
   .quien-dicta button.on{background:#2e7d32;border-color:#1b5e20;color:#fff;box-shadow:0 0 0 3px rgba(46,125,50,.28)} .quien-dicta button.on::before{content:'✓ '}
   .barra .cuenta{flex:1;font-size:12px;min-width:0}
   .barra button{border:0;border-radius:10px;padding:12px 10px;font-weight:700;font-size:14px;min-height:46px}
-  .todos{background:#e8f5e9;color:var(--ok)} .guardar{background:linear-gradient(135deg,#0f2a5c,#1b4a8f);color:#fff;box-shadow:0 2px 6px rgba(15,42,92,.35)}
+  .todos{background:#e8f5e9;color:var(--ok)} .todos.limpiar{background:#fde3e1;color:#a31515;border:2px solid #e57373} .guardar{background:linear-gradient(135deg,#0f2a5c,#1b4a8f);color:#fff;box-shadow:0 2px 6px rgba(15,42,92,.35)}
   .guardar:disabled{opacity:.5}
   .aviso{padding:30px 14px;text-align:center;color:#456;font-size:16px}
   .toast{position:fixed;left:50%;bottom:140px;transform:translateX(-50%);background:#263238;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;z-index:9;display:none}
@@ -129,7 +129,7 @@
   <div class="quien" id="quien"></div>
   <input class="buscar" id="q" type="search" placeholder="Buscar docente o grupo" oninput="pintar()">
   <div id="lista"><div class="aviso">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-i</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.13-j</div>
 </main>
 <div class="barra">
   <div class="estado" id="estado" aria-live="polite"></div>
@@ -137,6 +137,7 @@
     <button class="todos" id="btnSonido" onclick="alternaSonido()" aria-label="Activar o silenciar los tonos" title="Tonos al marcar" style="flex:0 0 46px;padding:12px 0">🔔</button>
     <button class="todos obsbtn" onclick="abrirObs()" aria-label="Observación de la ronda (voz o texto)" title="Observación de la ronda">🎙</button>
     <button class="todos" onclick="todosPresentes()">Todos presentes</button>
+    <button class="todos limpiar" id="btnLimpiar" onclick="limpiarMarcas()" title="Quita las marcas que aún no ha guardado">↺ Limpiar</button>
     <button class="guardar" id="btnGuardar" onclick="guardar()">Guardar ronda</button>
   </div>
 </div>
@@ -401,6 +402,15 @@ function campo(id,k,v,repintar){
   var d=nombrePorId(id), m=marcas[d]||{}; m[k]=v;
   marcas[d]=m;
   if(repintar) pintar(); else cuenta();
+}
+var UNDO=null;
+function toastAccion(texto,etiqueta,fn){ var x=el('toast'); x.innerHTML=''; x.appendChild(document.createTextNode(texto+' ')); var b=document.createElement('button'); b.textContent=etiqueta; b.style.cssText='margin-left:8px;border:0;border-radius:8px;padding:6px 10px;font-weight:700;background:#fff;color:#0f2a5c'; b.onclick=function(){ x.style.display='none'; fn(); }; x.appendChild(b); x.style.display='block'; clearTimeout(x._t); x._t=setTimeout(function(){ x.style.display='none'; },9000); }
+function limpiarMarcas(){   // sin confirmar: descarta SOLO lo que aún no se ha guardado y deja la tarjeta como estaba en el libro; se puede deshacer
+  var n=S?sinGuardar():0; if(!n){ toast('No hay marcas sin guardar'); return; }
+  UNDO=JSON.stringify(marcas);
+  var nuevas={}; Object.keys(INI).forEach(function(d){ nuevas[d]=JSON.parse(INI[d]); }); marcas=nuevas;
+  borraBorrador(); pintar(); tono('neutro');
+  toastAccion('Se descartaron '+n+' marcas sin guardar.','↩ Deshacer',function(){ if(UNDO){ marcas=JSON.parse(UNDO); UNDO=null; pintar(); } });
 }
 function todosPresentes(){
   var salto=0;

@@ -78,7 +78,16 @@ d=run('datosEstudiantes()'); const pr=d.estudiantes.find(e=>e.a==='PEREZ GOMEZ')
 ok(pr.g==='0701'&&pr.no===3&&d.grupos.find(x=>x.codigo==='0701').total===3,'promovido: pasa al grupo de destino, con el siguiente número de lista');
 ok(pr.m.some(x=>/deserción/.test(x.tipo))&&pr.m.some(x=>/Promovido/.test(x.tipo)&&/De 6°-1 a 7°-1/.test(x.nota)),'conserva sus marcas vigentes y queda «promovido» con el detalle (de qué grupo a cuál)');
 ok(/mismo/.test(falla("moverEstudiante({g:'0701',a:'PEREZ GOMEZ',n:'ANA MARIA',destino:'0701'})")||''),'no se puede mover al mismo grupo');
+
+// levantar varias marcas a la vez
+{
+  const d3=run('datosEstudiantes()'); const ids=d3.estudiantes.filter(e=>e.a==='ZUÑIGA')[0].m.map(x=>x.id);
+  g.IDS={ids:ids}; const lv=run('levantarMarcasEstudiante(IDS)');
+  ok(lv.levantadas===ids.length&&!(run('datosEstudiantes()').estudiantes.find(e=>e.a==='ZUÑIGA').m||[]).length,'quitar varias marcas de un estudiante en un solo paso ('+ids.length+')');
+  ok(hojas.Marcas_Estudiantes.v.filter(f=>ids.includes(f[0])).every(f=>f[10]==='Levantada'&&f[11]&&f[12]),'quedan levantadas (no borradas) con quién y cuándo');
+  ok(/ya estaban levantadas/.test(falla('levantarMarcasEstudiante(IDS)')||'')&&/al menos una/.test(falla("levantarMarcasEstudiante({ids:[]})")||''),'repetir o enviar vacío: avisa');
+}
 EMAIL='';
-ok(['datosEstudiantes()',"marcarEstudiantes({})","levantarMarcaEstudiante({id:'x'})","agregarEstudiante({})","moverEstudiante({})"].every(x=>falla(x)!==null),'sin sesión nadie ve ni marca estudiantes');
+ok(['datosEstudiantes()',"marcarEstudiantes({})","levantarMarcaEstudiante({id:'x'})","agregarEstudiante({})","moverEstudiante({})","levantarMarcasEstudiante({ids:['x']})"].every(x=>falla(x)!==null),'sin sesión nadie ve ni marca estudiantes');
 EMAIL='dueno@gmail.com'; delete hojas.Estudiantes; ok(run('datosEstudiantes()').sinDatos===true,'sin la hoja Estudiantes avisa que falta cargar el listado');
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

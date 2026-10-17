@@ -154,3 +154,28 @@ Ya existe la base: el docente entra con su correo/PIN, ve **solo su informe** y 
 5. **Nuevo año:** el rector entrega los listados actualizados; se cargan, los promovidos pasan al grado siguiente y se reasignan grupos, docentes y horarios.
 
 **Pendiente de definir:** criterios exactos de promoción del SIEE, formato digital definitivo del acta de la comisión, quién puede cerrar el año y cuántos años se conserva el respaldo.
+
+## 10. Informes del docente (17 de octubre de 2026)
+
+Cada docente ve **solo sus** áreas, asignaturas y grupos, con filtros por grupo, área/asignatura, periodo, desempeño y estudiante, y puede imprimir, guardar en PDF o descargar en hoja de cálculo.
+
+| Informe | Qué muestra |
+|---|---|
+| Notas por periodo | Una columna por periodo (1, 2, 3 y 4) con nota y desempeño; periodos sin cerrar marcados "en curso". |
+| Definitiva tentativa | Promedio de los periodos ya cerrados según los pesos del SIEE, y la **nota mínima que necesita en los periodos restantes** para aprobar la asignatura. |
+| Puestos | Puesto en el periodo y puesto general acumulado dentro del grupo, **sin repetir posición** (ver regla de desempate). |
+| Distribución por desempeño | Cuántos estudiantes hay en Superior, Alto, Básico y Bajo por grupo y periodo, en gráfico y tabla. |
+| Estudiantes en riesgo | Quiénes van con desempeño Bajo o con riesgo de reprobar, con las inasistencias y los indicadores no alcanzados. |
+| Indicadores | Indicadores alcanzados y no alcanzados por estudiante y por grupo. |
+| Comparativo | Su grupo frente a los demás grupos del mismo grado y frente al periodo anterior (promedios, aprobación). |
+| Aprobación por área | Porcentaje de estudiantes que aprueban y reprueban su área o asignatura. |
+| Seguimiento de planes de apoyo | Estudiantes con plan de apoyo o nivelación, estado y resultado. |
+| Boletín individual | Vista previa del boletín de un estudiante con lo que el docente ya ha cargado. |
+| Historial | Periodos anteriores en solo lectura. |
+
+Para docentes con asignaturas compartidas (Química y Física, énfasis) se muestra su asignatura y el área promediada, claramente separadas.
+
+**Puestos sin repetición: regla de desempate (a definir con el rector).**
+Una propuesta de orden: 1) promedio del periodo (o acumulado) con los decimales que fije el SIEE; 2) si hay empate, la nota en las áreas que la institución designe como prioritarias; 3) menor número de inasistencias; 4) mayor número de indicadores alcanzados; 5) orden alfabético como último recurso. Así cada estudiante tiene una posición única. Conviene que el SIEE diga si esa regla es oficial o si se aceptan empates; también si el docente puede ver los puestos o solo coordinación (que es una decisión institucional, por privacidad de los estudiantes).
+
+**Otros informes que suelen traer los sistemas de gestión académica** y que se pueden agregar por etapas: cuadro de honor, consolidado de áreas perdidas por grupo, asistencia estudiantil por periodo y estadísticas para coordinación y rectoría (comparativos por grado, por docente y por área).

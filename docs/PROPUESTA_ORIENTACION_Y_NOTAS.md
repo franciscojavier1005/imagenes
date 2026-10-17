@@ -115,3 +115,22 @@ Ya existe la base: el docente entra con su correo/PIN, ve **solo su informe** y 
 - Alcance sugerido: 1 o 2 grados / grupos, docentes de esos grupos, captura de indicadores y notas, y un boletín de ejemplo en PDF para comparar con el oficial.
 - Requisitos previos: listados actualizados del rector, asignación docente-área-grupo, escala y rangos del SIEE, formato del boletín y fechas de cierre del periodo.
 - Si el piloto funciona, se amplía en el periodo siguiente y no antes.
+
+## 8. Notas: reglas de acceso, cierre de periodos y asignaturas compartidas (17 de octubre de 2026)
+
+**Periodos y correcciones.**
+- Cada docente **ve** sus periodos anteriores en solo lectura; **no los modifica**.
+- La captura de cada periodo solo está abierta durante la **ventana de fechas** que fija el rector con el coordinador académico. Al vencer, el periodo queda cerrado.
+- Para corregir con el periodo cerrado, o ante un error significativo del sistema, el docente envía una **solicitud con anotación** (qué nota, por qué, soporte). Solo el administrador, el rector o el coordinador académico pueden **reabrir** ese registro, por tiempo limitado; el cambio queda en bitácora con el valor anterior, el nuevo, quién autorizó y cuándo. Nunca se sobrescribe sin dejar rastro.
+
+**Identidad e integridad.**
+- Cada docente tiene su correo y su contraseña (PIN) personales; no se comparten.
+- Solo el docente asignado a un área, asignatura y grupo puede escribir sus notas; ningún otro docente puede cambiarlas ni verlas. Cada nota guarda quién la registró y cuándo.
+- Para que no dependa de que alguien "revise al final": al terminar el registro, el docente recibe **una copia en hoja de cálculo** de lo que subió (notas con sus indicadores de desempeño) en su correo registrado, y debe **confirmar** el envío. Hasta confirmar, el estado es "borrador"; después, "entregado y confirmado", y desde ahí cualquier cambio sigue el proceso de corrección.
+- Nota de privacidad: la copia contiene datos de menores; se envía solo al correo del propio docente y se recomienda no reenviarla.
+
+**Asignaturas compartidas y énfasis.**
+- Áreas con varias asignaturas (por ejemplo, **Ciencias Naturales = Química + Física**): cada docente sube la nota de **su** asignatura y el sistema calcula la nota del área como promedio.
+- Por defecto el promedio es **ponderado** por intensidad horaria o por el porcentaje que fije la institución (configurable en la hoja de parámetros); si el SIEE establece promedio simple, se cambia el parámetro.
+- Los **énfasis** con varios docentes funcionan igual: cada uno registra su parte y se promedia según la regla definida.
+- Se necesita definir con el rector: pesos por asignatura, redondeo (a uno o dos decimales) y qué pasa si falta la nota de uno de los docentes (el área queda "incompleta" y no se publica en el boletín).

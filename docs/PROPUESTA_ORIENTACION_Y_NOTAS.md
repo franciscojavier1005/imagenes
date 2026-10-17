@@ -201,7 +201,7 @@ Una propuesta de orden: 1) promedio del periodo (o acumulado) con los decimales 
 ## 12. Observaciones del docente sobre el estudiante (17 de octubre de 2026)
 
 Además de las marcas y de los reportes a coordinación u orientación, el docente puede registrar **anotaciones** (observador digital) sobre los estudiantes de sus grupos, tanto **positivas** como de **atención**:
-- **Positivas:** liderazgo, colaboración, esfuerzo, mejora, buen trato, logros académicos, deportivos o culturales, participación en proyectos.
+- **Positivas** (lista editable): colaboración, sentido de pertenencia, liderazgo, responsabilidad, esfuerzo y superación, respeto y buen trato, solidaridad, honestidad, cuidado del entorno y de los bienes comunes, puntualidad, buena presentación personal, participación en actividades y proyectos, logros académicos, deportivos o culturales, mejora notable.
 - **De atención:** convivencia, disciplina, porte del uniforme, puntualidad, incumplimiento de tareas u otras situaciones del manual de convivencia.
 - **Cómo se registra:** buscar al estudiante por grupo, elegir tipo (positiva o de atención) y categoría, escribir una nota corta (con voz o texto, como en la ronda), fecha automática y docente que la hace. Funciona con el respaldo del celular si se cae la señal.
 - **Diferencia con un reporte:** la anotación queda en el observador del estudiante; el **reporte** además se dirige a coordinación (de convivencia o académica), rectoría u orientación, y tiene seguimiento de estado. Desde una anotación de atención se puede "elevar" a reporte con un toque, sin escribir de nuevo.

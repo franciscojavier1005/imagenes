@@ -134,3 +134,23 @@ Ya existe la base: el docente entra con su correo/PIN, ve **solo su informe** y 
 - Por defecto el promedio es **ponderado** por intensidad horaria o por el porcentaje que fije la institución (configurable en la hoja de parámetros); si el SIEE establece promedio simple, se cambia el parámetro.
 - Los **énfasis** con varios docentes funcionan igual: cada uno registra su parte y se promedia según la regla definida.
 - Se necesita definir con el rector: pesos por asignatura, redondeo (a uno o dos decimales) y qué pasa si falta la nota de uno de los docentes (el área queda "incompleta" y no se publica en el boletín).
+
+## 9. Comisiones de evaluación y promoción, listados compartidos y cierre de año (17 de octubre de 2026)
+
+**Comisiones de evaluación y promoción.**
+- Hoy el docente recibe un formato en papel. Meta: que lo diligencie **en la aplicación** (por grupo y periodo: estudiantes con dificultades, causas, estrategias de apoyo, recomendaciones, compromisos) y que quede además la **copia digitalizada del formato en papel** como respaldo (carga de PDF o foto al Drive, carpeta privada por año, grupo y periodo).
+- Con el mismo **respaldo del celular** que ya tiene la ronda: el avance del formulario se guarda en el teléfono, avisa si hay datos sin enviar y se recupera si se cae la conexión o se recarga la página.
+- Al cerrar la comisión, el coordinador consolida las actas del periodo (resumen por grupo y listado de estudiantes con plan de apoyo) y queda con constancia de quién lo registró y cuándo.
+
+**Listados de estudiantes: una sola fuente.**
+- La hoja `Estudiantes` de este libro (matriz) es la **fuente única**. Los demás módulos leen de ella (por identificador del estudiante: grupo y número) en lugar de tener copias propias, así un retiro, un traslado o una corrección se refleja en todos sin digitar dos veces.
+- Cada módulo solo recibe lo que necesita (grupo, número, apellidos, nombres); no se comparten documentos de identidad ni datos de contacto.
+
+**Cierre de año.**
+1. **Respaldo:** se genera una copia completa de los datos del año en un libro nuevo de solo lectura (`ICET_Respaldo_AAAA`), con fecha, y se guarda fuera de la matriz.
+2. **Limpieza:** en la matriz se archivan o borran los datos que no pasan al año siguiente (marcas temporales, tareas cerradas, borradores, registros ya respaldados), y quedan los listados maestros, los usuarios y los parámetros.
+3. **Promoción:** a partir de las notas definitivas, el sistema **propone** la promoción de cada estudiante según los criterios del SIEE (por ejemplo, áreas o asignaturas reprobadas y los desempeños exigidos) y lista quiénes aprueban, quiénes reprueban y quiénes quedan en revisión.
+4. **Decisión humana:** la propuesta del sistema no es la decisión; la toman la comisión de evaluación y promoción y el consejo académico, y el sistema registra el resultado final.
+5. **Nuevo año:** el rector entrega los listados actualizados; se cargan, los promovidos pasan al grado siguiente y se reasignan grupos, docentes y horarios.
+
+**Pendiente de definir:** criterios exactos de promoción del SIEE, formato digital definitivo del acta de la comisión, quién puede cerrar el año y cuántos años se conserva el respaldo.

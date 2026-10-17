@@ -179,3 +179,21 @@ Para docentes con asignaturas compartidas (Química y Física, énfasis) se mues
 Una propuesta de orden: 1) promedio del periodo (o acumulado) con los decimales que fije el SIEE; 2) si hay empate, la nota en las áreas que la institución designe como prioritarias; 3) menor número de inasistencias; 4) mayor número de indicadores alcanzados; 5) orden alfabético como último recurso. Así cada estudiante tiene una posición única. Conviene que el SIEE diga si esa regla es oficial o si se aceptan empates; también si el docente puede ver los puestos o solo coordinación (que es una decisión institucional, por privacidad de los estudiantes).
 
 **Otros informes que suelen traer los sistemas de gestión académica** y que se pueden agregar por etapas: cuadro de honor, consolidado de áreas perdidas por grupo, asistencia estudiantil por periodo y estadísticas para coordinación y rectoría (comparativos por grado, por docente y por área).
+
+## 11. Director de grupo, cuadro de honor y marcas visibles a docentes (17 de octubre de 2026)
+
+**Director o dinamizador de grupo (y co-dinamizadores).**
+- Nuevo vínculo en la matriz: cada grupo tiene su director y, si aplica, uno o más co-dinamizadores (hoja `Direccion_Grupo`, ya existente, ampliada).
+- Quienes están asignados ven el **consolidado de su grupo**: notas por área y periodo, promedio, puesto, inasistencias, la **valoración de convivencia** del periodo y un filtro de **estudiantes en riesgo** (desempeño Bajo, áreas perdidas, convivencia baja o inasistencia alta). Sin el texto de los desempeños: solo notas y señales.
+- Los demás docentes siguen viendo solo sus áreas y grupos.
+- La **valoración de convivencia** se registra por estudiante y periodo (la captura el director de grupo o quien defina el manual de convivencia) y entra al consolidado y al cuadro de honor.
+
+**Cuadro de honor por periodo.**
+- **Excelencia (un estudiante por grupo, o por grado, a definir):** el de mejor desempeño, mejor promedio y mejor convivencia a la vez (el equilibrio entre lo académico y lo convivencial).
+- **Rendimiento académico:** los siguientes estudiantes (segundo y tercer lugar, o los que fije el SIEE) por promedio académico, **mostrados sin numerar el puesto**, como se maneja hoy en la institución.
+- Regla: solo entran estudiantes sin áreas reprobadas y con convivencia en el nivel mínimo que fije el manual de convivencia; el desempate sigue la regla del punto 10.
+- Salida: listado para imprimir o PDF por grupo, por grado o general, con la fecha y el periodo.
+
+**Marcas de participación visibles a docentes (solo lectura).**
+- Los docentes ven en los listados las **marcas de participación**: grupo de danza, banda de paz, selecciones deportivas (fútbol sala, atletismo, natación…), robótica, matemáticas, proyectos y otros semilleros. Pueden **filtrar** por esas marcas para ubicar a los estudiantes, pero no las modifican.
+- **No se muestran** a los docentes las marcas sensibles: salud (incluida salud mental), discapacidad, gestación y lactancia, condición migratoria, consumo de SPA, situación familiar, conflicto o desplazamiento, entre otras. Esas siguen reservadas a directivos y, según corresponda, a orientación. Cada tipo de marca tendrá en la lista un atributo "visible a docentes: SÍ/NO" que el administrador puede cambiar.

@@ -76,3 +76,6 @@ Coordinador académico de una institución pública (San Andrés de Tumaco, Nari
 - Propuesta (sin código): `docs/PROPUESTA_ORIENTACION_Y_NOTAS.md` — roles/ambientes por rol con la misma URL, módulo de orientación escolar y PTAFI, módulo del docente (novedades propias y descargos con soportes), registro de notas/indicadores/boletines con aislamiento por docente. Pendiente de simulacro con el rector.
 
 - Manual en PDF "Cómo publicar cambios sin cambiar la dirección" (docs/Manual_Nueva_Version_ICET.pdf, fuente docs/manual_nueva_version.html). Propuesta ampliada: directivos revisan informes de orientación/PTAFI, remiten casos y asignan tareas (docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §3.2).
+
+## 2026-10-17 · Requisitos futuros acordados (solo diseño)
+Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados por módulo (orientación propiedad de las orientadoras), docentes con programación del periodo/indicadores/malla curricular/reportes de casos/actividades y reuniones, actualización anual con listados del rector, piloto en paralelo de boletines en el cuarto periodo con 1–2 grupos.

@@ -89,3 +89,29 @@ Ya existe la base: el docente entra con su correo/PIN, ve **solo su informe** y 
 - Escala y rangos exactos del SIEE, número de periodos y ponderaciones por periodo.
 - Formato oficial del boletín (encabezado, firmas, logo) y qué debe llevar el puesto general.
 - ¿Quién puede corregir notas con el periodo cerrado y con qué justificación?
+
+## 7. Ajustes acordados el 17 de octubre de 2026 (prevalecen sobre lo anterior)
+
+**Arquitectura: un libro matriz y libros separados por módulo.**
+- **Matriz (este libro):** solo asistencia de directivos, usuarios/roles, listados maestros (estudiantes, docentes, horario, grupos) y los **enlaces** que arman los menús de los otros módulos. No se llena con los datos de los demás módulos.
+- **Un libro propio por módulo**, cada uno con su dueño: Orientación escolar (lo manejan las orientadoras), PTAFI, Planeación y malla curricular, Notas/Boletines, Reportes de docentes. La matriz los abre por su identificador; el menú de cada rol muestra solo los que le corresponden.
+- **Año nuevo:** se prepara un libro (o pestañas) por año lectivo; los listados maestros se reemplazan con los que entregue el rector (formato estándar de columnas: grupo, número, apellidos, nombres) y la matriz apunta a los libros del año vigente.
+
+**Orientación escolar.**
+- Los casos viven en la hoja de cálculo de las orientadoras; ellas la manejan y deciden el nivel de acceso de los directivos (por ejemplo, solo cifras y estados).
+- Punto de diseño importante: si la aplicación abre ese libro "como el desarrollador", el desarrollador tendría acceso técnico al contenido. Para que la reserva sea real, la opción recomendada es que el libro (y su pequeño script) sea **propiedad de las orientadoras** y la matriz solo tenga el enlace. A decidir con ellas y el rector.
+
+**Docentes (ambiente propio):**
+1. **Novedades laborales** y **descargos** (ausentismo/asistencia) con soportes, con revisión de coordinación. *(más adelante)*
+2. **Programación del periodo:** aprendizajes, contenidos y **indicadores de desempeño generales**; alimenta directamente el boletín.
+3. **Malla curricular** (diseño curricular) del área o asignatura y del grado que tiene asignado; por **grupos de docentes por área**, con control de versiones por año.
+4. **Reportes de situaciones de estudiantes** por tipo (dificultad de aprendizaje, convivencia, salud, otros) dirigidos a **coordinación, rectoría u orientación**, manejados por separado de la asistencia y con el retorno de estado.
+5. **Actividades y reuniones** que van a realizar, para que queden en el calendario institucional.
+
+**Boletines.** Toman del módulo de planeación los indicadores del periodo y de las notas el desempeño, puesto del periodo, puesto general y áreas reprobadas.
+
+**Piloto en el cuarto periodo (propuesta de alcance prudente).**
+- Es un **piloto en paralelo**: el proceso oficial en Excel/Access sigue vigente y no se reemplaza; el tercer periodo pendiente se cierra por el camino actual.
+- Alcance sugerido: 1 o 2 grados / grupos, docentes de esos grupos, captura de indicadores y notas, y un boletín de ejemplo en PDF para comparar con el oficial.
+- Requisitos previos: listados actualizados del rector, asignación docente-área-grupo, escala y rangos del SIEE, formato del boletín y fechas de cierre del periodo.
+- Si el piloto funciona, se amplía en el periodo siguiente y no antes.

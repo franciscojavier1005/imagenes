@@ -197,3 +197,14 @@ Una propuesta de orden: 1) promedio del periodo (o acumulado) con los decimales 
 **Marcas de participación visibles a docentes (solo lectura).**
 - Los docentes ven en los listados las **marcas de participación**: grupo de danza, banda de paz, selecciones deportivas (fútbol sala, atletismo, natación…), robótica, matemáticas, proyectos y otros semilleros. Pueden **filtrar** por esas marcas para ubicar a los estudiantes, pero no las modifican.
 - **No se muestran** a los docentes las marcas sensibles: salud (incluida salud mental), discapacidad, gestación y lactancia, condición migratoria, consumo de SPA, situación familiar, conflicto o desplazamiento, entre otras. Esas siguen reservadas a directivos y, según corresponda, a orientación. Cada tipo de marca tendrá en la lista un atributo "visible a docentes: SÍ/NO" que el administrador puede cambiar.
+
+## 12. Observaciones del docente sobre el estudiante (17 de octubre de 2026)
+
+Además de las marcas y de los reportes a coordinación u orientación, el docente puede registrar **anotaciones** (observador digital) sobre los estudiantes de sus grupos, tanto **positivas** como de **atención**:
+- **Positivas:** liderazgo, colaboración, esfuerzo, mejora, buen trato, logros académicos, deportivos o culturales, participación en proyectos.
+- **De atención:** convivencia, disciplina, porte del uniforme, puntualidad, incumplimiento de tareas u otras situaciones del manual de convivencia.
+- **Cómo se registra:** buscar al estudiante por grupo, elegir tipo (positiva o de atención) y categoría, escribir una nota corta (con voz o texto, como en la ronda), fecha automática y docente que la hace. Funciona con el respaldo del celular si se cae la señal.
+- **Diferencia con un reporte:** la anotación queda en el observador del estudiante; el **reporte** además se dirige a coordinación (de convivencia o académica), rectoría u orientación, y tiene seguimiento de estado. Desde una anotación de atención se puede "elevar" a reporte con un toque, sin escribir de nuevo.
+- **Quién ve qué:** el docente ve las anotaciones que él hizo; el director de grupo y los co-dinamizadores ven todas las de su grupo; coordinación y rectoría ven todas. Las anotaciones positivas alimentan el **cuadro de honor** y la valoración de convivencia del periodo (el director de grupo las consulta al valorar).
+- **Reglas:** no se borran (se corrigen con constancia); deben ser descriptivas y respetuosas (hechos, no juicios); las anotaciones de situaciones sensibles se canalizan como **reporte a orientación**, no como texto abierto en el observador; los acudientes solo accederían a lo que defina el manual de convivencia y la política de datos.
+- **Informes:** por estudiante (línea de tiempo del periodo), por grupo (conteo positivo/atención por categoría), por docente y por periodo; exportables a PDF o a hoja de cálculo.

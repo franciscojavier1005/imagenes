@@ -50,6 +50,29 @@ const otro=hojas.Directivos.v[1][hojas.Directivos.v[0].indexOf('nombre')];
 f(`guardarRonda({directivo:${JSON.stringify(otro)},dia:'VIERNES',sesion:3,fecha:'2026-10-02',registros:[{docente:${JSON.stringify(fr[1])},grupoCodigo:'0601',area:'CAS',estado:'Presente',motivo:'',minutos:'',actividad:'N/A',obs:''}]})`);
 ok(hojas.Registro_Ronda.v[hojas.Registro_Ronda.v.length-1][13]===otro,'sesión prestada: si elige a otro directivo registrado, la ronda queda a su nombre');
 ok(f('consultarSesion("VIERNES",3,"bloque")').sesionDe!==undefined,'la ronda informa quién inició sesión para preseleccionarlo');
+// salida temprana con hora: el tiempo se calcula con el horario de ese día
+{
+  const hd=hojas.Horario.v[0], iD=hd.indexOf('docente'), iDia=hd.indexOf('dia'), iH=hd.indexOf('hora'), iG=hd.indexOf('grupo'), iT=hd.indexOf('tipo'), iGE=hd.indexOf('grupos_enfasis');
+  const docs={}; hojas.Horario.v.slice(1).filter(r=>r[iDia]==='VIERNES'&&r[iT]==='CLASE').forEach(r=>{(docs[r[iD]]=docs[r[iD]]||[]).push(r)});
+  const dn=Object.keys(docs).find(d=>docs[d].length>=4); const filas=docs[dn];
+  const aMin=t=>{const m=String(t).match(/^(\d+):(\d+)/);return +m[1]*60+ +m[2]};
+  const fh=hojas.Franjas.v[0], fI=fh.indexOf('inicio'), fF=fh.indexOf('fin'), fHo=fh.indexOf('hora');
+  const desde=aMin('09:30'); let esperado=0;
+  filas.forEach(r=>{const fr2=hojas.Franjas.v.slice(1).find(x=>x[fHo]===r[iH]); const ini=aMin(fr2[fI]), fin=aMin(fr2[fF]); if(fin>desde) esperado+=Math.min(/^00/.test(String(r[iG]))?60:45,fin-Math.max(ini,desde));});
+  const n0=hojas.Registro_Ronda.v.length, nv0=hojas.Novedades.v.length;
+  f(`guardarRonda({dia:'VIERNES',sesion:${filas[0][iH]},fecha:'2026-10-09',registros:[{docente:${JSON.stringify(dn)},grupoCodigo:${JSON.stringify(String(filas[0][iG]))},area:'X',estado:'Salida temprana',alcance:'RESTO',horaSalida:'09:30',motivo:'Cita médica',minutos:'',actividad:'N/A',obs:''}]})`);
+  const nh=hojas.Novedades.v[0], nov=hojas.Novedades.v.slice(nv0).filter(r=>r[nh.indexOf('Docente')]===dn);
+  ok(nov.length===1&&Number(nov[0][nh.indexOf('Minutos Desatendidos')])===esperado&&esperado>0,'salida temprana con hora 09:30: minutos calculados con el horario ('+esperado+')');
+  ok(/Salió a las 09:30/.test(String(nov[0][nh.indexOf('Observaciones')]||nov[0][6]||'')),'la hora de salida queda en la observación');
+  let err=''; try{ f(`guardarRonda({dia:'VIERNES',sesion:${filas[0][iH]},fecha:'2026-10-09',registros:[{docente:${JSON.stringify(dn)},grupoCodigo:${JSON.stringify(String(filas[0][iG]))},area:'X',estado:'Salida temprana',alcance:'RESTO',horaSalida:'23:00',motivo:'Cita médica',minutos:'',actividad:'N/A',obs:''}]})`); }catch(e){err=e.message}
+  ok(/no queda tiempo/.test(err),'una hora de salida posterior a sus clases se rechaza');
+  // con reemplazo: queda No asistió con quién atendió; la jornada completa usa el tiempo asignado a ese día
+  const totDia=filas.reduce((t,r)=>t+(/^00/.test(String(r[iG]))?60:45),0);
+  f(`guardarRonda({dia:'VIERNES',sesion:${filas[0][iH]},fecha:'2026-10-09',registros:[{docente:${JSON.stringify(dn)},grupoCodigo:${JSON.stringify(String(filas[0][iG]))},area:'X',estado:'No asistió',alcance:'JC',atiende:'Persona de apoyo contratada (alcaldía u otra entidad)',motivo:'Incapacidad Médica',minutos:45,actividad:'N/A',obs:''}]})`);
+  const nov2=hojas.Novedades.v.slice(nv0).filter(r=>r[nh.indexOf('Docente')]===dn&&/no asisti/i.test(r[nh.indexOf('Tipo Novedad')]));
+  ok(nov2.length===1&&Number(nov2[0][nh.indexOf('Minutos Desatendidos')])===totDia&&nov2[0].includes('Persona de apoyo contratada (alcaldía u otra entidad)'),'incapacidad toda la jornada con persona de apoyo: tiempo = lo asignado ese día ('+totDia+' min) y queda quién atendió');
+  const mots=hojas.Motivos.v.map(r=>r[1]); ok(mots.includes('Licencia de maternidad o paternidad')&&mots.includes('Comisión de servicios'),'los motivos de licencia y comisión de servicios están en el catálogo');
+}
 // secreto equivocado / respuesta rara / back caído
 propsFront.API_SECRET='otro-secreto'; ok(/No autorizado/.test(falla('contextoPanel()')),'con un secreto distinto el back rechaza al front'); propsFront.API_SECRET=SECRETO;
 responder='<html>error de Google</html>'; ok(/no respondió/.test(falla('contextoPanel()')),'respuesta que no es JSON: mensaje claro'); responder=null;

@@ -157,7 +157,7 @@
     <div class="vacio">Cargando…</div>
   </div>
   <div class="pie" id="pie"></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.19-b</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.19-c</div>
 </div>
 </div>
 <div id="tip" role="tooltip"></div>
@@ -435,9 +435,9 @@ function pintarRondas(sec,r,dsel){
   var btn=h('button',{class:'p',text:'✉ Enviarme estas rondas',onclick:function(){ ENVIO='rondas'; enviarMiInforme(); }});
   var cab=h('div',{style:'display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0'},r.soloPropias?[h('span',{class:'sub',text:'Solo se muestran sus rondas.'}),btn]:[sel,btn]);
   var bl=r.bloques.filter(function(b){return r.soloPropias||!sel.value||b.directivo===sel.value;}).reverse();
-  var cats=[['noAsistieron','✖ No asistieron','#a31515'],['permisos','⏳ Permiso por horas','#8a5a00'],['tardes','⏰ Llegada tarde / salida temprana','#8a5a00'],['fuera','📋 En reunión o actividad externa','#245'],['incumplimientos','⚠ Incumplimientos','#7b1fa2']];
+  var cats=[['noAsistieron','✖ No asistieron','#a31515'],['conReemplazo','👥 Con reemplazo (otra persona a cargo)','#00695c'],['permisos','⏳ Permiso por horas','#8a5a00'],['tardes','⏰ Llegada tarde / salida temprana','#8a5a00'],['fuera','📋 En reunión o actividad externa','#245'],['incumplimientos','⚠ Incumplimientos','#7b1fa2']];
   var items=bl.map(function(b){
-    var det=h('details',{},[h('summary',{style:'cursor:pointer;font-weight:600',text:fFecha(b.fecha)+' · Bloque '+b.bloque+' · ronda de '+(b.directivo||'—')+' · ✔ '+b.presentes.length+' presentes de '+b.total+(b.noAsistieron.length?' · ✖ '+b.noAsistieron.length+' no asistieron':'')+((b.permisos.length+b.tardes.length+b.incumplimientos.length)?' · con novedad: '+(b.permisos.length+b.tardes.length+b.incumplimientos.length):'')})]);
+    var det=h('details',{},[h('summary',{style:'cursor:pointer;font-weight:600',text:fFecha(b.fecha)+' · Bloque '+b.bloque+' · ronda de '+(b.directivo||'—')+' · ✔ '+b.presentes.length+' presentes de '+b.total+(b.noAsistieron.length?' · ✖ '+b.noAsistieron.length+' no asistieron':'')+(b.conReemplazo&&b.conReemplazo.length?' · 👥 '+b.conReemplazo.length+' con reemplazo':'')+((b.permisos.length+b.tardes.length+b.incumplimientos.length)?' · con novedad: '+(b.permisos.length+b.tardes.length+b.incumplimientos.length):'')})]);
     cats.forEach(function(c){ var l=b[c[0]]; if(!l.length) return;
       det.appendChild(h('div',{style:'margin-top:6px;color:'+c[2]},[h('b',{text:c[1]+' ('+l.length+'): '}),document.createTextNode(l.map(function(x){return x.docente+(x.motivo?' ('+x.motivo+(x.minutos?', '+x.minutos+' min':'')+')':'');}).join('; '))])); });
     if(b.presentes.length) det.appendChild(h('div',{style:'margin-top:6px;color:#1b5e20'},[h('b',{text:'✔ Presentes ('+b.presentes.length+'): '}),document.createTextNode(b.presentes.map(function(x){return x.docente;}).join('; '))]));

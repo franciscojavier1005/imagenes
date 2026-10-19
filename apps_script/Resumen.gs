@@ -13,7 +13,7 @@
  * }
  */
 /** Quién atendió al grupo cuando el docente falta: si lo cubrió alguien, la ausencia del docente cuenta pero el grupo no queda «sin atender». */
-var RES_COBERTURA_ = ['Reemplazo (docente)', 'Reemplazo (acordado con rectoría)', 'Practicante', 'Auxiliar o persona de apoyo del docente', 'Otro docente o directivo'];
+var RES_COBERTURA_ = ['Reemplazo (docente)', 'Reemplazo (acordado con rectoría)', 'Persona de apoyo contratada (alcaldía u otra entidad)', 'Otro docente (con espacio libre)', 'Practicante', 'Auxiliar o persona de apoyo del docente', 'Otro docente o directivo'];
 var RES_DIAS = ['DOMINGO', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
 
 function resDia_(s) { return new Date(s + 'T12:00:00Z').getUTCDay(); }
@@ -57,9 +57,10 @@ function calcularResumen_(ctx) {
     if (!(minutos > 0)) minutos = /no asisti/i.test(tipo) ? 45 : 0;
     var just = n.justificada || (m.justificada === 'SI' ? 'Sí' : (m.justificada === 'NO' ? 'No' : ''));
     var cubierto = RES_COBERTURA_.indexOf(String(n.atiende || '').trim()) >= 0 && !/incumplimiento/i.test(tipo);   // el incumplimiento nunca se considera cubierto
-    var minAus = minutos; if (cubierto) minutos = 0;
+    var sinGrupo = /^No aplica/i.test(String(n.atiende || '').trim()) && !/incumplimiento/i.test(tipo);   // orientación, PTAFI…: no tienen grupo, no hay estudiantes sin atender
+    var minAus = minutos; if (cubierto || sinGrupo) minutos = 0;
     return {
-      cubierto: cubierto, minutosAusencia: minAus,
+      cubierto: cubierto, sinGrupo: sinGrupo, minutosAusencia: minAus,
       fecha: n.fecha, docente: n.docente, tipo: tipo, motivo: n.motivo || '', minutos: minutos, justificada: just === 'Sí' || just === 'SI' || just === 'Si' ? 'Sí' : 'No',
       categoria: n.categoria || m.categoria || 'OTRO', grupo: resGrupo_(n.grado, n.grupo), area: n.area || '', directivo: n.directivo || '',
       nivel: nivel[n.docente] || 'SIN NIVEL', ausencia: /no asisti/i.test(tipo), temporal: /temporal/i.test(tipo), incumplimiento: /incumplimiento/i.test(tipo), tarde: /tarde/i.test(tipo), salida: /salida/i.test(tipo)
@@ -134,7 +135,7 @@ function calcularResumen_(ctx) {
     ronda.push({ sesion: s, esperados: esp, marcados: Object.keys(marc).length });
   }
 
-  function fila(x) { return { fecha: x.fecha, docente: x.docente, grupo: x.grupo, area: x.area, tipo: x.tipo, motivo: x.motivo + (x.cubierto ? ' · grupo atendido por reemplazo (' + x.minutosAusencia + ' min cubiertos)' : ''), minutos: x.minutos, justificada: x.justificada, directivo: x.directivo }; }
+  function fila(x) { return { fecha: x.fecha, docente: x.docente, grupo: x.grupo, area: x.area, tipo: x.tipo, motivo: x.motivo + (x.cubierto ? ' · grupo atendido por reemplazo (' + x.minutosAusencia + ' min cubiertos)' : (x.sinGrupo ? ' · sin grupo asignado' : '')), minutos: x.minutos, justificada: x.justificada, directivo: x.directivo }; }
   return {
     desde: desde, hasta: hasta, diasHabiles: dias.length, filtros: { nivel: fNivel, docente: fDoc }, kpis: kpis, tendencia: tendencia,
     porCategoria: resAgrupa_(nov, function (x) { return x.categoria; }, function (x) { return x.minutos; }),

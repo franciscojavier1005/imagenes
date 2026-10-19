@@ -157,8 +157,9 @@ function programarInformeDiario() {
 /* ------------------------------ informe de rondas (quién estuvo, quién no, quién tiene novedad) ------------------------------ */
 var PRIORIDAD_RONDA_ = ['Presente', 'En reunión', 'En actividad externa', 'Llegada tarde', 'Salida temprana', 'Ausente temporal', 'No asistió'];
 function escRonda_(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-function categoriaRonda_(estado) {
+function categoriaRonda_(estado, atiende) {
   if (estado === 'Presente') return 'presentes';
+  if (estado === 'No asistió' && RES_COBERTURA_.indexOf(String(atiende || '').trim()) >= 0) return 'conReemplazo';   // el titular no está, pero otra persona atendió el grupo
   if (estado === 'No asistió') return 'noAsistieron';
   if (estado === 'Ausente temporal') return 'permisos';
   if (estado === 'Llegada tarde' || estado === 'Salida temprana') return 'tardes';
@@ -178,11 +179,11 @@ function rondasInterno_(desde, hasta, directivo) {
     var b = Math.ceil(Number(r.sesion) / 2), k = f + '|' + b + '|' + d;
     var o = mapa[k] || (mapa[k] = { fecha: f, dia: r.dia, bloque: b, directivo: d, porDocente: {} });
     var ant = o.porDocente[r.docente], pr = PRIORIDAD_RONDA_.indexOf(r.estado);
-    if (!ant || pr > PRIORIDAD_RONDA_.indexOf(ant.estado) || (pr < 0 && ant.estado === 'Presente')) o.porDocente[r.docente] = { docente: r.docente, estado: r.estado, motivo: r.motivo || '', minutos: r.minutos || '', obs: r.observaciones || '' };
+    if (!ant || pr > PRIORIDAD_RONDA_.indexOf(ant.estado) || (pr < 0 && ant.estado === 'Presente')) o.porDocente[r.docente] = { docente: r.docente, estado: r.estado, atiende: r.atendido_por || '', motivo: r.motivo || '', minutos: r.minutos || '', obs: r.observaciones || '' };
   });
   var bloques = Object.keys(mapa).sort().map(function (k) {
-    var o = mapa[k], out = { fecha: o.fecha, dia: o.dia, bloque: o.bloque, directivo: o.directivo, presentes: [], noAsistieron: [], permisos: [], tardes: [], fuera: [], incumplimientos: [] };
-    Object.keys(o.porDocente).sort().forEach(function (n) { var x = o.porDocente[n]; out[categoriaRonda_(x.estado)].push(x); });
+    var o = mapa[k], out = { fecha: o.fecha, dia: o.dia, bloque: o.bloque, directivo: o.directivo, presentes: [], noAsistieron: [], conReemplazo: [], permisos: [], tardes: [], fuera: [], incumplimientos: [] };
+    Object.keys(o.porDocente).sort().forEach(function (n) { var x = o.porDocente[n]; out[categoriaRonda_(x.estado, x.atiende)].push(x); });
     out.total = Object.keys(o.porDocente).length;
     return out;
   });
@@ -206,7 +207,7 @@ function informeRondas(p) {
 function htmlRondas_(desde, hasta, directivo, conPresentes) {
   var r = rondasInterno_(desde, hasta, directivo || '');
   if (!r.bloques.length) return '<h3 style="font-family:Arial;color:#0f2a5c">Rondas</h3><p style="font-family:Arial;font-size:14px;color:#456">No hay rondas guardadas en este periodo.</p>';
-  var sec = [['noAsistieron', '✖ No asistieron', '#a31515'], ['permisos', '⏳ Permiso por horas', '#8a5a00'], ['tardes', '⏰ Llegada tarde o salida temprana', '#8a5a00'], ['fuera', '📋 En reunión o actividad externa', '#245'], ['incumplimientos', '⚠ Incumplimientos', '#7b1fa2']];
+  var sec = [['noAsistieron', '✖ No asistieron', '#a31515'], ['conReemplazo', '👥 Con reemplazo (otra persona a cargo del grupo)', '#00695c'], ['permisos', '⏳ Permiso por horas', '#8a5a00'], ['tardes', '⏰ Llegada tarde o salida temprana', '#8a5a00'], ['fuera', '📋 En reunión o actividad externa', '#245'], ['incumplimientos', '⚠ Incumplimientos', '#7b1fa2']];
   var h = '<h3 style="font-family:Arial;color:#0f2a5c;margin-bottom:4px">Rondas de verificación</h3>';
   r.bloques.forEach(function (b) {
     h += '<div style="font-family:Arial;font-size:14px;border:1px solid #d5dbe3;border-radius:8px;padding:8px 10px;margin:8px 0"><b>' + escRonda_(b.dia + ' ' + b.fecha + ' · Bloque ' + b.bloque) + '</b> · ronda de ' + escRonda_(b.directivo || '—') +

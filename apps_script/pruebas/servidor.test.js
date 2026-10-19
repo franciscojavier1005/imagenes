@@ -73,3 +73,9 @@ const rv=vm.runInContext("informeRondas({desde:'2026-10-05',hasta:'2026-10-05',d
 ok(rv.soloPropias&&rv.bloques.every(b=>b.directivo===nomV)&&rv.bloques.length===1,'ve_todo=NO: solo ve sus propias rondas aunque pida todas');
 EMAIL='dueno@gmail.com';
 ok(vm.runInContext("informeRondas({desde:'2026-10-05',hasta:'2026-10-05'})",g).bloques.length>=2,'sin la marca NO, quien administra ve todas');
+/* rondas: el titular ausente con otra persona a cargo va en su propia lista */
+H.Registro_Ronda.push(['2026-10-06','2026-10-06','MARTES',1,'','Fran Siete','6-1','Área','No asistió','Incapacidad Médica','',45,'','Verónica','Persona de apoyo contratada (alcaldía u otra entidad)'],
+  ['2026-10-06','2026-10-06','MARTES',1,'','Gina Ocho','6-2','Área','No asistió','Sin justificación','',45,'','Verónica','']);
+const rr2=vm.runInContext("informeRondas({desde:'2026-10-06',hasta:'2026-10-06'})",g).bloques[0];
+ok(rr2.conReemplazo.length===1&&rr2.conReemplazo[0].docente==='Fran Siete'&&rr2.noAsistieron.length===1&&rr2.noAsistieron[0].docente==='Gina Ocho','informe de rondas: «con reemplazo» separado de «no asistieron»');
+ok(/Con reemplazo/.test(vm.runInContext("htmlRondas_('2026-10-06','2026-10-06','',true)",g)),'el informe por correo incluye «Con reemplazo»');

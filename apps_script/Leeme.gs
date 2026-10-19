@@ -5,11 +5,18 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.19-b';
+var VERSION_SISTEMA = '2026.10.19-c';
 var FECHA_VERSION = '2026-10-19';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.19-c', fecha: '2026-10-19', cambios: [
+    'Ronda: nuevo estado «Con reemplazo (otra persona a cargo)»: el titular no está pero otra persona atiende el grupo (reemplazo acordado con rectoría, persona de apoyo contratada, practicante, otro docente con espacio libre). La ausencia cuenta, el grupo no queda sin atender; contador propio en la barra y lista aparte en el informe de rondas.',
+    'Incapacidad, licencia, duelo, comisión de servicios y otros motivos de toda la jornada: se marca «toda la jornada» sola y el tiempo es el asignado en su horario de ese día (no se calcula a mano). Motivos nuevos: licencia de maternidad o paternidad, por luto, no remunerada, comisión de servicios, descanso compensatorio.',
+    'Salida temprana: se puede escribir la hora a la que salió y el sistema calcula el tiempo sin atender con el horario del docente.',
+    '«¿Quién atendió al grupo?»: nuevas opciones «No aplica (no tiene grupo asignado)» (orientación, PTAFI), persona de apoyo contratada y otro docente con espacio libre.',
+    'Quién dicta en las parejas: la confirmación y la corrección ya no usan cuadros del navegador (podían bloquearse en el celular); si falla se pueden reintentar los botones.',
+    'Pantalla: título, número de versión y contadores («Faltan por reportar», presentes) más grandes, sobre todo en computador; botones de estado en 3 columnas en el celular; texto sin ampliación automática en iPhone.'] },
   { version: '2026.10.19-b', fecha: '2026-10-19', cambios: [
     'Ronda: al marcar «No asistió» se muestra el total de minutos sin atender y cuántas sesiones son (antes decía «Automático»).',
     'Nuevo «Reemplazo (acordado con rectoría)» en «¿Quién atendió al grupo?». Si el grupo lo atendió un reemplazo, practicante, auxiliar u otro docente, la ausencia del docente (incapacidad, licencia) sigue contando, pero esos minutos no cuentan como «sin atender»; el panel y el informe muestran aparte los minutos cubiertos.'] },
@@ -46,12 +53,22 @@ var HISTORIAL_VERSIONES = [
     'Consulta de horarios, panel por rol (rector, coordinación, docente), soportes de ausencias, importación desde WhatsApp.'] }
 ];
 
+var LEEME_USO = [
+  'Presente / No asistió / Con reemplazo / Permiso por horas / Llegada tarde / Salida temprana / Incumplimiento: estados de cada docente en la ronda.',
+  'Con reemplazo: el titular no está (incapacidad, licencia, permiso…) pero otra persona atiende el grupo en su horario. Queda «No asistió» con quién atendió; no suma minutos sin atender.',
+  'No asistió sin reemplazo: el tiempo sin atender es el asignado en su horario (sesiones del bloque o toda la jornada). Incapacidad y licencia marcan «toda la jornada» solas.',
+  'Salida temprana: puede escribirse la hora de salida; el tiempo se calcula con el horario del docente de ese día.',
+  'Quién atendió el grupo → «No aplica (no tiene grupo asignado)» para orientación y PTAFI: no hay estudiantes sin atender.',
+  'Parejas que alternan (ética/religión, etc.): se confirma quién dicta una vez por semana; «Cambiar» corrige y puede pasar a la persona correcta lo ya registrado.',
+  'Ronda: las marcas sin guardar se conservan en el teléfono (borrador); la barra avisa «Sin conexión» o «N marcas sin guardar».'
+];
+
 var LEEME_HOJAS = [
   'Docentes          Lista oficial de docentes con su nivel.',
   'Horario           Una fila por docente / día / sesión de 45 minutos.',
   'Direccion_Grupo   Dinamizadores o directores de cada grupo.',
   'Matriz_Grupos     Para cada día y sesión, quién atiende a cada grupo.',
-  'Motivos / Listas  Catálogos de motivos (con su categoría y si son justificados) y de opciones.',
+  'Motivos / Listas  Catálogos de motivos (salud, permisos, licencias, comisión de servicios, calamidad…) con su categoría y si son justificados.',
   'Novedades         Novedades de asistencia (una fila por docente, día y sesión); Novedades_Anuladas guarda las anuladas.',
   'Registro_Ronda    Cada marca de la ronda (presente, no asistió, tarde…) con el directivo que la hizo.',
   'Reuniones / Asistencia_Reunion   Reuniones y actividades sin estudiantes y su asistencia.',
@@ -71,6 +88,9 @@ function leemeFilas_() {
   f.push(['CONTROL DE ASISTENCIA DOCENTE · I.E. ICET', 'titulo']);
   f.push(['Versión ' + VERSION_SISTEMA + ' · actualizada el ' + FECHA_VERSION, 'version']);
   f.push(['Autor: Francisco Javier Cortés Cabezas · Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026', 'autor']);
+  f.push(['', 'texto']);
+  f.push(['CÓMO SE REGISTRA LA ASISTENCIA EN LA RONDA', 'seccion']);
+  LEEME_USO.forEach(function (t) { f.push([t, 'texto']); });
   f.push(['', 'texto']);
   f.push(['QUÉ CONTIENE ESTE LIBRO', 'seccion']);
   LEEME_HOJAS.forEach(function (t) { f.push([t, 'texto']); });

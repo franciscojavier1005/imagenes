@@ -22,6 +22,7 @@ var MEDIO_RONDA = 'Inspección ocular/Ronda supervisión';
 var FUENTE_RONDA = 'Coordinador(a)';
 
 function onOpen() {
+  if (typeof leemeAlDia_ === 'function') leemeAlDia_();
   SpreadsheetApp.getUi().createMenu('Asistencia ICET')
     .addItem('Crear formulario de novedades (desplegables)', 'crearFormulario')
     .addItem('Actualizar horario de preescolar (una sola vez)', 'actualizarHorarioPreescolar')
@@ -29,6 +30,7 @@ function onOpen() {
     .addItem('Generar claves de ingreso de los directivos', 'generarClavesDirectivos')
     .addItem('Restablecer la clave de un directivo', 'restablecerClaveDirectivo')
     .addItem('Acerca de este sistema', 'acercaDe')
+    .addItem('Actualizar hoja LEEME (versión y cambios)', 'actualizarLeeme')
     .addItem('Borrar audios de ronda antiguos', 'purgarAudios')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')

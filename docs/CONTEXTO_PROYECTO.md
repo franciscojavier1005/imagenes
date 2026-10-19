@@ -87,3 +87,6 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 
 ## 2026-10-19 (versión 2026.10.19-a)
 - Ronda en celular más compacta: barra inferior de ~128 a ~66 px (chips en una sola fila deslizable, botones de 34 px con texto más pequeño, '✔ Todos'), encabezado, buscador y botones de estado reducidos en pantallas ≤560 px (3 columnas) para ver al menos dos docentes por pantalla. Solo cambia Consulta.html (y el sello de versión).
+
+## 2026-10-19 · Hoja LEEME y control de versiones
+- Nuevo apps_script/Leeme.gs: hoja LEEME con título grande, versión vigente, qué contiene cada hoja e historial de versiones; se regenera sola al abrir el libro si la versión difiere (menú: «Actualizar hoja LEEME»). Regla: al subir versión, actualizar Leeme.gs (VERSION_SISTEMA, FECHA_VERSION, HISTORIAL_VERSIONES); la prueba leeme.test.js verifica que coincida con el sello de las pantallas. Versión actual: 2026.10.19-a.

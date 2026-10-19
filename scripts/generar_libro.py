@@ -100,7 +100,8 @@ for t in [
     "Datos personales de docentes: acceso solo para directivos (Ley 1581 de 2012).",
 ]:
     lm.append([t])
-lm["A1"].font = Font(bold=True, size=14)
+lm["A1"].font = Font(bold=True, size=28, color="0F2A5C")
+lm.row_dimensions[1].height = 48
 lm.column_dimensions["A"].width = 150
 
 # ------------------------------------------------------------------ Franjas / Grupos / Listas / Motivos / Directivos

@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.19-d</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.19-e</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -99,7 +99,7 @@
 <li>Para cada docente toque su estado: <b>Presente</b> si está con su grupo; otro botón si hay novedad (ver el punto 5).</li>
 <li>Si todos están, toque <b>✔ Todos</b> y luego corrija solo a quienes falten. Si se equivocó, <b>↺ Limpiar</b> quita lo que aún no ha guardado (con opción de deshacer).</li>
 <li>Revise la barra de abajo: <b>«Faltan por reportar»</b> debe llegar a cero. Mientras falten docentes, no deja guardar.</li>
-<li>Toque <b>Guardar ronda</b>. Aparece un <b>resumen</b> con presentes, ausentes, reemplazos y novedades, y puede enviárselo a su correo.</li></ol>
+<li>Toque <b>Guardar ronda</b>. Si hay algo sin guardar, la barra muestra en naranja <b>«Pendiente de guardar: N reportes nuevos y M cambios»</b> y el botón dice «Guardar · N»; cuando todo queda guardado la barra se pone <b>verde («✔ Ronda guardada»)</b> con la hora y el botón dice «✔ Guardada». Mientras haya algo pendiente, la app se lo recuerda cada 2 minutos. Aparece un <b>resumen</b> con presentes, ausentes, reemplazos y novedades, y puede enviárselo a su correo.</li></ol>
 <div class="barra"><div class="chips"><span class="f">❗ Faltan por reportar: 3</span><span class="ok">✔ 31 presentes</span><span>Deben estar: 36</span><span class="no">✖ 1 no asistieron</span><span class="rp">👥 1 con reemplazo</span></div>
 <div class="btns"><span>🔔</span><span>🎙</span><span>✔ Todos</span><span class="l">↺ Limpiar</span><span class="g">Guardar ronda</span></div></div>
 <p>La barra de abajo siempre está visible: ahí ve los contadores y los botones de guardar.</p>
@@ -195,7 +195,7 @@
 <p class="tip">¿Algo no aparece en este manual? Dígaselo a coordinación académica para incluirlo en la próxima versión.</p></section>
 
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.19-d</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.19-e</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.19-d';
+var VERSION_SISTEMA = '2026.10.19-e';
 var FECHA_VERSION = '2026-10-19';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.19-e', fecha: '2026-10-19', cambios: [
+    'Ronda: indicador de guardado. Verde «✔ Ronda guardada y completa» (con la hora) cuando todo está guardado; naranja «Pendiente de guardar: N reportes nuevos y M cambios» cuando hay algo sin guardar. El botón pasa a «Guardar · N» (pulsa) o «✔ Guardada», y cada 2 minutos aparece un recordatorio mientras haya algo pendiente.'] },
   { version: '2026.10.19-d', fecha: '2026-10-19', cambios: [
     'Nueva opción «Ayuda y manual de uso» en el menú principal (y en la pantalla de ingreso): guía paso a paso para los directivos y docentes, con impresión en PDF.',
     'Rectoría: el tiempo de ausencia del docente (incapacidad, licencia, permiso) se cuenta completo según su asignación aunque el grupo haya sido cubierto por un reemplazo. Panel e informe muestran «Ausencia total de docentes» y, aparte, «Horas de clase sin atender».',
@@ -66,7 +68,7 @@ var LEEME_USO = [
   'Parejas que alternan (ética/religión, etc.): se confirma quién dicta una vez por semana; «Cambiar» (solo coordinación académica, rectoría o administrador) corrige y puede pasar a la persona correcta lo ya registrado.',
   'Panel e informes: «Ausencia total de docentes» (incluye lo cubierto por reemplazo) y «Horas de clase sin atender» (solo lo que quedó sin quien atendiera).',
   'Menú principal > «Ayuda y manual de uso»: manual para los usuarios.',
-  'Ronda: las marcas sin guardar se conservan en el teléfono (borrador); la barra avisa «Sin conexión» o «N marcas sin guardar».'
+  'Ronda: las marcas sin guardar se conservan en el teléfono (borrador). La barra de abajo dice «✔ Ronda guardada» (verde) o «Pendiente de guardar: N reportes nuevos y M cambios» (naranja); si no hay señal avisa «Sin conexión».'
 ];
 
 var LEEME_HOJAS = [

@@ -188,6 +188,22 @@ if(hs2){const rd=run(`consultarSesion('${otroDia}',${hs2[hi('hora')]},'sesion')`
 const nSem=hojas.Semana_Alternancia.v.length; g.PD2={clave:claveE,elegido:ejemplo[hi('docente')],primario:ejemplo[hi('docente')],directivo:'Prueba'}; run('definirAlternancia(PD2)');
 const rev=run(`consultarSesion('${ejemplo[hi('dia')]}',${ejemplo[hi('hora')]},'sesion')`).filas.find(f=>f.claveAlt===claveE&&f.primario===ejemplo[hi('docente')]);
 ok(hojas.Semana_Alternancia.v.length===nSem&&rev.docente===ejemplo[hi('docente')],'cambiar la elección actualiza la misma fila de la semana');
+// cambiar una asignación ya definida: solo administrador, coordinación académica, rectoría o quien tenga SI en cambia_asignacion
+{
+  const dh=hojas.Directivos.v[0], iCT=dh.indexOf('correo_temporal'), iN=dh.indexOf('nombre');
+  hojas.Directivos.v[2][iCT]='veronica@x.com'; EMAIL='veronica@x.com';
+  let ec=null; try{ run(`definirAlternancia({clave:'${claveE}',elegido:'${otro}',primario:'${ejemplo[hi('docente')]}'})`) }catch(x){ec=x}
+  ok(ec&&/Solo la coordinación académica/.test(ec.message),'una coordinadora de otra área NO puede cambiar lo ya definido esta semana');
+  ok(run(`consultarSesion('${ejemplo[hi('dia')]}',${ejemplo[hi('hora')]},'sesion')`).puedeCambiarAlt===false,'la ronda le oculta el botón Cambiar');
+  run(`definirAlternancia({clave:'${claveE}',elegido:'${otro}',primario:'${ejemplo[hi('docente')]}',fecha:'2026-03-11'})`);
+  ok(true,'sí puede definir por primera vez una semana sin definir');
+  const hd=hojas.Directivos.v[0]; let ic=hd.indexOf('cambia_asignacion'); if(ic<0){ hd.push('cambia_asignacion'); hojas.Directivos.v.slice(1).forEach(r=>r.push('')); ic=hd.length-1; }
+  hojas.Directivos.v[2][ic]='SI'; let ec2=null; try{ run(`definirAlternancia({clave:'${claveE}',elegido:'${otro}',primario:'${ejemplo[hi('docente')]}',fecha:'2026-03-11'})`) }catch(x){ec2=x}
+  ok(!ec2,'con SI en cambia_asignacion puede cambiar');
+  hojas.Directivos.v[2][ic]='';
+  EMAIL='dueno@gmail.com';
+  ok(run(`consultarSesion('${ejemplo[hi('dia')]}',${ejemplo[hi('hora')]},'sesion')`).puedeCambiarAlt===true,'el administrador del libro sí puede cambiar');
+}
 // semana distinta: no afecta; validaciones
 g.PD3={clave:claveE,elegido:otro,primario:ejemplo[hi('docente')],fecha:'2026-03-04',directivo:'P'}; run('definirAlternancia(PD3)');
 const hoy2=run(`consultarSesion('${ejemplo[hi('dia')]}',${ejemplo[hi('hora')]},'sesion')`).filas.find(f=>f.claveAlt===claveE&&f.primario===ejemplo[hi('docente')]);

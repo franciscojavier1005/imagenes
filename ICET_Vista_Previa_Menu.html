@@ -47,7 +47,7 @@
 <main>
   <div class="saludo" id="saludo"></div>
   <div id="botones"><div class="espera">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.19-c</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.19-d</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -95,7 +95,7 @@ function srv(){
 var BASE='', NOMBRES=[];
 function el(id){return document.getElementById(id);}
 function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-var COLORES={ronda:'#2f8f5b',novedad:'#d9822b',reunion:'#6b5bb5',horarios:'#1e88a8',panel:'#2c4a7c'};
+var COLORES={ayuda:'#8a5a00',ronda:'#2f8f5b',novedad:'#d9822b',reunion:'#6b5bb5',horarios:'#1e88a8',panel:'#2c4a7c'};
 function boton(p,ic,t,d){ return '<a class="boton" style="--c:'+(COLORES[p]||'#f0c000')+'" target="_top" href="'+esc(BASE+'?p='+p)+'"><span class="ic">'+ic+'</span><div><b>'+t+'</b><span>'+d+'</span></div></a>'; }
 
 /* ---------- pantalla de ingreso con clave ---------- */
@@ -108,7 +108,7 @@ function mostrarLogin(aviso){
     var h='<div class="caja"><label>¿Quién es?<select id="lNombre">'+NOMBRES.map(function(d){return '<option value="'+esc(d.nombre)+'">'+esc(d.nombre)+' — '+esc(d.rol)+'</option>';}).join('')+'</select></label>'+
       '<label>Clave (6 números)<input class="pin" id="lPin" type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="6" placeholder="••••••"></label>'+
       '<button class="btn" id="lBtn" onclick="entrar()">Entrar</button><div class="msg" id="lMsg">'+esc(aviso||(hayClaves?'':'Aún no hay claves. Quien administra el libro debe crearlas (menú Asistencia ICET > Generar claves de ingreso).'))+'</div></div>'+
-      '<div class="pie">Su clave es personal. Si la olvida, pídala a quien administra el libro.</div>';
+      '<div class="pie">Su clave es personal. Si la olvida, pídala a quien administra el libro.</div>'+boton('ayuda','❓','Ayuda y manual de uso','Cómo entrar y usar la aplicación.');
     el('botones').innerHTML=h;
     var p=el('lPin'); if(p){ p.addEventListener('keydown',function(e){ if(e.key==='Enter') entrar(); }); }
   }).withFailureHandler(function(e){ el('botones').innerHTML='<div class="msg">Error: '+esc(e&&e.message||e)+'</div>'; }).listarDirectivosPublicos();
@@ -133,10 +133,12 @@ function pintar(rol,nombre,c){
     h+=boton('reunion','👥','Reuniones y actividades','Asistencia en reuniones y en actividades institucionales generales (entrega de boletines, clausura...).');
     h+=boton('horarios','🗓','Horarios y consultas','Horario de un docente o grupo, quiénes deben estar ahora y directores de grupo.');
     h+=boton('panel','📊','Panel e informes','Ver cifras, tendencias y el informe del periodo.');
+    h+=boton('ayuda','❓','Ayuda y manual de uso','Cómo se usa cada pantalla, paso a paso (se puede imprimir en PDF).');
     if(CTX.necesitaCorreo) h+='<div class="sub" style="margin:6px 4px 0;color:#456">✉ Aún no recibe informes por correo. Si lo desea, <button class="enlace" onclick="abrirCorreo()">registre su correo</button> (opcional, de cualquier proveedor).</div>';
   } else {
     el('saludo').textContent='Bienvenido(a). Toque para continuar.';
     h+=boton('panel','📊','Mi informe y mis soportes','Ver mi asistencia, cargar soportes o pedir acceso.');
+    h+=boton('ayuda','❓','Ayuda y manual de uso','Cómo se usa la aplicación, paso a paso.');
   }
   h+='<div class="pie">'+(rol==='directivo'?'<button class="enlace" onclick="abrirCorreo()">Mi correo e informes</button> · ':'')+'<button class="enlace" onclick="formClave()">Cambiar mi clave</button> · <button class="enlace" onclick="salir()">Cerrar sesión</button></div><div id="claveForm"></div>';
   el('botones').innerHTML=h;

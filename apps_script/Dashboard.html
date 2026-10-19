@@ -157,7 +157,7 @@
     <div class="vacio">Cargando…</div>
   </div>
   <div class="pie" id="pie"></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.19-c</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.19-d</div>
 </div>
 </div>
 <div id="tip" role="tooltip"></div>
@@ -305,7 +305,7 @@ function barras(items,max,etiquetaTip){
   return h('div',{},items.map(function(it){
     var f=h('div',{class:'fila'},[h('div',{class:'nom',text:it.nombre}),
       h('div',{class:'pista'},[h('div',{class:'barra',style:'width:'+Math.max(0.8,it.minutos/tope*80)+'%'}),h('span',{class:'val',text:fmtMin(it.minutos)})])]);
-    conTip(f,it.nombre,fmtMin(it.minutos)+' sin atender ('+(Math.round(it.minutos/45*10)/10)+' sesiones de 45 min)');
+    conTip(f,it.nombre,fmtMin(it.minutos)+(etiquetaTip||' sin atender')+' ('+(Math.round(it.minutos/45*10)/10)+' sesiones de 45 min)');
     return f;}));
 }
 
@@ -367,20 +367,20 @@ function pintar(){
 
   c.appendChild(h('div',{class:'heroe'},[
     h('div',{},[h('div',{class:'et',text:esDoc?'Horas de clase sin atender en el periodo':'Horas de clase sin atender'}),h('div',{},[h('span',{class:'valor',text:fmtNum(k.horas)}),h('span',{class:'unidad',text:'horas'})])]),
-    h('div',{class:'det',text:fmtNum(k.sesiones)+' sesiones de 45 minutos de '+fmtNum(k.programadas)+' programadas · cumplimiento '+fmtPct(k.cumplimiento)+(k.minutosCubiertos?' · '+fmtMin(k.minutosCubiertos)+' de grupos atendidos por reemplazo (no cuentan como sin atender)':'')})]));
+    h('div',{class:'det',text:fmtNum(k.sesiones)+' sesiones de 45 minutos de '+fmtNum(k.programadas)+' programadas · cumplimiento '+fmtPct(k.cumplimiento)+(k.minutosCubiertos?' · '+fmtMin(k.minutosCubiertos)+' de grupos atendidos por reemplazo (no cuentan como sin atender)':'')+' · Ausencia total de docentes: '+fmtNum(k.horasAusencia)+' h'})]));
 
   var tiles=esDoc
     ?[['Ausencias',fmtNum(k.ausencias),'días sin asistir'],['Llegadas tarde',fmtNum(k.llegadasTarde),'registros'],['Salidas tempranas',fmtNum(k.salidasTempranas),'registros'],['Permisos por horas',fmtNum(k.permisosTemporales),'registros'],['Salidas pedagógicas',fmtNum(k.salidasPedagogicas||0),'docente-día (no restan)'],['Incumplimientos',fmtNum(k.incumplimientos),'reportados'],
-      ['Novedades justificadas',fmtPct(k.pctJustificadas),fmtNum(k.eventos)+' novedades'],['Sin justificar',fmtMin(k.minutosSinJustificar),'tiempo sin atender']]
+      ['Novedades justificadas',fmtPct(k.pctJustificadas),fmtNum(k.eventos)+' novedades'],['Sin justificar',fmtMin(k.minutosSinJustificar),'tiempo de ausencia']]
     :[['Docentes con novedad',fmtNum(k.docentesConNovedad),'en el periodo'],['Ausencias',fmtNum(k.ausencias),'docente-día sin asistir'],
       ['Llegadas tarde',fmtNum(k.llegadasTarde),'registros'],['Salidas tempranas',fmtNum(k.salidasTempranas),'registros'],['Permisos por horas',fmtNum(k.permisosTemporales),'registros'],['Salidas pedagógicas',fmtNum(k.salidasPedagogicas||0),'docente-día (no restan)'],['Incumplimientos',fmtNum(k.incumplimientos),'reportados'],
-      ['Novedades justificadas',fmtPct(k.pctJustificadas),fmtNum(k.eventos)+' novedades'],['Sin justificar',fmtMin(k.minutosSinJustificar),'tiempo sin atender']];
+      ['Novedades justificadas',fmtPct(k.pctJustificadas),fmtNum(k.eventos)+' novedades'],['Sin justificar',fmtMin(k.minutosSinJustificar),'tiempo de ausencia']];
   c.appendChild(h('div',{class:'tiles'},tiles.map(function(t){return h('div',{class:'tile'},[h('div',{class:'et',text:t[0]}),h('div',{class:'v',text:t[1]}),h('div',{class:'n',text:t[2]})]);})));
 
   var g=h('div',{class:'rejilla'});
   g.appendChild(tarjeta('tend',esDoc?'Mi tiempo sin atender por día':'Tiempo sin atender por día','Últimos 10 días hábiles hasta '+fcorta(R.hasta),columnas(R.tendencia),
     tablaSimple(['Fecha','Minutos','Novedades'],R.tendencia.map(function(s){return [frango(s.fecha,s.fecha),s.minutos,s.eventos];}),[1,2]),true));
-  g.appendChild(tarjeta('cat','Motivos de las novedades','Tiempo sin atender por categoría',barras(capLista(R.porCategoria)),
+  g.appendChild(tarjeta('cat','Motivos de las novedades','Tiempo de ausencia de los docentes por categoría (incluye lo cubierto por reemplazo)',barras(capLista(R.porCategoria),0,' de ausencia'),
     tablaSimple(['Categoría','Minutos'],R.porCategoria.map(function(x){return [cap(x.nombre),x.minutos];}),[1])));
   if(!esDoc){
     g.appendChild(tarjeta('niv','Por nivel','Justificado y sin justificar',apiladas(capLista(R.porNivel)),
@@ -398,16 +398,16 @@ function pintar(){
 
   if(esDoc){
     c.appendChild(h('section',{class:'card ancha',style:'margin-top:14px'},[h('h2',{text:'Mis novedades del periodo'}),
-      R.lista.length?tablaSimple(['Fecha','Grupo','Área','Novedad','Motivo','Minutos','Justificada'],
-        R.lista.map(function(x){return [fFecha(x.fecha),x.grupo,x.area,x.tipo,x.motivo,x.minutos,x.justificada];}),[5]):h('div',{class:'vacio',text:'Sin novedades en este periodo.'})]));
+      R.lista.length?tablaSimple(['Fecha','Grupo','Área','Novedad','Motivo','Ausencia (min)','Sin atender (min)','Justificada'],
+        R.lista.map(function(x){return [fFecha(x.fecha),x.grupo,x.area,x.tipo,x.motivo,x.minutosAusencia,x.minutos,x.justificada];}),[5,6]):h('div',{class:'vacio',text:'Sin novedades en este periodo.'})]));
   } else {
     c.appendChild(h('section',{class:'card ancha',style:'margin-top:14px'},[h('h2',{text:'Novedades del '+frango(R.hasta,R.hasta)}),
-      R.dia.length?tablaSimple(['Docente','Grupo','Área','Novedad','Motivo','Minutos','Justificada','Registró'],
-        R.dia.map(function(x){return [x.docente,x.grupo,x.area,x.tipo,x.motivo,x.minutos,x.justificada,x.directivo];}),[5]):h('div',{class:'vacio',text:'Sin novedades registradas ese día.'})]));
+      R.dia.length?tablaSimple(['Docente','Grupo','Área','Novedad','Motivo','Ausencia (min)','Sin atender (min)','Justificada','Registró'],
+        R.dia.map(function(x){return [x.docente,x.grupo,x.area,x.tipo,x.motivo,x.minutosAusencia,x.minutos,x.justificada,x.directivo];}),[5,6]):h('div',{class:'vacio',text:'Sin novedades registradas ese día.'})]));
     if(vista==='coordinacion'){
-      c.appendChild(h('section',{class:'card ancha',style:'margin-top:14px'},[h('h2',{text:'Docentes con más tiempo sin atender en el periodo'}),
-        R.porDocente.length?tablaSimple(['Docente','Nivel','Novedades','Días','Minutos','Sin justificar (min)'],
-          R.porDocente.slice(0,15).map(function(x){return [x.docente,cap(x.nivel),x.eventos,x.dias,x.minutos,x.sinJustificar];}),[2,3,4,5]):h('div',{class:'vacio',text:'Sin novedades en este periodo.'})]));
+      c.appendChild(h('section',{class:'card ancha',style:'margin-top:14px'},[h('h2',{text:'Docentes con más tiempo de ausencia en el periodo'}),
+        R.porDocente.length?tablaSimple(['Docente','Nivel','Novedades','Días','Ausencia (min)','Sin atender (min)','Ausencia sin justificar (min)'],
+          R.porDocente.slice(0,15).map(function(x){return [x.docente,cap(x.nivel),x.eventos,x.dias,x.minutos,x.sinAtender,x.sinJustificar];}),[2,3,4,5,6]):h('div',{class:'vacio',text:'Sin novedades en este periodo.'})]));
     }
   }
   if(CTX&&CTX.rol==='docente') cargarSoportes();

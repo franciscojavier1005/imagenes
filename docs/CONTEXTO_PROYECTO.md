@@ -100,3 +100,8 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 - Quién dicta: confirmación con ventana propia (confirmaUI) en lugar de confirm() y reintento si falla.
 - Pantalla: título/versión/contadores más grandes (escritorio), 7 estados, orden de chips (faltan, presentes primero), text-size-adjust para iPhone.
 - LEEME: Leeme.gs ahora incluye «Cómo se registra la asistencia en la ronda» (LEEME_USO); regla 7 en CLAUDE.md.
+
+## 2026-10-19 (versión 2026.10.19-d) · Ausencia para rectoría, restricción de «Cambiar» y manual
+- Rectoría necesita el tiempo de ausencia del docente aunque el grupo esté cubierto: Resumen.gs agrega `kpis.minutosAusencia/horasAusencia`; porCategoria/porMotivo/porTipo y porDocente se calculan con la ausencia (porDocente.sinAtender aparte); las listas del panel muestran «Ausencia (min)» y «Sin atender (min)»; porGrupo/porArea/tendencia siguen siendo «sin atender».
+- Quién dicta (parejas): definir por primera vez en la semana → cualquier directivo; CAMBIAR lo ya definido → solo administrador del libro, rol académico/rector o `cambia_asignacion = SI` en Directivos (`puedeCambiarAsignacion_`, `puedeCambiarAlt` en consultarSesion). La ronda oculta «Cambiar» a los demás.
+- Ayuda: nueva pantalla `Ayuda.html` (?p=ayuda) con el manual de uso; botón «Ayuda y manual de uso» en el menú y en el ingreso; imprimible en PDF. Mantenerla al día cuando cambien las pantallas (regla 7 de CLAUDE.md aplica también al manual).

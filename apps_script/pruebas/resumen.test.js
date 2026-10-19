@@ -39,6 +39,7 @@ ig(rd.porDocente.length,1,'el informe del docente no incluye a otros docentes');
   ig([sin.minutos,sin.ausencias,sin.minutosCubiertos],[90,1,0],'sin reemplazo: 90 min sin atender');
   var con=ctxVm.calcular(Object.assign({},base,{novedades:[nv('Reemplazo (acordado con rectoría)')]}));
   ig([con.kpis.minutos,con.kpis.ausencias,con.kpis.minutosCubiertos,con.kpis.eventosCubiertos],[0,1,90,1],'con reemplazo: la ausencia cuenta, 0 min sin atender y 90 min cubiertos');
+  ig([con.kpis.minutosAusencia,con.kpis.horasAusencia,(con.porCategoria[0]||{}).minutos,con.porDocente[0].minutos,con.porDocente[0].sinAtender],[90,1.5,90,90,0],'rectoría: la ausencia (90 min) se cuenta completa por categoría y por docente aunque el grupo esté cubierto');
   ig(/atendido por reemplazo \(90 min cubiertos\)/.test(con.dia[0].motivo),true,'la lista del día indica que el grupo fue atendido por reemplazo');
   var inc=ctxVm.calcular(Object.assign({},base,{novedades:[Object.assign(nv('Reemplazo (docente)'),{tipo:'Incumplimiento: no atiende'})]})).kpis;
   ig(inc.minutos,90,'un incumplimiento nunca se considera cubierto');

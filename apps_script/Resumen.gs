@@ -85,6 +85,8 @@ function calcularResumen_(ctx) {
   var kpis = {
     programadas: programadas,
     minutos: minutos,
+    minutosAusencia: resSuma_(nov, function (n) { return n.minutosAusencia; }),   // tiempo de ausencia de los docentes, con o sin grupo cubierto (lo que rectoría necesita)
+    horasAusencia: Math.round(resSuma_(nov, function (n) { return n.minutosAusencia; }) / 60 * 10) / 10,
     horas: Math.round(minutos / 60 * 10) / 10,
     sesiones: Math.round(minutos / 45 * 10) / 10,
     cumplimiento: programadas > 0 ? Math.max(0, Math.round((1 - minutos / (programadas * 45)) * 1000) / 10) : null,
@@ -99,7 +101,7 @@ function calcularResumen_(ctx) {
     minutosCubiertos: resSuma_(nov.filter(function (n) { return n.cubierto; }), function (n) { return n.minutosAusencia; }),
     eventosCubiertos: nov.filter(function (n) { return n.cubierto; }).length,
     pctJustificadas: nov.length ? Math.round(just.length / nov.length * 1000) / 10 : null,
-    minutosSinJustificar: resSuma_(nov.filter(function (n) { return n.justificada !== 'Sí'; }), function (n) { return n.minutos; })
+    minutosSinJustificar: resSuma_(nov.filter(function (n) { return n.justificada !== 'Sí'; }), function (n) { return n.minutosAusencia; })
   };
 
   // tendencia: últimos 10 días hábiles que terminan en "hasta"
@@ -121,10 +123,10 @@ function calcularResumen_(ctx) {
   // docentes
   var docs = {}, ordenD = [];
   nov.forEach(function (x) {
-    if (!docs[x.docente]) { docs[x.docente] = { docente: x.docente, nivel: x.nivel, eventos: 0, dias: {}, minutos: 0, sinJustificar: 0 }; ordenD.push(x.docente); }
-    var d = docs[x.docente]; d.eventos++; d.dias[x.fecha] = 1; d.minutos += x.minutos; if (x.justificada !== 'Sí') d.sinJustificar += x.minutos;
+    if (!docs[x.docente]) { docs[x.docente] = { docente: x.docente, nivel: x.nivel, eventos: 0, dias: {}, minutos: 0, sinAtender: 0, sinJustificar: 0 }; ordenD.push(x.docente); }
+    var d = docs[x.docente]; d.eventos++; d.dias[x.fecha] = 1; d.minutos += x.minutosAusencia; d.sinAtender += x.minutos; if (x.justificada !== 'Sí') d.sinJustificar += x.minutosAusencia;
   });
-  var porDocente = ordenD.map(function (k) { var d = docs[k]; return { docente: d.docente, nivel: d.nivel, eventos: d.eventos, dias: Object.keys(d.dias).length, minutos: d.minutos, sinJustificar: d.sinJustificar }; })
+  var porDocente = ordenD.map(function (k) { var d = docs[k]; return { docente: d.docente, nivel: d.nivel, eventos: d.eventos, dias: Object.keys(d.dias).length, minutos: d.minutos, sinAtender: d.sinAtender, sinJustificar: d.sinJustificar }; })
     .sort(function (a, b) { return b.minutos - a.minutos || (a.docente < b.docente ? -1 : 1); });
 
   // ronda del último día del rango (esperados y verificados, dentro del filtro)
@@ -135,12 +137,12 @@ function calcularResumen_(ctx) {
     ronda.push({ sesion: s, esperados: esp, marcados: Object.keys(marc).length });
   }
 
-  function fila(x) { return { fecha: x.fecha, docente: x.docente, grupo: x.grupo, area: x.area, tipo: x.tipo, motivo: x.motivo + (x.cubierto ? ' · grupo atendido por reemplazo (' + x.minutosAusencia + ' min cubiertos)' : (x.sinGrupo ? ' · sin grupo asignado' : '')), minutos: x.minutos, justificada: x.justificada, directivo: x.directivo }; }
+  function fila(x) { return { fecha: x.fecha, docente: x.docente, grupo: x.grupo, area: x.area, tipo: x.tipo, motivo: x.motivo + (x.cubierto ? ' · grupo atendido por reemplazo (' + x.minutosAusencia + ' min cubiertos)' : (x.sinGrupo ? ' · sin grupo asignado' : '')), minutos: x.minutos, minutosAusencia: x.minutosAusencia, justificada: x.justificada, directivo: x.directivo }; }
   return {
     desde: desde, hasta: hasta, diasHabiles: dias.length, filtros: { nivel: fNivel, docente: fDoc }, kpis: kpis, tendencia: tendencia,
-    porCategoria: resAgrupa_(nov, function (x) { return x.categoria; }, function (x) { return x.minutos; }),
-    porMotivo: resAgrupa_(nov, function (x) { return x.motivo || '(sin motivo)'; }, function (x) { return x.minutos; }),
-    porTipo: resAgrupa_(nov, function (x) { return x.tipo; }, function (x) { return x.minutos; }),
+    porCategoria: resAgrupa_(nov, function (x) { return x.categoria; }, function (x) { return x.minutosAusencia; }),
+    porMotivo: resAgrupa_(nov, function (x) { return x.motivo || '(sin motivo)'; }, function (x) { return x.minutosAusencia; }),
+    porTipo: resAgrupa_(nov, function (x) { return x.tipo; }, function (x) { return x.minutosAusencia; }),
     porNivel: porNivel,
     porGrupo: resAgrupa_(nov, function (x) { return x.grupo; }, function (x) { return x.minutos; }),
     porArea: resAgrupa_(nov, function (x) { return x.area || '(sin área)'; }, function (x) { return x.minutos; }),
@@ -176,7 +178,7 @@ function htmlInforme_(r, fechaTexto, urlPanel) {
     '<h2 style="margin:0 0 2px;font-size:18px">Asistencia docente · ICET 2026</h2><div style="color:#52514e;font-size:13px;margin-bottom:14px">' + e(fechaTexto) + '</div>' +
     '<div style="background:#f3f3f0;border-radius:10px;padding:14px 16px;margin-bottom:12px"><div style="font-size:12.5px;color:#52514e">Horas de clase sin atender</div>' +
     '<div style="font-size:40px;font-weight:600;line-height:1.1">' + e(k.horas) + ' <span style="font-size:16px;color:#52514e;font-weight:500">horas</span></div>' +
-    '<div style="font-size:13px;color:#52514e">' + e(k.sesiones) + ' sesiones de 45 min de ' + e(k.programadas) + ' programadas · cumplimiento ' + (k.cumplimiento == null ? '—' : e(k.cumplimiento) + '%') + (k.minutosCubiertos ? ' · ' + resMin_(k.minutosCubiertos) + ' de grupos atendidos por reemplazo (no cuentan como sin atender)' : '') + '</div></div>' +
+    '<div style="font-size:13px;color:#52514e">' + e(k.sesiones) + ' sesiones de 45 min de ' + e(k.programadas) + ' programadas · cumplimiento ' + (k.cumplimiento == null ? '—' : e(k.cumplimiento) + '%') + (k.minutosCubiertos ? ' · ' + resMin_(k.minutosCubiertos) + ' de grupos atendidos por reemplazo (no cuentan como sin atender)' : '') + '</div><div style="font-size:13px;color:#52514e;margin-top:4px"><b>Ausencia total de docentes:</b> ' + e(k.horasAusencia) + ' horas (incluye lo cubierto por reemplazo)</div></div>' +
     '<table width="100%" cellpadding="0" cellspacing="6" style="margin-bottom:10px"><tr>' +
     [['Docentes con novedad', k.docentesConNovedad], ['Ausencias', k.ausencias], ['Llegadas tarde', k.llegadasTarde], ['Salidas tempranas', k.salidasTempranas], ['Permisos por horas', k.permisosTemporales], ['Salidas pedagógicas (docente-día)', k.salidasPedagogicas], ['Incumplimientos', k.incumplimientos],
      ['Justificadas', k.pctJustificadas == null ? '—' : k.pctJustificadas + '%']].map(function (t) {
@@ -189,7 +191,7 @@ function htmlInforme_(r, fechaTexto, urlPanel) {
       tabla(['Docente', 'Grupo', 'Área', 'Novedad', 'Motivo', 'Minutos', 'Justif.'],
             r.dia.slice(0, 40).map(function (x) { return [x.docente, x.grupo, x.area, x.tipo, x.motivo, x.minutos, x.justificada]; })) +
       (r.dia.length > 40 ? '<p style="font-size:12px;color:#52514e">Se muestran 40 de ' + r.dia.length + '. El detalle completo está en el panel.</p>' : '');
-    h += '<h3 style="font-size:14px;margin:6px 0 0">Motivos (tiempo sin atender)</h3>' + barras(r.porCategoria, 6) +
+    h += '<h3 style="font-size:14px;margin:6px 0 0">Motivos (tiempo de ausencia de los docentes)</h3>' + barras(r.porCategoria, 6) +
          '<h3 style="font-size:14px;margin:6px 0 0">Grupos más afectados</h3>' + barras(r.porGrupo, 6);
   }
   h += '<p style="font-size:12.5px;color:#52514e">Ronda de verificación (docentes verificados/esperados): ' + e(ronda || 'sin registros') + '</p>' +

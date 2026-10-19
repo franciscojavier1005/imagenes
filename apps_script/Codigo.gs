@@ -94,7 +94,7 @@ function doGet(e) {
     return ContentService.createTextOutput('ICET API').setMimeType(ContentService.MimeType.TEXT);
   }
   var pag = (e && e.parameter && e.parameter.p) || 'menu';   // sin parámetros abre el menú de entrada
-  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], novedad: ['Novedad', 'ICET - Registrar novedades'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y actividades'], horarios: ['Horarios', 'ICET - Horarios y consultas'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'] };
+  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], novedad: ['Novedad', 'ICET - Registrar novedades'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y actividades'], horarios: ['Horarios', 'ICET - Horarios y consultas'], ayuda: ['Ayuda', 'ICET - Ayuda y manual de uso'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'] };
   var pg = PAGINAS[pag] || PAGINAS.menu;
   return HtmlService.createHtmlOutputFromFile(pg[0])
     .setTitle(pg[1])
@@ -119,6 +119,7 @@ function consultarSesion(dia, sesion, modo) {
     sesionesBloque: [],
     filas: [], motivos: datos_('Motivos'), listas: datos_('Listas'),
     directivos: datos_('Directivos').map(function (d) { return d.nombre; }),
+    puedeCambiarAlt: (function () { try { return puedeCambiarAsignacion_(identidad_()); } catch (e) { return false; } })(),
     sesionDe: (function () { try { var i = identidad_(); return i.rol === 'directivo' ? (i.nombre || '') : ''; } catch (e) { return ''; } })(),   // quien inició sesión: sale preseleccionado como responsable de la ronda
     nota: s ? '' : (auto ? 'Descanso o fuera de jornada' : 'Sesión no válida')
   };
@@ -369,6 +370,21 @@ function bitacora_(accion, detalle) {
   hojaOCrea_('Bitacora_Cambios', ['fecha_hora', 'quien', 'accion', 'detalle']).appendRow([ahoraTxt_(), quien.nombre || quien.email, accion, String(detalle).slice(0, 500)]);
 }
 
+/**
+ * Quién puede CAMBIAR una asignación semanal ya definida (parejas que alternan): el administrador del libro, la coordinación académica, la rectoría
+ * y quien tenga SI en la columna cambia_asignacion de la hoja Directivos. Definirla por primera vez en la semana puede hacerlo cualquier directivo.
+ */
+function puedeCambiarAsignacion_(quien) {
+  try {
+    if (quien && quien.email && editoresLibro_().indexOf(String(quien.email).toLowerCase()) >= 0) return true;
+    var d = datos_('Directivos').filter(function (x) { return x.nombre === (quien && quien.nombre); })[0];
+    if (!d) return false;
+    var col = String(d.cambia_asignacion || '').trim().toUpperCase();
+    if (col === 'SI') return true;
+    if (col === 'NO') return false;
+    return /acad[eé]mic|rector/i.test(String(d.rol || ''));
+  } catch (e) { return false; }
+}
 function definirAlternancia(p) {
   p = p || {};
   var quien = exigirDirectivo_();
@@ -389,6 +405,7 @@ function definirAlternancia(p) {
   try {
     var sh = hojaOCrea_('Semana_Alternancia', COL_SEMANA_ALT), v = sh.getDataRange().getValues(), fila = -1;
     for (var i = 1; i < v.length; i++) if (fechaIso_(String(v[i][0]).replace(/^'/, '')) === semana && v[i][1] === p.clave) { fila = i + 1; break; }
+    if (fila > 0 && v[fila - 1][2] !== p.elegido && !puedeCambiarAsignacion_(quien)) throw new Error('Esta semana ya está definida (' + v[fila - 1][2] + '). Solo la coordinación académica o la rectoría puede cambiarla: pídaselo para no alterar la asignación de la semana.');
     var datos = ["'" + semana, p.clave, p.elegido, inter, por, ahoraTxt_()];
     if (fila > 0) sh.getRange(fila, 1, 1, datos.length).setValues([datos]); else sh.appendRow(datos);
     var corregidos = null;

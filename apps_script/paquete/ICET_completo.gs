@@ -95,7 +95,7 @@ function doGet(e) {
     return ContentService.createTextOutput('ICET API').setMimeType(ContentService.MimeType.TEXT);
   }
   var pag = (e && e.parameter && e.parameter.p) || 'menu';   // sin parámetros abre el menú de entrada
-  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], novedad: ['Novedad', 'ICET - Registrar novedades'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y actividades'], horarios: ['Horarios', 'ICET - Horarios y consultas'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'] };
+  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], novedad: ['Novedad', 'ICET - Registrar novedades'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y actividades'], horarios: ['Horarios', 'ICET - Horarios y consultas'], ayuda: ['Ayuda', 'ICET - Ayuda y manual de uso'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'] };
   var pg = PAGINAS[pag] || PAGINAS.menu;
   return HtmlService.createHtmlOutputFromFile(pg[0])
     .setTitle(pg[1])
@@ -120,6 +120,7 @@ function consultarSesion(dia, sesion, modo) {
     sesionesBloque: [],
     filas: [], motivos: datos_('Motivos'), listas: datos_('Listas'),
     directivos: datos_('Directivos').map(function (d) { return d.nombre; }),
+    puedeCambiarAlt: (function () { try { return puedeCambiarAsignacion_(identidad_()); } catch (e) { return false; } })(),
     sesionDe: (function () { try { var i = identidad_(); return i.rol === 'directivo' ? (i.nombre || '') : ''; } catch (e) { return ''; } })(),   // quien inició sesión: sale preseleccionado como responsable de la ronda
     nota: s ? '' : (auto ? 'Descanso o fuera de jornada' : 'Sesión no válida')
   };
@@ -370,6 +371,21 @@ function bitacora_(accion, detalle) {
   hojaOCrea_('Bitacora_Cambios', ['fecha_hora', 'quien', 'accion', 'detalle']).appendRow([ahoraTxt_(), quien.nombre || quien.email, accion, String(detalle).slice(0, 500)]);
 }
 
+/**
+ * Quién puede CAMBIAR una asignación semanal ya definida (parejas que alternan): el administrador del libro, la coordinación académica, la rectoría
+ * y quien tenga SI en la columna cambia_asignacion de la hoja Directivos. Definirla por primera vez en la semana puede hacerlo cualquier directivo.
+ */
+function puedeCambiarAsignacion_(quien) {
+  try {
+    if (quien && quien.email && editoresLibro_().indexOf(String(quien.email).toLowerCase()) >= 0) return true;
+    var d = datos_('Directivos').filter(function (x) { return x.nombre === (quien && quien.nombre); })[0];
+    if (!d) return false;
+    var col = String(d.cambia_asignacion || '').trim().toUpperCase();
+    if (col === 'SI') return true;
+    if (col === 'NO') return false;
+    return /acad[eé]mic|rector/i.test(String(d.rol || ''));
+  } catch (e) { return false; }
+}
 function definirAlternancia(p) {
   p = p || {};
   var quien = exigirDirectivo_();
@@ -390,6 +406,7 @@ function definirAlternancia(p) {
   try {
     var sh = hojaOCrea_('Semana_Alternancia', COL_SEMANA_ALT), v = sh.getDataRange().getValues(), fila = -1;
     for (var i = 1; i < v.length; i++) if (fechaIso_(String(v[i][0]).replace(/^'/, '')) === semana && v[i][1] === p.clave) { fila = i + 1; break; }
+    if (fila > 0 && v[fila - 1][2] !== p.elegido && !puedeCambiarAsignacion_(quien)) throw new Error('Esta semana ya está definida (' + v[fila - 1][2] + '). Solo la coordinación académica o la rectoría puede cambiarla: pídaselo para no alterar la asignación de la semana.');
     var datos = ["'" + semana, p.clave, p.elegido, inter, por, ahoraTxt_()];
     if (fila > 0) sh.getRange(fila, 1, 1, datos.length).setValues([datos]); else sh.appendRow(datos);
     var corregidos = null;
@@ -753,6 +770,8 @@ function calcularResumen_(ctx) {
   var kpis = {
     programadas: programadas,
     minutos: minutos,
+    minutosAusencia: resSuma_(nov, function (n) { return n.minutosAusencia; }),   // tiempo de ausencia de los docentes, con o sin grupo cubierto (lo que rectoría necesita)
+    horasAusencia: Math.round(resSuma_(nov, function (n) { return n.minutosAusencia; }) / 60 * 10) / 10,
     horas: Math.round(minutos / 60 * 10) / 10,
     sesiones: Math.round(minutos / 45 * 10) / 10,
     cumplimiento: programadas > 0 ? Math.max(0, Math.round((1 - minutos / (programadas * 45)) * 1000) / 10) : null,
@@ -767,7 +786,7 @@ function calcularResumen_(ctx) {
     minutosCubiertos: resSuma_(nov.filter(function (n) { return n.cubierto; }), function (n) { return n.minutosAusencia; }),
     eventosCubiertos: nov.filter(function (n) { return n.cubierto; }).length,
     pctJustificadas: nov.length ? Math.round(just.length / nov.length * 1000) / 10 : null,
-    minutosSinJustificar: resSuma_(nov.filter(function (n) { return n.justificada !== 'Sí'; }), function (n) { return n.minutos; })
+    minutosSinJustificar: resSuma_(nov.filter(function (n) { return n.justificada !== 'Sí'; }), function (n) { return n.minutosAusencia; })
   };
 
   // tendencia: últimos 10 días hábiles que terminan en "hasta"
@@ -789,10 +808,10 @@ function calcularResumen_(ctx) {
   // docentes
   var docs = {}, ordenD = [];
   nov.forEach(function (x) {
-    if (!docs[x.docente]) { docs[x.docente] = { docente: x.docente, nivel: x.nivel, eventos: 0, dias: {}, minutos: 0, sinJustificar: 0 }; ordenD.push(x.docente); }
-    var d = docs[x.docente]; d.eventos++; d.dias[x.fecha] = 1; d.minutos += x.minutos; if (x.justificada !== 'Sí') d.sinJustificar += x.minutos;
+    if (!docs[x.docente]) { docs[x.docente] = { docente: x.docente, nivel: x.nivel, eventos: 0, dias: {}, minutos: 0, sinAtender: 0, sinJustificar: 0 }; ordenD.push(x.docente); }
+    var d = docs[x.docente]; d.eventos++; d.dias[x.fecha] = 1; d.minutos += x.minutosAusencia; d.sinAtender += x.minutos; if (x.justificada !== 'Sí') d.sinJustificar += x.minutosAusencia;
   });
-  var porDocente = ordenD.map(function (k) { var d = docs[k]; return { docente: d.docente, nivel: d.nivel, eventos: d.eventos, dias: Object.keys(d.dias).length, minutos: d.minutos, sinJustificar: d.sinJustificar }; })
+  var porDocente = ordenD.map(function (k) { var d = docs[k]; return { docente: d.docente, nivel: d.nivel, eventos: d.eventos, dias: Object.keys(d.dias).length, minutos: d.minutos, sinAtender: d.sinAtender, sinJustificar: d.sinJustificar }; })
     .sort(function (a, b) { return b.minutos - a.minutos || (a.docente < b.docente ? -1 : 1); });
 
   // ronda del último día del rango (esperados y verificados, dentro del filtro)
@@ -803,12 +822,12 @@ function calcularResumen_(ctx) {
     ronda.push({ sesion: s, esperados: esp, marcados: Object.keys(marc).length });
   }
 
-  function fila(x) { return { fecha: x.fecha, docente: x.docente, grupo: x.grupo, area: x.area, tipo: x.tipo, motivo: x.motivo + (x.cubierto ? ' · grupo atendido por reemplazo (' + x.minutosAusencia + ' min cubiertos)' : (x.sinGrupo ? ' · sin grupo asignado' : '')), minutos: x.minutos, justificada: x.justificada, directivo: x.directivo }; }
+  function fila(x) { return { fecha: x.fecha, docente: x.docente, grupo: x.grupo, area: x.area, tipo: x.tipo, motivo: x.motivo + (x.cubierto ? ' · grupo atendido por reemplazo (' + x.minutosAusencia + ' min cubiertos)' : (x.sinGrupo ? ' · sin grupo asignado' : '')), minutos: x.minutos, minutosAusencia: x.minutosAusencia, justificada: x.justificada, directivo: x.directivo }; }
   return {
     desde: desde, hasta: hasta, diasHabiles: dias.length, filtros: { nivel: fNivel, docente: fDoc }, kpis: kpis, tendencia: tendencia,
-    porCategoria: resAgrupa_(nov, function (x) { return x.categoria; }, function (x) { return x.minutos; }),
-    porMotivo: resAgrupa_(nov, function (x) { return x.motivo || '(sin motivo)'; }, function (x) { return x.minutos; }),
-    porTipo: resAgrupa_(nov, function (x) { return x.tipo; }, function (x) { return x.minutos; }),
+    porCategoria: resAgrupa_(nov, function (x) { return x.categoria; }, function (x) { return x.minutosAusencia; }),
+    porMotivo: resAgrupa_(nov, function (x) { return x.motivo || '(sin motivo)'; }, function (x) { return x.minutosAusencia; }),
+    porTipo: resAgrupa_(nov, function (x) { return x.tipo; }, function (x) { return x.minutosAusencia; }),
     porNivel: porNivel,
     porGrupo: resAgrupa_(nov, function (x) { return x.grupo; }, function (x) { return x.minutos; }),
     porArea: resAgrupa_(nov, function (x) { return x.area || '(sin área)'; }, function (x) { return x.minutos; }),
@@ -844,7 +863,7 @@ function htmlInforme_(r, fechaTexto, urlPanel) {
     '<h2 style="margin:0 0 2px;font-size:18px">Asistencia docente · ICET 2026</h2><div style="color:#52514e;font-size:13px;margin-bottom:14px">' + e(fechaTexto) + '</div>' +
     '<div style="background:#f3f3f0;border-radius:10px;padding:14px 16px;margin-bottom:12px"><div style="font-size:12.5px;color:#52514e">Horas de clase sin atender</div>' +
     '<div style="font-size:40px;font-weight:600;line-height:1.1">' + e(k.horas) + ' <span style="font-size:16px;color:#52514e;font-weight:500">horas</span></div>' +
-    '<div style="font-size:13px;color:#52514e">' + e(k.sesiones) + ' sesiones de 45 min de ' + e(k.programadas) + ' programadas · cumplimiento ' + (k.cumplimiento == null ? '—' : e(k.cumplimiento) + '%') + (k.minutosCubiertos ? ' · ' + resMin_(k.minutosCubiertos) + ' de grupos atendidos por reemplazo (no cuentan como sin atender)' : '') + '</div></div>' +
+    '<div style="font-size:13px;color:#52514e">' + e(k.sesiones) + ' sesiones de 45 min de ' + e(k.programadas) + ' programadas · cumplimiento ' + (k.cumplimiento == null ? '—' : e(k.cumplimiento) + '%') + (k.minutosCubiertos ? ' · ' + resMin_(k.minutosCubiertos) + ' de grupos atendidos por reemplazo (no cuentan como sin atender)' : '') + '</div><div style="font-size:13px;color:#52514e;margin-top:4px"><b>Ausencia total de docentes:</b> ' + e(k.horasAusencia) + ' horas (incluye lo cubierto por reemplazo)</div></div>' +
     '<table width="100%" cellpadding="0" cellspacing="6" style="margin-bottom:10px"><tr>' +
     [['Docentes con novedad', k.docentesConNovedad], ['Ausencias', k.ausencias], ['Llegadas tarde', k.llegadasTarde], ['Salidas tempranas', k.salidasTempranas], ['Permisos por horas', k.permisosTemporales], ['Salidas pedagógicas (docente-día)', k.salidasPedagogicas], ['Incumplimientos', k.incumplimientos],
      ['Justificadas', k.pctJustificadas == null ? '—' : k.pctJustificadas + '%']].map(function (t) {
@@ -857,7 +876,7 @@ function htmlInforme_(r, fechaTexto, urlPanel) {
       tabla(['Docente', 'Grupo', 'Área', 'Novedad', 'Motivo', 'Minutos', 'Justif.'],
             r.dia.slice(0, 40).map(function (x) { return [x.docente, x.grupo, x.area, x.tipo, x.motivo, x.minutos, x.justificada]; })) +
       (r.dia.length > 40 ? '<p style="font-size:12px;color:#52514e">Se muestran 40 de ' + r.dia.length + '. El detalle completo está en el panel.</p>' : '');
-    h += '<h3 style="font-size:14px;margin:6px 0 0">Motivos (tiempo sin atender)</h3>' + barras(r.porCategoria, 6) +
+    h += '<h3 style="font-size:14px;margin:6px 0 0">Motivos (tiempo de ausencia de los docentes)</h3>' + barras(r.porCategoria, 6) +
          '<h3 style="font-size:14px;margin:6px 0 0">Grupos más afectados</h3>' + barras(r.porGrupo, 6);
   }
   h += '<p style="font-size:12.5px;color:#52514e">Ronda de verificación (docentes verificados/esperados): ' + e(ronda || 'sin registros') + '</p>' +
@@ -2822,11 +2841,15 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.19-c';
+var VERSION_SISTEMA = '2026.10.19-d';
 var FECHA_VERSION = '2026-10-19';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.19-d', fecha: '2026-10-19', cambios: [
+    'Nueva opción «Ayuda y manual de uso» en el menú principal (y en la pantalla de ingreso): guía paso a paso para los directivos y docentes, con impresión en PDF.',
+    'Rectoría: el tiempo de ausencia del docente (incapacidad, licencia, permiso) se cuenta completo según su asignación aunque el grupo haya sido cubierto por un reemplazo. Panel e informe muestran «Ausencia total de docentes» y, aparte, «Horas de clase sin atender».',
+    'Quién dicta en las parejas que alternan: definirlo por primera vez en la semana puede hacerlo cualquier directivo; cambiarlo solo el administrador, la coordinación académica, la rectoría o quien tenga SI en la columna cambia_asignacion (hoja Directivos).'] },
   { version: '2026.10.19-c', fecha: '2026-10-19', cambios: [
     'Ronda: nuevo estado «Con reemplazo (otra persona a cargo)»: el titular no está pero otra persona atiende el grupo (reemplazo acordado con rectoría, persona de apoyo contratada, practicante, otro docente con espacio libre). La ausencia cuenta, el grupo no queda sin atender; contador propio en la barra y lista aparte en el informe de rondas.',
     'Incapacidad, licencia, duelo, comisión de servicios y otros motivos de toda la jornada: se marca «toda la jornada» sola y el tiempo es el asignado en su horario de ese día (no se calcula a mano). Motivos nuevos: licencia de maternidad o paternidad, por luto, no remunerada, comisión de servicios, descanso compensatorio.',
@@ -2876,7 +2899,9 @@ var LEEME_USO = [
   'No asistió sin reemplazo: el tiempo sin atender es el asignado en su horario (sesiones del bloque o toda la jornada). Incapacidad y licencia marcan «toda la jornada» solas.',
   'Salida temprana: puede escribirse la hora de salida; el tiempo se calcula con el horario del docente de ese día.',
   'Quién atendió el grupo → «No aplica (no tiene grupo asignado)» para orientación y PTAFI: no hay estudiantes sin atender.',
-  'Parejas que alternan (ética/religión, etc.): se confirma quién dicta una vez por semana; «Cambiar» corrige y puede pasar a la persona correcta lo ya registrado.',
+  'Parejas que alternan (ética/religión, etc.): se confirma quién dicta una vez por semana; «Cambiar» (solo coordinación académica, rectoría o administrador) corrige y puede pasar a la persona correcta lo ya registrado.',
+  'Panel e informes: «Ausencia total de docentes» (incluye lo cubierto por reemplazo) y «Horas de clase sin atender» (solo lo que quedó sin quien atendiera).',
+  'Menú principal > «Ayuda y manual de uso»: manual para los usuarios.',
   'Ronda: las marcas sin guardar se conservan en el teléfono (borrador); la barra avisa «Sin conexión» o «N marcas sin guardar».'
 ];
 
@@ -2894,7 +2919,7 @@ var LEEME_HOJAS = [
   'Semana_Alternancia / Alternancias   Quién dicta cada semana en las parejas que alternan.',
   'Usuarios / Soportes / Parametros   Cuentas de docentes, soportes de ausencias y parámetros.',
   'Notas_Ronda / Bandeja_WhatsApp   Observaciones de la ronda y novedades propuestas desde WhatsApp.',
-  'Directivos        Quiénes registran: claves (hash), correo, ve_todo (NO = solo ve sus rondas). No escriba PIN a mano.',
+  'Directivos        Quiénes registran: claves (hash), correo, ve_todo (NO = solo ve sus rondas), cambia_asignacion (SI/NO: puede cambiar quién dicta en las parejas). No escriba PIN a mano.',
   'Bitacora_Cambios  Quién cambió qué y cuándo (correcciones, sesiones prestadas).',
   'Datos personales de docentes y estudiantes: acceso solo para directivos (Ley 1581 de 2012).'
 ];
@@ -2967,7 +2992,7 @@ function leemeAlDia_() {
  * Claves: se guarda SHA-256(sal + clave), nunca la clave. 5 intentos fallidos bloquean al directivo 15 minutos.
  */
 var COL_SESIONES = ['token_hash', 'nombre', 'correo', 'creada', 'expira', 'ultimo_uso'];
-var COL_CLAVE = ['pin_hash', 'pin_sal', 'intentos', 'bloqueado_hasta', 'correo', 'informe_dia', 'informe_semana', 'informe_mes', 'clave_temporal', 've_todo'];
+var COL_CLAVE = ['pin_hash', 'pin_sal', 'intentos', 'bloqueado_hasta', 'correo', 'informe_dia', 'informe_semana', 'informe_mes', 'clave_temporal', 've_todo', 'cambia_asignacion'];
 var SESION_DIAS = 14, PIN_INTENTOS = 5, BLOQUEO_MIN = 15;
 
 function hash_(s) {

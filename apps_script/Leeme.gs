@@ -5,11 +5,15 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.19-c';
+var VERSION_SISTEMA = '2026.10.19-d';
 var FECHA_VERSION = '2026-10-19';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.19-d', fecha: '2026-10-19', cambios: [
+    'Nueva opción «Ayuda y manual de uso» en el menú principal (y en la pantalla de ingreso): guía paso a paso para los directivos y docentes, con impresión en PDF.',
+    'Rectoría: el tiempo de ausencia del docente (incapacidad, licencia, permiso) se cuenta completo según su asignación aunque el grupo haya sido cubierto por un reemplazo. Panel e informe muestran «Ausencia total de docentes» y, aparte, «Horas de clase sin atender».',
+    'Quién dicta en las parejas que alternan: definirlo por primera vez en la semana puede hacerlo cualquier directivo; cambiarlo solo el administrador, la coordinación académica, la rectoría o quien tenga SI en la columna cambia_asignacion (hoja Directivos).'] },
   { version: '2026.10.19-c', fecha: '2026-10-19', cambios: [
     'Ronda: nuevo estado «Con reemplazo (otra persona a cargo)»: el titular no está pero otra persona atiende el grupo (reemplazo acordado con rectoría, persona de apoyo contratada, practicante, otro docente con espacio libre). La ausencia cuenta, el grupo no queda sin atender; contador propio en la barra y lista aparte en el informe de rondas.',
     'Incapacidad, licencia, duelo, comisión de servicios y otros motivos de toda la jornada: se marca «toda la jornada» sola y el tiempo es el asignado en su horario de ese día (no se calcula a mano). Motivos nuevos: licencia de maternidad o paternidad, por luto, no remunerada, comisión de servicios, descanso compensatorio.',
@@ -59,7 +63,9 @@ var LEEME_USO = [
   'No asistió sin reemplazo: el tiempo sin atender es el asignado en su horario (sesiones del bloque o toda la jornada). Incapacidad y licencia marcan «toda la jornada» solas.',
   'Salida temprana: puede escribirse la hora de salida; el tiempo se calcula con el horario del docente de ese día.',
   'Quién atendió el grupo → «No aplica (no tiene grupo asignado)» para orientación y PTAFI: no hay estudiantes sin atender.',
-  'Parejas que alternan (ética/religión, etc.): se confirma quién dicta una vez por semana; «Cambiar» corrige y puede pasar a la persona correcta lo ya registrado.',
+  'Parejas que alternan (ética/religión, etc.): se confirma quién dicta una vez por semana; «Cambiar» (solo coordinación académica, rectoría o administrador) corrige y puede pasar a la persona correcta lo ya registrado.',
+  'Panel e informes: «Ausencia total de docentes» (incluye lo cubierto por reemplazo) y «Horas de clase sin atender» (solo lo que quedó sin quien atendiera).',
+  'Menú principal > «Ayuda y manual de uso»: manual para los usuarios.',
   'Ronda: las marcas sin guardar se conservan en el teléfono (borrador); la barra avisa «Sin conexión» o «N marcas sin guardar».'
 ];
 
@@ -77,7 +83,7 @@ var LEEME_HOJAS = [
   'Semana_Alternancia / Alternancias   Quién dicta cada semana en las parejas que alternan.',
   'Usuarios / Soportes / Parametros   Cuentas de docentes, soportes de ausencias y parámetros.',
   'Notas_Ronda / Bandeja_WhatsApp   Observaciones de la ronda y novedades propuestas desde WhatsApp.',
-  'Directivos        Quiénes registran: claves (hash), correo, ve_todo (NO = solo ve sus rondas). No escriba PIN a mano.',
+  'Directivos        Quiénes registran: claves (hash), correo, ve_todo (NO = solo ve sus rondas), cambia_asignacion (SI/NO: puede cambiar quién dicta en las parejas). No escriba PIN a mano.',
   'Bitacora_Cambios  Quién cambió qué y cuándo (correcciones, sesiones prestadas).',
   'Datos personales de docentes y estudiantes: acceso solo para directivos (Ley 1581 de 2012).'
 ];

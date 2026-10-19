@@ -145,7 +145,7 @@
   <div class="quien" id="quien"></div>
   <input class="buscar" id="q" type="search" placeholder="Buscar docente o grupo" oninput="pintar()">
   <div id="lista"><div class="aviso">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.19-a</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.19-b</div>
 </main>
 <div class="barra">
   <div class="estado" id="estado" aria-live="polite"></div>
@@ -343,7 +343,7 @@ function definir(id,idN){
 /* Controles de la novedad: los que no corresponden quedan desactivados */
 /* Tiempos de las novedades parciales. Llegada tarde: cortos. Permiso por horas y salida temprana: de 5 min hasta toda la jornada (sesiones de 45 min: 45, 90, 135, 180, 225, 270, 315, 360). */
 var TIEMPOS_TARDE=[5,10,15,20,30,45,60,90,120], TIEMPOS_LARGOS=[5,10,15,20,30,45,60,90,120,135,150,180,225,240,270,300,315,330,360];
-var ATIENDE=['Nadie (grupo solo)','Se despachó al grupo temprano (autorizado)','Sin clase: los niños no asistieron (padres avisados)','Reemplazo (docente)','Practicante','Auxiliar o persona de apoyo del docente','Otro docente o directivo'];
+var ATIENDE=['Nadie (grupo solo)','Se despachó al grupo temprano (autorizado)','Sin clase: los niños no asistieron (padres avisados)','Reemplazo (docente)','Reemplazo (acordado con rectoría)','Practicante','Auxiliar o persona de apoyo del docente','Otro docente o directivo'];
 function detalleInc(id,m){
   var h='<div class="detalle"><div class="rej">';
   h+='<label>¿Qué ocurrió?<select class="sel" onchange="campo(\''+id+'\',\'incTipo\',this.value,true)">'+opt('','— Elegir —',!m.incTipo)+
@@ -357,6 +357,7 @@ function detalleInc(id,m){
   h+='<div class="inc-aviso">Este reporte queda registrado de forma permanente (no se puede borrar), con su nombre, la fecha y la hora, y no es una sanción: es el soporte para el seguimiento.</div></div>';
   return h;
 }
+function minSesiones(f){ var t=0; (f.sesiones||[{grupoCodigo:f.grupoCodigo}]).forEach(function(x){ t+=/^00/.test(String(x.grupoCodigo))?60:45; }); return t; }
 function detalle(id,m){
   if(m.estado==='Incumplimiento') return detalleInc(id,m);
   var noAsistio=m.estado==='No asistió', motivo=m.motivo||'Sin justificación';
@@ -376,7 +377,7 @@ function detalle(id,m){
   if(parcial) h+='<label>¿Por cuánto tiempo?<select class="sel" onchange="campo(\''+id+'\',\'alcance\',this.value,true)">'+
      opt('','Un tiempo corto (elija los minutos)',!m.alcance)+opt('RESTO','Hasta el final de la jornada (se calcula solo'+(ff.minutosResto?': '+ff.minutosResto+' min':'')+')',m.alcance==='RESTO')+'</select></label>';
   h+='<label>Minutos'+(noAsistio?(m.alcance==='JC'?' (toda la jornada)':' (sesión completa)'):'')+'<select class="sel" '+((noAsistio||resto)?'disabled':'')+' onchange="campo(\''+id+'\',\'minutos\',this.value)">'+
-     opt('',noAsistio?(m.alcance==='JC'?(ff.minutosDia?ff.minutosDia+' min (total del día)':'Total del día'):'Automático'):(resto?(ff.minutosResto||'')+' min (hasta el final de la jornada)':'— Elegir —'),!m.minutos||noAsistio||resto)+(m.estado==='Ausente temporal'||m.estado==='Salida temprana'?TIEMPOS_LARGOS:TIEMPOS_TARDE).map(function(x){return opt(x,x+' min'+(x>=60?' ('+(x/60).toFixed(x%60?1:0).replace('.0','')+' h)':''),Number(m.minutos)===x&&!noAsistio&&!resto);}).join('')+'</select></label>';
+     opt('',noAsistio?(m.alcance==='JC'?(ff.minutosDia?ff.minutosDia+' min (total del día)':'Total del día'):(minSesiones(ff)+' min sin atender ('+((ff.sesiones||[1]).length)+(((ff.sesiones||[1]).length)===1?' sesión':' sesiones')+')')):(resto?(ff.minutosResto||'')+' min (hasta el final de la jornada)':'— Elegir —'),!m.minutos||noAsistio||resto)+(m.estado==='Ausente temporal'||m.estado==='Salida temprana'?TIEMPOS_LARGOS:TIEMPOS_TARDE).map(function(x){return opt(x,x+' min'+(x>=60?' ('+(x/60).toFixed(x%60?1:0).replace('.0','')+' h)':''),Number(m.minutos)===x&&!noAsistio&&!resto);}).join('')+'</select></label>';
   h+='<label>Dejó actividad de aprendizaje<select class="sel" onchange="campo(\''+id+'\',\'actividad\',this.value)">'+
      ['N/A','Sí','No'].map(function(x){return opt(x,x,(m.actividad||'N/A')===x);}).join('')+'</select></label>';
   h+='</div><div class="previo">Si el grupo lo atendió un reemplazo, practicante o auxiliar, la ausencia del docente se mantiene.</div><label>Observaciones<input type="text" class="obs" value="'+esc(m.obs||'')+'" oninput="campo(\''+id+'\',\'obs\',this.value,false)"></label></div>';

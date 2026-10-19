@@ -157,7 +157,7 @@
     <div class="vacio">Cargando…</div>
   </div>
   <div class="pie" id="pie"></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.19-a</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.19-b</div>
 </div>
 </div>
 <div id="tip" role="tooltip"></div>
@@ -367,7 +367,7 @@ function pintar(){
 
   c.appendChild(h('div',{class:'heroe'},[
     h('div',{},[h('div',{class:'et',text:esDoc?'Horas de clase sin atender en el periodo':'Horas de clase sin atender'}),h('div',{},[h('span',{class:'valor',text:fmtNum(k.horas)}),h('span',{class:'unidad',text:'horas'})])]),
-    h('div',{class:'det',text:fmtNum(k.sesiones)+' sesiones de 45 minutos de '+fmtNum(k.programadas)+' programadas · cumplimiento '+fmtPct(k.cumplimiento)})]));
+    h('div',{class:'det',text:fmtNum(k.sesiones)+' sesiones de 45 minutos de '+fmtNum(k.programadas)+' programadas · cumplimiento '+fmtPct(k.cumplimiento)+(k.minutosCubiertos?' · '+fmtMin(k.minutosCubiertos)+' de grupos atendidos por reemplazo (no cuentan como sin atender)':'')})]));
 
   var tiles=esDoc
     ?[['Ausencias',fmtNum(k.ausencias),'días sin asistir'],['Llegadas tarde',fmtNum(k.llegadasTarde),'registros'],['Salidas tempranas',fmtNum(k.salidasTempranas),'registros'],['Permisos por horas',fmtNum(k.permisosTemporales),'registros'],['Salidas pedagógicas',fmtNum(k.salidasPedagogicas||0),'docente-día (no restan)'],['Incumplimientos',fmtNum(k.incumplimientos),'reportados'],

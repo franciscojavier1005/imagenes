@@ -19,7 +19,7 @@ function resumenInterno_(desde, hasta, filtros) {
   var nov = datos_('Novedades').map(function (n) {
     return { fecha: fechaIso_(n['Fecha Novedad']), docente: n['Docente'], tipo: n['Tipo Novedad'], motivo: n['Motivo Ausencia'],
              justificada: n['Justificada'], categoria: n['Categoría motivo'], grado: n['Grado'], grupo: n['Grupo'], area: n['Área/Asignatura'],
-             minutos: n['Minutos Desatendidos'], directivo: n['Directivo Docente'] };
+             minutos: n['Minutos Desatendidos'], directivo: n['Directivo Docente'], atiende: n['Grupo atendido por'] };
   });
   var reg = datos_('Registro_Ronda').map(function (r) { return { fecha: fechaIso_(r.fecha), sesion: r.sesion, docente: r.docente, estado: r.estado }; });
   var hz = datos_('Horario').map(function (h) { return { dia: h.dia, hora: Number(h.hora), docente: h.docente, nivel: nivelDe[h.docente] || 'SIN NIVEL' }; });

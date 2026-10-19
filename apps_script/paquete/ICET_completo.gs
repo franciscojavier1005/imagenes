@@ -255,7 +255,7 @@ function claveGrupo_(codigo) {
  * Guarda las marcas de la ronda.
  * p = {directivo, dia, sesion, fecha?, registros:[{docente, grupoCodigo, area, estado, motivo, minutos, obs, fuente, medio}]}
  */
-var ATIENDE_GRUPO = ['Nadie (grupo solo)', 'Se despachó al grupo temprano (autorizado)', 'Sin clase: los niños no asistieron (padres avisados)', 'Reemplazo (docente)', 'Practicante', 'Auxiliar o persona de apoyo del docente', 'Otro docente o directivo'];
+var ATIENDE_GRUPO = ['Nadie (grupo solo)', 'Se despachó al grupo temprano (autorizado)', 'Sin clase: los niños no asistieron (padres avisados)', 'Reemplazo (docente)', 'Reemplazo (acordado con rectoría)', 'Practicante', 'Auxiliar o persona de apoyo del docente', 'Otro docente o directivo'];
 
 /** Motivos agregados después de la primera versión del libro: se añaden solos a la hoja Motivos si faltan. */
 var MOTIVOS_NUEVOS = [
@@ -653,6 +653,8 @@ function acercaDe() { SpreadsheetApp.getUi().alert('Acerca de este sistema', AUT
  *   motivos:       [{motivo, categoria, justificada}]
  * }
  */
+/** Quién atendió al grupo cuando el docente falta: si lo cubrió alguien, la ausencia del docente cuenta pero el grupo no queda «sin atender». */
+var RES_COBERTURA_ = ['Reemplazo (docente)', 'Reemplazo (acordado con rectoría)', 'Practicante', 'Auxiliar o persona de apoyo del docente', 'Otro docente o directivo'];
 var RES_DIAS = ['DOMINGO', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
 
 function resDia_(s) { return new Date(s + 'T12:00:00Z').getUTCDay(); }
@@ -695,7 +697,10 @@ function calcularResumen_(ctx) {
     var m = mot[n.motivo] || {}, tipo = String(n.tipo), minutos = Number(n.minutos);
     if (!(minutos > 0)) minutos = /no asisti/i.test(tipo) ? 45 : 0;
     var just = n.justificada || (m.justificada === 'SI' ? 'Sí' : (m.justificada === 'NO' ? 'No' : ''));
+    var cubierto = RES_COBERTURA_.indexOf(String(n.atiende || '').trim()) >= 0 && !/incumplimiento/i.test(tipo);   // el incumplimiento nunca se considera cubierto
+    var minAus = minutos; if (cubierto) minutos = 0;
     return {
+      cubierto: cubierto, minutosAusencia: minAus,
       fecha: n.fecha, docente: n.docente, tipo: tipo, motivo: n.motivo || '', minutos: minutos, justificada: just === 'Sí' || just === 'SI' || just === 'Si' ? 'Sí' : 'No',
       categoria: n.categoria || m.categoria || 'OTRO', grupo: resGrupo_(n.grado, n.grupo), area: n.area || '', directivo: n.directivo || '',
       nivel: nivel[n.docente] || 'SIN NIVEL', ausencia: /no asisti/i.test(tipo), temporal: /temporal/i.test(tipo), incumplimiento: /incumplimiento/i.test(tipo), tarde: /tarde/i.test(tipo), salida: /salida/i.test(tipo)
@@ -731,6 +736,8 @@ function calcularResumen_(ctx) {
     incumplimientos: nov.filter(function (n) { return n.incumplimiento; }).length,
     salidasPedagogicas: (function () { var u = {}; externas.forEach(function (n) { if (n.fecha >= desde && n.fecha <= hasta && pasa(n.docente, nivel[n.docente] || 'SIN NIVEL')) u[n.docente + '|' + n.fecha] = 1; }); return Object.keys(u).length; })(),
     eventos: nov.length,
+    minutosCubiertos: resSuma_(nov.filter(function (n) { return n.cubierto; }), function (n) { return n.minutosAusencia; }),
+    eventosCubiertos: nov.filter(function (n) { return n.cubierto; }).length,
     pctJustificadas: nov.length ? Math.round(just.length / nov.length * 1000) / 10 : null,
     minutosSinJustificar: resSuma_(nov.filter(function (n) { return n.justificada !== 'Sí'; }), function (n) { return n.minutos; })
   };
@@ -768,7 +775,7 @@ function calcularResumen_(ctx) {
     ronda.push({ sesion: s, esperados: esp, marcados: Object.keys(marc).length });
   }
 
-  function fila(x) { return { fecha: x.fecha, docente: x.docente, grupo: x.grupo, area: x.area, tipo: x.tipo, motivo: x.motivo, minutos: x.minutos, justificada: x.justificada, directivo: x.directivo }; }
+  function fila(x) { return { fecha: x.fecha, docente: x.docente, grupo: x.grupo, area: x.area, tipo: x.tipo, motivo: x.motivo + (x.cubierto ? ' · grupo atendido por reemplazo (' + x.minutosAusencia + ' min cubiertos)' : ''), minutos: x.minutos, justificada: x.justificada, directivo: x.directivo }; }
   return {
     desde: desde, hasta: hasta, diasHabiles: dias.length, filtros: { nivel: fNivel, docente: fDoc }, kpis: kpis, tendencia: tendencia,
     porCategoria: resAgrupa_(nov, function (x) { return x.categoria; }, function (x) { return x.minutos; }),
@@ -809,7 +816,7 @@ function htmlInforme_(r, fechaTexto, urlPanel) {
     '<h2 style="margin:0 0 2px;font-size:18px">Asistencia docente · ICET 2026</h2><div style="color:#52514e;font-size:13px;margin-bottom:14px">' + e(fechaTexto) + '</div>' +
     '<div style="background:#f3f3f0;border-radius:10px;padding:14px 16px;margin-bottom:12px"><div style="font-size:12.5px;color:#52514e">Horas de clase sin atender</div>' +
     '<div style="font-size:40px;font-weight:600;line-height:1.1">' + e(k.horas) + ' <span style="font-size:16px;color:#52514e;font-weight:500">horas</span></div>' +
-    '<div style="font-size:13px;color:#52514e">' + e(k.sesiones) + ' sesiones de 45 min de ' + e(k.programadas) + ' programadas · cumplimiento ' + (k.cumplimiento == null ? '—' : e(k.cumplimiento) + '%') + '</div></div>' +
+    '<div style="font-size:13px;color:#52514e">' + e(k.sesiones) + ' sesiones de 45 min de ' + e(k.programadas) + ' programadas · cumplimiento ' + (k.cumplimiento == null ? '—' : e(k.cumplimiento) + '%') + (k.minutosCubiertos ? ' · ' + resMin_(k.minutosCubiertos) + ' de grupos atendidos por reemplazo (no cuentan como sin atender)' : '') + '</div></div>' +
     '<table width="100%" cellpadding="0" cellspacing="6" style="margin-bottom:10px"><tr>' +
     [['Docentes con novedad', k.docentesConNovedad], ['Ausencias', k.ausencias], ['Llegadas tarde', k.llegadasTarde], ['Salidas tempranas', k.salidasTempranas], ['Permisos por horas', k.permisosTemporales], ['Salidas pedagógicas (docente-día)', k.salidasPedagogicas], ['Incumplimientos', k.incumplimientos],
      ['Justificadas', k.pctJustificadas == null ? '—' : k.pctJustificadas + '%']].map(function (t) {
@@ -1105,7 +1112,7 @@ function resumenInterno_(desde, hasta, filtros) {
   var nov = datos_('Novedades').map(function (n) {
     return { fecha: fechaIso_(n['Fecha Novedad']), docente: n['Docente'], tipo: n['Tipo Novedad'], motivo: n['Motivo Ausencia'],
              justificada: n['Justificada'], categoria: n['Categoría motivo'], grado: n['Grado'], grupo: n['Grupo'], area: n['Área/Asignatura'],
-             minutos: n['Minutos Desatendidos'], directivo: n['Directivo Docente'] };
+             minutos: n['Minutos Desatendidos'], directivo: n['Directivo Docente'], atiende: n['Grupo atendido por'] };
   });
   var reg = datos_('Registro_Ronda').map(function (r) { return { fecha: fechaIso_(r.fecha), sesion: r.sesion, docente: r.docente, estado: r.estado }; });
   var hz = datos_('Horario').map(function (h) { return { dia: h.dia, hora: Number(h.hora), docente: h.docente, nivel: nivelDe[h.docente] || 'SIN NIVEL' }; });
@@ -2786,11 +2793,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.19-a';
+var VERSION_SISTEMA = '2026.10.19-b';
 var FECHA_VERSION = '2026-10-19';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.19-b', fecha: '2026-10-19', cambios: [
+    'Ronda: al marcar «No asistió» se muestra el total de minutos sin atender y cuántas sesiones son (antes decía «Automático»).',
+    'Nuevo «Reemplazo (acordado con rectoría)» en «¿Quién atendió al grupo?». Si el grupo lo atendió un reemplazo, practicante, auxiliar u otro docente, la ausencia del docente (incapacidad, licencia) sigue contando, pero esos minutos no cuentan como «sin atender»; el panel y el informe muestran aparte los minutos cubiertos.'] },
   { version: '2026.10.19-a', fecha: '2026-10-19', cambios: [
     'Ronda en celular más compacta: barra inferior más baja, botones y tarjetas más pequeños para ver al menos dos docentes por pantalla.',
     'Hoja LEEME con título grande, versión vigente e historial de cambios (se actualiza sola al abrir el libro).'] },

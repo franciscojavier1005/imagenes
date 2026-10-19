@@ -90,3 +90,7 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 
 ## 2026-10-19 · Hoja LEEME y control de versiones
 - Nuevo apps_script/Leeme.gs: hoja LEEME con título grande, versión vigente, qué contiene cada hoja e historial de versiones; se regenera sola al abrir el libro si la versión difiere (menú: «Actualizar hoja LEEME»). Regla: al subir versión, actualizar Leeme.gs (VERSION_SISTEMA, FECHA_VERSION, HISTORIAL_VERSIONES); la prueba leeme.test.js verifica que coincida con el sello de las pantallas. Versión actual: 2026.10.19-a.
+
+## 2026-10-19 (versión 2026.10.19-b) · Reemplazos y minutos
+- Ronda: «No asistió» muestra el total real de minutos sin atender y las sesiones (antes «Automático»). Nueva opción «Reemplazo (acordado con rectoría)» en «¿Quién atendió al grupo?».
+- Resumen/panel/informe: si el grupo lo atendió un reemplazo, practicante, auxiliar u otro docente (Resumen.gs RES_COBERTURA_), la ausencia sigue contando (incapacidad/licencia, ausencias, justificación) pero los minutos NO suman como sin atender; se muestran aparte (kpis.minutosCubiertos) y el incumplimiento nunca se considera cubierto. Pendiente de confirmar con el usuario si así lo quiere (propuesta 2026-10-19).

@@ -30,3 +30,18 @@ var rd=ctxVm.calcular(Object.assign({},ctx,{filtros:{docente:exp.docenteFiltro}}
 ['minutos','eventos','programadas','ausencias','llegadasTarde','salidasTempranas','cumplimiento','pctJustificadas'].forEach(function(x){ig(rd.kpis[x],ed[x],'filtro docente · '+x);});
 ig(rd.lista.length,ed.lista,'lista de novedades del docente');
 ig(rd.porDocente.length,1,'el informe del docente no incluye a otros docentes');
+
+// ---- grupo atendido por reemplazo: la ausencia (incapacidad) cuenta, pero no queda «sin atender»
+(function(){
+  var base={desde:'2026-10-05',hasta:'2026-10-05',novedades:[],registro:[],horario:[],docentes:[{nombre_completo:'Ana Uno',nivel:'SECUNDARIA'}],motivos:[{motivo:'Incapacidad médica',categoria:'SALUD',justificada:'SI'}]};
+  var nv=(at)=>({fecha:'2026-10-05',docente:'Ana Uno',tipo:'No asistió',motivo:'Incapacidad médica',justificada:'Sí',categoria:'SALUD',grado:'6',grupo:'1',area:'Matemáticas',minutos:90,directivo:'V',atiende:at});
+  var sin=ctxVm.calcular(Object.assign({},base,{novedades:[nv('')]})).kpis;
+  ig([sin.minutos,sin.ausencias,sin.minutosCubiertos],[90,1,0],'sin reemplazo: 90 min sin atender');
+  var con=ctxVm.calcular(Object.assign({},base,{novedades:[nv('Reemplazo (acordado con rectoría)')]}));
+  ig([con.kpis.minutos,con.kpis.ausencias,con.kpis.minutosCubiertos,con.kpis.eventosCubiertos],[0,1,90,1],'con reemplazo: la ausencia cuenta, 0 min sin atender y 90 min cubiertos');
+  ig(/atendido por reemplazo \(90 min cubiertos\)/.test(con.dia[0].motivo),true,'la lista del día indica que el grupo fue atendido por reemplazo');
+  var inc=ctxVm.calcular(Object.assign({},base,{novedades:[Object.assign(nv('Reemplazo (docente)'),{tipo:'Incumplimiento: no atiende'})]})).kpis;
+  ig(inc.minutos,90,'un incumplimiento nunca se considera cubierto');
+  var nada=ctxVm.calcular(Object.assign({},base,{novedades:[nv('Nadie (grupo solo)')]})).kpis;
+  ig(nada.minutos,90,'«nadie atendió» sigue contando como sin atender');
+})();

@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.19-a';
+var VERSION_SISTEMA = '2026.10.19-b';
 var FECHA_VERSION = '2026-10-19';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.19-b', fecha: '2026-10-19', cambios: [
+    'Ronda: al marcar «No asistió» se muestra el total de minutos sin atender y cuántas sesiones son (antes decía «Automático»).',
+    'Nuevo «Reemplazo (acordado con rectoría)» en «¿Quién atendió al grupo?». Si el grupo lo atendió un reemplazo, practicante, auxiliar u otro docente, la ausencia del docente (incapacidad, licencia) sigue contando, pero esos minutos no cuentan como «sin atender»; el panel y el informe muestran aparte los minutos cubiertos.'] },
   { version: '2026.10.19-a', fecha: '2026-10-19', cambios: [
     'Ronda en celular más compacta: barra inferior más baja, botones y tarjetas más pequeños para ver al menos dos docentes por pantalla.',
     'Hoja LEEME con título grande, versión vigente e historial de cambios (se actualiza sola al abrir el libro).'] },

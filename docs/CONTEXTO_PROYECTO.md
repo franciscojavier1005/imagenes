@@ -84,3 +84,6 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 - 2026-10-17: informes del docente (notas por periodo, definitiva tentativa, puestos sin repetición con regla de desempate, distribución por desempeño, riesgo, comparativos) en docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §10 (solo diseño).
 - 2026-10-17: director/co-dinamizador de grupo (consolidado, convivencia, riesgo), cuadro de honor por periodo y marcas de participación visibles a docentes (solo no sensibles) en docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §11 (solo diseño).
 - 2026-10-17: observaciones del docente sobre estudiantes (positivas y de atención, elevables a reporte) en docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §12 (solo diseño).
+
+## 2026-10-19 (versión 2026.10.19-a)
+- Ronda en celular más compacta: barra inferior de ~128 a ~66 px (chips en una sola fila deslizable, botones de 34 px con texto más pequeño, '✔ Todos'), encabezado, buscador y botones de estado reducidos en pantallas ≤560 px (3 columnas) para ver al menos dos docentes por pantalla. Solo cambia Consulta.html (y el sello de versión).

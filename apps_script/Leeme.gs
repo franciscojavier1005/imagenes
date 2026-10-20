@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.20-d';
+var VERSION_SISTEMA = '2026.10.20-e';
 var FECHA_VERSION = '2026-10-20';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.20-e', fecha: '2026-10-20', cambios: [
+    'Reuniones y actividades: nuevos datos al crear o editar: hora en que comienza y cómo termina (hora fija, hora tentativa o hasta finalizar la jornada), lugar, quién convoca (rectoría, coordinaciones, líder de área, docente, orientador(a), PTAFI, Secretaría de Educación…) con el área o entidad, quién solicita y responsables a cargo, además de los convocados. Las columnas nuevas de la hoja Reuniones se agregan solas.',
+    'Crear una reunión ya no se repite si se toca el botón varias veces mientras el libro responde (queda una sola) y, al terminar, vuelve a la lista de reuniones (antes abría la lista de docentes para la asistencia). Quien administra ve «Quitar las repetidas» para limpiar las que ya estén duplicadas (también en el menú del libro: Quitar reuniones repetidas); la que tiene asistencia se conserva y las demás quedan en Reuniones_Anuladas.'] },
   { version: '2026.10.20-d', fecha: '2026-10-20', cambios: [
     'Aviso del día: ventana emergente de unos segundos sobre cualquier pantalla (menú, ronda, novedades, reuniones, horarios y panel) con las reuniones de hoy (hora, tipo, si se suspenden las clases), las que ya terminaron sin asistencia registrada y las salidas con estudiantes. Vuelve a aparecer al terminar de guardar la ronda.',
     'Recordatorios por reunión: al crearla o editarla se elige avisar con 1, 2, 3 o 7 días de anticipación, el mismo día (15 min, 30 min, 1 o 2 horas antes, con parpadeo y vibración en el celular) y si sale al comenzar y al terminar la ronda. Durante la jornada la app lo revisa cada 3 minutos y avisa una sola vez. La hoja Reuniones recibe las columnas avisar_dias, avisar_min y avisar_ronda (se agregan solas).'] },
@@ -92,7 +95,7 @@ var LEEME_HOJAS = [
   'Motivos / Listas  Catálogos de motivos (salud, permisos, licencias, comisión de servicios, calamidad…) con su categoría y si son justificados.',
   'Novedades         Novedades de asistencia (una fila por docente, día y sesión); Novedades_Anuladas guarda las anuladas.',
   'Registro_Ronda    Cada marca de la ronda (presente, no asistió, tarde…) con el directivo que la hizo.',
-  'Reuniones / Asistencia_Reunion / Reuniones_Anuladas   Reuniones y actividades sin estudiantes y su asistencia (se pueden editar; los cambios quedan en Bitacora_Cambios). Solo quien administra las anula y quedan en Reuniones_Anuladas.',
+  'Reuniones / Asistencia_Reunion / Reuniones_Anuladas   Reuniones y actividades sin estudiantes y su asistencia (se pueden editar; los cambios quedan en Bitacora_Cambios). Solo quien administra las anula y quedan en Reuniones_Anuladas. Datos de cada reunión: lugar, quién convoca, quién solicita, responsables, cómo termina (fija, tentativa o hasta finalizar la jornada) y recordatorios.',
   'Incumplimientos   Reportes con rigor (solo se agrega; seguimiento por estados).',
   'Estudiantes / Marcas_Estudiantes / Grupos_Proyectos   Listado por grupo y marcas de seguimiento (los levantados quedan en la hoja).',
   'Semana_Alternancia / Alternancias   Quién dicta cada semana en las parejas que alternan.',

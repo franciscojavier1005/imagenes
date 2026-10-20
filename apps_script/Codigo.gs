@@ -31,6 +31,7 @@ function onOpen() {
     .addItem('Restablecer la clave de un directivo', 'restablecerClaveDirectivo')
     .addItem('Acerca de este sistema', 'acercaDe')
     .addItem('Actualizar hoja LEEME (versión y cambios)', 'actualizarLeeme')
+    .addItem('Quitar reuniones repetidas', 'quitarReunionesDuplicadasLibro')
     .addItem('Borrar audios de ronda antiguos', 'purgarAudios')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')

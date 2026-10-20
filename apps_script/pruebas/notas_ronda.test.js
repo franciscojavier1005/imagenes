@@ -282,6 +282,33 @@ const cr=run("cargarReunion({id:'"+rc1.id+"'})"); ok(cr.personas.length===1&&cr.
     EMAIL='alguien@gmail.com'; let ev=null; try{ run('avisosHoy()') }catch(x){ev=x} ok(ev&&/iniciar sesión/.test(ev.message),'solo directivos reciben el aviso del día'); EMAIL='dueno@gmail.com';
     run(`anularReunion({id:'${rN.id}',motivo:'prueba de aviso'})`); run(`anularReunion({id:'${rA.id}',motivo:'prueba de aviso'})`); run(`anularReunion({id:'${rS.id}',motivo:'prueba de aviso'})`);
   }
+  // organización de la reunión: lugar, quién convoca, quién solicita, responsables y cómo termina
+  {
+    const dj=dmas(8);
+    const rO=run(`crearReunion({tipo:'Consejo académico',nombre:'Con organización',fecha:'${dj}',inicio:'09:00',fin:'09:30',finTipo:'TENTATIVA',lugar:'Biblioteca',convocaTipo:'Coordinación académica',convocaDetalle:'área de matemáticas',solicitaPor:'Jorge Hernández',responsables:['${dR}','Nadie existe'],convocados:'TODOS'})`);
+    const o=run(`cargarReunion({id:'${rO.id}'})`).reunion;
+    ok(o.lugar==='Biblioteca'&&o.finTipo==='TENTATIVA'&&o.convocaTipo==='Coordinación académica'&&o.convocaDetalle==='área de matemáticas'&&o.solicitaPor==='Jorge Hernández'&&o.responsables.length===1&&o.responsables[0]===dR,'la reunión guarda lugar, quién convoca, quién solicita, responsables y hora tentativa');
+    const rJ=run(`crearReunion({tipo:'Consejo académico',nombre:'Hasta el final',fecha:'${dj}',inicio:'10:00',fin:'10:30',finTipo:'JORNADA',convocados:'TODOS'})`);
+    const oj=run(`cargarReunion({id:'${rJ.id}'})`).reunion; ok(oj.finTipo==='JORNADA'&&oj.fin==='13:30','«hasta finalizar la jornada» termina a la hora en que acaba la última sesión (13:30)');
+    let ej=null; try{ run(`crearReunion({tipo:'Consejo académico',nombre:'Tarde',fecha:'${dj}',inicio:'14:00',fin:'15:00',finTipo:'JORNADA',convocados:'TODOS'})`) }catch(x){ej=x} ok(ej&&/antes de que termine la jornada/.test(ej.message),'«hasta finalizar la jornada» exige iniciar antes del fin de la jornada');
+    // guardar «crear» varias veces seguidas no repite la reunión
+    const nU=hojas.Reuniones.v.length;
+    const c1=run(`crearReunion({tipo:'Consejo académico',nombre:'Triple clic',fecha:'${dj}',inicio:'11:00',fin:'12:00',convocados:'TODOS'})`);
+    const c2=run(`crearReunion({tipo:'Consejo académico',nombre:'Triple clic',fecha:'${dj}',inicio:'11:00',fin:'12:00',convocados:'TODOS'})`);
+    const c3=run(`crearReunion({tipo:'Consejo académico',nombre:'Triple clic',fecha:'${dj}',inicio:'11:00',fin:'12:00',convocados:'TODOS'})`);
+    ok(c2.id===c1.id&&c3.id===c1.id&&c2.repetida&&hojas.Reuniones.v.length===nU+1,'tocar «crear» 3 veces seguidas crea una sola reunión');
+    // duplicadas ya existentes (sin protección): se quitan de una vez y se conserva la que tiene asistencia
+    const hr=hojas.Reuniones.v[0]; const base=hojas.Reuniones.v.find((r,i)=>i>0&&r[hr.indexOf('id')]===c1.id);
+    const d2=base.slice(); d2[hr.indexOf('id')]='dup-2'; const d3=base.slice(); d3[hr.indexOf('id')]='dup-3'; hojas.Reuniones.v.push(d2,d3);
+    run(`guardarAsistenciaReunion({id:'dup-3',registros:[{persona:'${dR}',estado:'Asistió'}],directivo:'P'})`);
+    ok(run('listarReuniones({})').duplicadas===2,'la pantalla cuenta las reuniones repetidas (2 sobrantes)');
+    hojas.Directivos.v[3][hojas.Directivos.v[0].indexOf('correo_temporal')]='harold@x.com'; EMAIL='harold@x.com';
+    let eq=null; try{ run('quitarReunionesDuplicadas()') }catch(x){eq=x} ok(eq&&/Solo quien administra/.test(eq.message),'solo quien administra puede quitar las repetidas'); EMAIL='dueno@gmail.com';
+    const q=run('quitarReunionesDuplicadas()'); ok(q.quitadas===2,'se quitaron 2 reuniones repetidas');
+    const quedan=hojas.Reuniones.v.filter((r,i)=>i>0&&r[hr.indexOf('nombre')]==='Triple clic'); ok(quedan.length===1&&quedan[0][hr.indexOf('id')]==='dup-3','se conserva la que tiene asistencia registrada');
+    ok(run('listarReuniones({})').duplicadas===0,'ya no quedan repetidas');
+    [rO.id,rJ.id,'dup-3'].forEach(id=>run(`anularReunion({id:'${id}',motivo:'prueba de organización'})`));
+  }
   // anular: solo quien administra
   const dh=hojas.Directivos.v[0], iCT=dh.indexOf('correo_temporal');
   hojas.Directivos.v[3][iCT]='harold@x.com'; EMAIL='harold@x.com';

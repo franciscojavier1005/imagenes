@@ -73,3 +73,4 @@ function enviarRondasAMi(p) { return llamar_('enviarRondasAMi', [p]); }
 function editarReunion(p) { return llamar_('editarReunion', [p]); }
 function anularReunion(p) { return llamar_('anularReunion', [p]); }
 function avisosHoy() { return llamar_('avisosHoy', []); }
+function quitarReunionesDuplicadas() { return llamar_('quitarReunionesDuplicadas', []); }

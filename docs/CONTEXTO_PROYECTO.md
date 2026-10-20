@@ -141,3 +141,7 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 ## 2026-10-20 (versión 2026.10.20-i) · Salida anticipada, comunicados y aviso más largo
 - Aviso del día: duración 10 s + 4 s por aviso (máx. 28; urgentes 14 + 4, máx. 32).
 - Reuniones: columnas `salida_est` (hora en que se despacha a los estudiantes), `min_antes_salida` (10/15/20/30), `llevar_comedor`, `informar_padres`. `finClases` = salida − minutos; si hay salida anticipada la reunión queda `sin_estudiantes=SI` y la ronda suspende las clases desde `inicioClases` (`reunionesEnSesiones_`). Botón «📣 Comunicados» (Reunion.html: `textosComunicado`) genera texto para docentes y para padres (copiar / WhatsApp). Avisos: salida anticipada y «informar a padres» el día de la reunión y la víspera; los viernes también el lunes (`avisosHoy`).
+
+## 2026-10-20 (versión 2026.10.20-j) · Aviso destacado y encabezado de la ronda
+- aviso_dia.html (fuente única): `avFila` — hora en etiqueta de color por prioridad (hoy/ahora/mañana/próxima/falta), nombre en negrita 16 px, icono de prioridad y fondos iguales a los de la lista de reuniones.
+- Consulta.html: chip del directivo (`chipDir`) en el encabezado (amarillo; rojo si falta elegir), quitado de la barra inferior; escudo 48 px en celular; subtítulo «Institución Ciudadela Educativa de Tumaco · ICET». Pendiente de confirmar con el usuario la forma exacta del nombre oficial; las demás pantallas aún dicen «I.E. ICET».

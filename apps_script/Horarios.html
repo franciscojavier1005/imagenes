@@ -76,7 +76,7 @@
   <div class="ctrl" id="ctrl"></div>
   <div id="res"><div class="aviso">Cargando…</div></div>
   <div id="lote"></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.20-i</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.20-j</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -384,18 +384,19 @@ function avisoDiaPintar(r,soloUrgentes){
   (r.reuniones||[]).forEach(function(x){
     if(x.estado==='pasada'&&x.registrados) return;                      // ya terminó y tiene asistencia: no estorba
     if(soloUrgentes){ if(!x.urgente||avisoYa(x.id+'|'+r.hoy+'|'+x.estado)) return; }
-    else if(!x.avisarRonda&&!x.urgente) return;                         // quien no quiso verla al comenzar la ronda, solo la ve en su recordatorio
+    else if(!x.avisarRonda&&!x.urgente&&!x.salidaEst) return;           // quien no quiso verla al comenzar la ronda, solo la ve en su recordatorio
     var urg=!!x.urgente&&x.estado!=='pasada'; if(urg) parp=true;
-    var cl=x.estado==='ahora'?'ahora':(x.estado==='pasada'?'falta':(urg?'ahora':'prox'));
-    var et=x.estado==='ahora'?'<b class="av-e av-ahora">AHORA</b>':(x.estado==='pasada'?'<b class="av-e av-falta">Falta registrar asistencia</b>':(urg?'<b class="av-e av-ahora">EN '+Math.max(0,x.minutosHasta)+' MIN</b>':'<b class="av-e av-prox">Hoy</b>'));
-    items.push({c:cl,p:urg,h:'<span class="av-ic">👥</span><div><b>'+avEsc(x.inicio)+' – '+avEsc(x.fin)+'</b> · '+avEsc(x.nombre)+' '+et+'<br><small>'+avEsc(x.tipo)+(x.lugar?' · 📍 '+avEsc(x.lugar):'')+(x.finTipo==='JORNADA'?' · hasta finalizar la jornada':'')+(x.sinEstudiantes?' · <b>sin clases</b> (se suspende la ronda de aula)':'')+(x.convocadosResumen?' · convoca a: '+avEsc(x.convocadosResumen):(x.convocadosN?' · convocados: '+x.convocadosN:''))+'</small>'+(x.observaciones?'<div class="av-obs">📝 '+avEsc(x.observaciones)+'</div>':'')+avExtra(x)+'</div>'});
+    var cl=x.estado==='pasada'?'falta':((x.estado==='ahora'||urg)?'ahora':'hoy');
+    var ic=cl==='falta'?'⚠️':(cl==='ahora'?'🔥':'🔥');
+    var et=x.estado==='pasada'?'FALTA REGISTRAR ASISTENCIA':(x.estado==='ahora'?'AHORA':(urg?'EN '+Math.max(0,x.minutosHasta)+' MIN':'HOY · PRIORIDAD ALTA'));
+    items.push({c:cl,p:urg,h:avFila(ic,x.inicio+' – '+x.fin,et,cl,x.nombre,x)});
   });
   if(!soloUrgentes){
     (r.previas||[]).forEach(function(x){
-      var f=String(x.fecha).split('-');
-      items.push({c:'prox',h:'<span class="av-ic">📅</span><div><b>'+(x.dias===1?'MAÑANA':'En '+x.dias+' días')+' · '+avEsc(x.inicio)+' – '+avEsc(x.fin)+'</b> · '+avEsc(x.nombre)+'<br><small>'+f[2]+'/'+f[1]+' · '+avEsc(x.tipo)+(x.lugar?' · 📍 '+avEsc(x.lugar):'')+(x.sinEstudiantes?' · <b>sin clases</b>':'')+'</small>'+(x.observaciones?'<div class="av-obs">📝 '+avEsc(x.observaciones)+'</div>':'')+avExtra(x)+'</div>'});
+      var f=String(x.fecha).split('-'), man=x.dias===1, cl=man?'man':'prox';
+      items.push({c:cl,h:avFila(man?'⏰':'📅',x.inicio+' – '+x.fin,(man?'MAÑANA · PRIORIDAD MEDIA':'EN '+x.dias+' DÍAS · '+f[2]+'/'+f[1]),cl,x.nombre,x)});
     });
-    (r.actividades||[]).forEach(function(a){
+  (r.actividades||[]).forEach(function(a){
       items.push({c:'act',h:'<span class="av-ic">🚌</span><div><b>'+avEsc(a.motivo)+'</b><br><small>Con estudiantes fuera del colegio: '+avEsc(a.docentes.slice(0,4).join(', '))+(a.docentes.length>4?' y '+(a.docentes.length-4)+' más':'')+' · no se marca ausentes</small></div>'});
     });
   }
@@ -423,11 +424,27 @@ function avisoDiaPintar(r,soloUrgentes){
    '#avisoDia .av-e.av-ahora{background:#ef6c00}#avisoDia .av-e.av-falta{background:#c62828}#avisoDia .av-e.av-prox{background:#1b4a8f}'+
    '#avisoDia .av-obs{font-size:12.5px;color:#234;margin-top:2px;white-space:pre-wrap}#avisoDia .av-mas{font-size:12.5px;color:#456;margin:2px 0}#avisoDia .av-barra{height:4px;background:#e3e9f0;border-radius:3px;margin-top:6px;overflow:hidden}'+
    '#avisoDia .av-prog{height:100%;background:#0f2a5c;animation-name:avProg;animation-timing-function:linear;animation-fill-mode:forwards}#avisoDia .av-pie{font-size:11px;color:#789;text-align:center;margin-top:3px}'+
+   '#avisoDia .av-cuerpo{flex:1;min-width:0}#avisoDia .av-linea{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:2px}'+
+   '#avisoDia .av-nom{font-weight:800;font-size:16px;line-height:1.2;color:#0b1f4a;margin:1px 0 2px}'+
+   '#avisoDia .av-hora{font-weight:800;font-size:14px;border-radius:8px;padding:1px 8px;color:#fff;background:#1b4a8f}'+
+   '#avisoDia .av-et{font-weight:800;font-size:11px;letter-spacing:.2px}'+
+   '#avisoDia .av-h-hoy{background:#ef6c00}#avisoDia .av-e-hoy{color:#c2410c}'+
+   '#avisoDia .av-h-ahora{background:#d84315}#avisoDia .av-e-ahora{color:#bf360c}'+
+   '#avisoDia .av-h-man{background:#b58900}#avisoDia .av-e-man{color:#8a6a00}'+
+   '#avisoDia .av-h-prox{background:#1b4a8f}#avisoDia .av-e-prox{color:#0f2a5c}'+
+   '#avisoDia .av-h-falta{background:#c62828}#avisoDia .av-e-falta{color:#a31515}'+
+   '#avisoDia .av-hoy{background:#fff1e0;border-left-color:#ef6c00}#avisoDia .av-man{background:#fffbe3;border-left-color:#f0c000}#avisoDia .av-prox{background:#e8eefb;border-left-color:#1b4a8f}'+
    '@media(prefers-reduced-motion:reduce){#avisoDia .av-parp,#avisoDia .av-parpi{animation:none}}';
   v.appendChild(st); document.body.appendChild(v);
   if(parp){ try{ if(navigator.vibrate) navigator.vibrate([200,100,200]); }catch(e){} }
   var cierra=function(){ if(v.parentNode) v.parentNode.removeChild(v); }, timer=setTimeout(cierra,seg*1000);
   v.querySelector('.av-caja').addEventListener('click',function(){ clearTimeout(timer); cierra(); });
+}
+/* una fila del aviso: icono de prioridad, hora destacada (con color), nombre en negrita y un poco más grande, y el detalle */
+function avFila(ic,hora,etiqueta,cl,nombre,x){
+  var det=avEsc(x.tipo)+(x.lugar?' · 📍 '+avEsc(x.lugar):'')+(x.finTipo==='JORNADA'?' · hasta finalizar la jornada':'')+(x.sinEstudiantes?' · <b>sin clases</b> (se suspende la ronda de aula)':'')+(x.convocadosResumen?' · convoca a: '+avEsc(x.convocadosResumen):(x.convocadosN?' · convocados: '+x.convocadosN:''));
+  return '<span class="av-ic">'+ic+'</span><div class="av-cuerpo"><div class="av-linea"><span class="av-hora av-h-'+cl+'">'+avEsc(hora)+'</span><span class="av-et av-e-'+cl+'">'+avEsc(etiqueta)+'</span></div>'+
+    '<div class="av-nom">'+avEsc(nombre)+'</div><small>'+det+'</small>'+(x.observaciones?'<div class="av-obs">📝 '+avEsc(x.observaciones)+'</div>':'')+avExtra(x)+'</div>';
 }
 /* salida anticipada de estudiantes y comunicación a padres */
 function avExtra(x){

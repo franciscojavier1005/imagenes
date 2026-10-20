@@ -3173,11 +3173,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.20-i';
+var VERSION_SISTEMA = '2026.10.20-j';
 var FECHA_VERSION = '2026-10-20';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.20-j', fecha: '2026-10-20', cambios: [
+    'Aviso del día: cada reunión muestra la hora destacada con color según la prioridad (HOY naranja, MAÑANA amarillo, próximas azul, en curso rojo y parpadeante, sin asistencia rojo), el nombre en negrita y más grande, un icono de prioridad (🔥, ⏰, 📅, ⚠️) y el fondo del mismo color que en la lista de reuniones.',
+    'Ronda: el nombre del directivo que hace la ronda pasa de la barra inferior al encabezado (se ve en amarillo; en rojo si falta elegirlo), lo que libera espacio para los contadores; el escudo del colegio se ve más grande en el celular; el encabezado muestra el nombre completo de la institución (Institución Ciudadela Educativa de Tumaco · ICET).'] },
   { version: '2026.10.20-i', fecha: '2026-10-20', cambios: [
     'Aviso del día: ahora se queda el doble de tiempo (10 segundos y 4 más por cada aviso; los recordatorios urgentes, 14 y 4 por aviso).',
     'Reuniones: «Salida anticipada de estudiantes»: hora en que se despachan, minutos antes en que terminan las clases (10, 15, 20 o 30, para el aseo y el comedor) y si se lleva a los estudiantes al comedor antes de despacharlos. Las clases se suspenden desde que terminan (la ronda de aula no se hace en ese horario) y el aviso del día lo recuerda a los directivos.',

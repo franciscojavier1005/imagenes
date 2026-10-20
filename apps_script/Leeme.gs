@@ -5,11 +5,16 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.20-f';
+var VERSION_SISTEMA = '2026.10.20-h';
 var FECHA_VERSION = '2026-10-20';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.20-h', fecha: '2026-10-20', cambios: [
+    'Reuniones: nuevo campo «Asunto u observaciones (opcional)» para aclarar de qué trata la reunión; se ve en la tarjeta y, solo si se escribió, en el aviso del día y en los recordatorios. La hoja Reuniones recibe la columna observaciones.',
+    'Reuniones: los tipos «Jornada pedagógica» y «Reunión de desarrollo institucional» se unificaron en «Jornada pedagógica o de desarrollo institucional» (las reuniones ya guardadas se muestran con el nombre nuevo). Tipos nuevos: taller pedagógico, charla o conferencia, reunión de área o de grado, reunión con padres de familia o acudientes, escuela de padres, acto cívico o cultural y simulacro de evacuación.'] },
+  { version: '2026.10.20-g', fecha: '2026-10-20', cambios: [
+    'Reuniones: el lugar se elige de una lista por grupos: espacios del colegio (sala de profesores, polideportivo (canchas), patio principal, sala múltiple (auditorio), biblioteca, comedor escolar, emisora escolar), salas de tecnología e informática 1 a 4 y aulas digitales (sala 5), laboratorio de química y otros laboratorios o entornos por área (se escribe cuál y su número), salones (se escribe el número o grupo), oficinas (rectoría, coordinaciones y orientación escolar, tomadas de las hojas Directivos y Docentes) y otros (virtual, fuera del colegio, otro lugar).'] },
   { version: '2026.10.20-f', fecha: '2026-10-20', cambios: [
     'Reuniones: «¿A quiénes se convoca?» ahora tiene opciones globales: todo el personal, directivos docentes, docentes orientadoras, tutora PTAFI, docentes de preescolar, de básica primaria, de bachillerato, docentes de un área (una o varias) y personalizado (docente por docente, con buscador). Además organismos e invitados: consejo directivo, académico, estudiantil, de padres, comité de convivencia, comité de comedor escolar, padres de familia o acudientes, egresados y entidad o invitado externo (con su nombre). Los organismos e invitados se anuncian pero no llevan lista de asistencia por persona; el personal sí. La hoja Reuniones recibe las columnas convocados_grupos, invitados e invitado_nombre.'] },
   { version: '2026.10.20-e', fecha: '2026-10-20', cambios: [

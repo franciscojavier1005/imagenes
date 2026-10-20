@@ -2037,7 +2037,7 @@ function purgarAudios() {
  * Hojas: Reuniones (una fila por reunión) y Asistencia_Reunion (una fila por persona y reunión; se reemplaza al volver a guardar).
  * Fechas y horas se guardan como TEXTO (con apóstrofo) para que Sheets no las convierta.
  */
-var COL_REUNIONES = ['id', 'fecha', 'tipo', 'nombre', 'inicio', 'fin', 'sin_estudiantes', 'convocados', 'creado_por', 'fecha_creacion', 'avisar_dias', 'avisar_min', 'avisar_ronda', 'lugar', 'fin_tipo', 'convoca_tipo', 'convoca_detalle', 'solicita_por', 'responsables', 'convocados_grupos', 'invitados', 'invitado_nombre'];
+var COL_REUNIONES = ['id', 'fecha', 'tipo', 'nombre', 'inicio', 'fin', 'sin_estudiantes', 'convocados', 'creado_por', 'fecha_creacion', 'avisar_dias', 'avisar_min', 'avisar_ronda', 'lugar', 'fin_tipo', 'convoca_tipo', 'convoca_detalle', 'solicita_por', 'responsables', 'convocados_grupos', 'invitados', 'invitado_nombre', 'observaciones'];
 /** A quiénes se convoca. Personal (genera lista de asistencia) y organismos e invitados (solo se anuncian). */
 var GRUPOS_PERSONAL = [
   ['TODOS', 'Todo el personal de la institución', 'Docentes, orientadoras, tutora PTAFI y directivos'],
@@ -2114,7 +2114,21 @@ function resumenConvocados_(x) {
 
 /** Quién convoca (lista del formulario). */
 var CONVOCA_TIPOS = ['Rectoría', 'Coordinación académica', 'Coordinación de convivencia', 'Coordinación de redes de apoyo', 'Líder de área', 'Docente', 'Docente orientador(a)', 'Tutora PTAFI', 'Directivo docente', 'Secretaría de Educación', 'Otra entidad o persona'];
-var LUGARES_REUNION = ['Sala de profesores', 'Biblioteca', 'Coliseo', 'Aula máxima', 'Sala de sistemas', 'Rectoría', 'Patio principal', 'Virtual (enlace)', 'Fuera del colegio'];
+/** Lugares donde se hacen reuniones y actividades, por grupos. `pide`: el lugar necesita un dato (número de salón, cuál laboratorio…); `solo`: el dato reemplaza al nombre. */
+/** «Apellido1 Apellido2 Nombre1 …» → «Nombre1 Apellido1». */
+function nombreCortoDocente_(n) { var t = String(n || '').trim().split(/\s+/); return t.length >= 3 ? t[2] + ' ' + t[0] : String(n || ''); }
+function lugaresReunion_() {
+  var coord = datos_('Directivos').filter(function (d) { return !/rector/i.test(String(d.rol)); }).map(function (d) { return { v: 'Coordinación – ' + d.nombre }; });
+  var orient = datos_('Docentes').filter(function (d) { return /ORIENT/i.test(String(d.nivel)); }).map(function (d) { return { v: 'Orientación escolar – ' + nombreCortoDocente_(d.nombre_completo) }; });
+  return [
+    { grupo: 'Espacios del colegio', items: [{ v: 'Sala de profesores' }, { v: 'Polideportivo (canchas)' }, { v: 'Patio principal' }, { v: 'Sala múltiple (auditorio)' }, { v: 'Biblioteca' }, { v: 'Comedor escolar' }, { v: 'Emisora escolar' }] },
+    { grupo: 'Salas de tecnología e informática', items: [{ v: 'Sala de tecnología e informática 1' }, { v: 'Sala de tecnología e informática 2' }, { v: 'Sala de tecnología e informática 3' }, { v: 'Sala de tecnología e informática 4' }, { v: 'Aulas digitales (sala 5)' }] },
+    { grupo: 'Laboratorios y entornos por área', items: [{ v: 'Laboratorio de química' }, { v: 'Otro laboratorio o entorno de área', pide: '¿Cuál y qué número? (ej.: Laboratorio de física 2)' }] },
+    { grupo: 'Salones', items: [{ v: 'Salón', pide: 'Número o grupo del salón (ej.: 8-1)' }] },
+    { grupo: 'Oficinas', items: [{ v: 'Rectoría' }].concat(coord, orient) },
+    { grupo: 'Otro', items: [{ v: 'Virtual (enlace)' }, { v: 'Fuera del colegio', pide: '¿Dónde?' }, { v: 'Otro lugar', pide: 'Escriba cuál', solo: true }] }
+  ];
+}
 var FIN_TIPOS = { FIJA: 'Hora fija', TENTATIVA: 'Hora tentativa', JORNADA: 'Hasta finalizar la jornada' };
 /** Hora en que termina la jornada escolar (fin de la última sesión de la hoja Franjas). */
 function finJornada_() {
@@ -2142,12 +2156,18 @@ var COL_ASIST_REUNION = ['id_reunion', 'fecha', 'persona', 'estado', 'motivo', '
 var ESTADOS_REUNION = ['Asistió', 'No asistió', 'Llegada tarde', 'Salida temprana'];
 var ESTADOS_REUNION_PRESENTE = ['Asistió', 'Llegada tarde', 'Salida temprana'];
 /** tipo -> valores sugeridos (la pantalla los propone y el directivo los puede cambiar). sinEstudiantes: no hay clases en ese horario. */
+var TIPO_JORNADA = 'Jornada pedagógica o de desarrollo institucional';
+/** Tipos que se unificaron: las reuniones ya guardadas con el nombre anterior se muestran y se editan con el nuevo. */
+var TIPOS_ALIAS_REUNION = { 'Jornada pedagógica': TIPO_JORNADA, 'Reunión de desarrollo institucional': TIPO_JORNADA };
+function tipoReunion_(t) { return TIPOS_ALIAS_REUNION[t] || t; }
 var TIPOS_REUNION = [
-  { tipo: 'Jornada pedagógica', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
-  { tipo: 'Reunión de desarrollo institucional', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
-  { tipo: 'Reunión de planeación', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: TIPO_JORNADA, sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Taller pedagógico', sinEstudiantes: false, inicio: '08:00', fin: '10:00' },
   { tipo: 'Capacitación en el colegio', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Charla o conferencia', sinEstudiantes: false, inicio: '08:00', fin: '09:00' },
+  { tipo: 'Reunión de planeación', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
   { tipo: 'Reunión pedagógica', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Reunión de área o de grado', sinEstudiantes: false, inicio: '08:00', fin: '09:00' },
   { tipo: 'Asamblea de docentes', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
   { tipo: 'Reunión extraordinaria del rector', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
   { tipo: 'Reunión informativa o actividad institucional', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
@@ -2155,7 +2175,11 @@ var TIPOS_REUNION = [
   { tipo: 'Comité de convivencia', sinEstudiantes: false, inicio: '08:00', fin: '10:00' },
   { tipo: 'Comité de calidad', sinEstudiantes: false, inicio: '08:00', fin: '10:00' },
   { tipo: 'Reunión PTAFI con la tutora', sinEstudiantes: false, inicio: '08:00', fin: '09:00' },
+  { tipo: 'Reunión con padres de familia o acudientes', sinEstudiantes: false, inicio: '07:00', fin: '09:00' },
+  { tipo: 'Escuela de padres', sinEstudiantes: false, inicio: '07:00', fin: '09:00' },
   { tipo: 'Entrega de boletines', sinEstudiantes: false, inicio: '07:00', fin: '13:30' },
+  { tipo: 'Acto cívico o cultural', sinEstudiantes: false, inicio: '07:00', fin: '08:00' },
+  { tipo: 'Simulacro de evacuación', sinEstudiantes: false, inicio: '09:00', fin: '09:30' },
   { tipo: 'Aseo general', sinEstudiantes: true, inicio: '07:00', fin: '09:00' },
   { tipo: 'Examen general periódico', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
   { tipo: 'Clausura', sinEstudiantes: true, inicio: '08:00', fin: '12:00' },
@@ -2177,12 +2201,12 @@ function personasReunion_() {
 
 function reunionDeFila_(r) {
   var conv = String(r.convocados || 'TODOS');
-  var x = { id: r.id, fecha: fechaIso_(limpiaTxt_(r.fecha)), tipo: r.tipo, nombre: r.nombre, inicio: limpiaTxt_(r.inicio), fin: limpiaTxt_(r.fin),
+  var x = { id: r.id, fecha: fechaIso_(limpiaTxt_(r.fecha)), tipo: tipoReunion_(r.tipo), nombre: r.nombre, inicio: limpiaTxt_(r.inicio), fin: limpiaTxt_(r.fin),
            sinEstudiantes: String(r.sin_estudiantes) === 'SI', convocados: conv === 'TODOS' ? 'TODOS' : (conv === 'NINGUNO' ? [] : conv.split(';').map(function (x) { return x.trim(); }).filter(String)),
            creadoPor: r.creado_por, avisarDias: recordatorioDe_(r).avisarDias, avisarMin: recordatorioDe_(r).avisarMin, avisarRonda: recordatorioDe_(r).avisarRonda,
            lugar: String(r.lugar || ''), finTipo: FIN_TIPOS[r.fin_tipo] ? r.fin_tipo : 'FIJA', convocaTipo: String(r.convoca_tipo || ''), convocaDetalle: String(r.convoca_detalle || ''), solicitaPor: String(r.solicita_por || ''),
            responsables: String(r.responsables || '').split(';').map(function (x) { return x.trim(); }).filter(String),
-           grupos: String(r.convocados_grupos || '').split(';').filter(String), invitados: String(r.invitados || '').split(';').filter(String), invitadoNombre: String(r.invitado_nombre || '') };
+           grupos: String(r.convocados_grupos || '').split(';').filter(String), invitados: String(r.invitados || '').split(';').filter(String), invitadoNombre: String(r.invitado_nombre || ''), observaciones: String(r.observaciones || '') };
   x.convocadosResumen = resumenConvocados_(x);
   return x;
 }
@@ -2230,7 +2254,7 @@ function listarReuniones(p) {
   function resumida(r) { var a = asistenciaDe_(r.id), conv = convocadosDe_(r), reg = 0; conv.forEach(function (n) { if (a[n]) reg++; }); return Object.assign({}, r, { convocadosN: conv.length, registrados: reg }); }
   var proximas = todas.filter(function (r) { return r.fecha >= hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? -1 : 1) : (a.fecha < b.fecha ? -1 : 1); }).slice(0, 12).map(resumida);
   var ultimas = todas.filter(function (r) { return r.fecha < hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? 1 : -1) : (a.fecha < b.fecha ? 1 : -1); }).slice(0, 10).map(resumida);
-  return { puedeAnular: puedeAdministrar_(identidad_()), duplicadas: duplicadasDe_().length, catalogo: catalogoConvocados_(), convocaTipos: CONVOCA_TIPOS, lugares: LUGARES_REUNION, finTipos: FIN_TIPOS, jornadaFin: finJornada_(), fecha: fecha, hoy: hoy, proximas: proximas, ultimas: ultimas, reuniones: reuniones, tipos: TIPOS_REUNION, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };
+  return { puedeAnular: puedeAdministrar_(identidad_()), duplicadas: duplicadasDe_().length, catalogo: catalogoConvocados_(), convocaTipos: CONVOCA_TIPOS, lugares: lugaresReunion_(), finTipos: FIN_TIPOS, jornadaFin: finJornada_(), fecha: fecha, hoy: hoy, proximas: proximas, ultimas: ultimas, reuniones: reuniones, tipos: TIPOS_REUNION, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };
 }
 
 function hora_(s) { return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(s)) ? String(s) : ''; }
@@ -2248,13 +2272,13 @@ function datosReunionDeP_(p) {
   var validos = personasReunion_().map(function (x) { return x.nombre; });
   var resp = (p.responsables || []).filter(function (n) { return validos.indexOf(n) >= 0; });
   return { ini: ini, fin: fin, finTipo: finTipo, lugar: String(p.lugar || '').trim().slice(0, 80), convocaTipo: convoca, convocaDetalle: String(p.convocaDetalle || '').trim().slice(0, 100),
-           solicitaPor: String(p.solicitaPor || '').trim().slice(0, 80), responsables: resp.join('; ') };
+           solicitaPor: String(p.solicitaPor || '').trim().slice(0, 80), responsables: resp.join('; '), observaciones: String(p.observaciones || '').trim().slice(0, 400) };
 }
 /** Crea una reunión. p = {fecha?, tipo, nombre?, inicio, fin, sinEstudiantes, convocados: 'TODOS' | [nombres]} */
 function crearReunion(p) {
   p = p || {};
   var por = nombreRegistrador_(p);
-  var def = TIPOS_REUNION.filter(function (t) { return t.tipo === p.tipo; })[0];
+  var def = TIPOS_REUNION.filter(function (t) { return t.tipo === tipoReunion_(p.tipo); })[0];
   if (!def) throw new Error('Elija el tipo de reunión.');
   if (/^Otra/.test(def.tipo) && String(p.nombre || '').trim().length < 3) throw new Error('Escriba el nombre de la reunión o actividad.');
   var d = datosReunionDeP_(p);
@@ -2274,7 +2298,7 @@ function crearReunion(p) {
     var id = Utilities.getUuid();
     reunionesHoja_().appendRow([id, txtForzado_(fecha), def.tipo, nombre, txtForzado_(d.ini), txtForzado_(d.fin),
       p.sinEstudiantes ? 'SI' : 'NO', conv, por, ahoraTxt_(), recordatorioDeP_(p).dias, recordatorioDeP_(p).min, recordatorioDeP_(p).ronda,
-      d.lugar, d.finTipo, d.convocaTipo, d.convocaDetalle, d.solicitaPor, d.responsables, cv.grupos, cv.invitados, cv.entidad]);
+      d.lugar, d.finTipo, d.convocaTipo, d.convocaDetalle, d.solicitaPor, d.responsables, cv.grupos, cv.invitados, cv.entidad, d.observaciones]);
     return { id: id };
   } finally { lock.releaseLock(); }
 }
@@ -2327,14 +2351,14 @@ function avisosHoy() {
   var reuniones = todas.filter(function (r) { return r.fecha === hoy; }).sort(function (a, b) { return a.inicio < b.inicio ? -1 : (a.inicio > b.inicio ? 1 : 0); }).map(function (r) {
     var x = resumida(r), estado = hh < r.inicio ? 'proxima' : (hh <= r.fin ? 'ahora' : 'pasada'), faltan = aMinutos(r.inicio) - ahoraMin;
     return { id: r.id, nombre: r.nombre, tipo: r.tipo, inicio: r.inicio, fin: r.fin, sinEstudiantes: r.sinEstudiantes, convocadosN: x.conv, registrados: x.reg, estado: estado,
-             lugar: r.lugar, finTipo: r.finTipo, convocadosResumen: r.convocadosResumen, minutosHasta: faltan, avisarRonda: r.avisarRonda, avisarMin: r.avisarMin,
+             lugar: r.lugar, observaciones: r.observaciones, finTipo: r.finTipo, convocadosResumen: r.convocadosResumen, minutosHasta: faltan, avisarRonda: r.avisarRonda, avisarMin: r.avisarMin,
              urgente: estado === 'ahora' || (estado === 'proxima' && r.avisarMin > 0 && faltan <= r.avisarMin) };   // parpadea y vuelve a avisar durante la jornada
   });
   var previas = todas.filter(function (r) {
     var d = Math.round((new Date(r.fecha + 'T12:00:00Z') - new Date(hoy + 'T12:00:00Z')) / 86400000);
     r.dias = d; return d > 0 && r.avisarDias > 0 && d <= r.avisarDias;
   }).sort(function (a, b) { return a.fecha < b.fecha ? -1 : (a.fecha > b.fecha ? 1 : (a.inicio < b.inicio ? -1 : 1)); }).map(function (r) {
-    return { id: r.id, nombre: r.nombre, tipo: r.tipo, fecha: r.fecha, dias: r.dias, inicio: r.inicio, fin: r.fin, sinEstudiantes: r.sinEstudiantes, lugar: r.lugar };
+    return { id: r.id, nombre: r.nombre, tipo: r.tipo, fecha: r.fecha, dias: r.dias, inicio: r.inicio, fin: r.fin, sinEstudiantes: r.sinEstudiantes, lugar: r.lugar, observaciones: r.observaciones };
   });
   var por = {}, orden = [];
   datos_('Novedades').forEach(function (n) {
@@ -2395,7 +2419,7 @@ function quitarReunionesDuplicadasInterno_(por) {
 function editarReunion(p) {
   p = p || {};
   var por = nombreRegistrador_(p);
-  var def = TIPOS_REUNION.filter(function (t) { return t.tipo === p.tipo; })[0];
+  var def = TIPOS_REUNION.filter(function (t) { return t.tipo === tipoReunion_(p.tipo); })[0];
   if (!def) throw new Error('Elija el tipo de reunión.');
   if (/^Otra/.test(def.tipo) && String(p.nombre || '').trim().length < 3) throw new Error('Escriba el nombre de la reunión o actividad.');
   var d = datosReunionDeP_(p), ini = d.ini, fin = d.fin;
@@ -2411,7 +2435,7 @@ function editarReunion(p) {
     var nueva = v[fila].slice();
     nueva[c.fecha] = txtForzado_(p.fecha); nueva[c.tipo] = def.tipo; nueva[c.nombre] = String(p.nombre || '').slice(0, 120) || def.tipo;
     nueva[c.inicio] = txtForzado_(ini); nueva[c.fin] = txtForzado_(fin); nueva[c.sin_estudiantes] = p.sinEstudiantes ? 'SI' : 'NO'; nueva[c.convocados] = conv; var rd = recordatorioDeP_(p); nueva[c.avisar_dias] = rd.dias; nueva[c.avisar_min] = rd.min; nueva[c.avisar_ronda] = rd.ronda;
-    nueva[c.lugar] = d.lugar; nueva[c.fin_tipo] = d.finTipo; nueva[c.convoca_tipo] = d.convocaTipo; nueva[c.convoca_detalle] = d.convocaDetalle; nueva[c.solicita_por] = d.solicitaPor; nueva[c.responsables] = d.responsables; nueva[c.convocados_grupos] = cv.grupos; nueva[c.invitados] = cv.invitados; nueva[c.invitado_nombre] = cv.entidad;
+    nueva[c.lugar] = d.lugar; nueva[c.fin_tipo] = d.finTipo; nueva[c.convoca_tipo] = d.convocaTipo; nueva[c.convoca_detalle] = d.convocaDetalle; nueva[c.solicita_por] = d.solicitaPor; nueva[c.responsables] = d.responsables; nueva[c.convocados_grupos] = cv.grupos; nueva[c.invitados] = cv.invitados; nueva[c.invitado_nombre] = cv.entidad; nueva[c.observaciones] = d.observaciones;
     sh.getRange(fila + 1, 1, 1, nueva.length).setValues([nueva]);
     bitacora_('Editó reunión', antes.nombre + ' (' + antes.fecha + ' ' + antes.inicio + '-' + antes.fin + ') → ' + nueva[c.nombre] + ' (' + p.fecha + ' ' + ini + '-' + fin + ')' + (antes.sinEstudiantes !== !!p.sinEstudiantes ? ' · clases ' + (p.sinEstudiantes ? 'suspendidas' : 'no suspendidas') : '') + ' · por ' + por);
   } finally { lock.releaseLock(); }
@@ -3131,11 +3155,16 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.20-f';
+var VERSION_SISTEMA = '2026.10.20-h';
 var FECHA_VERSION = '2026-10-20';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.20-h', fecha: '2026-10-20', cambios: [
+    'Reuniones: nuevo campo «Asunto u observaciones (opcional)» para aclarar de qué trata la reunión; se ve en la tarjeta y, solo si se escribió, en el aviso del día y en los recordatorios. La hoja Reuniones recibe la columna observaciones.',
+    'Reuniones: los tipos «Jornada pedagógica» y «Reunión de desarrollo institucional» se unificaron en «Jornada pedagógica o de desarrollo institucional» (las reuniones ya guardadas se muestran con el nombre nuevo). Tipos nuevos: taller pedagógico, charla o conferencia, reunión de área o de grado, reunión con padres de familia o acudientes, escuela de padres, acto cívico o cultural y simulacro de evacuación.'] },
+  { version: '2026.10.20-g', fecha: '2026-10-20', cambios: [
+    'Reuniones: el lugar se elige de una lista por grupos: espacios del colegio (sala de profesores, polideportivo (canchas), patio principal, sala múltiple (auditorio), biblioteca, comedor escolar, emisora escolar), salas de tecnología e informática 1 a 4 y aulas digitales (sala 5), laboratorio de química y otros laboratorios o entornos por área (se escribe cuál y su número), salones (se escribe el número o grupo), oficinas (rectoría, coordinaciones y orientación escolar, tomadas de las hojas Directivos y Docentes) y otros (virtual, fuera del colegio, otro lugar).'] },
   { version: '2026.10.20-f', fecha: '2026-10-20', cambios: [
     'Reuniones: «¿A quiénes se convoca?» ahora tiene opciones globales: todo el personal, directivos docentes, docentes orientadoras, tutora PTAFI, docentes de preescolar, de básica primaria, de bachillerato, docentes de un área (una o varias) y personalizado (docente por docente, con buscador). Además organismos e invitados: consejo directivo, académico, estudiantil, de padres, comité de convivencia, comité de comedor escolar, padres de familia o acudientes, egresados y entidad o invitado externo (con su nombre). Los organismos e invitados se anuncian pero no llevan lista de asistencia por persona; el personal sí. La hoja Reuniones recibe las columnas convocados_grupos, invitados e invitado_nombre.'] },
   { version: '2026.10.20-e', fecha: '2026-10-20', cambios: [

@@ -132,3 +132,8 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 ## 2026-10-20 (versión 2026.10.20-f) · Convocados por grupos
 - Reuniones.gs: `GRUPOS_PERSONAL`, `NOMBRES_AREA`, `ORGANISMOS_REUNION`, `personasDeGrupos_`, `catalogoConvocados_`, `convocadosDeP_`, `resumenConvocados_`. Columnas nuevas `convocados_grupos`, `invitados`, `invitado_nombre`. La columna `convocados` conserva el formato anterior (TODOS / lista / NINGUNO) como instantánea de las personas resueltas al guardar (compatibilidad con la ronda); las altas/bajas de personal posteriores no cambian reuniones ya creadas (editar y guardar la actualiza).
 - Reunion.html: bloque «¿A quiénes se convoca?» (personal por grupos/áreas/personalizado + organismos e invitados, con conteo en vivo). Las «áreas afines» no se asumieron: se elige una o varias áreas.
+
+## 2026-10-20 (versión 2026.10.20-h) · Lugares, observaciones y tipos de reunión
+- Lugar por lista agrupada (`lugaresReunion_`: espacios, salas de tecnología 1–4 + aulas digitales, laboratorios/entornos de área, salón con número, oficinas desde Directivos/Docentes, otros); algunos piden dato (`pide`) y «Otro lugar» lo reemplaza (`solo`). La columna `lugar` sigue siendo texto.
+- Columna `observaciones` en Reuniones (asunto/aclaración, máx. 400): tarjeta y aviso del día solo si no está vacía.
+- Tipos: «Jornada pedagógica» y «Reunión de desarrollo institucional» → `TIPO_JORNADA` (alias `TIPOS_ALIAS_REUNION`, `tipoReunion_`); tipos nuevos (taller, charla, reunión de área/grado, padres, escuela de padres, acto cívico, simulacro).

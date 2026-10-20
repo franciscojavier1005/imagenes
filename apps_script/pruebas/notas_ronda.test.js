@@ -247,7 +247,7 @@ const cr=run("cargarReunion({id:'"+rc1.id+"'})"); ok(cr.personas.length===1&&cr.
   const nb=hojas.Bitacora_Cambios?hojas.Bitacora_Cambios.v.length:0;
   run(`editarReunion({id:'${rP.id}',tipo:'Jornada pedagógica',nombre:'Jornada editada',fecha:'${dia2}',inicio:'07:00',fin:'12:00',sinEstudiantes:true,convocados:['${dR}']})`);
   const ed=run(`cargarReunion({id:'${rP.id}'})`).reunion;
-  ok(ed.nombre==='Jornada editada'&&ed.fecha===dia2&&ed.inicio==='07:00'&&ed.fin==='12:00'&&ed.sinEstudiantes===true&&ed.convocados.length===1&&ed.tipo==='Jornada pedagógica','editarReunion cambia tipo, nombre, fecha, horas, clases y convocados');
+  ok(ed.nombre==='Jornada editada'&&ed.fecha===dia2&&ed.inicio==='07:00'&&ed.fin==='12:00'&&ed.sinEstudiantes===true&&ed.convocados.length===1&&ed.tipo==='Jornada pedagógica o de desarrollo institucional','editarReunion cambia tipo, nombre, fecha, horas, clases y convocados');
   ok(hojas.Bitacora_Cambios.v.length>nb&&/Editó reunión/.test(hojas.Bitacora_Cambios.v[hojas.Bitacora_Cambios.v.length-1][2]),'la edición queda en la bitácora');
   let ee=null; try{run("editarReunion({id:'no-existe',tipo:'Consejo académico',fecha:'2026-10-20',inicio:'07:00',fin:'08:00',convocados:'TODOS'})")}catch(x){ee=x} ok(ee&&/No se encontr/.test(ee.message),'editar una reunión que no existe: aviso');
   ee=null; try{run(`editarReunion({id:'${rP.id}',tipo:'Consejo académico',fecha:'${dia2}',inicio:'09:00',fin:'08:00',convocados:'TODOS'})`)}catch(x){ee=x} ok(ee&&/hora/.test(ee.message),'editar con horas inválidas se rechaza');
@@ -336,6 +336,31 @@ const cr=run("cargarReunion({id:'"+rc1.id+"'})"); ok(cr.personas.length===1&&cr.
     ok(run(`cargarReunion({id:'${rL.id}'})`).personas.length===cat.integrantes.TODOS.length,'el formato anterior de convocados (TODOS o lista) sigue funcionando');
     [rG,rP,rT,rE,rL].forEach(r=>run(`anularReunion({id:'${r.id}',motivo:'prueba de convocados'})`));
   }
+  // lugares de reunión
+  {
+    const lg=run('listarReuniones({})').lugares, todos=lg.flatMap(g=>g.items), vals=todos.map(i=>i.v);
+    ok(['Polideportivo (canchas)','Patio principal','Sala múltiple (auditorio)','Sala de profesores','Biblioteca','Comedor escolar','Emisora escolar','Laboratorio de química','Aulas digitales (sala 5)'].every(v=>vals.includes(v)),'lugares: polideportivo, patio, auditorio, sala de profesores, biblioteca, comedor, emisora, laboratorio y aulas digitales');
+    ok([1,2,3,4].every(n=>vals.includes('Sala de tecnología e informática '+n)),'lugares: salas de tecnología e informática 1 a 4');
+    ok(todos.some(i=>i.v==='Salón'&&i.pide)&&todos.some(i=>i.v==='Otro laboratorio o entorno de área'&&i.pide)&&todos.some(i=>i.v==='Otro lugar'&&i.solo),'lugares que piden número o nombre: salón, otro laboratorio o entorno, otro lugar');
+    ok(vals.includes('Coordinación – Francisco Cortés')&&vals.includes('Coordinación – Verónica Barreiro')&&vals.includes('Coordinación – Harold Angulo')&&!vals.some(v=>/Jorge/.test(v)),'oficinas de coordinación tomadas de la hoja Directivos (sin el rector, que tiene Rectoría)');
+    ok(vals.filter(v=>/^Orientación escolar – /.test(v)).length===2&&run("nombreCortoDocente_('Ponce Moncayo Ángela Paola')")==='Ángela Ponce'&&run("nombreCortoDocente_('Casanova Casanova Johana Andrea')")==='Johana Casanova','una oficina de orientación escolar por orientadora, con su nombre corto (Ángela Ponce, Johana Casanova)');
+  }
+  // asunto u observaciones y tipos unificados
+  {
+    const dq=dmas(10), tp=run('listarReuniones({})').tipos.map(t=>t.tipo);
+    ok(!tp.includes('Jornada pedagógica')&&!tp.includes('Reunión de desarrollo institucional')&&tp.includes('Jornada pedagógica o de desarrollo institucional'),'«jornada pedagógica» y «desarrollo institucional» quedan unificadas en un solo tipo');
+    ok(['Taller pedagógico','Charla o conferencia','Capacitación en el colegio','Reunión con padres de familia o acudientes','Escuela de padres','Acto cívico o cultural','Simulacro de evacuación'].every(t=>tp.includes(t)),'tipos nuevos: taller, charla, capacitación, padres, escuela de padres, acto cívico, simulacro');
+    const rA=run(`crearReunion({tipo:'Reunión de desarrollo institucional',nombre:'Con alias',fecha:'${dq}',inicio:'08:00',fin:'09:00',convocados:'TODOS',observaciones:'  Traer el informe de notas; la reunión es en el segundo piso.  '})`);
+    const a1=run(`cargarReunion({id:'${rA.id}'})`).reunion;
+    ok(a1.tipo==='Jornada pedagógica o de desarrollo institucional'&&a1.observaciones==='Traer el informe de notas; la reunión es en el segundo piso.','el tipo anterior se muestra con el nombre nuevo y se guardan las observaciones (sin espacios sobrantes)');
+    const rB=run(`crearReunion({tipo:'Taller pedagógico',nombre:'Sin observaciones',fecha:'${dq}',inicio:'10:00',fin:'11:00',convocados:'TODOS'})`);
+    ok(run(`cargarReunion({id:'${rB.id}'})`).reunion.observaciones==='','sin observaciones: queda vacío (el aviso no muestra nada)');
+    run(`editarReunion({id:'${rA.id}',tipo:'Taller pedagógico',nombre:'Con alias',fecha:'${dq}',inicio:'08:00',fin:'09:00',convocados:'TODOS',observaciones:'Nueva aclaración'})`);
+    ok(run(`cargarReunion({id:'${rA.id}'})`).reunion.observaciones==='Nueva aclaración','editar cambia las observaciones');
+    const rH=run(`crearReunion({tipo:'Taller pedagógico',nombre:'Hoy con nota',fecha:'${hoyR}',inicio:'00:00',fin:'23:59',convocados:'TODOS',observaciones:'Llevar computador'})`);
+    const ah=run('avisosHoy()').reuniones.find(x=>x.nombre==='Hoy con nota'); ok(ah&&ah.observaciones==='Llevar computador','el aviso del día lleva las observaciones');
+    [rA,rB,rH].forEach(r=>run(`anularReunion({id:'${r.id}',motivo:'prueba de observaciones'})`));
+  }
   // anular: solo quien administra
   const dh=hojas.Directivos.v[0], iCT=dh.indexOf('correo_temporal');
   hojas.Directivos.v[3][iCT]='harold@x.com'; EMAIL='harold@x.com';
@@ -364,7 +389,7 @@ ok(hojas.Novedades.v.length===novN+1,'si NO asistió a la reunión, la ausencia 
 g.RJ={tipo:'Jornada pedagógica',inicio:'07:00',fin:'13:30',sinEstudiantes:true,convocados:'TODOS',directivo:'P'}; const rj=run('crearReunion(RJ)');
 const rondaJ=run("consultarSesion('VIERNES',3,'bloque')");
 ok(rondaJ.sinEstudiantes===true&&rondaJ.filas.length===0&&/sin clases/.test(rondaJ.nota),'jornada pedagógica: la ronda de aula se suspende y avisa');
-const lj=run('listarReuniones({})'); ok(lj.reuniones.length===2&&lj.personas.length>40&&lj.tipos.some(t=>t.tipo==='Jornada pedagógica'),'listarReuniones: reuniones del día, tipos y personas (docentes + directivos)');
+const lj=run('listarReuniones({})'); ok(lj.reuniones.length===2&&lj.personas.length>40&&lj.tipos.some(t=>t.tipo==='Jornada pedagógica o de desarrollo institucional'),'listarReuniones: reuniones del día, tipos y personas (docentes + directivos)');
 g.RAT={id:rj.id,registros:H.Docentes.slice(1).map(r=>({persona:r[H.Docentes[0].indexOf('nombre_completo')],estado:'Asistió'})),directivo:'P'};
 const gj=run('guardarAsistenciaReunion(RAT)'); ok(gj.guardados>=50,'se registra la asistencia de todos de una vez ('+gj.guardados+')');
 run('guardarAsistenciaReunion(RAT)'); const filasAs=hojas.Asistencia_Reunion.v.filter(r=>r[0]===rj.id).length; ok(filasAs===gj.guardados,'volver a guardar reemplaza, no duplica');

@@ -25,12 +25,12 @@ function avisoDiaPintar(r,soloUrgentes){
     var urg=!!x.urgente&&x.estado!=='pasada'; if(urg) parp=true;
     var cl=x.estado==='ahora'?'ahora':(x.estado==='pasada'?'falta':(urg?'ahora':'prox'));
     var et=x.estado==='ahora'?'<b class="av-e av-ahora">AHORA</b>':(x.estado==='pasada'?'<b class="av-e av-falta">Falta registrar asistencia</b>':(urg?'<b class="av-e av-ahora">EN '+Math.max(0,x.minutosHasta)+' MIN</b>':'<b class="av-e av-prox">Hoy</b>'));
-    items.push({c:cl,p:urg,h:'<span class="av-ic">👥</span><div><b>'+avEsc(x.inicio)+' – '+avEsc(x.fin)+'</b> · '+avEsc(x.nombre)+' '+et+'<br><small>'+avEsc(x.tipo)+(x.lugar?' · 📍 '+avEsc(x.lugar):'')+(x.finTipo==='JORNADA'?' · hasta finalizar la jornada':'')+(x.sinEstudiantes?' · <b>sin clases</b> (se suspende la ronda de aula)':'')+(x.convocadosResumen?' · convoca a: '+avEsc(x.convocadosResumen):(x.convocadosN?' · convocados: '+x.convocadosN:''))+'</small></div>'});
+    items.push({c:cl,p:urg,h:'<span class="av-ic">👥</span><div><b>'+avEsc(x.inicio)+' – '+avEsc(x.fin)+'</b> · '+avEsc(x.nombre)+' '+et+'<br><small>'+avEsc(x.tipo)+(x.lugar?' · 📍 '+avEsc(x.lugar):'')+(x.finTipo==='JORNADA'?' · hasta finalizar la jornada':'')+(x.sinEstudiantes?' · <b>sin clases</b> (se suspende la ronda de aula)':'')+(x.convocadosResumen?' · convoca a: '+avEsc(x.convocadosResumen):(x.convocadosN?' · convocados: '+x.convocadosN:''))+'</small>'+(x.observaciones?'<div class="av-obs">📝 '+avEsc(x.observaciones)+'</div>':'')+'</div>'});
   });
   if(!soloUrgentes){
     (r.previas||[]).forEach(function(x){
       var f=String(x.fecha).split('-');
-      items.push({c:'prox',h:'<span class="av-ic">📅</span><div><b>'+(x.dias===1?'MAÑANA':'En '+x.dias+' días')+' · '+avEsc(x.inicio)+' – '+avEsc(x.fin)+'</b> · '+avEsc(x.nombre)+'<br><small>'+f[2]+'/'+f[1]+' · '+avEsc(x.tipo)+(x.lugar?' · 📍 '+avEsc(x.lugar):'')+(x.sinEstudiantes?' · <b>sin clases</b>':'')+'</small></div>'});
+      items.push({c:'prox',h:'<span class="av-ic">📅</span><div><b>'+(x.dias===1?'MAÑANA':'En '+x.dias+' días')+' · '+avEsc(x.inicio)+' – '+avEsc(x.fin)+'</b> · '+avEsc(x.nombre)+'<br><small>'+f[2]+'/'+f[1]+' · '+avEsc(x.tipo)+(x.lugar?' · 📍 '+avEsc(x.lugar):'')+(x.sinEstudiantes?' · <b>sin clases</b>':'')+'</small>'+(x.observaciones?'<div class="av-obs">📝 '+avEsc(x.observaciones)+'</div>':'')+'</div>'});
     });
     (r.actividades||[]).forEach(function(a){
       items.push({c:'act',h:'<span class="av-ic">🚌</span><div><b>'+avEsc(a.motivo)+'</b><br><small>Con estudiantes fuera del colegio: '+avEsc(a.docentes.slice(0,4).join(', '))+(a.docentes.length>4?' y '+(a.docentes.length-4)+' más':'')+' · no se marca ausentes</small></div>'});
@@ -58,7 +58,7 @@ function avisoDiaPintar(r,soloUrgentes){
    '#avisoDia .av-ahora{background:#fff1e0;border-left-color:#ef6c00}#avisoDia .av-falta{background:#fdeeee;border-left-color:#c62828}#avisoDia .av-act{background:#e8f5e9;border-left-color:#2e7d32}'+
    '#avisoDia .av-ic{font-size:20px}#avisoDia small{color:#456}#avisoDia .av-e{border-radius:8px;padding:0 6px;font-size:11px;color:#fff;margin-left:4px}'+
    '#avisoDia .av-e.av-ahora{background:#ef6c00}#avisoDia .av-e.av-falta{background:#c62828}#avisoDia .av-e.av-prox{background:#1b4a8f}'+
-   '#avisoDia .av-mas{font-size:12.5px;color:#456;margin:2px 0}#avisoDia .av-barra{height:4px;background:#e3e9f0;border-radius:3px;margin-top:6px;overflow:hidden}'+
+   '#avisoDia .av-obs{font-size:12.5px;color:#234;margin-top:2px;white-space:pre-wrap}#avisoDia .av-mas{font-size:12.5px;color:#456;margin:2px 0}#avisoDia .av-barra{height:4px;background:#e3e9f0;border-radius:3px;margin-top:6px;overflow:hidden}'+
    '#avisoDia .av-prog{height:100%;background:#0f2a5c;animation-name:avProg;animation-timing-function:linear;animation-fill-mode:forwards}#avisoDia .av-pie{font-size:11px;color:#789;text-align:center;margin-top:3px}'+
    '@media(prefers-reduced-motion:reduce){#avisoDia .av-parp,#avisoDia .av-parpi{animation:none}}';
   v.appendChild(st); document.body.appendChild(v);

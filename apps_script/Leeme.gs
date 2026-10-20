@@ -5,11 +5,15 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.20-a';
+var VERSION_SISTEMA = '2026.10.20-b';
 var FECHA_VERSION = '2026-10-20';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.20-b', fecha: '2026-10-20', cambios: [
+    'Reuniones: las listas (del día, próximas y últimas) van después del formulario y del botón de crear, también dentro del formulario de crear o editar. Marcas de prioridad: HOY (alta, naranja), MAÑANA (media, amarillo), próximas (azul); las pasadas se atenúan: verdes «Aplicada» si ya tienen asistencia, grises si no.',
+    'Reuniones: botón «🗑 Anular» solo para quien administra (dueño del libro, columna administra = SI en Directivos o coordinación académica); exige motivo y deja la reunión en la hoja Reuniones_Anuladas con quién, cuándo y por qué.',
+    'Registrar novedades: las últimas novedades llevan la misma marca de prioridad (HOY, próxima, pasada) y etiquetas de incumplimiento y de grupo cubierto.'] },
   { version: '2026.10.20-a', fecha: '2026-10-20', cambios: [
     'Registrar novedades: nueva lista «Últimas novedades registradas» (lo más reciente primero), con las de la ronda y las del formulario, indicando de dónde vienen, quién las registró y los minutos.',
     'Reuniones: listas de «Próximas reuniones» y «Últimas reuniones», y botón «✏ Editar» para cambiar tipo, nombre, fecha, horas, clases suspendidas y convocados (la asistencia ya registrada no se borra; queda en la bitácora).'] },
@@ -82,13 +86,13 @@ var LEEME_HOJAS = [
   'Motivos / Listas  Catálogos de motivos (salud, permisos, licencias, comisión de servicios, calamidad…) con su categoría y si son justificados.',
   'Novedades         Novedades de asistencia (una fila por docente, día y sesión); Novedades_Anuladas guarda las anuladas.',
   'Registro_Ronda    Cada marca de la ronda (presente, no asistió, tarde…) con el directivo que la hizo.',
-  'Reuniones / Asistencia_Reunion   Reuniones y actividades sin estudiantes y su asistencia (se pueden editar; los cambios quedan en Bitacora_Cambios).',
+  'Reuniones / Asistencia_Reunion / Reuniones_Anuladas   Reuniones y actividades sin estudiantes y su asistencia (se pueden editar; los cambios quedan en Bitacora_Cambios). Solo quien administra las anula y quedan en Reuniones_Anuladas.',
   'Incumplimientos   Reportes con rigor (solo se agrega; seguimiento por estados).',
   'Estudiantes / Marcas_Estudiantes / Grupos_Proyectos   Listado por grupo y marcas de seguimiento (los levantados quedan en la hoja).',
   'Semana_Alternancia / Alternancias   Quién dicta cada semana en las parejas que alternan.',
   'Usuarios / Soportes / Parametros   Cuentas de docentes, soportes de ausencias y parámetros.',
   'Notas_Ronda / Bandeja_WhatsApp   Observaciones de la ronda y novedades propuestas desde WhatsApp.',
-  'Directivos        Quiénes registran: claves (hash), correo, ve_todo (NO = solo ve sus rondas), cambia_asignacion (SI/NO: puede cambiar quién dicta en las parejas). No escriba PIN a mano.',
+  'Directivos        Quiénes registran: claves (hash), correo, ve_todo (NO = solo ve sus rondas), cambia_asignacion (SI/NO: puede cambiar quién dicta en las parejas), administra (SI/NO: puede anular reuniones). No escriba PIN a mano.',
   'Bitacora_Cambios  Quién cambió qué y cuándo (correcciones, sesiones prestadas).',
   'Datos personales de docentes y estudiantes: acceso solo para directivos (Ley 1581 de 2012).'
 ];

@@ -11,7 +11,7 @@
  * Claves: se guarda SHA-256(sal + clave), nunca la clave. 5 intentos fallidos bloquean al directivo 15 minutos.
  */
 var COL_SESIONES = ['token_hash', 'nombre', 'correo', 'creada', 'expira', 'ultimo_uso'];
-var COL_CLAVE = ['pin_hash', 'pin_sal', 'intentos', 'bloqueado_hasta', 'correo', 'informe_dia', 'informe_semana', 'informe_mes', 'clave_temporal', 've_todo', 'cambia_asignacion'];
+var COL_CLAVE = ['pin_hash', 'pin_sal', 'intentos', 'bloqueado_hasta', 'correo', 'informe_dia', 'informe_semana', 'informe_mes', 'clave_temporal', 've_todo', 'cambia_asignacion', 'administra'];
 var SESION_DIAS = 14, PIN_INTENTOS = 5, BLOQUEO_MIN = 15;
 
 function hash_(s) {

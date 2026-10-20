@@ -2124,7 +2124,7 @@ function listarReuniones(p) {
   function resumida(r) { var a = asistenciaDe_(r.id), conv = convocadosDe_(r), reg = 0; conv.forEach(function (n) { if (a[n]) reg++; }); return Object.assign({}, r, { convocadosN: conv.length, registrados: reg }); }
   var proximas = todas.filter(function (r) { return r.fecha >= hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? -1 : 1) : (a.fecha < b.fecha ? -1 : 1); }).slice(0, 12).map(resumida);
   var ultimas = todas.filter(function (r) { return r.fecha < hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? 1 : -1) : (a.fecha < b.fecha ? 1 : -1); }).slice(0, 10).map(resumida);
-  return { fecha: fecha, hoy: hoy, proximas: proximas, ultimas: ultimas, reuniones: reuniones, tipos: TIPOS_REUNION, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };
+  return { puedeAnular: puedeAdministrar_(identidad_()), fecha: fecha, hoy: hoy, proximas: proximas, ultimas: ultimas, reuniones: reuniones, tipos: TIPOS_REUNION, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };
 }
 
 function hora_(s) { return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(s)) ? String(s) : ''; }
@@ -2155,6 +2155,40 @@ function crearReunion(p) {
   hojaOCrea_('Reuniones', COL_REUNIONES).appendRow([id, txtForzado_(fecha), def.tipo, String(p.nombre || '').slice(0, 120) || def.tipo, txtForzado_(ini), txtForzado_(fin),
     p.sinEstudiantes ? 'SI' : 'NO', conv, por, ahoraTxt_()]);
   return { id: id };
+}
+
+/** Administra el sistema: dueño o editor del libro, quien tenga SI en la columna administra (hoja Directivos) o la coordinación académica (si no dice NO). */
+function puedeAdministrar_(quien) {
+  try {
+    if (quien && quien.email && editoresLibro_().indexOf(String(quien.email).toLowerCase()) >= 0) return true;
+    var d = datos_('Directivos').filter(function (x) { return x.nombre === (quien && quien.nombre); })[0];
+    if (!d) return false;
+    var col = String(d.administra || '').trim().toUpperCase();
+    if (col === 'SI') return true;
+    if (col === 'NO') return false;
+    return /coordinador(a)?\s+acad[eé]mic/i.test(String(d.rol || ''));
+  } catch (e) { return false; }
+}
+var COL_REUNIONES_ANULADAS = ['id', 'fecha', 'tipo', 'nombre', 'inicio', 'fin', 'sin_estudiantes', 'convocados', 'creado_por', 'fecha_creacion', 'anulada_por', 'fecha_anulacion', 'motivo_anulacion'];
+
+/** Anula una reunión (solo quien administra): sale de Reuniones y queda guardada en Reuniones_Anuladas con quién, cuándo y por qué. La asistencia registrada se conserva. p = {id, motivo} */
+function anularReunion(p) {
+  p = p || {};
+  var quien = exigirDirectivo_(), por = quien.nombre || quien.email;
+  if (!puedeAdministrar_(quien)) throw new Error('Solo quien administra el sistema puede anular una reunión.');
+  var motivo = String(p.motivo || '').trim();
+  if (motivo.length < 5) throw new Error('Escriba el motivo de la anulación (mínimo 5 letras).');
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var sh = hojaOCrea_('Reuniones', COL_REUNIONES), v = sh.getDataRange().getValues(), cab = v[0], ci = cab.indexOf('id'), fila = -1;
+    for (var i = 1; i < v.length; i++) if (String(v[i][ci]) === String(p.id)) { fila = i; break; }
+    if (fila < 0) throw new Error('No se encontró la reunión.');
+    var guardada = COL_REUNIONES.map(function (k) { var j = cab.indexOf(k); return j < 0 ? '' : v[fila][j]; }).concat([por, ahoraTxt_(), motivo.slice(0, 200)]);
+    hojaOCrea_('Reuniones_Anuladas', COL_REUNIONES_ANULADAS).appendRow(guardada);
+    sh.deleteRow(fila + 1);
+    bitacora_('Anuló reunión', String(guardada[3]) + ' (' + limpiaTxt_(guardada[1]) + ') · ' + motivo.slice(0, 120));
+  } finally { lock.releaseLock(); }
+  return { ok: true };
 }
 
 /** Edita una reunión ya creada (tipo, nombre, fecha, horas, clases suspendidas, convocados). La asistencia ya registrada no se borra. p = {id, ...igual que crearReunion} */
@@ -2903,11 +2937,15 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.20-a';
+var VERSION_SISTEMA = '2026.10.20-b';
 var FECHA_VERSION = '2026-10-20';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.20-b', fecha: '2026-10-20', cambios: [
+    'Reuniones: las listas (del día, próximas y últimas) van después del formulario y del botón de crear, también dentro del formulario de crear o editar. Marcas de prioridad: HOY (alta, naranja), MAÑANA (media, amarillo), próximas (azul); las pasadas se atenúan: verdes «Aplicada» si ya tienen asistencia, grises si no.',
+    'Reuniones: botón «🗑 Anular» solo para quien administra (dueño del libro, columna administra = SI en Directivos o coordinación académica); exige motivo y deja la reunión en la hoja Reuniones_Anuladas con quién, cuándo y por qué.',
+    'Registrar novedades: las últimas novedades llevan la misma marca de prioridad (HOY, próxima, pasada) y etiquetas de incumplimiento y de grupo cubierto.'] },
   { version: '2026.10.20-a', fecha: '2026-10-20', cambios: [
     'Registrar novedades: nueva lista «Últimas novedades registradas» (lo más reciente primero), con las de la ronda y las del formulario, indicando de dónde vienen, quién las registró y los minutos.',
     'Reuniones: listas de «Próximas reuniones» y «Últimas reuniones», y botón «✏ Editar» para cambiar tipo, nombre, fecha, horas, clases suspendidas y convocados (la asistencia ya registrada no se borra; queda en la bitácora).'] },
@@ -2980,13 +3018,13 @@ var LEEME_HOJAS = [
   'Motivos / Listas  Catálogos de motivos (salud, permisos, licencias, comisión de servicios, calamidad…) con su categoría y si son justificados.',
   'Novedades         Novedades de asistencia (una fila por docente, día y sesión); Novedades_Anuladas guarda las anuladas.',
   'Registro_Ronda    Cada marca de la ronda (presente, no asistió, tarde…) con el directivo que la hizo.',
-  'Reuniones / Asistencia_Reunion   Reuniones y actividades sin estudiantes y su asistencia (se pueden editar; los cambios quedan en Bitacora_Cambios).',
+  'Reuniones / Asistencia_Reunion / Reuniones_Anuladas   Reuniones y actividades sin estudiantes y su asistencia (se pueden editar; los cambios quedan en Bitacora_Cambios). Solo quien administra las anula y quedan en Reuniones_Anuladas.',
   'Incumplimientos   Reportes con rigor (solo se agrega; seguimiento por estados).',
   'Estudiantes / Marcas_Estudiantes / Grupos_Proyectos   Listado por grupo y marcas de seguimiento (los levantados quedan en la hoja).',
   'Semana_Alternancia / Alternancias   Quién dicta cada semana en las parejas que alternan.',
   'Usuarios / Soportes / Parametros   Cuentas de docentes, soportes de ausencias y parámetros.',
   'Notas_Ronda / Bandeja_WhatsApp   Observaciones de la ronda y novedades propuestas desde WhatsApp.',
-  'Directivos        Quiénes registran: claves (hash), correo, ve_todo (NO = solo ve sus rondas), cambia_asignacion (SI/NO: puede cambiar quién dicta en las parejas). No escriba PIN a mano.',
+  'Directivos        Quiénes registran: claves (hash), correo, ve_todo (NO = solo ve sus rondas), cambia_asignacion (SI/NO: puede cambiar quién dicta en las parejas), administra (SI/NO: puede anular reuniones). No escriba PIN a mano.',
   'Bitacora_Cambios  Quién cambió qué y cuándo (correcciones, sesiones prestadas).',
   'Datos personales de docentes y estudiantes: acceso solo para directivos (Ley 1581 de 2012).'
 ];
@@ -3059,7 +3097,7 @@ function leemeAlDia_() {
  * Claves: se guarda SHA-256(sal + clave), nunca la clave. 5 intentos fallidos bloquean al directivo 15 minutos.
  */
 var COL_SESIONES = ['token_hash', 'nombre', 'correo', 'creada', 'expira', 'ultimo_uso'];
-var COL_CLAVE = ['pin_hash', 'pin_sal', 'intentos', 'bloqueado_hasta', 'correo', 'informe_dia', 'informe_semana', 'informe_mes', 'clave_temporal', 've_todo', 'cambia_asignacion'];
+var COL_CLAVE = ['pin_hash', 'pin_sal', 'intentos', 'bloqueado_hasta', 'correo', 'informe_dia', 'informe_semana', 'informe_mes', 'clave_temporal', 've_todo', 'cambia_asignacion', 'administra'];
 var SESION_DIAS = 14, PIN_INTENTOS = 5, BLOQUEO_MIN = 15;
 
 function hash_(s) {
@@ -3327,7 +3365,8 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   levantarMarcasEstudiante: ['directivo'],
   informeRondas: ['directivo'],
   enviarRondasAMi: ['directivo'],
-  editarReunion: ['directivo']
+  editarReunion: ['directivo'],
+  anularReunion: ['directivo']
 };
 
 function apiFunciones_() {
@@ -3349,7 +3388,7 @@ function apiFunciones_() {
     enviarInformeAMi: enviarInformeAMi,
     levantarMarcasEstudiante: levantarMarcasEstudiante,
     informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
-    editarReunion: editarReunion
+    editarReunion: editarReunion, anularReunion: anularReunion
   };
 }
 

@@ -251,6 +251,18 @@ const cr=run("cargarReunion({id:'"+rc1.id+"'})"); ok(cr.personas.length===1&&cr.
   ok(hojas.Bitacora_Cambios.v.length>nb&&/Editó reunión/.test(hojas.Bitacora_Cambios.v[hojas.Bitacora_Cambios.v.length-1][2]),'la edición queda en la bitácora');
   let ee=null; try{run("editarReunion({id:'no-existe',tipo:'Consejo académico',fecha:'2026-10-20',inicio:'07:00',fin:'08:00',convocados:'TODOS'})")}catch(x){ee=x} ok(ee&&/No se encontr/.test(ee.message),'editar una reunión que no existe: aviso');
   ee=null; try{run(`editarReunion({id:'${rP.id}',tipo:'Consejo académico',fecha:'${dia2}',inicio:'09:00',fin:'08:00',convocados:'TODOS'})`)}catch(x){ee=x} ok(ee&&/hora/.test(ee.message),'editar con horas inválidas se rechaza');
+  // anular: solo quien administra
+  const dh=hojas.Directivos.v[0], iCT=dh.indexOf('correo_temporal');
+  hojas.Directivos.v[3][iCT]='harold@x.com'; EMAIL='harold@x.com';
+  let ea=null; try{ run(`anularReunion({id:'${rU.id}',motivo:'Creada por error'})`) }catch(x){ea=x} ok(ea&&/Solo quien administra/.test(ea.message),'un coordinador que no administra NO puede anular una reunión');
+  ok(run('listarReuniones({})').puedeAnular===false,'la pantalla no le ofrece el botón Anular');
+  EMAIL='dueno@gmail.com';
+  ok(run('listarReuniones({})').puedeAnular===true,'el administrador sí ve el botón Anular');
+  ea=null; try{ run(`anularReunion({id:'${rU.id}',motivo:'x'})`) }catch(x){ea=x} ok(ea&&/motivo/.test(ea.message),'anular exige el motivo');
+  const nR=hojas.Reuniones.v.length; run(`anularReunion({id:'${rU.id}',motivo:'Creada por error'})`);
+  ok(hojas.Reuniones.v.length===nR-1&&!run('listarReuniones({})').ultimas.some(r=>r.id===rU.id),'la reunión anulada sale de la lista');
+  ok(hojas.Reuniones_Anuladas&&hojas.Reuniones_Anuladas.v.length===2&&hojas.Reuniones_Anuladas.v[1][0]===rU.id&&hojas.Reuniones_Anuladas.v[1][12]==='Creada por error','queda en Reuniones_Anuladas con el motivo');
+  ea=null; try{ run(`anularReunion({id:'${rU.id}',motivo:'Creada por error'})`) }catch(x){ea=x} ok(ea&&/No se encontr/.test(ea.message),'anular dos veces: aviso');
   const n0=hojas.Reuniones.v.length; run(`editarReunion({id:'${rP.id}',tipo:'Consejo académico',fecha:'${dia2}',inicio:'09:00',fin:'10:00',convocados:'TODOS'})`); ok(hojas.Reuniones.v.length===n0,'editar no duplica la reunión');
 }
 const rondaR=run("consultarSesion('VIERNES',3,'sesion')"); const cardR=rondaR.filas.find(f=>f.docente===dR);

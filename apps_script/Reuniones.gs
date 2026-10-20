@@ -94,7 +94,7 @@ function listarReuniones(p) {
   function resumida(r) { var a = asistenciaDe_(r.id), conv = convocadosDe_(r), reg = 0; conv.forEach(function (n) { if (a[n]) reg++; }); return Object.assign({}, r, { convocadosN: conv.length, registrados: reg }); }
   var proximas = todas.filter(function (r) { return r.fecha >= hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? -1 : 1) : (a.fecha < b.fecha ? -1 : 1); }).slice(0, 12).map(resumida);
   var ultimas = todas.filter(function (r) { return r.fecha < hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? 1 : -1) : (a.fecha < b.fecha ? 1 : -1); }).slice(0, 10).map(resumida);
-  return { fecha: fecha, hoy: hoy, proximas: proximas, ultimas: ultimas, reuniones: reuniones, tipos: TIPOS_REUNION, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };
+  return { puedeAnular: puedeAdministrar_(identidad_()), fecha: fecha, hoy: hoy, proximas: proximas, ultimas: ultimas, reuniones: reuniones, tipos: TIPOS_REUNION, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };
 }
 
 function hora_(s) { return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(s)) ? String(s) : ''; }
@@ -125,6 +125,40 @@ function crearReunion(p) {
   hojaOCrea_('Reuniones', COL_REUNIONES).appendRow([id, txtForzado_(fecha), def.tipo, String(p.nombre || '').slice(0, 120) || def.tipo, txtForzado_(ini), txtForzado_(fin),
     p.sinEstudiantes ? 'SI' : 'NO', conv, por, ahoraTxt_()]);
   return { id: id };
+}
+
+/** Administra el sistema: dueño o editor del libro, quien tenga SI en la columna administra (hoja Directivos) o la coordinación académica (si no dice NO). */
+function puedeAdministrar_(quien) {
+  try {
+    if (quien && quien.email && editoresLibro_().indexOf(String(quien.email).toLowerCase()) >= 0) return true;
+    var d = datos_('Directivos').filter(function (x) { return x.nombre === (quien && quien.nombre); })[0];
+    if (!d) return false;
+    var col = String(d.administra || '').trim().toUpperCase();
+    if (col === 'SI') return true;
+    if (col === 'NO') return false;
+    return /coordinador(a)?\s+acad[eé]mic/i.test(String(d.rol || ''));
+  } catch (e) { return false; }
+}
+var COL_REUNIONES_ANULADAS = ['id', 'fecha', 'tipo', 'nombre', 'inicio', 'fin', 'sin_estudiantes', 'convocados', 'creado_por', 'fecha_creacion', 'anulada_por', 'fecha_anulacion', 'motivo_anulacion'];
+
+/** Anula una reunión (solo quien administra): sale de Reuniones y queda guardada en Reuniones_Anuladas con quién, cuándo y por qué. La asistencia registrada se conserva. p = {id, motivo} */
+function anularReunion(p) {
+  p = p || {};
+  var quien = exigirDirectivo_(), por = quien.nombre || quien.email;
+  if (!puedeAdministrar_(quien)) throw new Error('Solo quien administra el sistema puede anular una reunión.');
+  var motivo = String(p.motivo || '').trim();
+  if (motivo.length < 5) throw new Error('Escriba el motivo de la anulación (mínimo 5 letras).');
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var sh = hojaOCrea_('Reuniones', COL_REUNIONES), v = sh.getDataRange().getValues(), cab = v[0], ci = cab.indexOf('id'), fila = -1;
+    for (var i = 1; i < v.length; i++) if (String(v[i][ci]) === String(p.id)) { fila = i; break; }
+    if (fila < 0) throw new Error('No se encontró la reunión.');
+    var guardada = COL_REUNIONES.map(function (k) { var j = cab.indexOf(k); return j < 0 ? '' : v[fila][j]; }).concat([por, ahoraTxt_(), motivo.slice(0, 200)]);
+    hojaOCrea_('Reuniones_Anuladas', COL_REUNIONES_ANULADAS).appendRow(guardada);
+    sh.deleteRow(fila + 1);
+    bitacora_('Anuló reunión', String(guardada[3]) + ' (' + limpiaTxt_(guardada[1]) + ') · ' + motivo.slice(0, 120));
+  } finally { lock.releaseLock(); }
+  return { ok: true };
 }
 
 /** Edita una reunión ya creada (tipo, nombre, fecha, horas, clases suspendidas, convocados). La asistencia ya registrada no se borra. p = {id, ...igual que crearReunion} */

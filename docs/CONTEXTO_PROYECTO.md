@@ -112,3 +112,8 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 ## 2026-10-20 (versión 2026.10.20-a) · Últimas novedades y reuniones próximas/editar
 - Novedad.html: «Últimas novedades registradas» (datosNovedades().ultimas, ultimasNovedades_: lo más reciente primero, ronda y formulario juntos, agrupadas por docente-día-tipo-motivo, máx. 25).
 - Reuniones: listarReuniones devuelve proximas (hoy en adelante, más cercana primero) y ultimas; nuevo editarReunion (Reuniones.gs/Api/Front) con bitácora; Reunion.html muestra Próximas/Últimas y botón «✏ Editar» (en la lista, en las tarjetas y dentro de la asistencia). Leeme.gs y Ayuda.html actualizados.
+
+## 2026-10-20 (versión 2026.10.20-b) · Prioridad, orden y anular reunión
+- Reunion.html: listas (del día, próximas, últimas) DESPUÉS del botón de crear y también debajo del formulario crear/editar; marcas de prioridad por cercanía (HOY alta, MAÑANA media, próximas azul) y pasadas atenuadas (verde «Aplicada» con asistencia; gris sin asistencia).
+- Anular reunión (anularReunion): solo quien administra (puedeAdministrar_: dueño/editor del libro, columna administra=SI, o coordinación académica salvo administra=NO); motivo obligatorio; pasa a Reuniones_Anuladas; bitácora; la asistencia se conserva.
+- Novedad.html: mismas marcas de prioridad en «Últimas novedades» (HOY, próxima, pasada, incumplimiento, grupo cubierto). Leeme.gs y Ayuda.html actualizados.

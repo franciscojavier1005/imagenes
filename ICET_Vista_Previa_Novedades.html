@@ -57,6 +57,9 @@
   a[id^="ir"]:not([style*="none"]),header .enlaces button{display:inline-block!important;text-decoration:none!important;color:#fff!important;font-weight:700;font-size:13px;line-height:1;padding:9px 13px;margin:3px 3px 3px 0;border-radius:10px;border:1px solid rgba(255,255,255,.45);
     background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.10));box-shadow:0 3px 0 rgba(0,0,0,.35),0 4px 8px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.55);cursor:pointer;font-family:inherit}
   a[id^="ir"]:not([style*="none"]):active,header .enlaces button:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.4)}
+  .pri{display:inline-block;font-size:11.5px;font-weight:800;border-radius:10px;padding:1px 8px;margin:0 2px 3px 0}
+  .pri-alta{background:#ef6c00;color:#fff}.pri-norm{background:#e3ebf8;color:#0f2a5c}.pri-pas{background:#cfd8dc;color:#455a64}.pri-inc{background:#7b1fa2;color:#fff}.pri-rep{background:#d6f0f0;color:#00695c}
+  .reg.nv-hoy{background:#fff1e0;border-left:5px solid #ef6c00}.reg.nv-prox{border-left:5px solid #1b4a8f}.reg.nv-pas{background:#eceff1;color:#607d8b;border-left:5px solid #90a4ae}
 </style>
 </head>
 <body>
@@ -77,7 +80,7 @@
   </div>
   <div class="card"><h2>Últimas novedades registradas</h2><div class="sub" style="margin-bottom:6px">Las más recientes, hechas en la ronda o con este formulario.</div><div id="ultimas"><div class="aviso">Cargando…</div></div></div>
   <div class="card"><h2>Registradas desde aquí (últimos 7 días y próximas)</h2><div id="recientes"><div class="aviso">Cargando…</div></div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.20-a</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.20-b</div>
 </main>
 <script>
 /* Vista previa de Registrar novedades: nada se guarda fuera de esta página. */
@@ -175,7 +178,8 @@ function fmt(f){ var a=f.split('-'); return a[2]+'/'+a[1]+'/'+a[0]; }
 function pintaUltimas(){
   var u=D.ultimas||[];
   el('ultimas').innerHTML=u.length?u.map(function(r){
-    return '<div class="reg"><b>'+esc(r.docente)+'</b> · '+esc(r.tipo)+(r.atiende?' · 👥 '+esc(r.atiende):'')+'<small>'+esc(r.motivo||'Sin motivo')+' · '+fmt(r.fecha)+(r.minutos?' · '+r.minutos+' min':'')+(r.sesiones>1?' · '+r.sesiones+' sesiones':'')+' · '+esc(r.origen)+' · lo registró '+esc(r.por||'—')+(r.registrado?' ('+esc(r.registrado)+')':'')+'</small></div>';}).join(''):'<div class="aviso">Todavía no hay novedades registradas.</div>';
+    var inc=/incumplimiento/i.test(r.tipo), cl=r.fecha===D.hoy?'nv-hoy':(r.fecha>D.hoy?'nv-prox':'nv-pas'), ins=r.fecha===D.hoy?'<span class="pri pri-alta">🔥 HOY</span>':(r.fecha>D.hoy?'<span class="pri pri-norm">📅 Próxima</span>':'<span class="pri pri-pas">Pasada</span>');
+    return '<div class="reg '+cl+'">'+ins+(inc?' <span class="pri pri-inc">⚠ Incumplimiento</span>':'')+(r.atiende?' <span class="pri pri-rep">👥 grupo cubierto</span>':'')+'<br><b>'+esc(r.docente)+'</b> · '+esc(r.tipo)+(r.atiende?' · '+esc(r.atiende):'')+'<small>'+esc(r.motivo||'Sin motivo')+' · '+fmt(r.fecha)+(r.minutos?' · '+r.minutos+' min':'')+(r.sesiones>1?' · '+r.sesiones+' sesiones':'')+' · '+esc(r.origen)+' · lo registró '+esc(r.por||'—')+(r.registrado?' ('+esc(r.registrado)+')':'')+'</small></div>';}).join(''):'<div class="aviso">Todavía no hay novedades registradas.</div>';
 }
 function pintaRecientes(){
   el('recientes').innerHTML=D.registros.length?D.registros.map(function(r){

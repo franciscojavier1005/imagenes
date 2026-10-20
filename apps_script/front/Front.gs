@@ -71,3 +71,4 @@ function levantarMarcasEstudiante(p) { return llamar_('levantarMarcasEstudiante'
 function informeRondas(p) { return llamar_('informeRondas', [p]); }
 function enviarRondasAMi(p) { return llamar_('enviarRondasAMi', [p]); }
 function editarReunion(p) { return llamar_('editarReunion', [p]); }
+function anularReunion(p) { return llamar_('anularReunion', [p]); }

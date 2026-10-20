@@ -149,13 +149,14 @@ mock2 = """<script>
     urlBase:function(){setTimeout(function(){ok('#vista-previa');},0);},
     listarReuniones:function(p){setTimeout(function(){var f=(p&&p.fecha)||HOY;
       function res(r){var a=ASIST[r.id]||{},c=conv(r);return Object.assign({},r,{convocadosN:c.length,registrados:c.filter(function(n){return a[n];}).length});}
-      ok({fecha:f,hoy:HOY,proximas:REUN.filter(function(r){return r.fecha>=HOY;}).sort(function(a,b){return a.fecha<b.fecha?-1:1;}).map(res),ultimas:REUN.filter(function(r){return r.fecha<HOY;}).sort(function(a,b){return a.fecha<b.fecha?1:-1;}).map(res),tipos:TIPOS,personas:PERSONAS,motivos:MOTIVOS,reuniones:REUN.filter(function(r){return r.fecha===f;}).map(function(r){var a=ASIST[r.id]||{},c=conv(r);
+      ok({puedeAnular:true,fecha:f,hoy:HOY,proximas:REUN.filter(function(r){return r.fecha>=HOY;}).sort(function(a,b){return a.fecha<b.fecha?-1:1;}).map(res),ultimas:REUN.filter(function(r){return r.fecha<HOY;}).sort(function(a,b){return a.fecha<b.fecha?1:-1;}).map(res),tipos:TIPOS,personas:PERSONAS,motivos:MOTIVOS,reuniones:REUN.filter(function(r){return r.fecha===f;}).map(function(r){var a=ASIST[r.id]||{},c=conv(r);
         return Object.assign({},r,{convocadosN:c.length,registrados:c.filter(function(n){return a[n];}).length});})});},20);},
     crearReunion:function(p){setTimeout(function(){
       if(!p.inicio||!p.fin||p.fin<=p.inicio){fail&&fail({message:'Revise la hora de inicio y de fin.'});return;}
       var r={id:'r'+(REUN.length+1),fecha:p.fecha||HOY,tipo:p.tipo,nombre:p.nombre||p.tipo,inicio:p.inicio,fin:p.fin,sinEstudiantes:!!p.sinEstudiantes,convocados:p.convocados};REUN.push(r);ok({id:r.id});},20);},
     cargarReunion:function(p){setTimeout(function(){var r=reun(p.id),a=ASIST[r.id]||{};
       ok({reunion:r,motivos:MOTIVOS,personas:conv(r).map(function(n){var pp=PERSONAS.filter(function(x){return x.nombre===n;})[0]||{rol:'Docente'};return {nombre:n,rol:pp.rol,registro:a[n]||null};})});},20);},
+    anularReunion:function(p){setTimeout(function(){var i=REUN.findIndex(function(r){return r.id===p.id;});if(i<0){fail&&fail({message:'No se encontró la reunión.'});return;}REUN.splice(i,1);ok({ok:true});},20);},
     editarReunion:function(p){setTimeout(function(){var r=reun(p.id);if(!r){fail&&fail({message:'No se encontró la reunión.'});return;}if(!p.inicio||!p.fin||p.fin<=p.inicio){fail&&fail({message:'Revise la hora de inicio y de fin.'});return;}Object.assign(r,{tipo:p.tipo,nombre:p.nombre||p.tipo,fecha:p.fecha,inicio:p.inicio,fin:p.fin,sinEstudiantes:!!p.sinEstudiantes,convocados:p.convocados});ok({ok:true,id:r.id});},20);},
     guardarAsistenciaReunion:function(p){setTimeout(function(){var a=ASIST[p.id]=ASIST[p.id]||{};p.registros.forEach(function(x){a[x.persona]={estado:x.estado,motivo:x.motivo};});ok({guardados:p.registros.length});},20);}};return self;};
   window.PREVIEW=true;

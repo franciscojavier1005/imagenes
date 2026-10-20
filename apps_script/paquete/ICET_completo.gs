@@ -2037,7 +2037,81 @@ function purgarAudios() {
  * Hojas: Reuniones (una fila por reunión) y Asistencia_Reunion (una fila por persona y reunión; se reemplaza al volver a guardar).
  * Fechas y horas se guardan como TEXTO (con apóstrofo) para que Sheets no las convierta.
  */
-var COL_REUNIONES = ['id', 'fecha', 'tipo', 'nombre', 'inicio', 'fin', 'sin_estudiantes', 'convocados', 'creado_por', 'fecha_creacion', 'avisar_dias', 'avisar_min', 'avisar_ronda', 'lugar', 'fin_tipo', 'convoca_tipo', 'convoca_detalle', 'solicita_por', 'responsables'];
+var COL_REUNIONES = ['id', 'fecha', 'tipo', 'nombre', 'inicio', 'fin', 'sin_estudiantes', 'convocados', 'creado_por', 'fecha_creacion', 'avisar_dias', 'avisar_min', 'avisar_ronda', 'lugar', 'fin_tipo', 'convoca_tipo', 'convoca_detalle', 'solicita_por', 'responsables', 'convocados_grupos', 'invitados', 'invitado_nombre'];
+/** A quiénes se convoca. Personal (genera lista de asistencia) y organismos e invitados (solo se anuncian). */
+var GRUPOS_PERSONAL = [
+  ['TODOS', 'Todo el personal de la institución', 'Docentes, orientadoras, tutora PTAFI y directivos'],
+  ['DIRECTIVOS', 'Directivos docentes', 'Rector y coordinadores'],
+  ['ORIENTADORAS', 'Docentes orientadoras', ''],
+  ['PTAFI', 'Tutora PTAFI', ''],
+  ['PREESCOLAR', 'Docentes de preescolar', ''],
+  ['PRIMARIA', 'Docentes de básica primaria', ''],
+  ['BACHILLERATO', 'Docentes de bachillerato', 'Secundaria y media']
+];
+var NOMBRES_AREA = { ART: 'Artística', ETR: 'Ética y religión', CSI: 'Ciencias sociales e inglés', ERD: 'Educación física, recreación y deporte', TEI: 'Tecnología e informática', CAS: 'Lengua castellana', CNA: 'Ciencias naturales', MAT: 'Matemáticas' };
+var ORGANISMOS_REUNION = [
+  ['CONSEJO_DIRECTIVO', 'Consejo directivo'], ['CONSEJO_ACADEMICO', 'Consejo académico'], ['CONSEJO_ESTUDIANTIL', 'Consejo estudiantil'], ['CONSEJO_PADRES', 'Consejo de padres'],
+  ['COMITE_CONVIVENCIA', 'Comité de convivencia'], ['COMITE_COMEDOR', 'Comité de comedor escolar'], ['PADRES', 'Padres de familia o acudientes'], ['EGRESADOS', 'Egresados'],
+  ['ENTIDAD', 'Entidad o invitado externo (escriba el nombre)']
+];
+/** Nombres de las personas que pertenecen a cada grupo de personal ('AREA:CNA' = docentes que dictan esa área; 'PERSONAS' = los nombres elegidos a mano). */
+function personasDeGrupos_(grupos, elegidos) {
+  var out = [], visto = {};
+  function add(n) { n = String(n || '').trim(); if (n && !visto[n]) { visto[n] = 1; out.push(n); } }
+  var todas = personasReunion_(), validos = todas.map(function (x) { return x.nombre; });
+  var docs = datos_('Docentes').filter(function (d) { return String(d.tiene_horario) === 'SI'; });
+  var areasDe = null;
+  function areas() { if (!areasDe) { areasDe = {}; datos_('Horario').forEach(function (h) { (areasDe[h.docente] = areasDe[h.docente] || {})[h.area] = 1; }); } return areasDe; }
+  (grupos || []).forEach(function (g) {
+    if (g === 'TODOS') todas.forEach(function (x) { add(x.nombre); });
+    else if (g === 'DIRECTIVOS') datos_('Directivos').forEach(function (d) { add(d.nombre); });
+    else if (g === 'ORIENTADORAS') docs.forEach(function (d) { if (/ORIENT/i.test(String(d.nivel))) add(d.nombre_completo); });
+    else if (g === 'PTAFI') docs.forEach(function (d) { if (/PTAFI/i.test(String(d.nivel))) add(d.nombre_completo); });
+    else if (g === 'PREESCOLAR') docs.forEach(function (d) { if (/PREESCOLAR/i.test(String(d.nivel))) add(d.nombre_completo); });
+    else if (g === 'PRIMARIA') docs.forEach(function (d) { if (/PRIMARIA/i.test(String(d.nivel))) add(d.nombre_completo); });
+    else if (g === 'BACHILLERATO') docs.forEach(function (d) { if (/SECUNDARIA|MEDIA|BACHILLERATO/i.test(String(d.nivel))) add(d.nombre_completo); });
+    else if (/^AREA:/.test(g)) { var cod = g.slice(5); docs.forEach(function (d) { if ((areas()[d.nombre_completo] || {})[cod]) add(d.nombre_completo); }); }
+    else if (g === 'PERSONAS') (elegidos || []).forEach(function (n) { if (validos.indexOf(n) >= 0) add(n); });
+  });
+  return out;
+}
+/** Catálogo para el formulario: grupos de personal con sus integrantes, áreas disponibles y organismos. */
+function catalogoConvocados_() {
+  var porGrupo = {}, hojas = {};
+  GRUPOS_PERSONAL.forEach(function (g) { porGrupo[g[0]] = personasDeGrupos_([g[0]]); });
+  var areas = {}; datos_('Horario').forEach(function (h) { if (NOMBRES_AREA[h.area]) areas[h.area] = 1; });
+  var listaAreas = Object.keys(areas).sort(function (a, b) { return NOMBRES_AREA[a] < NOMBRES_AREA[b] ? -1 : 1; }).map(function (c) { porGrupo['AREA:' + c] = personasDeGrupos_(['AREA:' + c]); return { codigo: c, nombre: NOMBRES_AREA[c], n: porGrupo['AREA:' + c].length }; });
+  return { personal: GRUPOS_PERSONAL.map(function (g) { return { codigo: g[0], nombre: g[1], detalle: g[2], n: porGrupo[g[0]].length }; }), areas: listaAreas, organismos: ORGANISMOS_REUNION.map(function (o) { return { codigo: o[0], nombre: o[1] }; }), integrantes: porGrupo };
+}
+/** Lee de p a quiénes se convoca (formato nuevo con grupos; o el anterior: 'TODOS' / lista de nombres). */
+function convocadosDeP_(p) {
+  var grupos, elegidos = p.convocados, nuevo = Array.isArray(p.grupos);
+  if (nuevo) grupos = p.grupos.filter(function (g) { return g === 'TODOS' || g === 'PERSONAS' || /^AREA:/.test(g) || GRUPOS_PERSONAL.some(function (x) { return x[0] === g; }); });
+  else grupos = p.convocados === 'TODOS' || p.convocados == null ? ['TODOS'] : ['PERSONAS'];
+  var invitados = (p.invitados || []).filter(function (c) { return ORGANISMOS_REUNION.some(function (o) { return o[0] === c; }); });
+  var entidad = invitados.indexOf('ENTIDAD') >= 0 ? String(p.entidad || '').trim().slice(0, 100) : '';
+  if (invitados.indexOf('ENTIDAD') >= 0 && entidad.length < 3) throw new Error('Escriba el nombre de la entidad o del invitado externo.');
+  var personas = personasDeGrupos_(grupos, Array.isArray(elegidos) ? elegidos : []);
+  if (!personas.length && !invitados.length) throw new Error('Elija a quiénes se convoca (al menos un grupo o una persona).');
+  var conv = grupos.indexOf('TODOS') >= 0 ? 'TODOS' : (personas.length ? personas.join('; ') : 'NINGUNO');
+  var rotulos = [];
+  GRUPOS_PERSONAL.forEach(function (g) { if (grupos.indexOf(g[0]) >= 0) rotulos.push(g[1]); });
+  grupos.forEach(function (g) { if (/^AREA:/.test(g)) rotulos.push('Docentes de ' + (NOMBRES_AREA[g.slice(5)] || g.slice(5))); });
+  if (grupos.indexOf('PERSONAS') >= 0) rotulos.push((Array.isArray(elegidos) ? elegidos.length : 0) + ' persona(s) elegida(s)');
+  return { conv: conv, grupos: grupos.join(';'), invitados: invitados.join(';'), entidad: entidad, personas: personas };
+}
+/** Texto corto con a quiénes se convoca, para las tarjetas y avisos. */
+function resumenConvocados_(x) {
+  var t = [];
+  var gr = x.grupos || [];
+  if (!gr.length) t.push(x.convocados === 'TODOS' ? 'Todo el personal de la institución' : (x.convocados.length ? x.convocados.length + ' persona(s) elegida(s)' : ''));
+  GRUPOS_PERSONAL.forEach(function (g) { if (gr.indexOf(g[0]) >= 0) t.push(g[1]); });
+  gr.forEach(function (g) { if (/^AREA:/.test(g)) t.push('Docentes de ' + (NOMBRES_AREA[g.slice(5)] || g.slice(5))); });
+  if (gr.indexOf('PERSONAS') >= 0) t.push((x.convocados === 'TODOS' ? 0 : x.convocados.length) + ' persona(s) elegida(s)');
+  (x.invitados || []).forEach(function (c) { var o = ORGANISMOS_REUNION.filter(function (z) { return z[0] === c; })[0]; if (o) t.push(c === 'ENTIDAD' ? (x.invitadoNombre || o[1]) : o[1]); });
+  return t.filter(String).join(' · ');
+}
+
 /** Quién convoca (lista del formulario). */
 var CONVOCA_TIPOS = ['Rectoría', 'Coordinación académica', 'Coordinación de convivencia', 'Coordinación de redes de apoyo', 'Líder de área', 'Docente', 'Docente orientador(a)', 'Tutora PTAFI', 'Directivo docente', 'Secretaría de Educación', 'Otra entidad o persona'];
 var LUGARES_REUNION = ['Sala de profesores', 'Biblioteca', 'Coliseo', 'Aula máxima', 'Sala de sistemas', 'Rectoría', 'Patio principal', 'Virtual (enlace)', 'Fuera del colegio'];
@@ -2103,11 +2177,14 @@ function personasReunion_() {
 
 function reunionDeFila_(r) {
   var conv = String(r.convocados || 'TODOS');
-  return { id: r.id, fecha: fechaIso_(limpiaTxt_(r.fecha)), tipo: r.tipo, nombre: r.nombre, inicio: limpiaTxt_(r.inicio), fin: limpiaTxt_(r.fin),
-           sinEstudiantes: String(r.sin_estudiantes) === 'SI', convocados: conv === 'TODOS' ? 'TODOS' : conv.split(';').map(function (x) { return x.trim(); }).filter(String),
+  var x = { id: r.id, fecha: fechaIso_(limpiaTxt_(r.fecha)), tipo: r.tipo, nombre: r.nombre, inicio: limpiaTxt_(r.inicio), fin: limpiaTxt_(r.fin),
+           sinEstudiantes: String(r.sin_estudiantes) === 'SI', convocados: conv === 'TODOS' ? 'TODOS' : (conv === 'NINGUNO' ? [] : conv.split(';').map(function (x) { return x.trim(); }).filter(String)),
            creadoPor: r.creado_por, avisarDias: recordatorioDe_(r).avisarDias, avisarMin: recordatorioDe_(r).avisarMin, avisarRonda: recordatorioDe_(r).avisarRonda,
            lugar: String(r.lugar || ''), finTipo: FIN_TIPOS[r.fin_tipo] ? r.fin_tipo : 'FIJA', convocaTipo: String(r.convoca_tipo || ''), convocaDetalle: String(r.convoca_detalle || ''), solicitaPor: String(r.solicita_por || ''),
-           responsables: String(r.responsables || '').split(';').map(function (x) { return x.trim(); }).filter(String) };
+           responsables: String(r.responsables || '').split(';').map(function (x) { return x.trim(); }).filter(String),
+           grupos: String(r.convocados_grupos || '').split(';').filter(String), invitados: String(r.invitados || '').split(';').filter(String), invitadoNombre: String(r.invitado_nombre || '') };
+  x.convocadosResumen = resumenConvocados_(x);
+  return x;
 }
 function reunionesDe_(fecha) {
   return reunionesDatos_().map(reunionDeFila_).filter(function (r) { return r.fecha === fecha; });
@@ -2153,7 +2230,7 @@ function listarReuniones(p) {
   function resumida(r) { var a = asistenciaDe_(r.id), conv = convocadosDe_(r), reg = 0; conv.forEach(function (n) { if (a[n]) reg++; }); return Object.assign({}, r, { convocadosN: conv.length, registrados: reg }); }
   var proximas = todas.filter(function (r) { return r.fecha >= hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? -1 : 1) : (a.fecha < b.fecha ? -1 : 1); }).slice(0, 12).map(resumida);
   var ultimas = todas.filter(function (r) { return r.fecha < hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? 1 : -1) : (a.fecha < b.fecha ? 1 : -1); }).slice(0, 10).map(resumida);
-  return { puedeAnular: puedeAdministrar_(identidad_()), duplicadas: duplicadasDe_().length, convocaTipos: CONVOCA_TIPOS, lugares: LUGARES_REUNION, finTipos: FIN_TIPOS, jornadaFin: finJornada_(), fecha: fecha, hoy: hoy, proximas: proximas, ultimas: ultimas, reuniones: reuniones, tipos: TIPOS_REUNION, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };
+  return { puedeAnular: puedeAdministrar_(identidad_()), duplicadas: duplicadasDe_().length, catalogo: catalogoConvocados_(), convocaTipos: CONVOCA_TIPOS, lugares: LUGARES_REUNION, finTipos: FIN_TIPOS, jornadaFin: finJornada_(), fecha: fecha, hoy: hoy, proximas: proximas, ultimas: ultimas, reuniones: reuniones, tipos: TIPOS_REUNION, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };
 }
 
 function hora_(s) { return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(s)) ? String(s) : ''; }
@@ -2182,13 +2259,7 @@ function crearReunion(p) {
   if (/^Otra/.test(def.tipo) && String(p.nombre || '').trim().length < 3) throw new Error('Escriba el nombre de la reunión o actividad.');
   var d = datosReunionDeP_(p);
   var fecha = p.fecha ? fechaIso_(p.fecha) : ymd_(new Date());
-  var conv = 'TODOS';
-  if (p.convocados !== 'TODOS') {
-    var validos = personasReunion_().map(function (x) { return x.nombre; });
-    var lista = (p.convocados || []).filter(function (n) { return validos.indexOf(n) >= 0; });
-    if (!lista.length) throw new Error('Elija al menos una persona convocada.');
-    conv = lista.join('; ');
-  }
+  var cv = convocadosDeP_(p), conv = cv.conv;
   var nombre = String(p.nombre || '').slice(0, 120) || def.tipo;
   var lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
@@ -2203,7 +2274,7 @@ function crearReunion(p) {
     var id = Utilities.getUuid();
     reunionesHoja_().appendRow([id, txtForzado_(fecha), def.tipo, nombre, txtForzado_(d.ini), txtForzado_(d.fin),
       p.sinEstudiantes ? 'SI' : 'NO', conv, por, ahoraTxt_(), recordatorioDeP_(p).dias, recordatorioDeP_(p).min, recordatorioDeP_(p).ronda,
-      d.lugar, d.finTipo, d.convocaTipo, d.convocaDetalle, d.solicitaPor, d.responsables]);
+      d.lugar, d.finTipo, d.convocaTipo, d.convocaDetalle, d.solicitaPor, d.responsables, cv.grupos, cv.invitados, cv.entidad]);
     return { id: id };
   } finally { lock.releaseLock(); }
 }
@@ -2256,7 +2327,7 @@ function avisosHoy() {
   var reuniones = todas.filter(function (r) { return r.fecha === hoy; }).sort(function (a, b) { return a.inicio < b.inicio ? -1 : (a.inicio > b.inicio ? 1 : 0); }).map(function (r) {
     var x = resumida(r), estado = hh < r.inicio ? 'proxima' : (hh <= r.fin ? 'ahora' : 'pasada'), faltan = aMinutos(r.inicio) - ahoraMin;
     return { id: r.id, nombre: r.nombre, tipo: r.tipo, inicio: r.inicio, fin: r.fin, sinEstudiantes: r.sinEstudiantes, convocadosN: x.conv, registrados: x.reg, estado: estado,
-             lugar: r.lugar, finTipo: r.finTipo, minutosHasta: faltan, avisarRonda: r.avisarRonda, avisarMin: r.avisarMin,
+             lugar: r.lugar, finTipo: r.finTipo, convocadosResumen: r.convocadosResumen, minutosHasta: faltan, avisarRonda: r.avisarRonda, avisarMin: r.avisarMin,
              urgente: estado === 'ahora' || (estado === 'proxima' && r.avisarMin > 0 && faltan <= r.avisarMin) };   // parpadea y vuelve a avisar durante la jornada
   });
   var previas = todas.filter(function (r) {
@@ -2329,13 +2400,7 @@ function editarReunion(p) {
   if (/^Otra/.test(def.tipo) && String(p.nombre || '').trim().length < 3) throw new Error('Escriba el nombre de la reunión o actividad.');
   var d = datosReunionDeP_(p), ini = d.ini, fin = d.fin;
   if (!esFechaIso_(p.fecha)) throw new Error('Revise la fecha.');
-  var conv = 'TODOS';
-  if (p.convocados !== 'TODOS') {
-    var validos = personasReunion_().map(function (x) { return x.nombre; });
-    var lista = (p.convocados || []).filter(function (n) { return validos.indexOf(n) >= 0; });
-    if (!lista.length) throw new Error('Elija al menos una persona convocada.');
-    conv = lista.join('; ');
-  }
+  var cv = convocadosDeP_(p), conv = cv.conv;
   var lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
     var sh = reunionesHoja_(), v = sh.getDataRange().getValues(), cab = v[0], fila = -1, c = {};
@@ -2346,7 +2411,7 @@ function editarReunion(p) {
     var nueva = v[fila].slice();
     nueva[c.fecha] = txtForzado_(p.fecha); nueva[c.tipo] = def.tipo; nueva[c.nombre] = String(p.nombre || '').slice(0, 120) || def.tipo;
     nueva[c.inicio] = txtForzado_(ini); nueva[c.fin] = txtForzado_(fin); nueva[c.sin_estudiantes] = p.sinEstudiantes ? 'SI' : 'NO'; nueva[c.convocados] = conv; var rd = recordatorioDeP_(p); nueva[c.avisar_dias] = rd.dias; nueva[c.avisar_min] = rd.min; nueva[c.avisar_ronda] = rd.ronda;
-    nueva[c.lugar] = d.lugar; nueva[c.fin_tipo] = d.finTipo; nueva[c.convoca_tipo] = d.convocaTipo; nueva[c.convoca_detalle] = d.convocaDetalle; nueva[c.solicita_por] = d.solicitaPor; nueva[c.responsables] = d.responsables;
+    nueva[c.lugar] = d.lugar; nueva[c.fin_tipo] = d.finTipo; nueva[c.convoca_tipo] = d.convocaTipo; nueva[c.convoca_detalle] = d.convocaDetalle; nueva[c.solicita_por] = d.solicitaPor; nueva[c.responsables] = d.responsables; nueva[c.convocados_grupos] = cv.grupos; nueva[c.invitados] = cv.invitados; nueva[c.invitado_nombre] = cv.entidad;
     sh.getRange(fila + 1, 1, 1, nueva.length).setValues([nueva]);
     bitacora_('Editó reunión', antes.nombre + ' (' + antes.fecha + ' ' + antes.inicio + '-' + antes.fin + ') → ' + nueva[c.nombre] + ' (' + p.fecha + ' ' + ini + '-' + fin + ')' + (antes.sinEstudiantes !== !!p.sinEstudiantes ? ' · clases ' + (p.sinEstudiantes ? 'suspendidas' : 'no suspendidas') : '') + ' · por ' + por);
   } finally { lock.releaseLock(); }
@@ -3066,11 +3131,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.20-e';
+var VERSION_SISTEMA = '2026.10.20-f';
 var FECHA_VERSION = '2026-10-20';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.20-f', fecha: '2026-10-20', cambios: [
+    'Reuniones: «¿A quiénes se convoca?» ahora tiene opciones globales: todo el personal, directivos docentes, docentes orientadoras, tutora PTAFI, docentes de preescolar, de básica primaria, de bachillerato, docentes de un área (una o varias) y personalizado (docente por docente, con buscador). Además organismos e invitados: consejo directivo, académico, estudiantil, de padres, comité de convivencia, comité de comedor escolar, padres de familia o acudientes, egresados y entidad o invitado externo (con su nombre). Los organismos e invitados se anuncian pero no llevan lista de asistencia por persona; el personal sí. La hoja Reuniones recibe las columnas convocados_grupos, invitados e invitado_nombre.'] },
   { version: '2026.10.20-e', fecha: '2026-10-20', cambios: [
     'Reuniones y actividades: nuevos datos al crear o editar: hora en que comienza y cómo termina (hora fija, hora tentativa o hasta finalizar la jornada), lugar, quién convoca (rectoría, coordinaciones, líder de área, docente, orientador(a), PTAFI, Secretaría de Educación…) con el área o entidad, quién solicita y responsables a cargo, además de los convocados. Las columnas nuevas de la hoja Reuniones se agregan solas.',
     'Crear una reunión ya no se repite si se toca el botón varias veces mientras el libro responde (queda una sola) y, al terminar, vuelve a la lista de reuniones (antes abría la lista de docentes para la asistencia). Quien administra ve «Quitar las repetidas» para limpiar las que ya estén duplicadas (también en el menú del libro: Quitar reuniones repetidas); la que tiene asistencia se conserva y las demás quedan en Reuniones_Anuladas.'] },

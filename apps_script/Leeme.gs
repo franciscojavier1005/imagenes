@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.20-e';
+var VERSION_SISTEMA = '2026.10.20-f';
 var FECHA_VERSION = '2026-10-20';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.20-f', fecha: '2026-10-20', cambios: [
+    'Reuniones: «¿A quiénes se convoca?» ahora tiene opciones globales: todo el personal, directivos docentes, docentes orientadoras, tutora PTAFI, docentes de preescolar, de básica primaria, de bachillerato, docentes de un área (una o varias) y personalizado (docente por docente, con buscador). Además organismos e invitados: consejo directivo, académico, estudiantil, de padres, comité de convivencia, comité de comedor escolar, padres de familia o acudientes, egresados y entidad o invitado externo (con su nombre). Los organismos e invitados se anuncian pero no llevan lista de asistencia por persona; el personal sí. La hoja Reuniones recibe las columnas convocados_grupos, invitados e invitado_nombre.'] },
   { version: '2026.10.20-e', fecha: '2026-10-20', cambios: [
     'Reuniones y actividades: nuevos datos al crear o editar: hora en que comienza y cómo termina (hora fija, hora tentativa o hasta finalizar la jornada), lugar, quién convoca (rectoría, coordinaciones, líder de área, docente, orientador(a), PTAFI, Secretaría de Educación…) con el área o entidad, quién solicita y responsables a cargo, además de los convocados. Las columnas nuevas de la hoja Reuniones se agregan solas.',
     'Crear una reunión ya no se repite si se toca el botón varias veces mientras el libro responde (queda una sola) y, al terminar, vuelve a la lista de reuniones (antes abría la lista de docentes para la asistencia). Quien administra ve «Quitar las repetidas» para limpiar las que ya estén duplicadas (también en el menú del libro: Quitar reuniones repetidas); la que tiene asistencia se conserva y las demás quedan en Reuniones_Anuladas.'] },

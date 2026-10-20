@@ -47,7 +47,7 @@
 <main>
   <div class="saludo" id="saludo"></div>
   <div id="botones"><div class="espera">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.20-e</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.20-f</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -202,7 +202,7 @@ function avisoDiaPintar(r,soloUrgentes){
     var urg=!!x.urgente&&x.estado!=='pasada'; if(urg) parp=true;
     var cl=x.estado==='ahora'?'ahora':(x.estado==='pasada'?'falta':(urg?'ahora':'prox'));
     var et=x.estado==='ahora'?'<b class="av-e av-ahora">AHORA</b>':(x.estado==='pasada'?'<b class="av-e av-falta">Falta registrar asistencia</b>':(urg?'<b class="av-e av-ahora">EN '+Math.max(0,x.minutosHasta)+' MIN</b>':'<b class="av-e av-prox">Hoy</b>'));
-    items.push({c:cl,p:urg,h:'<span class="av-ic">👥</span><div><b>'+avEsc(x.inicio)+' – '+avEsc(x.fin)+'</b> · '+avEsc(x.nombre)+' '+et+'<br><small>'+avEsc(x.tipo)+(x.lugar?' · 📍 '+avEsc(x.lugar):'')+(x.finTipo==='JORNADA'?' · hasta finalizar la jornada':'')+(x.sinEstudiantes?' · <b>sin clases</b> (se suspende la ronda de aula)':'')+(x.convocadosN?' · convocados: '+x.convocadosN:'')+'</small></div>'});
+    items.push({c:cl,p:urg,h:'<span class="av-ic">👥</span><div><b>'+avEsc(x.inicio)+' – '+avEsc(x.fin)+'</b> · '+avEsc(x.nombre)+' '+et+'<br><small>'+avEsc(x.tipo)+(x.lugar?' · 📍 '+avEsc(x.lugar):'')+(x.finTipo==='JORNADA'?' · hasta finalizar la jornada':'')+(x.sinEstudiantes?' · <b>sin clases</b> (se suspende la ronda de aula)':'')+(x.convocadosResumen?' · convoca a: '+avEsc(x.convocadosResumen):(x.convocadosN?' · convocados: '+x.convocadosN:''))+'</small></div>'});
   });
   if(!soloUrgentes){
     (r.previas||[]).forEach(function(x){

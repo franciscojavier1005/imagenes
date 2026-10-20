@@ -309,6 +309,33 @@ const cr=run("cargarReunion({id:'"+rc1.id+"'})"); ok(cr.personas.length===1&&cr.
     ok(run('listarReuniones({})').duplicadas===0,'ya no quedan repetidas');
     [rO.id,rJ.id,'dup-3'].forEach(id=>run(`anularReunion({id:'${id}',motivo:'prueba de organización'})`));
   }
+  // convocados por grupos, áreas, organismos e invitados
+  {
+    const cat=run('listarReuniones({})').catalogo, dg=dmas(9);
+    const dirs=cat.integrantes.DIRECTIVOS, orient=cat.integrantes.ORIENTADORAS, bach=cat.integrantes.BACHILLERATO;
+    ok(cat.personal.length===7&&cat.personal[0].codigo==='TODOS'&&cat.organismos.some(o=>o.codigo==='COMITE_COMEDOR')&&cat.organismos.some(o=>o.codigo==='CONSEJO_PADRES')&&cat.organismos.some(o=>o.codigo==='EGRESADOS'),'catálogo de convocados: grupos de personal y organismos (consejos, comités, padres, egresados, entidad)');
+    ok(dirs.length>=3&&orient.length>=1&&bach.length>20&&cat.integrantes.TODOS.length>=bach.length+dirs.length,'los grupos se resuelven con las personas reales (directivos, orientadoras, bachillerato…)');
+    const areaCod=(cat.areas.find(a=>a.n>1)||cat.areas[0]).codigo;
+    const rG=run(`crearReunion({tipo:'Consejo académico',nombre:'Por grupos',fecha:'${dg}',inicio:'08:00',fin:'09:00',grupos:['DIRECTIVOS','ORIENTADORAS','AREA:${areaCod}'],invitados:['CONSEJO_PADRES','ENTIDAD'],entidad:'Secretaría de Educación'})`);
+    const g1=run(`cargarReunion({id:'${rG.id}'})`); const esp=[...new Set([...dirs,...orient,...cat.integrantes['AREA:'+areaCod]])];
+    ok(g1.personas.length===esp.length&&g1.reunion.grupos.includes('AREA:'+areaCod)&&g1.reunion.invitados.includes('CONSEJO_PADRES')&&g1.reunion.invitadoNombre==='Secretaría de Educación','convocados = directivos + orientadoras + docentes del área ('+esp.length+' personas) y los invitados se guardan');
+    ok(/Directivos docentes/.test(g1.reunion.convocadosResumen)&&/Consejo de padres/.test(g1.reunion.convocadosResumen)&&/Secretaría de Educación/.test(g1.reunion.convocadosResumen),'resumen legible de a quiénes se convoca');
+    const rP=run(`crearReunion({tipo:'Consejo académico',nombre:'Solo padres',fecha:'${dg}',inicio:'10:00',fin:'11:00',grupos:[],invitados:['PADRES','EGRESADOS']})`);
+    const p1=run(`cargarReunion({id:'${rP.id}'})`); ok(p1.personas.length===0&&p1.reunion.convocados.length===0&&p1.reunion.invitados.length===2,'solo organismos o invitados: sin lista de asistencia de personal');
+    const rT=run(`crearReunion({tipo:'Consejo académico',nombre:'Todos',fecha:'${dg}',inicio:'12:00',fin:'13:00',grupos:['TODOS','DIRECTIVOS']})`);
+    ok(run(`cargarReunion({id:'${rT.id}'})`).personas.length===cat.integrantes.TODOS.length,'«todo el personal» convoca a todas las personas');
+    const rE=run(`crearReunion({tipo:'Consejo académico',nombre:'Personalizado',fecha:'${dg}',inicio:'12:00',fin:'12:30',grupos:['PERSONAS'],convocados:['${dR}','${dirs[0]}']})`);
+    ok(run(`cargarReunion({id:'${rE.id}'})`).personas.length===2,'personalizado: solo las personas elegidas');
+    let e1=null; try{ run(`crearReunion({tipo:'Consejo académico',nombre:'Nadie',fecha:'${dg}',inicio:'14:00',fin:'15:00',grupos:[],invitados:[]})`) }catch(x){e1=x} ok(e1&&/Elija a quiénes se convoca/.test(e1.message),'exige elegir a quién se convoca');
+    e1=null; try{ run(`crearReunion({tipo:'Consejo académico',nombre:'Sin entidad',fecha:'${dg}',inicio:'14:00',fin:'15:00',grupos:['DIRECTIVOS'],invitados:['ENTIDAD'],entidad:''})`) }catch(x){e1=x} ok(e1&&/nombre de la entidad/.test(e1.message),'la entidad invitada exige su nombre');
+    // editar los convocados
+    run(`editarReunion({id:'${rG.id}',tipo:'Consejo académico',nombre:'Por grupos',fecha:'${dg}',inicio:'08:00',fin:'09:00',grupos:['PTAFI'],invitados:[]})`);
+    const g2=run(`cargarReunion({id:'${rG.id}'})`); ok(g2.personas.length===cat.integrantes.PTAFI.length&&g2.reunion.invitados.length===0,'editar cambia los convocados');
+    // una reunión creada con el formato anterior sigue funcionando
+    const rL=run(`crearReunion({tipo:'Consejo académico',nombre:'Formato anterior',fecha:'${dg}',inicio:'15:00',fin:'16:00',convocados:'TODOS'})`);
+    ok(run(`cargarReunion({id:'${rL.id}'})`).personas.length===cat.integrantes.TODOS.length,'el formato anterior de convocados (TODOS o lista) sigue funcionando');
+    [rG,rP,rT,rE,rL].forEach(r=>run(`anularReunion({id:'${r.id}',motivo:'prueba de convocados'})`));
+  }
   // anular: solo quien administra
   const dh=hojas.Directivos.v[0], iCT=dh.indexOf('correo_temporal');
   hojas.Directivos.v[3][iCT]='harold@x.com'; EMAIL='harold@x.com';

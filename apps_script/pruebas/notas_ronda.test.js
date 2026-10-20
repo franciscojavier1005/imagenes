@@ -475,4 +475,33 @@ const ah=run("consultaHorarios({modo:'ahora',dia:'MARTES',sesion:3})"); ok(ah.fi
 const di=run("consultaHorarios({modo:'directores'})"); ok(di.grupos.length>=33&&di.grupos[0].codigo==='0001'&&di.grupos[di.grupos.length-1].codigo.startsWith('11')&&di.sinDireccion.length>=1,`directores de grupo: ${di.grupos.length} cursos de preescolar a 11°, y ${di.sinDireccion.length} docentes de bachillerato sin dirección`);
 ok(di.grupos.filter(x=>x.directores.length===2).length>=1,'los grupos compartidos (bachillerato) muestran dos directores');
 EMAIL=''; ok(/Debe iniciar sesión/.test(falla("consultaHorarios({modo:'catalogo'})")||''),'sin sesión no se puede consultar'); EMAIL='dueno@gmail.com';
+// ---- equipos de énfasis: el docente de la pareja que alterna (ética/religión) también cambia de equipo cada semana, y se puede restablecer
+{
+  const esEq=(r)=>r[hi('tipo')]==='ENFASIS'&&/^EQUIPO/.test(r[hi('alternancia')]), sem=run("lunesDe_(ymd_(new Date()))");
+  let EST,MON,AR,eE;
+  for(const pr of H.Alternancias.slice(1)){ const f=H.Horario.slice(1).find(r=>esEq(r)&&r[hi('area')]===pr[0]&&r[hi('docente')]===pr[1]); if(f){ AR=pr[0]; EST=pr[1]; MON=pr[2]; eE=f; break; } }
+  ok(!!eE,'hay una pareja de la hoja Alternancias con un equipo de énfasis ('+AR+')');
+  const eM=H.Horario.slice(1).find(r=>esEq(r)&&r[hi('docente')]===MON&&r[hi('dia')]===eE[hi('dia')]&&r[hi('hora')]===eE[hi('hora')]);
+  const clave='CLASE|'+AR+'|'+[EST,MON].sort().join('|'), diaE=eE[hi('dia')], horaE=Number(eE[hi('hora')]);
+  hojas.Semana_Alternancia.v.splice(1);
+  let cs=run(`consultarSesion('${diaE}',${horaE},'sesion')`).filas.filter(f=>f.tipo==='ENFASIS'&&(f.docente===EST||f.docente===MON));
+  ok(cs.length>=1&&cs.every(f=>f.claveAlt===clave&&f.alternos.length===1),'equipo de énfasis: la tarjeta de ética/religión ofrece al otro docente de la pareja (misma clave de la semana)');
+  // marcas ya registradas en esa sesión con la asignación original; luego se define el intercambio y se corrige lo registrado
+  const dd=(n)=>run(`resSumaDias_('${sem}',${['LUNES','MARTES','MIERCOLES','JUEVES','VIERNES'].indexOf(diaE)})`);
+  const cabR=hojas.Registro_Ronda.v[0], ic=(k)=>cabR.indexOf(k), fecha=dd();
+  const fila=(doc,gr)=>{const r=cabR.map(()=>'');r[ic('fecha')]=fecha;r[ic('sesion')]=horaE;r[ic('docente')]=doc;r[ic('grupo')]=gr;r[ic('area')]=AR;r[ic('estado')]='Presente';return r};
+  const base=hojas.Registro_Ronda.v.length;
+  hojas.Registro_Ronda.v.push(fila(EST,eE[hi('grupos_enfasis')])); if(eM) hojas.Registro_Ronda.v.push(fila(MON,eM[hi('grupos_enfasis')]));
+  const doc=(i)=>hojas.Registro_Ronda.v[base+i][ic('docente')];
+  g.PQ={clave,elegido:MON,primario:EST,fecha,directivo:'P',antes:EST,corregirRegistrado:true}; const r1=run('definirAlternancia(PQ)');
+  ok(doc(0)===MON&&(!eM||doc(1)===EST)&&r1.corregidos.registro===(eM?2:1),'al definir el intercambio la corrección pasa cada marca al otro docente de la pareja (en los dos sentidos)');
+  // restablecer: volver a la asignación original corrige de nuevo, también lo registrado con el intercambio
+  g.PQ2={clave,elegido:EST,primario:EST,fecha,directivo:'P',antes:MON,corregirRegistrado:true}; const r2=run('definirAlternancia(PQ2)');
+  ok(doc(0)===EST&&(!eM||doc(1)===MON)&&r2.corregidos.registro===(eM?2:1),'restablecer la asignación original devuelve las marcas a sus titulares');
+  // solo de ahora en adelante: no toca lo registrado
+  g.PQ3={clave,elegido:MON,primario:EST,fecha,directivo:'P',antes:EST,corregirRegistrado:false}; run('definirAlternancia(PQ3)');
+  ok(doc(0)===EST,'«solo de ahora en adelante» no toca lo registrado');
+  cs=run(`consultarSesion('${diaE}',${horaE},'sesion')`).filas.filter(f=>f.tipo==='ENFASIS'&&f.claveAlt===clave);
+  ok(cs.length>=1&&cs.every(f=>f.definido)&&cs.some(f=>f.docente===MON),'definido el intercambio, en el equipo de énfasis aparece el otro docente');
+}
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

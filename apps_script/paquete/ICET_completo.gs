@@ -174,10 +174,10 @@ function consultarSesion(dia, sesion, modo) {
       sesiones: [{ sesion: Number(h.hora), grupoCodigo: enf ? h.grupos_enfasis : h.grupo, area: h.area || '(énfasis)',
                    grupo: enf ? 'ÉNFASIS ' + String(h.grupos_enfasis).split('+').map(function (g) { return nombres[g] || g; }).join(' + ') : (nombres[h.grupo] || h.grupo) }],
       _par: h.tipo === 'ENFASIS' && /^PAREJA/.test(String(h.alternancia)) ? h.hora + '|' + h.grupos_enfasis : '',
-      alternos: h.tipo === 'CLASE' && altern[h.area + '|' + h.docente] ? [altern[h.area + '|' + h.docente]] : [],   // pareja que alterna por semana: se elige quién dicta
+      alternos: parAlterna_(h, altern) ? [parAlterna_(h, altern)] : [],   // pareja que alterna por semana: se elige quién dicta
       primario: h.docente,
-      pareja: h.tipo === 'CLASE' && altern[h.area + '|' + h.docente] ? [h.docente, altern[h.area + '|' + h.docente]].sort() : null,
-      claveAlt: h.tipo === 'CLASE' && altern[h.area + '|' + h.docente] ? 'CLASE|' + h.area + '|' + [h.docente, altern[h.area + '|' + h.docente]].sort().join('|') : '',
+      pareja: parAlterna_(h, altern) ? [h.docente, parAlterna_(h, altern)].sort() : null,
+      claveAlt: parAlterna_(h, altern) ? 'CLASE|' + h.area + '|' + [h.docente, parAlterna_(h, altern)].sort().join('|') : '',
       minutosDia: totDia[h.docente] || 0,
       reporte: reportes[h.docente] || null,
       previo: ya ? { estado: ya.estado, motivo: ya.motivo, minutos: ya.minutos, observaciones: ya.observaciones, atendidoPor: ya.atendido_por || '' } : null
@@ -335,34 +335,46 @@ function estadosSemana_(semana) {
  * (Registro_Ronda) y las novedades por sesión (Novedades) de «antes» a «despues», solo en las sesiones de esa pareja. No toca las ausencias de
  * jornada completa (JC). Devuelve cuántas filas cambió.
  */
-function corregirRegistrosPar_(semana, clave, antes, despues) {
+/** Compañero de alternancia semanal de una fila de horario: en las clases de la pareja y también en los equipos de énfasis donde participa (el docente de la pareja que va al equipo cambia con la semana). */
+function parAlterna_(h, altern) {
+  if (!(h.tipo === 'CLASE' || (h.tipo === 'ENFASIS' && /^EQUIPO/.test(String(h.alternancia))))) return '';
+  return altern[h.area + '|' + h.docente] || '';
+}
+function corregirRegistrosPar_(semana, clave, antes, despues, primario) {
   var partes = String(clave).split('|'), hz = datos_('Horario'), res = { registro: 0, novedades: 0 };
-  function delPar(h) { return partes[0] === 'ENFASIS' ? (h.tipo === 'ENFASIS' && String(h.grupos_enfasis) === partes[1]) : (h.tipo === 'CLASE' && h.area === partes[1]); }
-  var propios = {}, nuevos = {};
-  hz.forEach(function (h) {
-    if (!delPar(h)) return;
-    var k = h.dia + '|' + Number(h.hora);
-    if (h.docente === antes) propios[k] = h; else if (h.docente === despues) nuevos[k] = h;
-  });
+  function delPar(h) { return partes[0] === 'ENFASIS' ? (h.tipo === 'ENFASIS' && String(h.grupos_enfasis) === partes[1]) : ((h.tipo === 'CLASE' || (h.tipo === 'ENFASIS' && /^EQUIPO/.test(String(h.alternancia)))) && h.area === partes[1]); }
+  var par = [partes[2], partes[3]], otro = function (n) { return n === par[0] ? par[1] : par[0]; };
+  var porSlot = {};   // (dia|hora|docente base) -> fila base de la pareja
+  hz.forEach(function (h) { if (delPar(h)) porSlot[h.dia + '|' + Number(h.hora) + '|' + h.docente] = h; });
+  /** Nuevo docente de una marca hecha por «d» en el horario (dia|hora), o null si no cambia. */
+  function nuevoDocente(d, dia, hora) {
+    if (par.indexOf(d) < 0) return null;
+    if (partes[0] === 'CLASE' && primario && par.indexOf(primario) >= 0) {   // clases y equipos: cada puesto del horario base lo ocupa su titular o su pareja, según lo definido antes y ahora
+      var antesInter = antes !== primario, despuesInter = despues !== primario;
+      if (antesInter === despuesInter) return null;
+      var titular = antesInter ? otro(d) : d;   // de quién es el puesto que ocupaba d
+      var h = porSlot[dia + '|' + hora + '|' + titular];
+      return h ? (despuesInter ? otro(titular) : titular) : null;
+    }
+    return d === antes && porSlot[dia + '|' + hora + '|' + d] ? despues : null;   // énfasis en pareja (o sin dato del titular): de «antes» a «despues»
+  }
   var fechas = {}; for (var d = 0; d < 5; d++) fechas[resSumaDias_(semana, d)] = DIAS[d + 1];
   var rsh = hoja_('Registro_Ronda'), rv = rsh.getDataRange().getValues(), rc = {};
   rv[0].forEach(function (k, i) { rc[k] = i; });
   for (var i = 1; i < rv.length; i++) {
     var f = fechaIso_(rv[i][rc.fecha]), dia = fechas[f];
-    if (!dia || rv[i][rc.docente] !== antes) continue;
-    var h = propios[dia + '|' + Number(rv[i][rc.sesion])]; if (!h) continue;
-    rsh.getRange(i + 1, rc.docente + 1).setValue(despues);
-    var n = nuevos[dia + '|' + Number(rv[i][rc.sesion])]; if (n) rsh.getRange(i + 1, rc.area + 1).setValue(n.area || '(énfasis)');
+    if (!dia) continue;
+    var nd = nuevoDocente(rv[i][rc.docente], dia, Number(rv[i][rc.sesion])); if (!nd || nd === rv[i][rc.docente]) continue;
+    rsh.getRange(i + 1, rc.docente + 1).setValue(nd);
     res.registro++;
   }
   var nsh = hoja_('Novedades'), nv = nsh.getDataRange().getValues(), nc = {};
   nv[0].forEach(function (k, i) { nc[k] = i; });
   for (var j = 1; j < nv.length; j++) {
     var fj = fechaIso_(nv[j][nc['Fecha Novedad']]), dj = fechas[fj], ses = String(nv[j][nc['Sesiones']]).match(/^S(\d)$/);
-    if (!dj || !ses || nv[j][nc['Docente']] !== antes) continue;
-    var hj = propios[dj + '|' + Number(ses[1])]; if (!hj) continue;
-    nsh.getRange(j + 1, nc['Docente'] + 1).setValue(despues);
-    var nj = nuevos[dj + '|' + Number(ses[1])]; if (nj) nsh.getRange(j + 1, nc['Área/Asignatura'] + 1).setValue(nj.area || '(énfasis)');
+    if (!dj || !ses) continue;
+    var nj = nuevoDocente(nv[j][nc['Docente']], dj, Number(ses[1])); if (!nj || nj === nv[j][nc['Docente']]) continue;
+    nsh.getRange(j + 1, nc['Docente'] + 1).setValue(nj);
     res.novedades++;
   }
   return res;
@@ -413,7 +425,7 @@ function definirAlternancia(p) {
     if (fila > 0) sh.getRange(fila, 1, 1, datos.length).setValues([datos]); else sh.appendRow(datos);
     var corregidos = null;
     if (p.antes && p.antes !== p.elegido && par.indexOf(p.antes) >= 0) {   // se corrige quién dicta: opcionalmente también lo ya registrado
-      if (p.corregirRegistrado) corregidos = corregirRegistrosPar_(semana, p.clave, p.antes, p.elegido);
+      if (p.corregirRegistrado) corregidos = corregirRegistrosPar_(semana, p.clave, p.antes, p.elegido, p.primario);
       bitacora_('Cambió quién dicta', par.join(' / ') + ' (' + semana + '): de ' + p.antes + ' a ' + p.elegido + (corregidos ? ' · corrigió ' + corregidos.registro + ' marcas de ronda y ' + corregidos.novedades + ' novedades' : ' · sin tocar lo ya registrado'));
     }
   } finally { lock.releaseLock(); }
@@ -2602,7 +2614,7 @@ function horarioEfectivo_(semana) {
     var base = { dia: h.dia, hora: Number(h.hora), inicio: hhmm_(h.inicio), fin: hhmm_(h.fin), grupoCodigo: String(enf ? h.grupos_enfasis : h.grupo), tipo: h.tipo,
                  grupo: enf ? 'ÉNFASIS ' + String(h.grupos_enfasis).split('+').map(function (g) { return nombres[g] || g; }).join(' + ') : (nombres[h.grupo] || h.grupo),
                  area: h.area || '(énfasis)', docente: h.docente, posibles: [], pendiente: false, equipo: enf && /^EQUIPO/.test(String(h.alternancia)) };
-    var par = h.tipo === 'CLASE' ? altern[h.area + '|' + h.docente] : '';
+    var par = parAlterna_(h, altern);
     if (par) {                                           // clase de una pareja que alterna: el estado de la semana decide quién la dicta
       var pareja = [h.docente, par].sort(), st = estados['CLASE|' + h.area + '|' + pareja.join('|')];
       if (st) base.docente = st.intercambio === 'SI' ? par : h.docente;
@@ -3295,11 +3307,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.20-k';
-var FECHA_VERSION = '2026-10-20';
+var VERSION_SISTEMA = '2026.10.21-a';
+var FECHA_VERSION = '2026-10-21';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.21-a', fecha: '2026-10-21', cambios: [
+    'Parejas que alternan (ética/religión, sociales/inglés, ciencias naturales): la alternancia semanal ahora también cambia a la persona en los equipos de énfasis (antes solo las clases), de modo que en la ronda y en Horarios aparece la tarjeta con «Cambiar» y lo definido vale de lunes a viernes para clases y énfasis a la vez.',
+    'Corrección de quién dicta: ahora pasa las marcas de la ronda y las novedades por sesión de cada docente de la pareja al otro (en los dos sentidos) y también sirve para restablecer la asignación original, algo que antes fallaba al volver atrás.'] },
   { version: '2026.10.20-k', fecha: '2026-10-20', cambios: [
     'Educación Física: el rector intercambió sin avisar el horario de Docente 1 (Arizala Castro Roberto Carlos) y Docente 2 (Armero Dájome Jesús, reemplazo de Terán). Se intercambia el horario completo de los dos (Educación Física y Ciencias Naturales). Se corrigió el horario en los datos y el menú «Corregir Docente 1 y 2 de Educación Física (una vez)» muestra primero lo que cambiaría y, al confirmar, pasa de uno al otro el horario, las marcas de la ronda, las novedades por sesión, los incumplimientos, las parejas de énfasis y Matriz_Grupos; no toca ausencias de jornada completa ni novedades de formulario o WhatsApp (las cuenta para revisarlas). Queda en Bitacora_Cambios.'] },
   { version: '2026.10.20-j', fecha: '2026-10-20', cambios: [

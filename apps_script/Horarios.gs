@@ -19,7 +19,7 @@ function horarioEfectivo_(semana) {
     var base = { dia: h.dia, hora: Number(h.hora), inicio: hhmm_(h.inicio), fin: hhmm_(h.fin), grupoCodigo: String(enf ? h.grupos_enfasis : h.grupo), tipo: h.tipo,
                  grupo: enf ? 'ÉNFASIS ' + String(h.grupos_enfasis).split('+').map(function (g) { return nombres[g] || g; }).join(' + ') : (nombres[h.grupo] || h.grupo),
                  area: h.area || '(énfasis)', docente: h.docente, posibles: [], pendiente: false, equipo: enf && /^EQUIPO/.test(String(h.alternancia)) };
-    var par = h.tipo === 'CLASE' ? altern[h.area + '|' + h.docente] : '';
+    var par = parAlterna_(h, altern);
     if (par) {                                           // clase de una pareja que alterna: el estado de la semana decide quién la dicta
       var pareja = [h.docente, par].sort(), st = estados['CLASE|' + h.area + '|' + pareja.join('|')];
       if (st) base.docente = st.intercambio === 'SI' ? par : h.docente;

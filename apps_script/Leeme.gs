@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.20-k';
-var FECHA_VERSION = '2026-10-20';
+var VERSION_SISTEMA = '2026.10.21-a';
+var FECHA_VERSION = '2026-10-21';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.21-a', fecha: '2026-10-21', cambios: [
+    'Parejas que alternan (ética/religión, sociales/inglés, ciencias naturales): la alternancia semanal ahora también cambia a la persona en los equipos de énfasis (antes solo las clases), de modo que en la ronda y en Horarios aparece la tarjeta con «Cambiar» y lo definido vale de lunes a viernes para clases y énfasis a la vez.',
+    'Corrección de quién dicta: ahora pasa las marcas de la ronda y las novedades por sesión de cada docente de la pareja al otro (en los dos sentidos) y también sirve para restablecer la asignación original, algo que antes fallaba al volver atrás.'] },
   { version: '2026.10.20-k', fecha: '2026-10-20', cambios: [
     'Educación Física: el rector intercambió sin avisar el horario de Docente 1 (Arizala Castro Roberto Carlos) y Docente 2 (Armero Dájome Jesús, reemplazo de Terán). Se intercambia el horario completo de los dos (Educación Física y Ciencias Naturales). Se corrigió el horario en los datos y el menú «Corregir Docente 1 y 2 de Educación Física (una vez)» muestra primero lo que cambiaría y, al confirmar, pasa de uno al otro el horario, las marcas de la ronda, las novedades por sesión, los incumplimientos, las parejas de énfasis y Matriz_Grupos; no toca ausencias de jornada completa ni novedades de formulario o WhatsApp (las cuenta para revisarlas). Queda en Bitacora_Cambios.'] },
   { version: '2026.10.20-j', fecha: '2026-10-20', cambios: [

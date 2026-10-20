@@ -32,6 +32,7 @@ function onOpen() {
     .addItem('Acerca de este sistema', 'acercaDe')
     .addItem('Actualizar hoja LEEME (versión y cambios)', 'actualizarLeeme')
     .addItem('Quitar reuniones repetidas', 'quitarReunionesDuplicadasLibro')
+    .addItem('Corregir Docente 1 y 2 de Educación Física (una vez)', 'corregirDocentes1y2EducacionFisica')
     .addItem('Borrar audios de ronda antiguos', 'purgarAudios')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')

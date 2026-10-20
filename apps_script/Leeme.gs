@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.20-j';
+var VERSION_SISTEMA = '2026.10.20-k';
 var FECHA_VERSION = '2026-10-20';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.20-k', fecha: '2026-10-20', cambios: [
+    'Educación Física: el rector intercambió sin avisar el horario de Docente 1 (Arizala Castro Roberto Carlos) y Docente 2 (Armero Dájome Jesús, reemplazo de Terán). Se corrigió el horario en los datos y el menú «Corregir Docente 1 y 2 de Educación Física (una vez)» muestra primero lo que cambiaría y, al confirmar, pasa de uno al otro el horario, las marcas de la ronda, las novedades por sesión, los incumplimientos, las parejas de énfasis y Matriz_Grupos; no toca ausencias de jornada completa ni novedades de formulario o WhatsApp (las cuenta para revisarlas). Queda en Bitacora_Cambios.'] },
   { version: '2026.10.20-j', fecha: '2026-10-20', cambios: [
     'Aviso del día: cada reunión muestra la hora destacada con color según la prioridad (HOY naranja, MAÑANA amarillo, próximas azul, en curso rojo y parpadeante, sin asistencia rojo), el nombre en negrita y más grande, un icono de prioridad (🔥, ⏰, 📅, ⚠️) y el fondo del mismo color que en la lista de reuniones.',
     'Ronda: el nombre del directivo que hace la ronda pasa de la barra inferior al encabezado (se ve en amarillo; en rojo si falta elegirlo), lo que libera espacio para los contadores; el escudo del colegio se ve más grande en el celular; el encabezado muestra el nombre completo de la institución (Institución Ciudadela Educativa de Tumaco · ICET).'] },
@@ -117,7 +119,7 @@ var LEEME_HOJAS = [
   'Usuarios / Soportes / Parametros   Cuentas de docentes, soportes de ausencias y parámetros.',
   'Notas_Ronda / Bandeja_WhatsApp   Observaciones de la ronda y novedades propuestas desde WhatsApp.',
   'Directivos        Quiénes registran: claves (hash), correo, ve_todo (NO = solo ve sus rondas), cambia_asignacion (SI/NO: puede cambiar quién dicta en las parejas), administra (SI/NO: puede anular reuniones). No escriba PIN a mano.',
-  'Bitacora_Cambios  Quién cambió qué y cuándo (correcciones, sesiones prestadas).',
+  'Bitacora_Cambios  Quién cambió qué y cuándo (correcciones, sesiones prestadas, intercambio de Docente 1 y 2).',
   'Datos personales de docentes y estudiantes: acceso solo para directivos (Ley 1581 de 2012).'
 ];
 

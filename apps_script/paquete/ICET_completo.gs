@@ -33,6 +33,7 @@ function onOpen() {
     .addItem('Acerca de este sistema', 'acercaDe')
     .addItem('Actualizar hoja LEEME (versión y cambios)', 'actualizarLeeme')
     .addItem('Quitar reuniones repetidas', 'quitarReunionesDuplicadasLibro')
+    .addItem('Corregir Docente 1 y 2 de Educación Física (una vez)', 'corregirDocentes1y2EducacionFisica')
     .addItem('Borrar audios de ronda antiguos', 'purgarAudios')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')
@@ -2696,6 +2697,130 @@ function consultaHorarios(p) {
   throw new Error('Consulta no válida.');
 }
 
+/* ------------------------------ intercambio de Docente 1 y Docente 2 (corrección de horario) ------------------------------ */
+/**
+ * El rector intercambió en Educación Física (ERD) el horario de «Docente 1» (Arizala Castro Roberto Carlos) con el de «Docente 2» (Terán, hoy
+ * reemplazado por Armero Dájome Jesús) y no lo informó a tiempo. Esta corrección pasa de uno al otro el horario y lo ya registrado.
+ * Con area = 'ERD' solo se mueve esa área (la clase de CNA de Arizala se queda con él); con area vacía se intercambia el horario completo.
+ * Con aplicar = false solo cuenta lo que cambiaría. Se hace una sola vez (marca en Parametros) y queda constancia en Bitacora_Cambios.
+ * No toca ausencias de jornada completa (JC), «hasta el final» (S#-FIN) ni novedades que no vienen de la ronda: solo las cuenta para revisar.
+ */
+var ERD_DOCENTE_1 = 'Arizala Castro Roberto Carlos', ERD_DOCENTE_2 = 'Armero Dájome Jesús', MARCA_INTERCAMBIO_ERD = 'intercambio_erd_docente1_2';
+
+function cortoDocente_(nombre) {
+  var d = datos_('Docentes').filter(function (x) { return x.nombre_completo === nombre; })[0];
+  return d ? String(d.apellidos).split(/\s+/)[0] + ' ' + String(d.nombres).split(/\s+/)[0].charAt(0) + '.' : nombre;
+}
+
+function intercambioDocentes_(a, b, area, aplicar) {
+  var res = { horario: 0, registro: 0, novedades: 0, incumplimientos: 0, alternancia: 0, matriz: 0, jornadaRevisar: 0, otrasRevisar: 0, choques: [] };
+  function cambia(x) { return x === a ? b : (x === b ? a : x); }
+  function mueve(areaFila) { return !area || String(areaFila) === area; }
+  /** Cambia los nombres de una columna de una hoja en las filas que cumplan «cond»; escribe solo esa columna. Devuelve las filas cambiadas. */
+  function columna(nombreHoja, columnaNombre, cond) {
+    var sh = hoja_(nombreHoja); if (!sh) return 0;
+    var v = sh.getDataRange().getValues(), cab = v[0], c = {}; cab.forEach(function (k, i) { c[k] = i; });
+    if (c[columnaNombre] == null) return 0;
+    var n = 0, sal = [];
+    for (var i = 1; i < v.length; i++) {
+      var x = v[i][c[columnaNombre]], y = x;
+      if ((x === a || x === b) && cond(v[i], c)) { y = cambia(x); n++; }
+      sal.push([y]);
+    }
+    if (aplicar && n) sh.getRange(2, c[columnaNombre] + 1, sal.length, 1).setValues(sal);
+    return n;
+  }
+  // 1) Horario (docente y número de docente)
+  var hz = hoja_('Horario'), hv = hz.getDataRange().getValues(), hc = {}; hv[0].forEach(function (k, i) { hc[k] = i; });
+  var numero = {}; for (var i = 1; i < hv.length; i++) numero[hv[i][hc.docente]] = hv[i][hc.docente_n];
+  var colN = [], colD = [], enfasis = {}, ocupa = {};
+  for (var j = 1; j < hv.length; j++) {
+    var fila = hv[j], nom = fila[hc.docente], toca = (nom === a || nom === b) && mueve(fila[hc.area]);
+    var nuevo = toca ? cambia(nom) : nom;
+    if (toca) { res.horario++; if (fila[hc.tipo] === 'ENFASIS') enfasis[String(fila[hc.grupos_enfasis])] = 1; }
+    colN.push([toca ? numero[nuevo] : fila[hc.docente_n]]); colD.push([nuevo]);
+    var k = nuevo + '|' + fila[hc.dia] + '|' + fila[hc.hora]; (ocupa[k] = ocupa[k] || []).push(String(fila[hc.celda_original] || fila[hc.grupo] || fila[hc.area]));
+  }
+  Object.keys(ocupa).forEach(function (k) { if (ocupa[k].length > 1 && (k.indexOf(a + '|') === 0 || k.indexOf(b + '|') === 0)) res.choques.push(k.replace(/\|/g, ' · ') + ': ' + ocupa[k].join(' y ')); });
+  if (aplicar && res.horario) {
+    hz.getRange(2, hc.docente_n + 1, colN.length, 1).setValues(colN); hz.getRange(2, hc.docente + 1, colD.length, 1).setValues(colD);
+  }
+  // 2) Lo registrado: son marcas por sesión (de quien tenía asignado el horario), así que pasan al otro docente
+  res.registro = columna('Registro_Ronda', 'docente', function (f, c) { return mueve(f[c.area]); });
+  var nv = hoja_('Novedades');
+  if (nv) {
+    var vv = nv.getDataRange().getValues(), cn = {}; vv[0].forEach(function (k, i) { cn[k] = i; });
+    var iDoc = cn['Docente'], iArea = cn['Área/Asignatura'], iSes = cn['Sesiones'], iFu = cn['Fuente Novedad'];
+    var sal = [], n = 0;
+    for (var m = 1; m < vv.length; m++) {
+      var r = vv[m], nombre = r[iDoc], nuevoN = nombre;
+      if ((nombre === a || nombre === b) && mueve(r[iArea])) {
+        var ses = String(r[iSes]);
+        if (r[iFu] === FUENTE_RONDA && /^S\d$/.test(ses)) { nuevoN = cambia(nombre); n++; }
+        else if (ses === 'JC' || /-FIN$/.test(ses)) res.jornadaRevisar++;
+        else res.otrasRevisar++;
+      }
+      sal.push([nuevoN]);
+    }
+    res.novedades = n;
+    if (aplicar && n) nv.getRange(2, iDoc + 1, sal.length, 1).setValues(sal);
+  }
+  res.incumplimientos = columna('Incumplimientos', 'docente', function (f, c) { return mueve(f[c.area]); });
+  // 3) Parejas de énfasis (Semana_Alternancia): la clave lleva los dos nombres en orden alfabético
+  var sa = hoja_('Semana_Alternancia');
+  if (sa) {
+    var sv = sa.getDataRange().getValues(), cs = {}; sv[0].forEach(function (k, i) { cs[k] = i; });
+    var claves = [], elegidos = [], tocados = 0;
+    for (var q = 1; q < sv.length; q++) {
+      var cl = String(sv[q][cs.clave]), el = sv[q][cs.elegido], partes = cl.split('|'), cl2 = cl, el2 = el;
+      if (partes[0] === 'ENFASIS' && (!area || enfasis[partes[1]]) && (partes.slice(2).indexOf(a) >= 0 || partes.slice(2).indexOf(b) >= 0)) {
+        cl2 = partes.slice(0, 2).concat(partes.slice(2).map(cambia).sort()).join('|'); el2 = cambia(el); tocados++;
+      }
+      claves.push([cl2]); elegidos.push([el2]);
+    }
+    res.alternancia = tocados;
+    if (aplicar && tocados) { sa.getRange(2, cs.clave + 1, claves.length, 1).setValues(claves); sa.getRange(2, cs.elegido + 1, elegidos.length, 1).setValues(elegidos); }
+  }
+  // 4) Matriz_Grupos (texto «Apellido N. (ÁREA)» en cada celda)
+  var mx = hoja_('Matriz_Grupos');
+  if (mx && mx.getLastRow() > 1) {
+    var rg = mx.getRange(2, 4, mx.getLastRow() - 1, mx.getLastColumn() - 3), mv = rg.getValues(), ca = cortoDocente_(a), cb = cortoDocente_(b), cambiadas = 0;
+    var suf = area ? ' (' + area + ')' : ' (';
+    mv.forEach(function (fm) { fm.forEach(function (t, i) {
+      if (typeof t !== 'string' || (t.indexOf(ca + suf) < 0 && t.indexOf(cb + suf) < 0)) return;
+      fm[i] = t.split(ca + suf).join('\u0001').split(cb + suf).join(ca + suf).split('\u0001').join(cb + suf); cambiadas++;
+    }); });
+    res.matriz = cambiadas;
+    if (aplicar && cambiadas) rg.setValues(mv);
+  }
+  return res;
+}
+
+function textoIntercambio_(r, aplicado) {
+  return (aplicado ? 'Corrección aplicada.\n' : 'Esto es lo que se cambiaría:\n') +
+    '\nHorario: ' + r.horario + ' filas\nMarcas de la ronda: ' + r.registro + '\nNovedades de la ronda (por sesión): ' + r.novedades + '\nIncumplimientos: ' + r.incumplimientos +
+    '\nParejas de énfasis definidas: ' + r.alternancia + '\nCeldas de Matriz_Grupos: ' + r.matriz +
+    (r.jornadaRevisar || r.otrasRevisar ? '\n\nNO se tocan (revisar a mano en Novedades): ' + r.jornadaRevisar + ' de jornada completa o «hasta el final» y ' + r.otrasRevisar + ' reportadas por formulario o WhatsApp, que son de la persona.' : '') +
+    (r.choques.length ? '\n\nATENCIÓN, quedarían ' + r.choques.length + ' casos de un docente en dos sitios a la vez:\n' + r.choques.slice(0, 8).join('\n') : '');
+}
+
+/** Menú: «Corregir Docente 1 y 2 de Educación Física». Muestra primero lo que cambiaría y pide confirmar; se hace una sola vez. */
+function corregirDocentes1y2EducacionFisica() {
+  exigirEditor_();
+  var ui = SpreadsheetApp.getUi();
+  if (parametro_(MARCA_INTERCAMBIO_ERD, '')) { ui.alert('Esta corrección ya se aplicó el ' + parametro_(MARCA_INTERCAMBIO_ERD, '') + '. No se repite.'); return; }
+  var op = ui.alert('Docente 1 y Docente 2 de Educación Física',
+    'Se intercambia el horario (y lo ya registrado) entre ' + ERD_DOCENTE_1 + ' y ' + ERD_DOCENTE_2 + '.\n\n¿Solo Educación Física (la clase de CNA de Arizala se queda con él)?\n\nSí = solo Educación Física\nNo = el horario completo de los dos\nCancelar = salir', ui.ButtonSet.YES_NO_CANCEL);
+  if (op === ui.Button.CANCEL || op === ui.Button.CLOSE) return;
+  var area = op === ui.Button.YES ? 'ERD' : '';
+  var previa = intercambioDocentes_(ERD_DOCENTE_1, ERD_DOCENTE_2, area, false);
+  if (ui.alert('Vista previa', textoIntercambio_(previa, false) + '\n\n¿Aplicar ahora? (se hace una sola vez)', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
+  var r = intercambioDocentes_(ERD_DOCENTE_1, ERD_DOCENTE_2, area, true);
+  guardarParametro_(MARCA_INTERCAMBIO_ERD, ymd_(new Date()) + (area ? ' (solo ' + area + ')' : ' (horario completo)'));
+  bitacora_('Intercambio Docente 1 y 2', ERD_DOCENTE_1 + ' ↔ ' + ERD_DOCENTE_2 + (area ? ' solo ' + area : ' todo') + ': horario ' + r.horario + ', marcas ' + r.registro + ', novedades ' + r.novedades + ', incumplimientos ' + r.incumplimientos);
+  ui.alert(textoIntercambio_(r, true));
+}
+
 // ===================== Novedades.gs =====================
 /**
  * Registro de novedades SIN necesidad de hacer la ronda (reemplaza el formulario de Google): permisos, incapacidades, talleres, llegadas tarde
@@ -3173,11 +3298,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.20-j';
+var VERSION_SISTEMA = '2026.10.20-k';
 var FECHA_VERSION = '2026-10-20';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.20-k', fecha: '2026-10-20', cambios: [
+    'Educación Física: el rector intercambió sin avisar el horario de Docente 1 (Arizala Castro Roberto Carlos) y Docente 2 (Armero Dájome Jesús, reemplazo de Terán). Se corrigió el horario en los datos y el menú «Corregir Docente 1 y 2 de Educación Física (una vez)» muestra primero lo que cambiaría y, al confirmar, pasa de uno al otro el horario, las marcas de la ronda, las novedades por sesión, los incumplimientos, las parejas de énfasis y Matriz_Grupos; no toca ausencias de jornada completa ni novedades de formulario o WhatsApp (las cuenta para revisarlas). Queda en Bitacora_Cambios.'] },
   { version: '2026.10.20-j', fecha: '2026-10-20', cambios: [
     'Aviso del día: cada reunión muestra la hora destacada con color según la prioridad (HOY naranja, MAÑANA amarillo, próximas azul, en curso rojo y parpadeante, sin asistencia rojo), el nombre en negrita y más grande, un icono de prioridad (🔥, ⏰, 📅, ⚠️) y el fondo del mismo color que en la lista de reuniones.',
     'Ronda: el nombre del directivo que hace la ronda pasa de la barra inferior al encabezado (se ve en amarillo; en rojo si falta elegirlo), lo que libera espacio para los contadores; el escudo del colegio se ve más grande en el celular; el encabezado muestra el nombre completo de la institución (Institución Ciudadela Educativa de Tumaco · ICET).'] },
@@ -3285,7 +3412,7 @@ var LEEME_HOJAS = [
   'Usuarios / Soportes / Parametros   Cuentas de docentes, soportes de ausencias y parámetros.',
   'Notas_Ronda / Bandeja_WhatsApp   Observaciones de la ronda y novedades propuestas desde WhatsApp.',
   'Directivos        Quiénes registran: claves (hash), correo, ve_todo (NO = solo ve sus rondas), cambia_asignacion (SI/NO: puede cambiar quién dicta en las parejas), administra (SI/NO: puede anular reuniones). No escriba PIN a mano.',
-  'Bitacora_Cambios  Quién cambió qué y cuándo (correcciones, sesiones prestadas).',
+  'Bitacora_Cambios  Quién cambió qué y cuándo (correcciones, sesiones prestadas, intercambio de Docente 1 y 2).',
   'Datos personales de docentes y estudiantes: acceso solo para directivos (Ley 1581 de 2012).'
 ];
 

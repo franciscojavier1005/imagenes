@@ -30,7 +30,7 @@
 44,Samaniego Angulo Flor Mireya,LUNES,1,1,1,06:30,07:15,ENFASIS,,ART,0701,0701,Valverde Montaño María Teresa (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0701
 51,Valverde Montaño María Teresa,LUNES,1,1,1,06:30,07:15,ENFASIS,,CAS,0701,0701,Samaniego Angulo Flor Mireya (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0701
 34,Ordóñez Tenorio Jaime Marcial,LUNES,1,1,1,06:30,07:15,ENFASIS,,CNA,0702,0702,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0702
-57,Armero Dájome Jesús,LUNES,1,1,1,06:30,07:15,ENFASIS,,ERD,0702,0702,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0702
+4,Arizala Castro Roberto Carlos,LUNES,1,1,1,06:30,07:15,ENFASIS,,ERD,0702,0702,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0702
 8,Casanova Quiñones Yoli del Carmen,LUNES,1,1,1,06:30,07:15,ENFASIS,,ETR,0703,0703,Quintero Ramírez María del Carmen (CSI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0703
 41,Quintero Ramírez María del Carmen,LUNES,1,1,1,06:30,07:15,ENFASIS,,CSI,0703,0703,Casanova Quiñones Yoli del Carmen (ETR),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0703
 3,Arboleda Ortiz Luz América,LUNES,1,1,1,06:30,07:15,ENFASIS,,ART,D5-10°,1001,Montaño Anchico Favio Héctor (CAS); Ramírez Guerra Jimmy Eduardo (ERD); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-10°
@@ -69,7 +69,7 @@
 44,Samaniego Angulo Flor Mireya,LUNES,2,1,2,07:15,08:00,ENFASIS,,ART,0701,0701,Valverde Montaño María Teresa (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0701
 51,Valverde Montaño María Teresa,LUNES,2,1,2,07:15,08:00,ENFASIS,,CAS,0701,0701,Samaniego Angulo Flor Mireya (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0701
 34,Ordóñez Tenorio Jaime Marcial,LUNES,2,1,2,07:15,08:00,ENFASIS,,CNA,0702,0702,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0702
-57,Armero Dájome Jesús,LUNES,2,1,2,07:15,08:00,ENFASIS,,ERD,0702,0702,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0702
+4,Arizala Castro Roberto Carlos,LUNES,2,1,2,07:15,08:00,ENFASIS,,ERD,0702,0702,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0702
 8,Casanova Quiñones Yoli del Carmen,LUNES,2,1,2,07:15,08:00,ENFASIS,,ETR,0703,0703,Quintero Ramírez María del Carmen (CSI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0703
 41,Quintero Ramírez María del Carmen,LUNES,2,1,2,07:15,08:00,ENFASIS,,CSI,0703,0703,Casanova Quiñones Yoli del Carmen (ETR),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0703
 3,Arboleda Ortiz Luz América,LUNES,2,1,2,07:15,08:00,ENFASIS,,ART,D5-10°,1001,Montaño Anchico Favio Héctor (CAS); Ramírez Guerra Jimmy Eduardo (ERD); Villota Rubio Héctor Hugo (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-D5-10°
@@ -94,7 +94,7 @@
 16,Cuero Rincón Hernando Jesús,LUNES,3,2,1,08:20,09:05,CLASE,0601,CAS,,,,,0601-CAS
 37,Prado Quiñones Genís Maribel,LUNES,3,2,1,08:20,09:05,CLASE,0602,ART,,,,,0602-ART
 52,Vásquez Valencia Segundo Leoncio,LUNES,3,2,1,08:20,09:05,CLASE,0701,MAT,,,,,0701-MAT
-57,Armero Dájome Jesús,LUNES,3,2,1,08:20,09:05,CLASE,0702,ERD,,,,,0702-ERD
+4,Arizala Castro Roberto Carlos,LUNES,3,2,1,08:20,09:05,CLASE,0702,ERD,,,,,0702-ERD
 34,Ordóñez Tenorio Jaime Marcial,LUNES,3,2,1,08:20,09:05,CLASE,0703,CNA,,,,,0703-CNA
 8,Casanova Quiñones Yoli del Carmen,LUNES,3,2,1,08:20,09:05,CLASE,0704,ETR,,,,Ética / Religión (alternan cada semana),0704-ETR
 19,Fernández Vélez Alfredo Enrique,LUNES,3,2,1,08:20,09:05,CLASE,0801,TEI,,,,,0801-TEI
@@ -104,7 +104,7 @@
 3,Arboleda Ortiz Luz América,LUNES,3,2,1,08:20,09:05,CLASE,1002,ART,,,,,1002-ART
 53,Villota Rubio Héctor Hugo,LUNES,3,2,1,08:20,09:05,CLASE,1101,CNA,,,,,1101-CNA
 26,Lozano Torres Amanda Inés,LUNES,3,2,1,08:20,09:05,CLASE,CS101,ETR,,,,Ética / Religión (alternan cada semana),CS101-ETR
-4,Arizala Castro Roberto Carlos,LUNES,3,2,1,08:20,09:05,CLASE,CS102,ERD,,,,,CS102-ERD
+57,Armero Dájome Jesús,LUNES,3,2,1,08:20,09:05,CLASE,CS102,ERD,,,,,CS102-ERD
 44,Samaniego Angulo Flor Mireya,LUNES,3,2,1,08:20,09:05,CLASE,CS201,ART,,,,,CS201-ART
 38,Preciado Torres Oleisa,LUNES,3,2,1,08:20,09:05,CLASE,CS202,MAT,,,,,CS202-MAT
 7,Casanova Casanova Johana Andrea,LUNES,3,2,1,08:20,09:05,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
@@ -136,7 +136,7 @@
 16,Cuero Rincón Hernando Jesús,LUNES,4,2,2,09:05,09:50,CLASE,0601,CAS,,,,,0601-CAS
 37,Prado Quiñones Genís Maribel,LUNES,4,2,2,09:05,09:50,CLASE,0602,ART,,,,,0602-ART
 52,Vásquez Valencia Segundo Leoncio,LUNES,4,2,2,09:05,09:50,CLASE,0701,MAT,,,,,0701-MAT
-57,Armero Dájome Jesús,LUNES,4,2,2,09:05,09:50,CLASE,0702,ERD,,,,,0702-ERD
+4,Arizala Castro Roberto Carlos,LUNES,4,2,2,09:05,09:50,CLASE,0702,ERD,,,,,0702-ERD
 34,Ordóñez Tenorio Jaime Marcial,LUNES,4,2,2,09:05,09:50,CLASE,0703,CNA,,,,,0703-CNA
 8,Casanova Quiñones Yoli del Carmen,LUNES,4,2,2,09:05,09:50,CLASE,0704,ETR,,,,Ética / Religión (alternan cada semana),0704-ETR
 19,Fernández Vélez Alfredo Enrique,LUNES,4,2,2,09:05,09:50,CLASE,0801,TEI,,,,,0801-TEI
@@ -146,7 +146,7 @@
 3,Arboleda Ortiz Luz América,LUNES,4,2,2,09:05,09:50,CLASE,1002,ART,,,,,1002-ART
 53,Villota Rubio Héctor Hugo,LUNES,4,2,2,09:05,09:50,CLASE,1101,CNA,,,,,1101-CNA
 26,Lozano Torres Amanda Inés,LUNES,4,2,2,09:05,09:50,CLASE,CS101,ETR,,,,Ética / Religión (alternan cada semana),CS101-ETR
-4,Arizala Castro Roberto Carlos,LUNES,4,2,2,09:05,09:50,CLASE,CS102,ERD,,,,,CS102-ERD
+57,Armero Dájome Jesús,LUNES,4,2,2,09:05,09:50,CLASE,CS102,ERD,,,,,CS102-ERD
 44,Samaniego Angulo Flor Mireya,LUNES,4,2,2,09:05,09:50,CLASE,CS201,ART,,,,,CS201-ART
 38,Preciado Torres Oleisa,LUNES,4,2,2,09:05,09:50,CLASE,CS202,MAT,,,,,CS202-MAT
 7,Casanova Casanova Johana Andrea,LUNES,4,2,2,09:05,09:50,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
@@ -175,11 +175,11 @@
 11,Centeno Zúñiga Claudia Patricia,LUNES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0502,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 32,Narváez Sánchez Dora Alejandra,LUNES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0503,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 17,Escobar Cortés Liliana,LUNES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0504,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-4,Arizala Castro Roberto Carlos,LUNES,5,3,1,10:10,10:55,CLASE,0601,ERD,,,,,0601-ERD
+57,Armero Dájome Jesús,LUNES,5,3,1,10:10,10:55,CLASE,0601,ERD,,,,,0601-ERD
 20,García Gobea Saydi Magali,LUNES,5,3,1,10:10,10:55,CLASE,0602,CSI,,,,Sociales / Inglés (alternan cada semana),0602-CSI
 39,Puches Ana Milena,LUNES,5,3,1,10:10,10:55,CLASE,0701,ART,,,,,0701-ART
 34,Ordóñez Tenorio Jaime Marcial,LUNES,5,3,1,10:10,10:55,CLASE,0702,CNA,,,,,0702-CNA
-57,Armero Dájome Jesús,LUNES,5,3,1,10:10,10:55,CLASE,0703,ERD,,,,,0703-ERD
+4,Arizala Castro Roberto Carlos,LUNES,5,3,1,10:10,10:55,CLASE,0703,ERD,,,,,0703-ERD
 15,Cuero Bamba Berte Levi,LUNES,5,3,1,10:10,10:55,CLASE,0801,ERD,,,,,0801-ERD
 6,Betancourth Ocampo Yohana Patricia,LUNES,5,3,1,10:10,10:55,CLASE,0902,CSI,,,,Sociales / Inglés (alternan cada semana),0902-CSI
 18,Estacio Estupiñán Rosario,LUNES,5,3,1,10:10,10:55,CLASE,1001,ETR,,,,Ética / Religión (alternan cada semana),1001-ETR
@@ -221,11 +221,11 @@
 11,Centeno Zúñiga Claudia Patricia,LUNES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0502,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 32,Narváez Sánchez Dora Alejandra,LUNES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0503,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 17,Escobar Cortés Liliana,LUNES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0504,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-4,Arizala Castro Roberto Carlos,LUNES,6,3,2,10:55,11:40,CLASE,0601,ERD,,,,,0601-ERD
+57,Armero Dájome Jesús,LUNES,6,3,2,10:55,11:40,CLASE,0601,ERD,,,,,0601-ERD
 20,García Gobea Saydi Magali,LUNES,6,3,2,10:55,11:40,CLASE,0602,CSI,,,,Sociales / Inglés (alternan cada semana),0602-CSI
 39,Puches Ana Milena,LUNES,6,3,2,10:55,11:40,CLASE,0701,ART,,,,,0701-ART
 34,Ordóñez Tenorio Jaime Marcial,LUNES,6,3,2,10:55,11:40,CLASE,0702,CNA,,,,,0702-CNA
-57,Armero Dájome Jesús,LUNES,6,3,2,10:55,11:40,CLASE,0703,ERD,,,,,0703-ERD
+4,Arizala Castro Roberto Carlos,LUNES,6,3,2,10:55,11:40,CLASE,0703,ERD,,,,,0703-ERD
 15,Cuero Bamba Berte Levi,LUNES,6,3,2,10:55,11:40,CLASE,0801,ERD,,,,,0801-ERD
 6,Betancourth Ocampo Yohana Patricia,LUNES,6,3,2,10:55,11:40,CLASE,0902,CSI,,,,Sociales / Inglés (alternan cada semana),0902-CSI
 18,Estacio Estupiñán Rosario,LUNES,6,3,2,10:55,11:40,CLASE,1001,ETR,,,,Ética / Religión (alternan cada semana),1001-ETR
@@ -265,7 +265,7 @@
 29,Mindineros Satizábal John Jáver,LUNES,7,4,1,12:00,12:45,CLASE,1001,TEI,,,,,1001-TEI
 2,Angulo Lucero Andrés Mauricio,LUNES,7,4,1,12:00,12:45,CLASE,1002,TEI,,,,,1002-TEI
 31,Montaño Arizala Leidis Claudina,LUNES,7,4,1,12:00,12:45,CLASE,1102,ETR,,,,Ética / Religión (alternan cada semana),1102-ETR
-4,Arizala Castro Roberto Carlos,LUNES,7,4,1,12:00,12:45,CLASE,CS101,ERD,,,,,CS101-ERD
+57,Armero Dájome Jesús,LUNES,7,4,1,12:00,12:45,CLASE,CS101,ERD,,,,,CS101-ERD
 42,Quiñones Cabezas Marcos Vidal,LUNES,7,4,1,12:00,12:45,CLASE,CS102,MAT,,,,,CS102-MAT
 51,Valverde Montaño María Teresa,LUNES,7,4,1,12:00,12:45,CLASE,CS202,CAS,,,,,CS202-CAS
 7,Casanova Casanova Johana Andrea,LUNES,7,4,1,12:00,12:45,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
@@ -291,7 +291,7 @@
 29,Mindineros Satizábal John Jáver,LUNES,8,4,2,12:45,13:30,CLASE,1001,TEI,,,,,1001-TEI
 2,Angulo Lucero Andrés Mauricio,LUNES,8,4,2,12:45,13:30,CLASE,1002,TEI,,,,,1002-TEI
 31,Montaño Arizala Leidis Claudina,LUNES,8,4,2,12:45,13:30,CLASE,1102,ETR,,,,Ética / Religión (alternan cada semana),1102-ETR
-4,Arizala Castro Roberto Carlos,LUNES,8,4,2,12:45,13:30,CLASE,CS101,ERD,,,,,CS101-ERD
+57,Armero Dájome Jesús,LUNES,8,4,2,12:45,13:30,CLASE,CS101,ERD,,,,,CS101-ERD
 42,Quiñones Cabezas Marcos Vidal,LUNES,8,4,2,12:45,13:30,CLASE,CS102,MAT,,,,,CS102-MAT
 51,Valverde Montaño María Teresa,LUNES,8,4,2,12:45,13:30,CLASE,CS202,CAS,,,,,CS202-CAS
 7,Casanova Casanova Johana Andrea,LUNES,8,4,2,12:45,13:30,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
@@ -319,7 +319,7 @@
 17,Escobar Cortés Liliana,MARTES,1,1,1,06:30,07:15,AREAS_MULTIPLES,0504,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 42,Quiñones Cabezas Marcos Vidal,MARTES,1,1,1,06:30,07:15,CLASE,0601,MAT,,,,,0601-MAT
 16,Cuero Rincón Hernando Jesús,MARTES,1,1,1,06:30,07:15,CLASE,0602,TEI,,,,,0602-TEI
-57,Armero Dájome Jesús,MARTES,1,1,1,06:30,07:15,CLASE,0704,ERD,,,,,0704-ERD
+4,Arizala Castro Roberto Carlos,MARTES,1,1,1,06:30,07:15,CLASE,0704,ERD,,,,,0704-ERD
 51,Valverde Montaño María Teresa,MARTES,1,1,1,06:30,07:15,CLASE,0801,CAS,,,,,0801-CAS
 38,Preciado Torres Oleisa,MARTES,1,1,1,06:30,07:15,CLASE,0802,MAT,,,,,0802-MAT
 49,Valencia Marínez Saidy Eufemia,MARTES,1,1,1,06:30,07:15,CLASE,0901,ART,,,,,0901-ART
@@ -362,7 +362,7 @@
 17,Escobar Cortés Liliana,MARTES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0504,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 42,Quiñones Cabezas Marcos Vidal,MARTES,2,1,2,07:15,08:00,CLASE,0601,MAT,,,,,0601-MAT
 16,Cuero Rincón Hernando Jesús,MARTES,2,1,2,07:15,08:00,CLASE,0602,TEI,,,,,0602-TEI
-57,Armero Dájome Jesús,MARTES,2,1,2,07:15,08:00,CLASE,0704,ERD,,,,,0704-ERD
+4,Arizala Castro Roberto Carlos,MARTES,2,1,2,07:15,08:00,CLASE,0704,ERD,,,,,0704-ERD
 51,Valverde Montaño María Teresa,MARTES,2,1,2,07:15,08:00,CLASE,0801,CAS,,,,,0801-CAS
 38,Preciado Torres Oleisa,MARTES,2,1,2,07:15,08:00,CLASE,0802,MAT,,,,,0802-MAT
 49,Valencia Marínez Saidy Eufemia,MARTES,2,1,2,07:15,08:00,CLASE,0901,ART,,,,,0901-ART
@@ -509,7 +509,7 @@
 3,Arboleda Ortiz Luz América,MARTES,5,3,1,10:10,10:55,CLASE,1101,ART,,,,,1101-ART
 53,Villota Rubio Héctor Hugo,MARTES,5,3,1,10:10,10:55,CLASE,1102,CNA,,,,,1102-CNA
 20,García Gobea Saydi Magali,MARTES,5,3,1,10:10,10:55,CLASE,CS101,CSI,,,,Sociales / Inglés (alternan cada semana),CS101-CSI
-4,Arizala Castro Roberto Carlos,MARTES,5,3,1,10:10,10:55,CLASE,CS102,ERD,,,,,CS102-ERD
+57,Armero Dájome Jesús,MARTES,5,3,1,10:10,10:55,CLASE,CS102,ERD,,,,,CS102-ERD
 51,Valverde Montaño María Teresa,MARTES,5,3,1,10:10,10:55,CLASE,CS201,CAS,,,,,CS201-CAS
 7,Casanova Casanova Johana Andrea,MARTES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
 36,Ponce Moncayo Ángela Paola,MARTES,5,3,1,10:10,10:55,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
@@ -552,7 +552,7 @@
 3,Arboleda Ortiz Luz América,MARTES,6,3,2,10:55,11:40,CLASE,1101,ART,,,,,1101-ART
 53,Villota Rubio Héctor Hugo,MARTES,6,3,2,10:55,11:40,CLASE,1102,CNA,,,,,1102-CNA
 20,García Gobea Saydi Magali,MARTES,6,3,2,10:55,11:40,CLASE,CS101,CSI,,,,Sociales / Inglés (alternan cada semana),CS101-CSI
-4,Arizala Castro Roberto Carlos,MARTES,6,3,2,10:55,11:40,CLASE,CS102,ERD,,,,,CS102-ERD
+57,Armero Dájome Jesús,MARTES,6,3,2,10:55,11:40,CLASE,CS102,ERD,,,,,CS102-ERD
 51,Valverde Montaño María Teresa,MARTES,6,3,2,10:55,11:40,CLASE,CS201,CAS,,,,,CS201-CAS
 7,Casanova Casanova Johana Andrea,MARTES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 07:30 a 14:30,
 36,Ponce Moncayo Ángela Paola,MARTES,6,3,2,10:55,11:40,ORIENTACION,ORIENT,ORIENTACIÓN ESCOLAR,,,,Jornada 08:30 a 13:30,
@@ -586,7 +586,7 @@
 10,Castillo Cuero Daira Eneida,MARTES,7,4,1,12:00,12:45,ENFASIS,,CAS,0601,0601,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 39,Puches Ana Milena,MARTES,7,4,1,12:00,12:45,ENFASIS,,ART,0601,0601,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 34,Ordóñez Tenorio Jaime Marcial,MARTES,7,4,1,12:00,12:45,ENFASIS,,CNA,0602,0602,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
-57,Armero Dájome Jesús,MARTES,7,4,1,12:00,12:45,ENFASIS,,ERD,0602,0602,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
+4,Arizala Castro Roberto Carlos,MARTES,7,4,1,12:00,12:45,ENFASIS,,ERD,0602,0602,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
 22,González Castillo Jólmer Jimy,MARTES,7,4,1,12:00,12:45,ENFASIS,,ERD,0901,0901,Valencia Marínez Saidy Eufemia (ART); Meza Banguera Gladys Alicia (CAS); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0901
 25,Lemos Guancha Miriam,MARTES,7,4,1,12:00,12:45,ENFASIS,,CNA,0901,0901,Valencia Marínez Saidy Eufemia (ART); Meza Banguera Gladys Alicia (CAS); González Castillo Jólmer Jimy (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0901
 28,Meza Banguera Gladys Alicia,MARTES,7,4,1,12:00,12:45,ENFASIS,,CAS,0901,0901,Valencia Marínez Saidy Eufemia (ART); González Castillo Jólmer Jimy (ERD); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0901
@@ -614,7 +614,7 @@
 10,Castillo Cuero Daira Eneida,MARTES,8,4,2,12:45,13:30,ENFASIS,,CAS,0601,0601,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 39,Puches Ana Milena,MARTES,8,4,2,12:45,13:30,ENFASIS,,ART,0601,0601,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 34,Ordóñez Tenorio Jaime Marcial,MARTES,8,4,2,12:45,13:30,ENFASIS,,CNA,0602,0602,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
-57,Armero Dájome Jesús,MARTES,8,4,2,12:45,13:30,ENFASIS,,ERD,0602,0602,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
+4,Arizala Castro Roberto Carlos,MARTES,8,4,2,12:45,13:30,ENFASIS,,ERD,0602,0602,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
 22,González Castillo Jólmer Jimy,MARTES,8,4,2,12:45,13:30,ENFASIS,,ERD,0901,0901,Valencia Marínez Saidy Eufemia (ART); Meza Banguera Gladys Alicia (CAS); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0901
 25,Lemos Guancha Miriam,MARTES,8,4,2,12:45,13:30,ENFASIS,,CNA,0901,0901,Valencia Marínez Saidy Eufemia (ART); Meza Banguera Gladys Alicia (CAS); González Castillo Jólmer Jimy (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0901
 28,Meza Banguera Gladys Alicia,MARTES,8,4,2,12:45,13:30,ENFASIS,,CAS,0901,0901,Valencia Marínez Saidy Eufemia (ART); González Castillo Jólmer Jimy (ERD); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0901
@@ -637,7 +637,7 @@
 32,Narváez Sánchez Dora Alejandra,MIERCOLES,1,1,1,06:30,07:15,AREAS_MULTIPLES,0503,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 17,Escobar Cortés Liliana,MIERCOLES,1,1,1,06:30,07:15,AREAS_MULTIPLES,0504,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 37,Prado Quiñones Genís Maribel,MIERCOLES,1,1,1,06:30,07:15,CLASE,0601,ART,,,,,0601-ART
-4,Arizala Castro Roberto Carlos,MIERCOLES,1,1,1,06:30,07:15,CLASE,0602,ERD,,,,,0602-ERD
+57,Armero Dájome Jesús,MIERCOLES,1,1,1,06:30,07:15,CLASE,0602,ERD,,,,,0602-ERD
 34,Ordóñez Tenorio Jaime Marcial,MIERCOLES,1,1,1,06:30,07:15,CLASE,0704,CNA,,,,,0704-CNA
 51,Valverde Montaño María Teresa,MIERCOLES,1,1,1,06:30,07:15,CLASE,0801,CAS,,,,,0801-CAS
 19,Fernández Vélez Alfredo Enrique,MIERCOLES,1,1,1,06:30,07:15,CLASE,0802,TEI,,,,,0802-TEI
@@ -674,7 +674,7 @@
 32,Narváez Sánchez Dora Alejandra,MIERCOLES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0503,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 17,Escobar Cortés Liliana,MIERCOLES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0504,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 37,Prado Quiñones Genís Maribel,MIERCOLES,2,1,2,07:15,08:00,CLASE,0601,ART,,,,,0601-ART
-4,Arizala Castro Roberto Carlos,MIERCOLES,2,1,2,07:15,08:00,CLASE,0602,ERD,,,,,0602-ERD
+57,Armero Dájome Jesús,MIERCOLES,2,1,2,07:15,08:00,CLASE,0602,ERD,,,,,0602-ERD
 34,Ordóñez Tenorio Jaime Marcial,MIERCOLES,2,1,2,07:15,08:00,CLASE,0704,CNA,,,,,0704-CNA
 51,Valverde Montaño María Teresa,MIERCOLES,2,1,2,07:15,08:00,CLASE,0801,CAS,,,,,0801-CAS
 19,Fernández Vélez Alfredo Enrique,MIERCOLES,2,1,2,07:15,08:00,CLASE,0802,TEI,,,,,0802-TEI
@@ -718,7 +718,7 @@
 10,Castillo Cuero Daira Eneida,MIERCOLES,3,2,1,08:20,09:05,CLASE,0701,CAS,,,,,0701-CAS
 39,Puches Ana Milena,MIERCOLES,3,2,1,08:20,09:05,CLASE,0702,ART,,,,,0702-ART
 34,Ordóñez Tenorio Jaime Marcial,MIERCOLES,3,2,1,08:20,09:05,CLASE,0703,CNA,,,,,0703-CNA
-57,Armero Dájome Jesús,MIERCOLES,3,2,1,08:20,09:05,CLASE,0704,ERD,,,,,0704-ERD
+4,Arizala Castro Roberto Carlos,MIERCOLES,3,2,1,08:20,09:05,CLASE,0704,ERD,,,,,0704-ERD
 35,Ortiz Araujo Adiela Carlota,MIERCOLES,3,2,1,08:20,09:05,CLASE,0802,CSI,,,,Sociales / Inglés (alternan cada semana),0802-CSI
 49,Valencia Marínez Saidy Eufemia,MIERCOLES,3,2,1,08:20,09:05,CLASE,0901,ART,,,,,0901-ART
 22,González Castillo Jólmer Jimy,MIERCOLES,3,2,1,08:20,09:05,CLASE,0902,ERD,,,,,0902-ERD
@@ -763,7 +763,7 @@
 10,Castillo Cuero Daira Eneida,MIERCOLES,4,2,2,09:05,09:50,CLASE,0701,CAS,,,,,0701-CAS
 39,Puches Ana Milena,MIERCOLES,4,2,2,09:05,09:50,CLASE,0702,ART,,,,,0702-ART
 34,Ordóñez Tenorio Jaime Marcial,MIERCOLES,4,2,2,09:05,09:50,CLASE,0703,CNA,,,,,0703-CNA
-57,Armero Dájome Jesús,MIERCOLES,4,2,2,09:05,09:50,CLASE,0704,ERD,,,,,0704-ERD
+4,Arizala Castro Roberto Carlos,MIERCOLES,4,2,2,09:05,09:50,CLASE,0704,ERD,,,,,0704-ERD
 35,Ortiz Araujo Adiela Carlota,MIERCOLES,4,2,2,09:05,09:50,CLASE,0802,CSI,,,,Sociales / Inglés (alternan cada semana),0802-CSI
 49,Valencia Marínez Saidy Eufemia,MIERCOLES,4,2,2,09:05,09:50,CLASE,0901,ART,,,,,0901-ART
 22,González Castillo Jólmer Jimy,MIERCOLES,4,2,2,09:05,09:50,CLASE,0902,ERD,,,,,0902-ERD
@@ -807,14 +807,14 @@
 20,García Gobea Saydi Magali,MIERCOLES,5,3,1,10:10,10:55,CLASE,0602,CSI,,,,Sociales / Inglés (alternan cada semana),0602-CSI
 8,Casanova Quiñones Yoli del Carmen,MIERCOLES,5,3,1,10:10,10:55,CLASE,0701,ETR,,,,Ética / Religión (alternan cada semana),0701-ETR
 10,Castillo Cuero Daira Eneida,MIERCOLES,5,3,1,10:10,10:55,CLASE,0702,CAS,,,,,0702-CAS
-57,Armero Dájome Jesús,MIERCOLES,5,3,1,10:10,10:55,CLASE,0703,ERD,,,,,0703-ERD
+4,Arizala Castro Roberto Carlos,MIERCOLES,5,3,1,10:10,10:55,CLASE,0703,ERD,,,,,0703-ERD
 44,Samaniego Angulo Flor Mireya,MIERCOLES,5,3,1,10:10,10:55,CLASE,0801,ART,,,,,0801-ART
 25,Lemos Guancha Miriam,MIERCOLES,5,3,1,10:10,10:55,CLASE,0901,CNA,,,,,0901-CNA
 49,Valencia Marínez Saidy Eufemia,MIERCOLES,5,3,1,10:10,10:55,CLASE,0902,ART,,,,,0902-ART
 5,Bastidas Valencia Zeneida Judith,MIERCOLES,5,3,1,10:10,10:55,CLASE,1001,MAT,,,,,1001-MAT
 54,Villota Rubio Janeth del Carmen,MIERCOLES,5,3,1,10:10,10:55,CLASE,1002,MAT,,,,,1002-MAT
 2,Angulo Lucero Andrés Mauricio,MIERCOLES,5,3,1,10:10,10:55,CLASE,1102,TEI,,,,,1102-TEI
-4,Arizala Castro Roberto Carlos,MIERCOLES,5,3,1,10:10,10:55,CLASE,CS101,ERD,,,,,CS101-ERD
+57,Armero Dájome Jesús,MIERCOLES,5,3,1,10:10,10:55,CLASE,CS101,ERD,,,,,CS101-ERD
 37,Prado Quiñones Genís Maribel,MIERCOLES,5,3,1,10:10,10:55,CLASE,CS102,ART,,,,,CS102-ART
 51,Valverde Montaño María Teresa,MIERCOLES,5,3,1,10:10,10:55,CLASE,CS201,CAS,,,,,CS201-CAS
 12,Chillambo Quiñones María Rocío,MIERCOLES,5,3,1,10:10,10:55,CLASE,CS202,CNA,,,,,CS202-CNA
@@ -850,14 +850,14 @@
 20,García Gobea Saydi Magali,MIERCOLES,6,3,2,10:55,11:40,CLASE,0602,CSI,,,,Sociales / Inglés (alternan cada semana),0602-CSI
 8,Casanova Quiñones Yoli del Carmen,MIERCOLES,6,3,2,10:55,11:40,CLASE,0701,ETR,,,,Ética / Religión (alternan cada semana),0701-ETR
 10,Castillo Cuero Daira Eneida,MIERCOLES,6,3,2,10:55,11:40,CLASE,0702,CAS,,,,,0702-CAS
-57,Armero Dájome Jesús,MIERCOLES,6,3,2,10:55,11:40,CLASE,0703,ERD,,,,,0703-ERD
+4,Arizala Castro Roberto Carlos,MIERCOLES,6,3,2,10:55,11:40,CLASE,0703,ERD,,,,,0703-ERD
 44,Samaniego Angulo Flor Mireya,MIERCOLES,6,3,2,10:55,11:40,CLASE,0801,ART,,,,,0801-ART
 25,Lemos Guancha Miriam,MIERCOLES,6,3,2,10:55,11:40,CLASE,0901,CNA,,,,,0901-CNA
 49,Valencia Marínez Saidy Eufemia,MIERCOLES,6,3,2,10:55,11:40,CLASE,0902,ART,,,,,0902-ART
 5,Bastidas Valencia Zeneida Judith,MIERCOLES,6,3,2,10:55,11:40,CLASE,1001,MAT,,,,,1001-MAT
 54,Villota Rubio Janeth del Carmen,MIERCOLES,6,3,2,10:55,11:40,CLASE,1002,MAT,,,,,1002-MAT
 2,Angulo Lucero Andrés Mauricio,MIERCOLES,6,3,2,10:55,11:40,CLASE,1102,TEI,,,,,1102-TEI
-4,Arizala Castro Roberto Carlos,MIERCOLES,6,3,2,10:55,11:40,CLASE,CS101,ERD,,,,,CS101-ERD
+57,Armero Dájome Jesús,MIERCOLES,6,3,2,10:55,11:40,CLASE,CS101,ERD,,,,,CS101-ERD
 37,Prado Quiñones Genís Maribel,MIERCOLES,6,3,2,10:55,11:40,CLASE,CS102,ART,,,,,CS102-ART
 51,Valverde Montaño María Teresa,MIERCOLES,6,3,2,10:55,11:40,CLASE,CS201,CAS,,,,,CS201-CAS
 12,Chillambo Quiñones María Rocío,MIERCOLES,6,3,2,10:55,11:40,CLASE,CS202,CNA,,,,,CS202-CNA
@@ -892,7 +892,7 @@
 10,Castillo Cuero Daira Eneida,MIERCOLES,7,4,1,12:00,12:45,ENFASIS,,CAS,0601,0601,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 39,Puches Ana Milena,MIERCOLES,7,4,1,12:00,12:45,ENFASIS,,ART,0601,0601,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 34,Ordóñez Tenorio Jaime Marcial,MIERCOLES,7,4,1,12:00,12:45,ENFASIS,,CNA,0602,0602,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
-57,Armero Dájome Jesús,MIERCOLES,7,4,1,12:00,12:45,ENFASIS,,ERD,0602,0602,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
+4,Arizala Castro Roberto Carlos,MIERCOLES,7,4,1,12:00,12:45,ENFASIS,,ERD,0602,0602,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
 22,González Castillo Jólmer Jimy,MIERCOLES,7,4,1,12:00,12:45,ENFASIS,,ERD,0901,0901,Valencia Marínez Saidy Eufemia (ART); Meza Banguera Gladys Alicia (CAS); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0901
 25,Lemos Guancha Miriam,MIERCOLES,7,4,1,12:00,12:45,ENFASIS,,CNA,0901,0901,Valencia Marínez Saidy Eufemia (ART); Meza Banguera Gladys Alicia (CAS); González Castillo Jólmer Jimy (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0901
 28,Meza Banguera Gladys Alicia,MIERCOLES,7,4,1,12:00,12:45,ENFASIS,,CAS,0901,0901,Valencia Marínez Saidy Eufemia (ART); González Castillo Jólmer Jimy (ERD); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0901
@@ -923,7 +923,7 @@
 10,Castillo Cuero Daira Eneida,MIERCOLES,8,4,2,12:45,13:30,ENFASIS,,CAS,0601,0601,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 39,Puches Ana Milena,MIERCOLES,8,4,2,12:45,13:30,ENFASIS,,ART,0601,0601,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 34,Ordóñez Tenorio Jaime Marcial,MIERCOLES,8,4,2,12:45,13:30,ENFASIS,,CNA,0602,0602,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
-57,Armero Dájome Jesús,MIERCOLES,8,4,2,12:45,13:30,ENFASIS,,ERD,0602,0602,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
+4,Arizala Castro Roberto Carlos,MIERCOLES,8,4,2,12:45,13:30,ENFASIS,,ERD,0602,0602,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
 22,González Castillo Jólmer Jimy,MIERCOLES,8,4,2,12:45,13:30,ENFASIS,,ERD,0901,0901,Valencia Marínez Saidy Eufemia (ART); Meza Banguera Gladys Alicia (CAS); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0901
 25,Lemos Guancha Miriam,MIERCOLES,8,4,2,12:45,13:30,ENFASIS,,CNA,0901,0901,Valencia Marínez Saidy Eufemia (ART); Meza Banguera Gladys Alicia (CAS); González Castillo Jólmer Jimy (ERD),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0901
 28,Meza Banguera Gladys Alicia,MIERCOLES,8,4,2,12:45,13:30,ENFASIS,,CAS,0901,0901,Valencia Marínez Saidy Eufemia (ART); González Castillo Jólmer Jimy (ERD); Lemos Guancha Miriam (CNA),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0901
@@ -965,7 +965,7 @@
 44,Samaniego Angulo Flor Mireya,JUEVES,1,1,1,06:30,07:15,ENFASIS,,ART,0701,0701,Valverde Montaño María Teresa (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0701
 51,Valverde Montaño María Teresa,JUEVES,1,1,1,06:30,07:15,ENFASIS,,CAS,0701,0701,Samaniego Angulo Flor Mireya (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0701
 34,Ordóñez Tenorio Jaime Marcial,JUEVES,1,1,1,06:30,07:15,ENFASIS,,CNA,0702,0702,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0702
-57,Armero Dájome Jesús,JUEVES,1,1,1,06:30,07:15,ENFASIS,,ERD,0702,0702,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0702
+4,Arizala Castro Roberto Carlos,JUEVES,1,1,1,06:30,07:15,ENFASIS,,ERD,0702,0702,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0702
 8,Casanova Quiñones Yoli del Carmen,JUEVES,1,1,1,06:30,07:15,ENFASIS,,ETR,0703,0703,Quintero Ramírez María del Carmen (CSI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0703
 41,Quintero Ramírez María del Carmen,JUEVES,1,1,1,06:30,07:15,ENFASIS,,CSI,0703,0703,Casanova Quiñones Yoli del Carmen (ETR),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0703
 5,Bastidas Valencia Zeneida Judith,JUEVES,1,1,1,06:30,07:15,ENFASIS,,MAT,0902,0902,Betancourth Ocampo Yohana Patricia (CSI); Estacio Estupiñán Rosario (ETR); Mindineros Satizábal John Jáver (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0902
@@ -1006,7 +1006,7 @@
 44,Samaniego Angulo Flor Mireya,JUEVES,2,1,2,07:15,08:00,ENFASIS,,ART,0701,0701,Valverde Montaño María Teresa (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0701
 51,Valverde Montaño María Teresa,JUEVES,2,1,2,07:15,08:00,ENFASIS,,CAS,0701,0701,Samaniego Angulo Flor Mireya (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0701
 34,Ordóñez Tenorio Jaime Marcial,JUEVES,2,1,2,07:15,08:00,ENFASIS,,CNA,0702,0702,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0702
-57,Armero Dájome Jesús,JUEVES,2,1,2,07:15,08:00,ENFASIS,,ERD,0702,0702,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0702
+4,Arizala Castro Roberto Carlos,JUEVES,2,1,2,07:15,08:00,ENFASIS,,ERD,0702,0702,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0702
 8,Casanova Quiñones Yoli del Carmen,JUEVES,2,1,2,07:15,08:00,ENFASIS,,ETR,0703,0703,Quintero Ramírez María del Carmen (CSI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0703
 41,Quintero Ramírez María del Carmen,JUEVES,2,1,2,07:15,08:00,ENFASIS,,CSI,0703,0703,Casanova Quiñones Yoli del Carmen (ETR),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0703
 5,Bastidas Valencia Zeneida Judith,JUEVES,2,1,2,07:15,08:00,ENFASIS,,MAT,0902,0902,Betancourth Ocampo Yohana Patricia (CSI); Estacio Estupiñán Rosario (ETR); Mindineros Satizábal John Jáver (TEI),EQUIPO DE 4: cada docente atiende un grupo de estudiantes en su área,ENFASIS-0902
@@ -1032,9 +1032,9 @@
 11,Centeno Zúñiga Claudia Patricia,JUEVES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0502,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 32,Narváez Sánchez Dora Alejandra,JUEVES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0503,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 17,Escobar Cortés Liliana,JUEVES,3,2,1,08:20,09:05,AREAS_MULTIPLES,0504,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-4,Arizala Castro Roberto Carlos,JUEVES,3,2,1,08:20,09:05,CLASE,0601,ERD,,,,,0601-ERD
+57,Armero Dájome Jesús,JUEVES,3,2,1,08:20,09:05,CLASE,0601,ERD,,,,,0601-ERD
 26,Lozano Torres Amanda Inés,JUEVES,3,2,1,08:20,09:05,CLASE,0602,ETR,,,,Ética / Religión (alternan cada semana),0602-ETR
-57,Armero Dájome Jesús,JUEVES,3,2,1,08:20,09:05,CLASE,0701,ERD,,,,,0701-ERD
+4,Arizala Castro Roberto Carlos,JUEVES,3,2,1,08:20,09:05,CLASE,0701,ERD,,,,,0701-ERD
 52,Vásquez Valencia Segundo Leoncio,JUEVES,3,2,1,08:20,09:05,CLASE,0702,MAT,,,,,0702-MAT
 41,Quintero Ramírez María del Carmen,JUEVES,3,2,1,08:20,09:05,CLASE,0703,CSI,,,,Sociales / Inglés (alternan cada semana),0703-CSI
 8,Casanova Quiñones Yoli del Carmen,JUEVES,3,2,1,08:20,09:05,CLASE,0704,ETR,,,,Ética / Religión (alternan cada semana),0704-ETR
@@ -1071,9 +1071,9 @@
 11,Centeno Zúñiga Claudia Patricia,JUEVES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0502,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 32,Narváez Sánchez Dora Alejandra,JUEVES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0503,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 17,Escobar Cortés Liliana,JUEVES,4,2,2,09:05,09:50,AREAS_MULTIPLES,0504,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
-4,Arizala Castro Roberto Carlos,JUEVES,4,2,2,09:05,09:50,CLASE,0601,ERD,,,,,0601-ERD
+57,Armero Dájome Jesús,JUEVES,4,2,2,09:05,09:50,CLASE,0601,ERD,,,,,0601-ERD
 26,Lozano Torres Amanda Inés,JUEVES,4,2,2,09:05,09:50,CLASE,0602,ETR,,,,Ética / Religión (alternan cada semana),0602-ETR
-57,Armero Dájome Jesús,JUEVES,4,2,2,09:05,09:50,CLASE,0701,ERD,,,,,0701-ERD
+4,Arizala Castro Roberto Carlos,JUEVES,4,2,2,09:05,09:50,CLASE,0701,ERD,,,,,0701-ERD
 52,Vásquez Valencia Segundo Leoncio,JUEVES,4,2,2,09:05,09:50,CLASE,0702,MAT,,,,,0702-MAT
 41,Quintero Ramírez María del Carmen,JUEVES,4,2,2,09:05,09:50,CLASE,0703,CSI,,,,Sociales / Inglés (alternan cada semana),0703-CSI
 8,Casanova Quiñones Yoli del Carmen,JUEVES,4,2,2,09:05,09:50,CLASE,0704,ETR,,,,Ética / Religión (alternan cada semana),0704-ETR
@@ -1113,7 +1113,7 @@
 20,García Gobea Saydi Magali,JUEVES,5,3,1,10:10,10:55,CLASE,0601,CSI,,,,Sociales / Inglés (alternan cada semana),0601-CSI
 42,Quiñones Cabezas Marcos Vidal,JUEVES,5,3,1,10:10,10:55,CLASE,0602,MAT,,,,,0602-MAT
 1,Aguirre Riascos Jorge Andrés,JUEVES,5,3,1,10:10,10:55,CLASE,0701,TEI,,,,,0701-TEI
-57,Armero Dájome Jesús,JUEVES,5,3,1,10:10,10:55,CLASE,0702,ERD,,,,,0702-ERD
+4,Arizala Castro Roberto Carlos,JUEVES,5,3,1,10:10,10:55,CLASE,0702,ERD,,,,,0702-ERD
 10,Castillo Cuero Daira Eneida,JUEVES,5,3,1,10:10,10:55,CLASE,0703,CAS,,,,,0703-CAS
 9,Castillo Angulo Martha Cecilia,JUEVES,5,3,1,10:10,10:55,CLASE,0802,ETR,,,,Ética / Religión (alternan cada semana),0802-ETR
 25,Lemos Guancha Miriam,JUEVES,5,3,1,10:10,10:55,CLASE,0901,CNA,,,,,0901-CNA
@@ -1159,7 +1159,7 @@
 20,García Gobea Saydi Magali,JUEVES,6,3,2,10:55,11:40,CLASE,0601,CSI,,,,Sociales / Inglés (alternan cada semana),0601-CSI
 42,Quiñones Cabezas Marcos Vidal,JUEVES,6,3,2,10:55,11:40,CLASE,0602,MAT,,,,,0602-MAT
 1,Aguirre Riascos Jorge Andrés,JUEVES,6,3,2,10:55,11:40,CLASE,0701,TEI,,,,,0701-TEI
-57,Armero Dájome Jesús,JUEVES,6,3,2,10:55,11:40,CLASE,0702,ERD,,,,,0702-ERD
+4,Arizala Castro Roberto Carlos,JUEVES,6,3,2,10:55,11:40,CLASE,0702,ERD,,,,,0702-ERD
 10,Castillo Cuero Daira Eneida,JUEVES,6,3,2,10:55,11:40,CLASE,0703,CAS,,,,,0703-CAS
 9,Castillo Angulo Martha Cecilia,JUEVES,6,3,2,10:55,11:40,CLASE,0802,ETR,,,,Ética / Religión (alternan cada semana),0802-ETR
 25,Lemos Guancha Miriam,JUEVES,6,3,2,10:55,11:40,CLASE,0901,CNA,,,,,0901-CNA
@@ -1206,7 +1206,7 @@
 10,Castillo Cuero Daira Eneida,JUEVES,7,4,1,12:00,12:45,ENFASIS,,CAS,0601,0601,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 39,Puches Ana Milena,JUEVES,7,4,1,12:00,12:45,ENFASIS,,ART,0601,0601,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 34,Ordóñez Tenorio Jaime Marcial,JUEVES,7,4,1,12:00,12:45,ENFASIS,,CNA,0602,0602,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
-57,Armero Dájome Jesús,JUEVES,7,4,1,12:00,12:45,ENFASIS,,ERD,0602,0602,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
+4,Arizala Castro Roberto Carlos,JUEVES,7,4,1,12:00,12:45,ENFASIS,,ERD,0602,0602,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
 9,Castillo Angulo Martha Cecilia,JUEVES,7,4,1,12:00,12:45,ENFASIS,,ETR,0802,0802,Ortiz Araujo Adiela Carlota (CSI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0802
 19,Fernández Vélez Alfredo Enrique,JUEVES,7,4,1,12:00,12:45,ENFASIS,,TEI,D3-8°,0802,Preciado Torres Oleisa (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-D3-8°
 35,Ortiz Araujo Adiela Carlota,JUEVES,7,4,1,12:00,12:45,ENFASIS,,CSI,0802,0802,Castillo Angulo Martha Cecilia (ETR),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0802
@@ -1234,7 +1234,7 @@
 10,Castillo Cuero Daira Eneida,JUEVES,8,4,2,12:45,13:30,ENFASIS,,CAS,0601,0601,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 39,Puches Ana Milena,JUEVES,8,4,2,12:45,13:30,ENFASIS,,ART,0601,0601,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 34,Ordóñez Tenorio Jaime Marcial,JUEVES,8,4,2,12:45,13:30,ENFASIS,,CNA,0602,0602,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
-57,Armero Dájome Jesús,JUEVES,8,4,2,12:45,13:30,ENFASIS,,ERD,0602,0602,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
+4,Arizala Castro Roberto Carlos,JUEVES,8,4,2,12:45,13:30,ENFASIS,,ERD,0602,0602,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
 9,Castillo Angulo Martha Cecilia,JUEVES,8,4,2,12:45,13:30,ENFASIS,,ETR,0802,0802,Ortiz Araujo Adiela Carlota (CSI),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0802
 19,Fernández Vélez Alfredo Enrique,JUEVES,8,4,2,12:45,13:30,ENFASIS,,TEI,D3-8°,0802,Preciado Torres Oleisa (MAT),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-D3-8°
 35,Ortiz Araujo Adiela Carlota,JUEVES,8,4,2,12:45,13:30,ENFASIS,,CSI,0802,0802,Castillo Angulo Martha Cecilia (ETR),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0802
@@ -1258,7 +1258,7 @@
 17,Escobar Cortés Liliana,VIERNES,1,1,1,06:30,07:15,AREAS_MULTIPLES,0504,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 37,Prado Quiñones Genís Maribel,VIERNES,1,1,1,06:30,07:15,CLASE,0601,CNA,,,,,0601-CNA
 42,Quiñones Cabezas Marcos Vidal,VIERNES,1,1,1,06:30,07:15,CLASE,0602,MAT,,,,,0602-MAT
-57,Armero Dájome Jesús,VIERNES,1,1,1,06:30,07:15,CLASE,0701,ERD,,,,,0701-ERD
+4,Arizala Castro Roberto Carlos,VIERNES,1,1,1,06:30,07:15,CLASE,0701,ERD,,,,,0701-ERD
 39,Puches Ana Milena,VIERNES,1,1,1,06:30,07:15,CLASE,0702,ART,,,,,0702-ART
 10,Castillo Cuero Daira Eneida,VIERNES,1,1,1,06:30,07:15,CLASE,0703,CAS,,,,,0703-CAS
 34,Ordóñez Tenorio Jaime Marcial,VIERNES,1,1,1,06:30,07:15,CLASE,0704,CNA,,,,,0704-CNA
@@ -1298,7 +1298,7 @@
 17,Escobar Cortés Liliana,VIERNES,2,1,2,07:15,08:00,AREAS_MULTIPLES,0504,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 37,Prado Quiñones Genís Maribel,VIERNES,2,1,2,07:15,08:00,CLASE,0601,CNA,,,,,0601-CNA
 42,Quiñones Cabezas Marcos Vidal,VIERNES,2,1,2,07:15,08:00,CLASE,0602,MAT,,,,,0602-MAT
-57,Armero Dájome Jesús,VIERNES,2,1,2,07:15,08:00,CLASE,0701,ERD,,,,,0701-ERD
+4,Arizala Castro Roberto Carlos,VIERNES,2,1,2,07:15,08:00,CLASE,0701,ERD,,,,,0701-ERD
 39,Puches Ana Milena,VIERNES,2,1,2,07:15,08:00,CLASE,0702,ART,,,,,0702-ART
 10,Castillo Cuero Daira Eneida,VIERNES,2,1,2,07:15,08:00,CLASE,0703,CAS,,,,,0703-CAS
 34,Ordóñez Tenorio Jaime Marcial,VIERNES,2,1,2,07:15,08:00,CLASE,0704,CNA,,,,,0704-CNA
@@ -1430,7 +1430,7 @@
 32,Narváez Sánchez Dora Alejandra,VIERNES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0503,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 17,Escobar Cortés Liliana,VIERNES,5,3,1,10:10,10:55,AREAS_MULTIPLES,0504,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 26,Lozano Torres Amanda Inés,VIERNES,5,3,1,10:10,10:55,CLASE,0601,ETR,,,,Ética / Religión (alternan cada semana),0601-ETR
-4,Arizala Castro Roberto Carlos,VIERNES,5,3,1,10:10,10:55,CLASE,0602,ERD,,,,,0602-ERD
+57,Armero Dájome Jesús,VIERNES,5,3,1,10:10,10:55,CLASE,0602,ERD,,,,,0602-ERD
 34,Ordóñez Tenorio Jaime Marcial,VIERNES,5,3,1,10:10,10:55,CLASE,0701,CNA,,,,,0701-CNA
 41,Quintero Ramírez María del Carmen,VIERNES,5,3,1,10:10,10:55,CLASE,0702,CSI,,,,Sociales / Inglés (alternan cada semana),0702-CSI
 39,Puches Ana Milena,VIERNES,5,3,1,10:10,10:55,CLASE,0703,ART,,,,,0703-ART
@@ -1475,7 +1475,7 @@
 32,Narváez Sánchez Dora Alejandra,VIERNES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0503,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 17,Escobar Cortés Liliana,VIERNES,6,3,2,10:55,11:40,AREAS_MULTIPLES,0504,ÁREAS MÚLTIPLES,,,,Maestro de aula: todas las áreas con su grupo,
 26,Lozano Torres Amanda Inés,VIERNES,6,3,2,10:55,11:40,CLASE,0601,ETR,,,,Ética / Religión (alternan cada semana),0601-ETR
-4,Arizala Castro Roberto Carlos,VIERNES,6,3,2,10:55,11:40,CLASE,0602,ERD,,,,,0602-ERD
+57,Armero Dájome Jesús,VIERNES,6,3,2,10:55,11:40,CLASE,0602,ERD,,,,,0602-ERD
 34,Ordóñez Tenorio Jaime Marcial,VIERNES,6,3,2,10:55,11:40,CLASE,0701,CNA,,,,,0701-CNA
 41,Quintero Ramírez María del Carmen,VIERNES,6,3,2,10:55,11:40,CLASE,0702,CSI,,,,Sociales / Inglés (alternan cada semana),0702-CSI
 39,Puches Ana Milena,VIERNES,6,3,2,10:55,11:40,CLASE,0703,ART,,,,,0703-ART
@@ -1525,7 +1525,7 @@
 10,Castillo Cuero Daira Eneida,VIERNES,7,4,1,12:00,12:45,ENFASIS,,CAS,0601,0601,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 39,Puches Ana Milena,VIERNES,7,4,1,12:00,12:45,ENFASIS,,ART,0601,0601,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 34,Ordóñez Tenorio Jaime Marcial,VIERNES,7,4,1,12:00,12:45,ENFASIS,,CNA,0602,0602,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
-57,Armero Dájome Jesús,VIERNES,7,4,1,12:00,12:45,ENFASIS,,ERD,0602,0602,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
+4,Arizala Castro Roberto Carlos,VIERNES,7,4,1,12:00,12:45,ENFASIS,,ERD,0602,0602,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
 1,Aguirre Riascos Jorge Andrés,VIERNES,8,4,2,12:45,13:30,CLASE,0701,TEI,,,,,0701-TEI
 8,Casanova Quiñones Yoli del Carmen,VIERNES,8,4,2,12:45,13:30,CLASE,0702,ETR,,,,Ética / Religión (alternan cada semana),0702-REL
 52,Vásquez Valencia Segundo Leoncio,VIERNES,8,4,2,12:45,13:30,CLASE,0703,MAT,,,,,0703-MAT
@@ -1547,4 +1547,4 @@
 10,Castillo Cuero Daira Eneida,VIERNES,8,4,2,12:45,13:30,ENFASIS,,CAS,0601,0601,Puches Ana Milena (ART),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 39,Puches Ana Milena,VIERNES,8,4,2,12:45,13:30,ENFASIS,,ART,0601,0601,Castillo Cuero Daira Eneida (CAS),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0601
 34,Ordóñez Tenorio Jaime Marcial,VIERNES,8,4,2,12:45,13:30,ENFASIS,,CNA,0602,0602,Armero Dájome Jesús (ERD),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
-57,Armero Dájome Jesús,VIERNES,8,4,2,12:45,13:30,ENFASIS,,ERD,0602,0602,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602
+4,Arizala Castro Roberto Carlos,VIERNES,8,4,2,12:45,13:30,ENFASIS,,ERD,0602,0602,Ordóñez Tenorio Jaime Marcial (CNA),PAREJA: comparten el énfasis y alternan por semana,ENFASIS-0602

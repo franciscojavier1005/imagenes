@@ -67,9 +67,12 @@ MAPA = {
 #  - El rector intercambió el horario de Arte de Docente 1 (antes Puches Ana Milena, #39) con el de Docente 2 (antes Prado Maribel, #37):
 #    hoy Prado (#37) atiende lo que era de Puches y Puches (#39) lo que era de Prado.
 #  - Armero Dájome Jesús (#57) reemplaza a Terán Guevara Jorge Alberto (#47) y atiende todo su horario.
+#  - Educación Física (2026-10-20): el rector intercambió Docente 1 (Arizala #4) y Docente 2 (Terán→Armero #57) sin avisar. Tras correr este script
+#    hay que ejecutar scripts/intercambio_educacion_fisica.py (intercambia las filas ERD de horario_maestro.csv; no repite si ya se hizo).
 PENDIENTES = {}
 NOTAS_DOCENTE = {
-    57: "Reemplazo de Terán Guevara Jorge Alberto: atiende su horario",
+    57: "Reemplazo de Terán Guevara Jorge Alberto: atiende su horario (desde el cambio del rector, el de Educación Física que tenía Arizala, Docente 1)",
+    4: "Desde el cambio del rector atiende el horario de Educación Física que tenía Terán, hoy Armero (Docente 2); su clase de CNA se queda con él",
     47: "Reemplazado por Armero Dájome Jesús: su horario lo atiende Armero",
     37: "Reemplazo de la docente Luz María Cortés Tenorio. Desde el cambio del rector atiende el horario que tenía Puches (Docente 1)",
     39: "Desde el cambio del rector atiende el horario que tenía Prado Maribel (Docente 2 de Arte)",

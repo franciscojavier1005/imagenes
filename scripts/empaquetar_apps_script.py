@@ -4,6 +4,8 @@
 import os, shutil, subprocess, sys
 R = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "apps_script")
 OUT = os.path.join(R, "paquete")
+import subprocess, sys
+subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sincronizar_aviso.py')], check=True)
 ORDEN = ["Codigo", "Resumen", "Plazos", "Acceso", "Dashboard", "Whatsapp", "Soportes", "Patrones", "Notas", "NotasRonda", "Reuniones", "Incumplimientos", "Horarios", "Novedades", "Estudiantes", "Leeme", "Sesion", "Api"]
 shutil.rmtree(OUT, ignore_errors=True); os.makedirs(OUT)
 with open(os.path.join(OUT, "ICET_completo.gs"), "w", encoding="utf-8") as f:

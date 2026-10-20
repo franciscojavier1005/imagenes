@@ -6,7 +6,23 @@
  * Hojas: Reuniones (una fila por reunión) y Asistencia_Reunion (una fila por persona y reunión; se reemplaza al volver a guardar).
  * Fechas y horas se guardan como TEXTO (con apóstrofo) para que Sheets no las convierta.
  */
-var COL_REUNIONES = ['id', 'fecha', 'tipo', 'nombre', 'inicio', 'fin', 'sin_estudiantes', 'convocados', 'creado_por', 'fecha_creacion'];
+var COL_REUNIONES = ['id', 'fecha', 'tipo', 'nombre', 'inicio', 'fin', 'sin_estudiantes', 'convocados', 'creado_por', 'fecha_creacion', 'avisar_dias', 'avisar_min', 'avisar_ronda'];
+/** La hoja Reuniones de libros anteriores no tiene las columnas de recordatorio: se agregan al final. */
+function reunionesHoja_() {
+  var sh = hojaOCrea_('Reuniones', COL_REUNIONES), cab = sh.getDataRange().getValues()[0];
+  COL_REUNIONES.forEach(function (c) { if (cab.indexOf(c) < 0) { sh.getRange(1, cab.length + 1).setValue(c); cab.push(c); } });
+  return sh;
+}
+function reunionesDatos_() { reunionesHoja_(); return datos_('Reuniones'); }
+/** Recordatorios de una reunión: días antes (0 = ninguno), minutos antes el mismo día (0 = ninguno) y si sale al comenzar y al terminar la ronda. Vacío = 1 día, 60 min y sí. */
+function recordatorioDe_(r) {
+  function num(v, d) { var t = String(v == null ? '' : v).trim(); return t === '' ? d : (isNaN(Number(t)) ? d : Number(t)); }
+  return { avisarDias: num(r.avisar_dias, 1), avisarMin: num(r.avisar_min, 60), avisarRonda: String(r.avisar_ronda || 'SI').toUpperCase() !== 'NO' };
+}
+function recordatorioDeP_(p) {
+  var dias = Number(p.avisarDias), min = Number(p.avisarMin);
+  return { dias: [0, 1, 2, 3, 7].indexOf(dias) >= 0 ? dias : 1, min: [0, 15, 30, 60, 120].indexOf(min) >= 0 ? min : 60, ronda: p.avisarRonda === false ? 'NO' : 'SI' };
+}
 var COL_ASIST_REUNION = ['id_reunion', 'fecha', 'persona', 'estado', 'motivo', 'observacion', 'registrado_por', 'fecha_registro'];
 var ESTADOS_REUNION = ['Asistió', 'No asistió', 'Llegada tarde', 'Salida temprana'];
 var ESTADOS_REUNION_PRESENTE = ['Asistió', 'Llegada tarde', 'Salida temprana'];
@@ -48,10 +64,10 @@ function reunionDeFila_(r) {
   var conv = String(r.convocados || 'TODOS');
   return { id: r.id, fecha: fechaIso_(limpiaTxt_(r.fecha)), tipo: r.tipo, nombre: r.nombre, inicio: limpiaTxt_(r.inicio), fin: limpiaTxt_(r.fin),
            sinEstudiantes: String(r.sin_estudiantes) === 'SI', convocados: conv === 'TODOS' ? 'TODOS' : conv.split(';').map(function (x) { return x.trim(); }).filter(String),
-           creadoPor: r.creado_por };
+           creadoPor: r.creado_por, avisarDias: recordatorioDe_(r).avisarDias, avisarMin: recordatorioDe_(r).avisarMin, avisarRonda: recordatorioDe_(r).avisarRonda };
 }
 function reunionesDe_(fecha) {
-  return datosOCrea_('Reuniones', COL_REUNIONES).map(reunionDeFila_).filter(function (r) { return r.fecha === fecha; });
+  return reunionesDatos_().map(reunionDeFila_).filter(function (r) { return r.fecha === fecha; });
 }
 function asistenciaDe_(id) {
   var m = {};
@@ -67,7 +83,7 @@ function convocadosDe_(reunion) {
 
 /** Resumen de asistencia a reuniones y actividades de un periodo, para el informe por correo. Devuelve '' si no hubo. */
 function htmlReunionesInforme_(desde, hasta) {
-  var rs = datosOCrea_('Reuniones', COL_REUNIONES).map(reunionDeFila_).filter(function (r) { return r.fecha >= desde && r.fecha <= hasta; });
+  var rs = reunionesDatos_().map(reunionDeFila_).filter(function (r) { return r.fecha >= desde && r.fecha <= hasta; });
   if (!rs.length) return '';
   var e = resEsc_;
   return '<div style="margin-top:12px;border-left:4px solid #1b5e20;padding:6px 10px;background:#e8f5e9"><div style="font-weight:600;color:#1b5e20">Reuniones y actividades institucionales (' + rs.length + ')</div>' +
@@ -90,7 +106,7 @@ function listarReuniones(p) {
     return Object.assign({}, r, { convocadosN: conv.length, registrados: reg });
   });
   // próximas (hoy en adelante, la más cercana primero) y últimas (días anteriores, la más reciente primero)
-  var hoy = ymd_(new Date()), todas = datosOCrea_('Reuniones', COL_REUNIONES).map(reunionDeFila_).filter(function (r) { return r.fecha; });
+  var hoy = ymd_(new Date()), todas = reunionesDatos_().map(reunionDeFila_).filter(function (r) { return r.fecha; });
   function resumida(r) { var a = asistenciaDe_(r.id), conv = convocadosDe_(r), reg = 0; conv.forEach(function (n) { if (a[n]) reg++; }); return Object.assign({}, r, { convocadosN: conv.length, registrados: reg }); }
   var proximas = todas.filter(function (r) { return r.fecha >= hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? -1 : 1) : (a.fecha < b.fecha ? -1 : 1); }).slice(0, 12).map(resumida);
   var ultimas = todas.filter(function (r) { return r.fecha < hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? 1 : -1) : (a.fecha < b.fecha ? 1 : -1); }).slice(0, 10).map(resumida);
@@ -122,8 +138,8 @@ function crearReunion(p) {
     conv = lista.join('; ');
   }
   var id = Utilities.getUuid();
-  hojaOCrea_('Reuniones', COL_REUNIONES).appendRow([id, txtForzado_(fecha), def.tipo, String(p.nombre || '').slice(0, 120) || def.tipo, txtForzado_(ini), txtForzado_(fin),
-    p.sinEstudiantes ? 'SI' : 'NO', conv, por, ahoraTxt_()]);
+  reunionesHoja_().appendRow([id, txtForzado_(fecha), def.tipo, String(p.nombre || '').slice(0, 120) || def.tipo, txtForzado_(ini), txtForzado_(fin),
+    p.sinEstudiantes ? 'SI' : 'NO', conv, por, ahoraTxt_(), recordatorioDeP_(p).dias, recordatorioDeP_(p).min, recordatorioDeP_(p).ronda]);
   return { id: id };
 }
 
@@ -139,7 +155,7 @@ function puedeAdministrar_(quien) {
     return /coordinador(a)?\s+acad[eé]mic/i.test(String(d.rol || ''));
   } catch (e) { return false; }
 }
-var COL_REUNIONES_ANULADAS = ['id', 'fecha', 'tipo', 'nombre', 'inicio', 'fin', 'sin_estudiantes', 'convocados', 'creado_por', 'fecha_creacion', 'anulada_por', 'fecha_anulacion', 'motivo_anulacion'];
+var COL_REUNIONES_ANULADAS = COL_REUNIONES.concat(['anulada_por', 'fecha_anulacion', 'motivo_anulacion']);
 
 /** Anula una reunión (solo quien administra): sale de Reuniones y queda guardada en Reuniones_Anuladas con quién, cuándo y por qué. La asistencia registrada se conserva. p = {id, motivo} */
 function anularReunion(p) {
@@ -150,7 +166,7 @@ function anularReunion(p) {
   if (motivo.length < 5) throw new Error('Escriba el motivo de la anulación (mínimo 5 letras).');
   var lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
-    var sh = hojaOCrea_('Reuniones', COL_REUNIONES), v = sh.getDataRange().getValues(), cab = v[0], ci = cab.indexOf('id'), fila = -1;
+    var sh = reunionesHoja_(), v = sh.getDataRange().getValues(), cab = v[0], ci = cab.indexOf('id'), fila = -1;
     for (var i = 1; i < v.length; i++) if (String(v[i][ci]) === String(p.id)) { fila = i; break; }
     if (fila < 0) throw new Error('No se encontró la reunión.');
     var guardada = COL_REUNIONES.map(function (k) { var j = cab.indexOf(k); return j < 0 ? '' : v[fila][j]; }).concat([por, ahoraTxt_(), motivo.slice(0, 200)]);
@@ -159,6 +175,39 @@ function anularReunion(p) {
     bitacora_('Anuló reunión', String(guardada[3]) + ' (' + limpiaTxt_(guardada[1]) + ') · ' + motivo.slice(0, 120));
   } finally { lock.releaseLock(); }
   return { ok: true };
+}
+
+/**
+ * Aviso del día (se muestra unos segundos sobre cualquier pantalla): reuniones de hoy (en curso, próximas y las ya terminadas sin asistencia registrada)
+ * y actividades con estudiantes fuera del colegio registradas para hoy.
+ */
+function avisosHoy() {
+  exigirDirectivo_();
+  var ahora = new Date(), hoy = ymd_(ahora), hh = Utilities.formatDate(ahora, TZ, 'HH:mm');
+  function aMinutos(t) { var m = String(t).match(/^(\d{1,2}):(\d{2})/); return m ? Number(m[1]) * 60 + Number(m[2]) : 0; }
+  var ahoraMin = aMinutos(hh);
+  function resumida(r) { var a = asistenciaDe_(r.id), conv = convocadosDe_(r), reg = 0; conv.forEach(function (n) { if (a[n]) reg++; }); return { conv: conv.length, reg: reg }; }
+  var todas = reunionesDatos_().map(reunionDeFila_).filter(function (r) { return r.fecha; });
+  var reuniones = todas.filter(function (r) { return r.fecha === hoy; }).sort(function (a, b) { return a.inicio < b.inicio ? -1 : (a.inicio > b.inicio ? 1 : 0); }).map(function (r) {
+    var x = resumida(r), estado = hh < r.inicio ? 'proxima' : (hh <= r.fin ? 'ahora' : 'pasada'), faltan = aMinutos(r.inicio) - ahoraMin;
+    return { id: r.id, nombre: r.nombre, tipo: r.tipo, inicio: r.inicio, fin: r.fin, sinEstudiantes: r.sinEstudiantes, convocadosN: x.conv, registrados: x.reg, estado: estado,
+             minutosHasta: faltan, avisarRonda: r.avisarRonda, avisarMin: r.avisarMin,
+             urgente: estado === 'ahora' || (estado === 'proxima' && r.avisarMin > 0 && faltan <= r.avisarMin) };   // parpadea y vuelve a avisar durante la jornada
+  });
+  var previas = todas.filter(function (r) {
+    var d = Math.round((new Date(r.fecha + 'T12:00:00Z') - new Date(hoy + 'T12:00:00Z')) / 86400000);
+    r.dias = d; return d > 0 && r.avisarDias > 0 && d <= r.avisarDias;
+  }).sort(function (a, b) { return a.fecha < b.fecha ? -1 : (a.fecha > b.fecha ? 1 : (a.inicio < b.inicio ? -1 : 1)); }).map(function (r) {
+    return { id: r.id, nombre: r.nombre, tipo: r.tipo, fecha: r.fecha, dias: r.dias, inicio: r.inicio, fin: r.fin, sinEstudiantes: r.sinEstudiantes };
+  });
+  var por = {}, orden = [];
+  datos_('Novedades').forEach(function (n) {
+    if (n['Tipo Novedad'] !== TIPO_EXTERNA || fechaIso_(n['Fecha Novedad']) !== hoy) return;
+    var k = n['Motivo Ausencia'] || 'Actividad con estudiantes';
+    if (!por[k]) { por[k] = { motivo: k, docentes: [] }; orden.push(k); }
+    if (por[k].docentes.indexOf(n['Docente']) < 0) por[k].docentes.push(n['Docente']);
+  });
+  return { hoy: hoy, hora: hh, reuniones: reuniones, previas: previas, actividades: orden.map(function (k) { return por[k]; }) };
 }
 
 /** Edita una reunión ya creada (tipo, nombre, fecha, horas, clases suspendidas, convocados). La asistencia ya registrada no se borra. p = {id, ...igual que crearReunion} */
@@ -180,14 +229,14 @@ function editarReunion(p) {
   }
   var lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
-    var sh = hojaOCrea_('Reuniones', COL_REUNIONES), v = sh.getDataRange().getValues(), cab = v[0], fila = -1, c = {};
+    var sh = reunionesHoja_(), v = sh.getDataRange().getValues(), cab = v[0], fila = -1, c = {};
     cab.forEach(function (k, i) { c[k] = i; });
     for (var i = 1; i < v.length; i++) if (String(v[i][c.id]) === String(p.id)) { fila = i; break; }
     if (fila < 0) throw new Error('No se encontró la reunión.');
     var antes = reunionDeFila_((function () { var o = {}; cab.forEach(function (k, i) { o[k] = v[fila][i]; }); return o; })());
     var nueva = v[fila].slice();
     nueva[c.fecha] = txtForzado_(p.fecha); nueva[c.tipo] = def.tipo; nueva[c.nombre] = String(p.nombre || '').slice(0, 120) || def.tipo;
-    nueva[c.inicio] = txtForzado_(ini); nueva[c.fin] = txtForzado_(fin); nueva[c.sin_estudiantes] = p.sinEstudiantes ? 'SI' : 'NO'; nueva[c.convocados] = conv;
+    nueva[c.inicio] = txtForzado_(ini); nueva[c.fin] = txtForzado_(fin); nueva[c.sin_estudiantes] = p.sinEstudiantes ? 'SI' : 'NO'; nueva[c.convocados] = conv; var rd = recordatorioDeP_(p); nueva[c.avisar_dias] = rd.dias; nueva[c.avisar_min] = rd.min; nueva[c.avisar_ronda] = rd.ronda;
     sh.getRange(fila + 1, 1, 1, nueva.length).setValues([nueva]);
     bitacora_('Editó reunión', antes.nombre + ' (' + antes.fecha + ' ' + antes.inicio + '-' + antes.fin + ') → ' + nueva[c.nombre] + ' (' + p.fecha + ' ' + ini + '-' + fin + ')' + (antes.sinEstudiantes !== !!p.sinEstudiantes ? ' · clases ' + (p.sinEstudiantes ? 'suspendidas' : 'no suspendidas') : '') + ' · por ' + por);
   } finally { lock.releaseLock(); }
@@ -197,7 +246,7 @@ function editarReunion(p) {
 /** Datos para registrar la asistencia de una reunión: convocados y lo ya registrado. */
 function cargarReunion(p) {
   exigirDirectivo_();
-  var r = datosOCrea_('Reuniones', COL_REUNIONES).map(reunionDeFila_).filter(function (x) { return x.id === (p && p.id); })[0];
+  var r = reunionesDatos_().map(reunionDeFila_).filter(function (x) { return x.id === (p && p.id); })[0];
   if (!r) throw new Error('No se encontró la reunión.');
   var a = asistenciaDe_(r.id), roles = {};
   personasReunion_().forEach(function (x) { roles[x.nombre] = x.rol; });
@@ -209,7 +258,7 @@ function cargarReunion(p) {
 function guardarAsistenciaReunion(p) {
   p = p || {};
   var por = nombreRegistrador_(p);
-  var r = datosOCrea_('Reuniones', COL_REUNIONES).map(reunionDeFila_).filter(function (x) { return x.id === p.id; })[0];
+  var r = reunionesDatos_().map(reunionDeFila_).filter(function (x) { return x.id === p.id; })[0];
   if (!r) throw new Error('No se encontró la reunión.');
   var motivos = datos_('Motivos').map(function (m) { return m.motivo; }), convocados = convocadosDe_(r);
   var lock = LockService.getScriptLock(); lock.waitLock(20000);

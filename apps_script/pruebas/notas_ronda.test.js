@@ -236,14 +236,14 @@ ok(ga.guardados===1,'la asistencia solo guarda a los convocados (se ignora a qui
 const cr=run("cargarReunion({id:'"+rc1.id+"'})"); ok(cr.personas.length===1&&cr.personas[0].registro.estado==='Asistió','cargarReunion devuelve convocados y lo registrado');
 // ---- editar una reunión y ver próximas / últimas
 {
-  const manana=new Date(Date.now()+86400000).toISOString().slice(0,10), ayer=new Date(Date.now()-86400000*3).toISOString().slice(0,10);
+  const dmas=n=>new Date(new Date(hoyR+'T12:00:00Z').getTime()+86400000*n).toISOString().slice(0,10); const manana=dmas(1), ayer=dmas(-3);
   const rP=run(`crearReunion({tipo:'Consejo académico',fecha:'${manana}',inicio:'14:00',fin:'15:00',convocados:'TODOS'})`);
   const rU=run(`crearReunion({tipo:'Consejo académico',fecha:'${ayer}',inicio:'14:00',fin:'15:00',convocados:'TODOS'})`);
   const lr=run('listarReuniones({})');
   ok(lr.proximas.some(r=>r.id===rP.id)&&!lr.proximas.some(r=>r.id===rU.id),'próximas reuniones: incluye la de mañana y no la pasada');
   ok(lr.ultimas.some(r=>r.id===rU.id)&&lr.ultimas.every(r=>r.fecha<lr.hoy),'últimas reuniones: la de hace 3 días, todas anteriores a hoy');
   ok(lr.proximas.every((r,i,a)=>i===0||a[i-1].fecha<=r.fecha),'las próximas van de la más cercana a la más lejana');
-  const dia2=new Date(Date.now()+86400000*5).toISOString().slice(0,10);
+  const dia2=dmas(5);
   const nb=hojas.Bitacora_Cambios?hojas.Bitacora_Cambios.v.length:0;
   run(`editarReunion({id:'${rP.id}',tipo:'Jornada pedagógica',nombre:'Jornada editada',fecha:'${dia2}',inicio:'07:00',fin:'12:00',sinEstudiantes:true,convocados:['${dR}']})`);
   const ed=run(`cargarReunion({id:'${rP.id}'})`).reunion;
@@ -251,6 +251,37 @@ const cr=run("cargarReunion({id:'"+rc1.id+"'})"); ok(cr.personas.length===1&&cr.
   ok(hojas.Bitacora_Cambios.v.length>nb&&/Editó reunión/.test(hojas.Bitacora_Cambios.v[hojas.Bitacora_Cambios.v.length-1][2]),'la edición queda en la bitácora');
   let ee=null; try{run("editarReunion({id:'no-existe',tipo:'Consejo académico',fecha:'2026-10-20',inicio:'07:00',fin:'08:00',convocados:'TODOS'})")}catch(x){ee=x} ok(ee&&/No se encontr/.test(ee.message),'editar una reunión que no existe: aviso');
   ee=null; try{run(`editarReunion({id:'${rP.id}',tipo:'Consejo académico',fecha:'${dia2}',inicio:'09:00',fin:'08:00',convocados:'TODOS'})`)}catch(x){ee=x} ok(ee&&/hora/.test(ee.message),'editar con horas inválidas se rechaza');
+  // aviso del día
+  {
+    const rN=run(`crearReunion({tipo:'Consejo académico',nombre:'En curso',fecha:'${hoyR}',inicio:'00:00',fin:'23:59',convocados:'TODOS'})`);
+    const rA=run(`crearReunion({tipo:'Consejo académico',nombre:'Ya terminó',fecha:'${hoyR}',inicio:'00:01',fin:'00:02',convocados:'TODOS'})`);
+    const rS=run(`crearReunion({tipo:'Consejo académico',nombre:'Más tarde',fecha:'${hoyR}',inicio:'23:57',fin:'23:58',convocados:'TODOS'})`);
+    const nh=hojas.Novedades.v[0]; const fila=nh.map(()=>''); fila[0]='x'; fila[nh.indexOf('Fecha Novedad')]=hoyR; fila[nh.indexOf('Docente')]='Docente demo SEC 07'; fila[nh.indexOf('Tipo Novedad')]='Actividad externa con estudiantes'; fila[nh.indexOf('Motivo Ausencia')]='Salida pedagógica o recorrido con estudiantes'; hojas.Novedades.v.push(fila);
+    const av=run('avisosHoy()');
+    const e=n=>av.reuniones.find(x=>x.nombre===n);
+    ok(e('En curso').estado==='ahora'&&e('Ya terminó').estado==='pasada'&&e('Más tarde').estado==='proxima','avisosHoy: reuniones de hoy en curso, terminada y próxima');
+    ok(av.reuniones.map(x=>x.inicio).join()===av.reuniones.map(x=>x.inicio).sort().join(),'ordenadas por hora');
+    ok(av.actividades.length===1&&av.actividades[0].docentes[0]==='Docente demo SEC 07','incluye las actividades con estudiantes de hoy (salidas pedagógicas)');
+    // recordatorios por reunión
+    const en2=dmas(2), en5=dmas(6);
+    const rR=run(`crearReunion({tipo:'Consejo académico',nombre:'Con aviso 2 días',fecha:'${en2}',inicio:'10:00',fin:'11:00',convocados:'TODOS',avisarDias:2,avisarMin:30,avisarRonda:false})`);
+    const rQ=run(`crearReunion({tipo:'Consejo académico',nombre:'Lejana',fecha:'${en5}',inicio:'10:00',fin:'11:00',convocados:'TODOS',avisarDias:1,avisarMin:60,avisarRonda:true})`);
+    const cr2=run(`cargarReunion({id:'${rR.id}'})`).reunion;
+    ok(cr2.avisarDias===2&&cr2.avisarMin===30&&cr2.avisarRonda===false,'la reunión guarda sus recordatorios (días, minutos y ronda)');
+    const av2=run('avisosHoy()');
+    ok(av2.previas.some(x=>x.nombre==='Con aviso 2 días'&&x.dias===2)&&!av2.previas.some(x=>x.nombre==='Lejana'),'avisos previos: solo las reuniones dentro de sus días de anticipación');
+    const rU2=run(`crearReunion({tipo:'Consejo académico',nombre:'Pronto',fecha:'${hoyR}',inicio:'23:50',fin:'23:59',convocados:'TODOS',avisarDias:0,avisarMin:15,avisarRonda:false})`);
+    const hm=new Date(); const hhmm=new Intl.DateTimeFormat('en-GB',{timeZone:'America/Bogota',hour:'2-digit',minute:'2-digit'}).format(hm);
+    const pronto=run('avisosHoy()').reuniones.find(x=>x.nombre==='Pronto');
+    ok(pronto&&pronto.avisarRonda===false&&pronto.avisarMin===15&&(pronto.estado==='proxima'?pronto.urgente===(pronto.minutosHasta<=15):true),'recordatorio del mismo día: «urgente» solo dentro de los minutos elegidos');
+    ok(run('avisosHoy()').reuniones.find(x=>x.nombre==='En curso').urgente===true,'una reunión en curso siempre es urgente (parpadea)');
+    // reuniones de libros anteriores (sin columnas de recordatorio) usan 1 día, 60 min y ronda
+    { const hr=hojas.Reuniones.v[0]; const i1=hr.indexOf('avisar_dias'); const fil=hojas.Reuniones.v.find((r,i)=>i>0&&r[hr.indexOf('id')]===rQ.id); fil[i1]=''; fil[hr.indexOf('avisar_min')]=''; fil[hr.indexOf('avisar_ronda')]='';
+      const d=run(`cargarReunion({id:'${rQ.id}'})`).reunion; ok(d.avisarDias===1&&d.avisarMin===60&&d.avisarRonda===true,'sin datos de recordatorio: 1 día, 60 minutos y al comenzar la ronda'); }
+    ['rR','rQ','rU2'].forEach(k=>{ const id={rR,rQ,rU2}[k].id; run(`anularReunion({id:'${id}',motivo:'prueba de recordatorio'})`); });
+    EMAIL='alguien@gmail.com'; let ev=null; try{ run('avisosHoy()') }catch(x){ev=x} ok(ev&&/iniciar sesión/.test(ev.message),'solo directivos reciben el aviso del día'); EMAIL='dueno@gmail.com';
+    run(`anularReunion({id:'${rN.id}',motivo:'prueba de aviso'})`); run(`anularReunion({id:'${rA.id}',motivo:'prueba de aviso'})`); run(`anularReunion({id:'${rS.id}',motivo:'prueba de aviso'})`);
+  }
   // anular: solo quien administra
   const dh=hojas.Directivos.v[0], iCT=dh.indexOf('correo_temporal');
   hojas.Directivos.v[3][iCT]='harold@x.com'; EMAIL='harold@x.com';
@@ -261,7 +292,7 @@ const cr=run("cargarReunion({id:'"+rc1.id+"'})"); ok(cr.personas.length===1&&cr.
   ea=null; try{ run(`anularReunion({id:'${rU.id}',motivo:'x'})`) }catch(x){ea=x} ok(ea&&/motivo/.test(ea.message),'anular exige el motivo');
   const nR=hojas.Reuniones.v.length; run(`anularReunion({id:'${rU.id}',motivo:'Creada por error'})`);
   ok(hojas.Reuniones.v.length===nR-1&&!run('listarReuniones({})').ultimas.some(r=>r.id===rU.id),'la reunión anulada sale de la lista');
-  ok(hojas.Reuniones_Anuladas&&hojas.Reuniones_Anuladas.v.length===2&&hojas.Reuniones_Anuladas.v[1][0]===rU.id&&hojas.Reuniones_Anuladas.v[1][12]==='Creada por error','queda en Reuniones_Anuladas con el motivo');
+  { const hA=hojas.Reuniones_Anuladas&&hojas.Reuniones_Anuladas.v[0], fA=hA&&hojas.Reuniones_Anuladas.v.find(r=>r[hA.indexOf('id')]===rU.id); ok(fA&&fA[hA.indexOf('motivo_anulacion')]==='Creada por error'&&fA[hA.indexOf('anulada_por')],'queda en Reuniones_Anuladas con el motivo y quién la anuló'); }
   ea=null; try{ run(`anularReunion({id:'${rU.id}',motivo:'Creada por error'})`) }catch(x){ea=x} ok(ea&&/No se encontr/.test(ea.message),'anular dos veces: aviso');
   const n0=hojas.Reuniones.v.length; run(`editarReunion({id:'${rP.id}',tipo:'Consejo académico',fecha:'${dia2}',inicio:'09:00',fin:'10:00',convocados:'TODOS'})`); ok(hojas.Reuniones.v.length===n0,'editar no duplica la reunión');
 }

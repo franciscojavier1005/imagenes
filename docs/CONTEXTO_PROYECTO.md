@@ -118,3 +118,8 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 - Anular reunión (anularReunion): solo quien administra (puedeAdministrar_: dueño/editor del libro, columna administra=SI, o coordinación académica salvo administra=NO); motivo obligatorio; pasa a Reuniones_Anuladas; bitácora; la asistencia se conserva.
 - Novedad.html: mismas marcas de prioridad en «Últimas novedades» (HOY, próxima, pasada, incumplimiento, grupo cubierto). Leeme.gs y Ayuda.html actualizados.
 - 2026-10-20 (2026.10.20-c): el botón/pantalla «Horarios y consultas» pasa a llamarse «Horarios y listados».
+
+## 2026-10-20 (versión 2026.10.20-d) · Aviso del día y recordatorios de reuniones
+- Fuente única del aviso: `apps_script/recursos/aviso_dia.html`; `scripts/sincronizar_aviso.py` (lo llama empaquetar_apps_script.py) lo copia entre marcas `AVISO_DIA` a Menu, Consulta, Novedad, Reunion, Horarios y Dashboard. NO editar el bloque dentro de las pantallas: editar la fuente y empaquetar.
+- Servidor: `avisosHoy()` (Reuniones.gs/Api/Front) devuelve reuniones de hoy (estado ahora/proxima/pasada, `urgente`, `minutosHasta`), `previas` (reuniones dentro de sus días de anticipación) y salidas con estudiantes de hoy.
+- Recordatorios por reunión: columnas `avisar_dias` (0,1,2,3,7; vacío=1), `avisar_min` (0,15,30,60,120; vacío=60) y `avisar_ronda` (SI/NO; vacío=SI), agregadas solas a la hoja Reuniones (`reunionesHoja_`). Formulario crear/editar en Reunion.html. El cliente vigila cada 3 min (avisoVigilar) y avisa una vez por reunión con parpadeo y vibración; el aviso sale al cargar cada pantalla (máx. 1 cada 3 min por teléfono) y 1,8 s después de guardar la ronda.

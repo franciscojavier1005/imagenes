@@ -80,7 +80,7 @@
   </div>
   <div class="card"><h2>Últimas novedades registradas</h2><div class="sub" style="margin-bottom:6px">Las más recientes, hechas en la ronda o con este formulario.</div><div id="ultimas"><div class="aviso">Cargando…</div></div></div>
   <div class="card"><h2>Registradas desde aquí (últimos 7 días y próximas)</h2><div id="recientes"><div class="aviso">Cargando…</div></div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.20-c</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.20-d</div>
 </main>
 <script>
 /* Vista previa de Registrar novedades: nada se guarda fuera de esta página. */
@@ -91,6 +91,7 @@
   var hoy=new Date().toLocaleDateString('en-CA',{timeZone:'America/Bogota'});
   var api=function(){var ok=null,fail=null,self={withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
     urlBase:function(){setTimeout(function(){ok('#vista-previa');},5);},
+    avisosHoy:function(){setTimeout(function(){ok(({hoy:'2026-10-20',hora:'09:00',reuniones:[{id:'a',nombre:'Consejo académico (demo)',tipo:'Consejo académico',inicio:'09:10',fin:'10:30',sinEstudiantes:false,convocadosN:12,registrados:0,estado:'proxima',minutosHasta:10,avisarRonda:true,avisarMin:60,urgente:true},{id:'b',nombre:'Reunión de área (demo)',tipo:'Reunión de docentes o de área',inicio:'13:00',fin:'14:00',sinEstudiantes:false,convocadosN:30,registrados:0,estado:'proxima',minutosHasta:240,avisarRonda:true,avisarMin:60,urgente:false}],previas:[{id:'c',nombre:'Entrega de boletines (demo)',tipo:'Entrega de boletines',fecha:'2026-10-21',dias:1,inicio:'07:00',fin:'12:00',sinEstudiantes:true}],actividades:[{motivo:'Salida pedagógica o recorrido con estudiantes',docentes:['Docente demo 1','Docente demo 2']}]}));},20);},
     datosNovedades:function(){setTimeout(function(){ok({hoy:hoy,docentes:DOCS,tipos:TIPOS,motivos:MOTIVOS,motivosExterna:EXT,medios:['WhatsApp directo','Llamada celular','Verbal','Formato Permiso Docente'],fuentes:['Docente ausente','Rector','Coordinador(a)'],registros:REG,ultimas:REG.slice(0,25).map(function(r){return {fecha:r.desde,docente:r.docente,tipo:r.tipo,motivo:r.motivo,por:r.por,minutos:90,sesiones:2,origen:'Formulario de novedades',registrado:'',atiende:''};})});},20);},
     registrarNovedad:function(p){setTimeout(function(){ if(!p.docentes.length){fail({message:'Elija al menos un docente.'});return;}
       p.docentes.forEach(function(d){REG.unshift({id:'r'+REG.length,docente:d,tipo:p.tipo,motivo:p.motivo,desde:p.desde,hasta:p.hasta,dias:1,descripcion:p.descripcion||'',por:'Francisco Cortés'});});
@@ -201,5 +202,79 @@ if(exigirSesion()){
   }).withFailureHandler(function(e){ msg(String(e&&e.message||e)); }).datosNovedades();
 }
 </script>
+<!--AVISO_DIA_INICIO-->
+<script>
+/* Aviso del día: reuniones y actividades de hoy, sobre cualquier pantalla unos segundos. Fuente única: apps_script/recursos/aviso_dia.html
+   (scripts/sincronizar_aviso.py la copia a las pantallas). Autor del sistema: Francisco Javier Cortés Cabezas. */
+function avisoDia(forzar){
+  try{
+    if(!(window.PREVIEW||(typeof tokenGuardado==='function'&&tokenGuardado()))) return;
+    if(!forzar){ var t=Number(localStorage.getItem('icet_aviso_t')||0); if(Date.now()-t<180000) return; }   // como máximo una vez cada 3 minutos en este teléfono
+  }catch(e){}
+  if(typeof srv!=='function') return;
+  srv().withSuccessHandler(function(r){ try{ avisoDiaPintar(r,false); }catch(e){} }).withFailureHandler(function(){}).avisosHoy();
+}
+/* durante la jornada: cada 3 minutos revisa si una reunión entró en su ventana de recordatorio (parpadea y avisa una sola vez) */
+function avisoVigilar(){
+  try{ if(!(window.PREVIEW||(typeof tokenGuardado==='function'&&tokenGuardado()))||typeof srv!=='function'||document.hidden) return; }catch(e){ return; }
+  srv().withSuccessHandler(function(r){ try{ avisoDiaPintar(r,true); }catch(e){} }).withFailureHandler(function(){}).avisosHoy();
+}
+function avisoYa(clave){ try{ var k='icet_av_'+clave; if(sessionStorage.getItem(k)) return true; sessionStorage.setItem(k,'1'); }catch(e){} return false; }
+function avisoDiaPintar(r,soloUrgentes){
+  if(!r) return;
+  var items=[], parp=false;
+  (r.reuniones||[]).forEach(function(x){
+    if(x.estado==='pasada'&&x.registrados) return;                      // ya terminó y tiene asistencia: no estorba
+    if(soloUrgentes){ if(!x.urgente||avisoYa(x.id+'|'+r.hoy+'|'+x.estado)) return; }
+    else if(!x.avisarRonda&&!x.urgente) return;                         // quien no quiso verla al comenzar la ronda, solo la ve en su recordatorio
+    var urg=!!x.urgente&&x.estado!=='pasada'; if(urg) parp=true;
+    var cl=x.estado==='ahora'?'ahora':(x.estado==='pasada'?'falta':(urg?'ahora':'prox'));
+    var et=x.estado==='ahora'?'<b class="av-e av-ahora">AHORA</b>':(x.estado==='pasada'?'<b class="av-e av-falta">Falta registrar asistencia</b>':(urg?'<b class="av-e av-ahora">EN '+Math.max(0,x.minutosHasta)+' MIN</b>':'<b class="av-e av-prox">Hoy</b>'));
+    items.push({c:cl,p:urg,h:'<span class="av-ic">👥</span><div><b>'+avEsc(x.inicio)+' – '+avEsc(x.fin)+'</b> · '+avEsc(x.nombre)+' '+et+'<br><small>'+avEsc(x.tipo)+(x.sinEstudiantes?' · <b>sin clases</b> (se suspende la ronda de aula)':'')+(x.convocadosN?' · convocados: '+x.convocadosN:'')+'</small></div>'});
+  });
+  if(!soloUrgentes){
+    (r.previas||[]).forEach(function(x){
+      var f=String(x.fecha).split('-');
+      items.push({c:'prox',h:'<span class="av-ic">📅</span><div><b>'+(x.dias===1?'MAÑANA':'En '+x.dias+' días')+' · '+avEsc(x.inicio)+' – '+avEsc(x.fin)+'</b> · '+avEsc(x.nombre)+'<br><small>'+f[2]+'/'+f[1]+' · '+avEsc(x.tipo)+(x.sinEstudiantes?' · <b>sin clases</b>':'')+'</small></div>'});
+    });
+    (r.actividades||[]).forEach(function(a){
+      items.push({c:'act',h:'<span class="av-ic">🚌</span><div><b>'+avEsc(a.motivo)+'</b><br><small>Con estudiantes fuera del colegio: '+avEsc(a.docentes.slice(0,4).join(', '))+(a.docentes.length>4?' y '+(a.docentes.length-4)+' más':'')+' · no se marca ausentes</small></div>'});
+    });
+  }
+  if(!items.length) return;
+  items.sort(function(a,b){ return (b.p?1:0)-(a.p?1:0); });             // las urgentes primero
+  if(!soloUrgentes){ try{ localStorage.setItem('icet_aviso_t',String(Date.now())); }catch(e){} }
+  var viejo=document.getElementById('avisoDia'); if(viejo) viejo.remove();
+  var v=document.createElement('div'); v.id='avisoDia'; v.setAttribute('role','status'); v.setAttribute('aria-live','polite');
+  var seg=Math.min(parp?16:14,(parp?7:5)+items.length*2);   // 5 segundos y 2 más por cada aviso (7 si hay algo urgente; máximo 14 o 16)
+  v.innerHTML='<div class="av-caja'+(parp?' av-parp':'')+'"><div class="av-tit"><span>'+(parp?'🔔 Recordatorio':'📌 Hoy en el colegio')+'</span><button type="button" class="av-x" aria-label="Cerrar">✕</button></div>'+
+    items.slice(0,6).map(function(i){return '<div class="av-it av-'+i.c+(i.p?' av-parpi':'')+'">'+i.h+'</div>';}).join('')+(items.length>6?'<div class="av-mas">y '+(items.length-6)+' más en Reuniones</div>':'')+
+    '<div class="av-barra"><div class="av-prog" style="animation-duration:'+seg+'s"></div></div><div class="av-pie">Toque para cerrar · se cierra solo en unos segundos</div></div>';
+  var st=document.createElement('style'); st.textContent=
+   '#avisoDia{position:fixed;left:0;right:0;top:12px;z-index:9999;display:flex;justify-content:center;padding:0 10px;pointer-events:none}'+
+   '#avisoDia .av-caja{pointer-events:auto;background:#fff;border:2px solid #0f2a5c;border-radius:14px;box-shadow:0 8px 28px rgba(10,20,40,.45);max-width:460px;width:100%;padding:10px 12px;animation:avEntra .25s ease-out}'+
+   '@keyframes avEntra{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}@keyframes avProg{from{width:100%}to{width:0}}'+
+   '@keyframes avParp{0%,100%{background:#fff1e0;box-shadow:0 0 0 0 rgba(239,108,0,.0)}50%{background:#ffd54f;box-shadow:0 0 0 5px rgba(239,108,0,.55)}}'+
+   '@keyframes avBorde{0%,100%{border-color:#0f2a5c}50%{border-color:#ef6c00}}'+
+   '#avisoDia .av-parp{animation:avEntra .25s ease-out,avBorde .9s ease-in-out infinite}#avisoDia .av-parpi{animation:avParp .9s ease-in-out infinite}'+
+   '#avisoDia .av-tit{font-weight:800;color:#0f2a5c;font-size:16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}'+
+   '#avisoDia .av-x{border:0;background:#e6edf5;border-radius:8px;width:30px;height:30px;font-weight:800;color:#234;font-size:14px}'+
+   '#avisoDia .av-it{display:flex;gap:8px;align-items:flex-start;padding:6px 8px;margin:4px 0;border-radius:9px;background:#eef3fa;border-left:5px solid #1b4a8f;font-size:14px;color:#1d2a3a;line-height:1.3}'+
+   '#avisoDia .av-ahora{background:#fff1e0;border-left-color:#ef6c00}#avisoDia .av-falta{background:#fdeeee;border-left-color:#c62828}#avisoDia .av-act{background:#e8f5e9;border-left-color:#2e7d32}'+
+   '#avisoDia .av-ic{font-size:20px}#avisoDia small{color:#456}#avisoDia .av-e{border-radius:8px;padding:0 6px;font-size:11px;color:#fff;margin-left:4px}'+
+   '#avisoDia .av-e.av-ahora{background:#ef6c00}#avisoDia .av-e.av-falta{background:#c62828}#avisoDia .av-e.av-prox{background:#1b4a8f}'+
+   '#avisoDia .av-mas{font-size:12.5px;color:#456;margin:2px 0}#avisoDia .av-barra{height:4px;background:#e3e9f0;border-radius:3px;margin-top:6px;overflow:hidden}'+
+   '#avisoDia .av-prog{height:100%;background:#0f2a5c;animation-name:avProg;animation-timing-function:linear;animation-fill-mode:forwards}#avisoDia .av-pie{font-size:11px;color:#789;text-align:center;margin-top:3px}'+
+   '@media(prefers-reduced-motion:reduce){#avisoDia .av-parp,#avisoDia .av-parpi{animation:none}}';
+  v.appendChild(st); document.body.appendChild(v);
+  if(parp){ try{ if(navigator.vibrate) navigator.vibrate([200,100,200]); }catch(e){} }
+  var cierra=function(){ if(v.parentNode) v.parentNode.removeChild(v); }, timer=setTimeout(cierra,seg*1000);
+  v.querySelector('.av-caja').addEventListener('click',function(){ clearTimeout(timer); cierra(); });
+}
+function avEsc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+if(!window.AVISO_MANUAL) setTimeout(function(){ avisoDia(false); },1200);
+setInterval(avisoVigilar,180000);   // recordatorios durante la jornada
+</script>
+<!--AVISO_DIA_FIN-->
 </body>
 </html>

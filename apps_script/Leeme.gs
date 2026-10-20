@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.20-c';
+var VERSION_SISTEMA = '2026.10.20-d';
 var FECHA_VERSION = '2026-10-20';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.20-d', fecha: '2026-10-20', cambios: [
+    'Aviso del día: ventana emergente de unos segundos sobre cualquier pantalla (menú, ronda, novedades, reuniones, horarios y panel) con las reuniones de hoy (hora, tipo, si se suspenden las clases), las que ya terminaron sin asistencia registrada y las salidas con estudiantes. Vuelve a aparecer al terminar de guardar la ronda.',
+    'Recordatorios por reunión: al crearla o editarla se elige avisar con 1, 2, 3 o 7 días de anticipación, el mismo día (15 min, 30 min, 1 o 2 horas antes, con parpadeo y vibración en el celular) y si sale al comenzar y al terminar la ronda. Durante la jornada la app lo revisa cada 3 minutos y avisa una sola vez. La hoja Reuniones recibe las columnas avisar_dias, avisar_min y avisar_ronda (se agregan solas).'] },
   { version: '2026.10.20-c', fecha: '2026-10-20', cambios: [
     'Menú principal: el botón «Horarios y consultas» ahora se llama «Horarios y listados» (también en el título de la pantalla y en el manual de Ayuda).'] },
   { version: '2026.10.20-b', fecha: '2026-10-20', cambios: [
@@ -77,6 +80,7 @@ var LEEME_USO = [
   'Parejas que alternan (ética/religión, etc.): se confirma quién dicta una vez por semana; «Cambiar» (solo coordinación académica, rectoría o administrador) corrige y puede pasar a la persona correcta lo ya registrado.',
   'Panel e informes: «Ausencia total de docentes» (incluye lo cubierto por reemplazo) y «Horas de clase sin atender» (solo lo que quedó sin quien atendiera).',
   'Menú principal > «Ayuda y manual de uso»: manual para los usuarios.',
+  'Aviso del día: ventana de unos segundos con las reuniones y actividades de hoy sobre cualquier pantalla y al terminar de guardar la ronda; cada reunión puede tener recordatorios (días antes, minutos antes con parpadeo, al comenzar la ronda).',
   'Ronda: las marcas sin guardar se conservan en el teléfono (borrador). La barra de abajo dice «✔ Ronda guardada» (verde) o «Pendiente de guardar: N reportes nuevos y M cambios» (naranja); si no hay señal avisa «Sin conexión».'
 ];
 

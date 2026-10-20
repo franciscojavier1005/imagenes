@@ -234,6 +234,25 @@ g.RA={id:rc1.id,registros:[{persona:dR,estado:'Asistió'},{persona:'Otro cualqui
 const ga=run('guardarAsistenciaReunion(RA)');
 ok(ga.guardados===1,'la asistencia solo guarda a los convocados (se ignora a quien no lo es)');
 const cr=run("cargarReunion({id:'"+rc1.id+"'})"); ok(cr.personas.length===1&&cr.personas[0].registro.estado==='Asistió','cargarReunion devuelve convocados y lo registrado');
+// ---- editar una reunión y ver próximas / últimas
+{
+  const manana=new Date(Date.now()+86400000).toISOString().slice(0,10), ayer=new Date(Date.now()-86400000*3).toISOString().slice(0,10);
+  const rP=run(`crearReunion({tipo:'Consejo académico',fecha:'${manana}',inicio:'14:00',fin:'15:00',convocados:'TODOS'})`);
+  const rU=run(`crearReunion({tipo:'Consejo académico',fecha:'${ayer}',inicio:'14:00',fin:'15:00',convocados:'TODOS'})`);
+  const lr=run('listarReuniones({})');
+  ok(lr.proximas.some(r=>r.id===rP.id)&&!lr.proximas.some(r=>r.id===rU.id),'próximas reuniones: incluye la de mañana y no la pasada');
+  ok(lr.ultimas.some(r=>r.id===rU.id)&&lr.ultimas.every(r=>r.fecha<lr.hoy),'últimas reuniones: la de hace 3 días, todas anteriores a hoy');
+  ok(lr.proximas.every((r,i,a)=>i===0||a[i-1].fecha<=r.fecha),'las próximas van de la más cercana a la más lejana');
+  const dia2=new Date(Date.now()+86400000*5).toISOString().slice(0,10);
+  const nb=hojas.Bitacora_Cambios?hojas.Bitacora_Cambios.v.length:0;
+  run(`editarReunion({id:'${rP.id}',tipo:'Jornada pedagógica',nombre:'Jornada editada',fecha:'${dia2}',inicio:'07:00',fin:'12:00',sinEstudiantes:true,convocados:['${dR}']})`);
+  const ed=run(`cargarReunion({id:'${rP.id}'})`).reunion;
+  ok(ed.nombre==='Jornada editada'&&ed.fecha===dia2&&ed.inicio==='07:00'&&ed.fin==='12:00'&&ed.sinEstudiantes===true&&ed.convocados.length===1&&ed.tipo==='Jornada pedagógica','editarReunion cambia tipo, nombre, fecha, horas, clases y convocados');
+  ok(hojas.Bitacora_Cambios.v.length>nb&&/Editó reunión/.test(hojas.Bitacora_Cambios.v[hojas.Bitacora_Cambios.v.length-1][2]),'la edición queda en la bitácora');
+  let ee=null; try{run("editarReunion({id:'no-existe',tipo:'Consejo académico',fecha:'2026-10-20',inicio:'07:00',fin:'08:00',convocados:'TODOS'})")}catch(x){ee=x} ok(ee&&/No se encontr/.test(ee.message),'editar una reunión que no existe: aviso');
+  ee=null; try{run(`editarReunion({id:'${rP.id}',tipo:'Consejo académico',fecha:'${dia2}',inicio:'09:00',fin:'08:00',convocados:'TODOS'})`)}catch(x){ee=x} ok(ee&&/hora/.test(ee.message),'editar con horas inválidas se rechaza');
+  const n0=hojas.Reuniones.v.length; run(`editarReunion({id:'${rP.id}',tipo:'Consejo académico',fecha:'${dia2}',inicio:'09:00',fin:'10:00',convocados:'TODOS'})`); ok(hojas.Reuniones.v.length===n0,'editar no duplica la reunión');
+}
 const rondaR=run("consultarSesion('VIERNES',3,'sesion')"); const cardR=rondaR.filas.find(f=>f.docente===dR);
 ok(rondaR.reuniones.length===1&&cardR&&cardR.reunion&&cardR.reunion.estado==='Asistió'&&!rondaR.sinEstudiantes,'la ronda marca a quien está en la reunión (la reunión tiene estudiantes: la ronda sigue)');
 const regN=hojas.Registro_Ronda.v.length, novN=hojas.Novedades.v.length;

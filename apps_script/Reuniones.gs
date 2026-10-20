@@ -89,7 +89,12 @@ function listarReuniones(p) {
     conv.forEach(function (n) { if (a[n]) reg++; });
     return Object.assign({}, r, { convocadosN: conv.length, registrados: reg });
   });
-  return { fecha: fecha, reuniones: reuniones, tipos: TIPOS_REUNION, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };
+  // próximas (hoy en adelante, la más cercana primero) y últimas (días anteriores, la más reciente primero)
+  var hoy = ymd_(new Date()), todas = datosOCrea_('Reuniones', COL_REUNIONES).map(reunionDeFila_).filter(function (r) { return r.fecha; });
+  function resumida(r) { var a = asistenciaDe_(r.id), conv = convocadosDe_(r), reg = 0; conv.forEach(function (n) { if (a[n]) reg++; }); return Object.assign({}, r, { convocadosN: conv.length, registrados: reg }); }
+  var proximas = todas.filter(function (r) { return r.fecha >= hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? -1 : 1) : (a.fecha < b.fecha ? -1 : 1); }).slice(0, 12).map(resumida);
+  var ultimas = todas.filter(function (r) { return r.fecha < hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? 1 : -1) : (a.fecha < b.fecha ? 1 : -1); }).slice(0, 10).map(resumida);
+  return { fecha: fecha, hoy: hoy, proximas: proximas, ultimas: ultimas, reuniones: reuniones, tipos: TIPOS_REUNION, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };
 }
 
 function hora_(s) { return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(s)) ? String(s) : ''; }
@@ -120,6 +125,39 @@ function crearReunion(p) {
   hojaOCrea_('Reuniones', COL_REUNIONES).appendRow([id, txtForzado_(fecha), def.tipo, String(p.nombre || '').slice(0, 120) || def.tipo, txtForzado_(ini), txtForzado_(fin),
     p.sinEstudiantes ? 'SI' : 'NO', conv, por, ahoraTxt_()]);
   return { id: id };
+}
+
+/** Edita una reunión ya creada (tipo, nombre, fecha, horas, clases suspendidas, convocados). La asistencia ya registrada no se borra. p = {id, ...igual que crearReunion} */
+function editarReunion(p) {
+  p = p || {};
+  var por = nombreRegistrador_(p);
+  var def = TIPOS_REUNION.filter(function (t) { return t.tipo === p.tipo; })[0];
+  if (!def) throw new Error('Elija el tipo de reunión.');
+  if (/^Otra/.test(def.tipo) && String(p.nombre || '').trim().length < 3) throw new Error('Escriba el nombre de la reunión o actividad.');
+  var ini = hora_(p.inicio), fin = hora_(p.fin);
+  if (!ini || !fin || fin <= ini) throw new Error('Revise la hora de inicio y de fin.');
+  if (!esFechaIso_(p.fecha)) throw new Error('Revise la fecha.');
+  var conv = 'TODOS';
+  if (p.convocados !== 'TODOS') {
+    var validos = personasReunion_().map(function (x) { return x.nombre; });
+    var lista = (p.convocados || []).filter(function (n) { return validos.indexOf(n) >= 0; });
+    if (!lista.length) throw new Error('Elija al menos una persona convocada.');
+    conv = lista.join('; ');
+  }
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var sh = hojaOCrea_('Reuniones', COL_REUNIONES), v = sh.getDataRange().getValues(), cab = v[0], fila = -1, c = {};
+    cab.forEach(function (k, i) { c[k] = i; });
+    for (var i = 1; i < v.length; i++) if (String(v[i][c.id]) === String(p.id)) { fila = i; break; }
+    if (fila < 0) throw new Error('No se encontró la reunión.');
+    var antes = reunionDeFila_((function () { var o = {}; cab.forEach(function (k, i) { o[k] = v[fila][i]; }); return o; })());
+    var nueva = v[fila].slice();
+    nueva[c.fecha] = txtForzado_(p.fecha); nueva[c.tipo] = def.tipo; nueva[c.nombre] = String(p.nombre || '').slice(0, 120) || def.tipo;
+    nueva[c.inicio] = txtForzado_(ini); nueva[c.fin] = txtForzado_(fin); nueva[c.sin_estudiantes] = p.sinEstudiantes ? 'SI' : 'NO'; nueva[c.convocados] = conv;
+    sh.getRange(fila + 1, 1, 1, nueva.length).setValues([nueva]);
+    bitacora_('Editó reunión', antes.nombre + ' (' + antes.fecha + ' ' + antes.inicio + '-' + antes.fin + ') → ' + nueva[c.nombre] + ' (' + p.fecha + ' ' + ini + '-' + fin + ')' + (antes.sinEstudiantes !== !!p.sinEstudiantes ? ' · clases ' + (p.sinEstudiantes ? 'suspendidas' : 'no suspendidas') : '') + ' · por ' + por);
+  } finally { lock.releaseLock(); }
+  return { ok: true, id: p.id };
 }
 
 /** Datos para registrar la asistencia de una reunión: convocados y lo ya registrado. */

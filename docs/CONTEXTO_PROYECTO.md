@@ -108,3 +108,7 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 
 ## 2026-10-19 (versión 2026.10.19-e) · Indicador de guardado en la ronda
 - Consulta.html: chip verde «✔ Ronda guardada y completa» (con hora) / «Guardado (N)» o chip naranja «Sin guardar: N nuevos · M cambios» (detalleGuardar/textoPend); botón «Guardar · N» (pulsa) o «✔ Guardada»; barra superior con el detalle; recordatorio cada 2 minutos mientras haya algo pendiente. Leeme.gs y Ayuda.html actualizados.
+
+## 2026-10-20 (versión 2026.10.20-a) · Últimas novedades y reuniones próximas/editar
+- Novedad.html: «Últimas novedades registradas» (datosNovedades().ultimas, ultimasNovedades_: lo más reciente primero, ronda y formulario juntos, agrupadas por docente-día-tipo-motivo, máx. 25).
+- Reuniones: listarReuniones devuelve proximas (hoy en adelante, más cercana primero) y ultimas; nuevo editarReunion (Reuniones.gs/Api/Front) con bitácora; Reunion.html muestra Próximas/Últimas y botón «✏ Editar» (en la lista, en las tarjetas y dentro de la asistencia). Leeme.gs y Ayuda.html actualizados.

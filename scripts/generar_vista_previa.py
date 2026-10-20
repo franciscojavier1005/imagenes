@@ -148,13 +148,15 @@ mock2 = """<script>
     withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
     urlBase:function(){setTimeout(function(){ok('#vista-previa');},0);},
     listarReuniones:function(p){setTimeout(function(){var f=(p&&p.fecha)||HOY;
-      ok({fecha:f,tipos:TIPOS,personas:PERSONAS,motivos:MOTIVOS,reuniones:REUN.filter(function(r){return r.fecha===f;}).map(function(r){var a=ASIST[r.id]||{},c=conv(r);
+      function res(r){var a=ASIST[r.id]||{},c=conv(r);return Object.assign({},r,{convocadosN:c.length,registrados:c.filter(function(n){return a[n];}).length});}
+      ok({fecha:f,hoy:HOY,proximas:REUN.filter(function(r){return r.fecha>=HOY;}).sort(function(a,b){return a.fecha<b.fecha?-1:1;}).map(res),ultimas:REUN.filter(function(r){return r.fecha<HOY;}).sort(function(a,b){return a.fecha<b.fecha?1:-1;}).map(res),tipos:TIPOS,personas:PERSONAS,motivos:MOTIVOS,reuniones:REUN.filter(function(r){return r.fecha===f;}).map(function(r){var a=ASIST[r.id]||{},c=conv(r);
         return Object.assign({},r,{convocadosN:c.length,registrados:c.filter(function(n){return a[n];}).length});})});},20);},
     crearReunion:function(p){setTimeout(function(){
       if(!p.inicio||!p.fin||p.fin<=p.inicio){fail&&fail({message:'Revise la hora de inicio y de fin.'});return;}
       var r={id:'r'+(REUN.length+1),fecha:p.fecha||HOY,tipo:p.tipo,nombre:p.nombre||p.tipo,inicio:p.inicio,fin:p.fin,sinEstudiantes:!!p.sinEstudiantes,convocados:p.convocados};REUN.push(r);ok({id:r.id});},20);},
     cargarReunion:function(p){setTimeout(function(){var r=reun(p.id),a=ASIST[r.id]||{};
       ok({reunion:r,motivos:MOTIVOS,personas:conv(r).map(function(n){var pp=PERSONAS.filter(function(x){return x.nombre===n;})[0]||{rol:'Docente'};return {nombre:n,rol:pp.rol,registro:a[n]||null};})});},20);},
+    editarReunion:function(p){setTimeout(function(){var r=reun(p.id);if(!r){fail&&fail({message:'No se encontró la reunión.'});return;}if(!p.inicio||!p.fin||p.fin<=p.inicio){fail&&fail({message:'Revise la hora de inicio y de fin.'});return;}Object.assign(r,{tipo:p.tipo,nombre:p.nombre||p.tipo,fecha:p.fecha,inicio:p.inicio,fin:p.fin,sinEstudiantes:!!p.sinEstudiantes,convocados:p.convocados});ok({ok:true,id:r.id});},20);},
     guardarAsistenciaReunion:function(p){setTimeout(function(){var a=ASIST[p.id]=ASIST[p.id]||{};p.registros.forEach(function(x){a[x.persona]={estado:x.estado,motivo:x.motivo};});ok({guardados:p.registros.length});},20);}};return self;};
   window.PREVIEW=true;
   window.google={script:{run:new Proxy({},{get:function(_,k){var s=api();return k in s?s[k]:s;}})}};
@@ -255,7 +257,7 @@ _mock5 = """<script>
   var hoy=new Date().toLocaleDateString('en-CA',{timeZone:'America/Bogota'});
   var api=function(){var ok=null,fail=null,self={withSuccessHandler:function(f){ok=f;return self;},withFailureHandler:function(f){fail=f;return self;},
     urlBase:function(){setTimeout(function(){ok('#vista-previa');},5);},
-    datosNovedades:function(){setTimeout(function(){ok({hoy:hoy,docentes:DOCS,tipos:TIPOS,motivos:MOTIVOS,motivosExterna:EXT,medios:['WhatsApp directo','Llamada celular','Verbal','Formato Permiso Docente'],fuentes:['Docente ausente','Rector','Coordinador(a)'],registros:REG});},20);},
+    datosNovedades:function(){setTimeout(function(){ok({hoy:hoy,docentes:DOCS,tipos:TIPOS,motivos:MOTIVOS,motivosExterna:EXT,medios:['WhatsApp directo','Llamada celular','Verbal','Formato Permiso Docente'],fuentes:['Docente ausente','Rector','Coordinador(a)'],registros:REG,ultimas:REG.slice(0,25).map(function(r){return {fecha:r.desde,docente:r.docente,tipo:r.tipo,motivo:r.motivo,por:r.por,minutos:90,sesiones:2,origen:'Formulario de novedades',registrado:'',atiende:''};})});},20);},
     registrarNovedad:function(p){setTimeout(function(){ if(!p.docentes.length){fail({message:'Elija al menos un docente.'});return;}
       p.docentes.forEach(function(d){REG.unshift({id:'r'+REG.length,docente:d,tipo:p.tipo,motivo:p.motivo,desde:p.desde,hasta:p.hasta,dias:1,descripcion:p.descripcion||'',por:'Francisco Cortés'});});
       ok({id:'x',filas:p.docentes.length,dias:1,sinClases:[],yaAusente:[]});},200);},

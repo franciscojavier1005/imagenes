@@ -75,8 +75,9 @@
     <button class="btn prim" style="width:100%;margin-top:12px" id="btnGuardar" onclick="guardar()">Guardar novedad</button>
     <div id="msg" class="sub" style="margin-top:8px"></div>
   </div>
+  <div class="card"><h2>Últimas novedades registradas</h2><div class="sub" style="margin-bottom:6px">Las más recientes, hechas en la ronda o con este formulario.</div><div id="ultimas"><div class="aviso">Cargando…</div></div></div>
   <div class="card"><h2>Registradas desde aquí (últimos 7 días y próximas)</h2><div id="recientes"><div class="aviso">Cargando…</div></div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.19-e</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.20-a</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -152,6 +153,11 @@ function guardar(){
   }).withFailureHandler(function(e){ el('btnGuardar').disabled=false; msg(String(e&&e.message||e).replace(/^Error: /,'')); }).registrarNovedad(p);
 }
 function fmt(f){ var a=f.split('-'); return a[2]+'/'+a[1]+'/'+a[0]; }
+function pintaUltimas(){
+  var u=D.ultimas||[];
+  el('ultimas').innerHTML=u.length?u.map(function(r){
+    return '<div class="reg"><b>'+esc(r.docente)+'</b> · '+esc(r.tipo)+(r.atiende?' · 👥 '+esc(r.atiende):'')+'<small>'+esc(r.motivo||'Sin motivo')+' · '+fmt(r.fecha)+(r.minutos?' · '+r.minutos+' min':'')+(r.sesiones>1?' · '+r.sesiones+' sesiones':'')+' · '+esc(r.origen)+' · lo registró '+esc(r.por||'—')+(r.registrado?' ('+esc(r.registrado)+')':'')+'</small></div>';}).join(''):'<div class="aviso">Todavía no hay novedades registradas.</div>';
+}
 function pintaRecientes(){
   el('recientes').innerHTML=D.registros.length?D.registros.map(function(r){
     return '<div class="reg"><b>'+esc(r.docente)+'</b> · '+esc(r.tipo)+'<small>'+esc(r.motivo)+' · '+(r.desde===r.hasta?fmt(r.desde):fmt(r.desde)+' al '+fmt(r.hasta)+' ('+r.dias+' días)')+(r.descripcion?' · '+esc(r.descripcion):'')+' · lo registró '+esc(r.por)+'</small>'+
@@ -161,14 +167,14 @@ function quitar(id,doc){
   if(!confirm('¿Anular esta novedad de '+doc+'? Queda anotado quién la anuló.')) return;
   srv().withSuccessHandler(function(){ msg('Novedad anulada.',true); recargar(); }).withFailureHandler(function(e){ msg(String(e&&e.message||e)); }).quitarNovedad({id:id,docente:doc});
 }
-function recargar(){ srv().withSuccessHandler(function(d){ D.registros=d.registros; pintaRecientes(); }).datosNovedades(); }
+function recargar(){ srv().withSuccessHandler(function(d){ D.registros=d.registros; D.ultimas=d.ultimas; pintaRecientes(); pintaUltimas(); }).datosNovedades(); }
 try{ srv().withSuccessHandler(function(u){ if(u){var m=el('irMenu'); m.href=u; m.style.display='inline';} }).urlBase(); }catch(e){}
 if(exigirSesion()){
   srv().withSuccessHandler(function(d){
     D=d; el('desde').value=d.hoy;
     el('medio').innerHTML=d.medios.map(function(x){return opt(x,x,x==='WhatsApp directo');}).join('');
     el('fuente').innerHTML=d.fuentes.map(function(x){return opt(x,x,x==='Docente ausente');}).join('');
-    pintaDocentes(); pintaTipos(); pintaRecientes();
+    pintaDocentes(); pintaTipos(); pintaRecientes(); pintaUltimas();
   }).withFailureHandler(function(e){ msg(String(e&&e.message||e)); }).datosNovedades();
 }
 </script>

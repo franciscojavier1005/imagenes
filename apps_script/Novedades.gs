@@ -49,8 +49,32 @@ function datosNovedades() {
     tipos: TIPOS_NOVEDAD.map(function (t) { return { id: t.id, texto: t.texto, pide: t.pide }; }),
     motivos: motivos, motivosExterna: MOTIVOS_EXTERNA,
     medios: l('medio'), fuentes: l('fuente'),
-    registros: registrosRecientes_(hoy)
+    registros: registrosRecientes_(hoy),
+    ultimas: ultimasNovedades_()
   };
+}
+
+/**
+ * Las últimas novedades registradas, vengan de la ronda o del formulario de novedades (lo más reciente primero). Se juntan las sesiones de un mismo
+ * docente, día, tipo y motivo en una sola línea con el total de minutos.
+ */
+function ultimasNovedades_(max) {
+  max = max || 25;
+  var v = hoja_('Novedades').getDataRange().getValues(), cab = v[0], c = {}, por = {}, orden = [];
+  cab.forEach(function (k, i) { c[k] = i; });
+  function g(r, k) { return c[k] == null ? '' : r[c[k]]; }
+  for (var i = v.length - 1; i >= 1 && orden.length < max; i--) {
+    var r = v[i]; if (!g(r, 'Docente')) continue;
+    var f = fechaIso_(g(r, 'Fecha Novedad')), k = [f, g(r, 'Docente'), g(r, 'Tipo Novedad'), g(r, 'Motivo Ausencia'), g(r, 'Directivo Docente')].join('|');
+    if (!por[k]) {
+      var ts = g(r, 'Marca temporal');
+      por[k] = { fecha: f, docente: g(r, 'Docente'), tipo: g(r, 'Tipo Novedad'), motivo: g(r, 'Motivo Ausencia'), por: g(r, 'Directivo Docente'), minutos: 0, sesiones: 0,
+        origen: String(g(r, 'Medio Información')) === MEDIO_RONDA ? 'Ronda' : 'Formulario de novedades', registrado: ts instanceof Date ? Utilities.formatDate(ts, TZ, 'yyyy-MM-dd HH:mm') : String(ts || ''), atiende: String(g(r, 'Grupo atendido por') || '') };
+      orden.push(k);
+    }
+    por[k].minutos += Number(g(r, 'Minutos Desatendidos')) || 0; por[k].sesiones++;
+  }
+  return orden.map(function (k) { return por[k]; });
 }
 
 /** Registros hechos desde esta pantalla, de los últimos 7 días y los futuros (agrupados por ID). */

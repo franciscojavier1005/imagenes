@@ -105,6 +105,10 @@ n0=hojas.Novedades.v.length; run('registrarNovedad(P5)'); ok(nuevas(n0).every(f=
 // ---- 6) datos de la pantalla, anulación y permisos
 const dn=run('datosNovedades()');
 ok(dn.docentes.length>40&&dn.tipos.length===5&&dn.motivosExterna.every(m=>dn.motivos.some(x=>x.motivo===m))&&dn.registros.length>=4,'la pantalla recibe docentes, 5 tipos, motivos de salidas (agregados solos) y los registros recientes');
+{ const ul=dn.ultimas; ok(Array.isArray(ul)&&ul.length>0&&ul.length<=25,'«Últimas novedades»: lista con lo más reciente ('+ul.length+')');
+  const ult=hojas.Novedades.v[hojas.Novedades.v.length-1], ch=hojas.Novedades.v[0]; const dUlt=ult[ch.indexOf('Docente')];
+  ok(ul[0].docente===dUlt,'la primera es la última registrada ('+dUlt+')');
+  ok(ul.every(x=>x.origen==='Ronda'||x.origen==='Formulario de novedades')&&ul.some(x=>x.origen==='Formulario de novedades'),'indica si viene de la ronda o del formulario'); }
 const nAn=hojas.Novedades.v.length;
 const q=run(`quitarNovedad({id:'${r4.id}',docente:'${C}'})`);
 ok(q.quitadas===f4.length&&hojas.Novedades.v.length===nAn-f4.length,'anular quita todas las filas del registro');

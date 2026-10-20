@@ -2119,7 +2119,12 @@ function listarReuniones(p) {
     conv.forEach(function (n) { if (a[n]) reg++; });
     return Object.assign({}, r, { convocadosN: conv.length, registrados: reg });
   });
-  return { fecha: fecha, reuniones: reuniones, tipos: TIPOS_REUNION, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };
+  // próximas (hoy en adelante, la más cercana primero) y últimas (días anteriores, la más reciente primero)
+  var hoy = ymd_(new Date()), todas = datosOCrea_('Reuniones', COL_REUNIONES).map(reunionDeFila_).filter(function (r) { return r.fecha; });
+  function resumida(r) { var a = asistenciaDe_(r.id), conv = convocadosDe_(r), reg = 0; conv.forEach(function (n) { if (a[n]) reg++; }); return Object.assign({}, r, { convocadosN: conv.length, registrados: reg }); }
+  var proximas = todas.filter(function (r) { return r.fecha >= hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? -1 : 1) : (a.fecha < b.fecha ? -1 : 1); }).slice(0, 12).map(resumida);
+  var ultimas = todas.filter(function (r) { return r.fecha < hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? 1 : -1) : (a.fecha < b.fecha ? 1 : -1); }).slice(0, 10).map(resumida);
+  return { fecha: fecha, hoy: hoy, proximas: proximas, ultimas: ultimas, reuniones: reuniones, tipos: TIPOS_REUNION, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };
 }
 
 function hora_(s) { return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(s)) ? String(s) : ''; }
@@ -2150,6 +2155,39 @@ function crearReunion(p) {
   hojaOCrea_('Reuniones', COL_REUNIONES).appendRow([id, txtForzado_(fecha), def.tipo, String(p.nombre || '').slice(0, 120) || def.tipo, txtForzado_(ini), txtForzado_(fin),
     p.sinEstudiantes ? 'SI' : 'NO', conv, por, ahoraTxt_()]);
   return { id: id };
+}
+
+/** Edita una reunión ya creada (tipo, nombre, fecha, horas, clases suspendidas, convocados). La asistencia ya registrada no se borra. p = {id, ...igual que crearReunion} */
+function editarReunion(p) {
+  p = p || {};
+  var por = nombreRegistrador_(p);
+  var def = TIPOS_REUNION.filter(function (t) { return t.tipo === p.tipo; })[0];
+  if (!def) throw new Error('Elija el tipo de reunión.');
+  if (/^Otra/.test(def.tipo) && String(p.nombre || '').trim().length < 3) throw new Error('Escriba el nombre de la reunión o actividad.');
+  var ini = hora_(p.inicio), fin = hora_(p.fin);
+  if (!ini || !fin || fin <= ini) throw new Error('Revise la hora de inicio y de fin.');
+  if (!esFechaIso_(p.fecha)) throw new Error('Revise la fecha.');
+  var conv = 'TODOS';
+  if (p.convocados !== 'TODOS') {
+    var validos = personasReunion_().map(function (x) { return x.nombre; });
+    var lista = (p.convocados || []).filter(function (n) { return validos.indexOf(n) >= 0; });
+    if (!lista.length) throw new Error('Elija al menos una persona convocada.');
+    conv = lista.join('; ');
+  }
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var sh = hojaOCrea_('Reuniones', COL_REUNIONES), v = sh.getDataRange().getValues(), cab = v[0], fila = -1, c = {};
+    cab.forEach(function (k, i) { c[k] = i; });
+    for (var i = 1; i < v.length; i++) if (String(v[i][c.id]) === String(p.id)) { fila = i; break; }
+    if (fila < 0) throw new Error('No se encontró la reunión.');
+    var antes = reunionDeFila_((function () { var o = {}; cab.forEach(function (k, i) { o[k] = v[fila][i]; }); return o; })());
+    var nueva = v[fila].slice();
+    nueva[c.fecha] = txtForzado_(p.fecha); nueva[c.tipo] = def.tipo; nueva[c.nombre] = String(p.nombre || '').slice(0, 120) || def.tipo;
+    nueva[c.inicio] = txtForzado_(ini); nueva[c.fin] = txtForzado_(fin); nueva[c.sin_estudiantes] = p.sinEstudiantes ? 'SI' : 'NO'; nueva[c.convocados] = conv;
+    sh.getRange(fila + 1, 1, 1, nueva.length).setValues([nueva]);
+    bitacora_('Editó reunión', antes.nombre + ' (' + antes.fecha + ' ' + antes.inicio + '-' + antes.fin + ') → ' + nueva[c.nombre] + ' (' + p.fecha + ' ' + ini + '-' + fin + ')' + (antes.sinEstudiantes !== !!p.sinEstudiantes ? ' · clases ' + (p.sinEstudiantes ? 'suspendidas' : 'no suspendidas') : '') + ' · por ' + por);
+  } finally { lock.releaseLock(); }
+  return { ok: true, id: p.id };
 }
 
 /** Datos para registrar la asistencia de una reunión: convocados y lo ya registrado. */
@@ -2440,8 +2478,32 @@ function datosNovedades() {
     tipos: TIPOS_NOVEDAD.map(function (t) { return { id: t.id, texto: t.texto, pide: t.pide }; }),
     motivos: motivos, motivosExterna: MOTIVOS_EXTERNA,
     medios: l('medio'), fuentes: l('fuente'),
-    registros: registrosRecientes_(hoy)
+    registros: registrosRecientes_(hoy),
+    ultimas: ultimasNovedades_()
   };
+}
+
+/**
+ * Las últimas novedades registradas, vengan de la ronda o del formulario de novedades (lo más reciente primero). Se juntan las sesiones de un mismo
+ * docente, día, tipo y motivo en una sola línea con el total de minutos.
+ */
+function ultimasNovedades_(max) {
+  max = max || 25;
+  var v = hoja_('Novedades').getDataRange().getValues(), cab = v[0], c = {}, por = {}, orden = [];
+  cab.forEach(function (k, i) { c[k] = i; });
+  function g(r, k) { return c[k] == null ? '' : r[c[k]]; }
+  for (var i = v.length - 1; i >= 1 && orden.length < max; i--) {
+    var r = v[i]; if (!g(r, 'Docente')) continue;
+    var f = fechaIso_(g(r, 'Fecha Novedad')), k = [f, g(r, 'Docente'), g(r, 'Tipo Novedad'), g(r, 'Motivo Ausencia'), g(r, 'Directivo Docente')].join('|');
+    if (!por[k]) {
+      var ts = g(r, 'Marca temporal');
+      por[k] = { fecha: f, docente: g(r, 'Docente'), tipo: g(r, 'Tipo Novedad'), motivo: g(r, 'Motivo Ausencia'), por: g(r, 'Directivo Docente'), minutos: 0, sesiones: 0,
+        origen: String(g(r, 'Medio Información')) === MEDIO_RONDA ? 'Ronda' : 'Formulario de novedades', registrado: ts instanceof Date ? Utilities.formatDate(ts, TZ, 'yyyy-MM-dd HH:mm') : String(ts || ''), atiende: String(g(r, 'Grupo atendido por') || '') };
+      orden.push(k);
+    }
+    por[k].minutos += Number(g(r, 'Minutos Desatendidos')) || 0; por[k].sesiones++;
+  }
+  return orden.map(function (k) { return por[k]; });
 }
 
 /** Registros hechos desde esta pantalla, de los últimos 7 días y los futuros (agrupados por ID). */
@@ -2841,11 +2903,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.19-e';
-var FECHA_VERSION = '2026-10-19';
+var VERSION_SISTEMA = '2026.10.20-a';
+var FECHA_VERSION = '2026-10-20';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.20-a', fecha: '2026-10-20', cambios: [
+    'Registrar novedades: nueva lista «Últimas novedades registradas» (lo más reciente primero), con las de la ronda y las del formulario, indicando de dónde vienen, quién las registró y los minutos.',
+    'Reuniones: listas de «Próximas reuniones» y «Últimas reuniones», y botón «✏ Editar» para cambiar tipo, nombre, fecha, horas, clases suspendidas y convocados (la asistencia ya registrada no se borra; queda en la bitácora).'] },
   { version: '2026.10.19-e', fecha: '2026-10-19', cambios: [
     'Ronda: indicador de guardado. Verde «✔ Ronda guardada y completa» (con la hora) cuando todo está guardado; naranja «Pendiente de guardar: N reportes nuevos y M cambios» cuando hay algo sin guardar. El botón pasa a «Guardar · N» (pulsa) o «✔ Guardada», y cada 2 minutos aparece un recordatorio mientras haya algo pendiente.'] },
   { version: '2026.10.19-d', fecha: '2026-10-19', cambios: [
@@ -2915,7 +2980,7 @@ var LEEME_HOJAS = [
   'Motivos / Listas  Catálogos de motivos (salud, permisos, licencias, comisión de servicios, calamidad…) con su categoría y si son justificados.',
   'Novedades         Novedades de asistencia (una fila por docente, día y sesión); Novedades_Anuladas guarda las anuladas.',
   'Registro_Ronda    Cada marca de la ronda (presente, no asistió, tarde…) con el directivo que la hizo.',
-  'Reuniones / Asistencia_Reunion   Reuniones y actividades sin estudiantes y su asistencia.',
+  'Reuniones / Asistencia_Reunion   Reuniones y actividades sin estudiantes y su asistencia (se pueden editar; los cambios quedan en Bitacora_Cambios).',
   'Incumplimientos   Reportes con rigor (solo se agrega; seguimiento por estados).',
   'Estudiantes / Marcas_Estudiantes / Grupos_Proyectos   Listado por grupo y marcas de seguimiento (los levantados quedan en la hoja).',
   'Semana_Alternancia / Alternancias   Quién dicta cada semana en las parejas que alternan.',
@@ -3261,7 +3326,8 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   enviarInformeAMi: ['directivo'],
   levantarMarcasEstudiante: ['directivo'],
   informeRondas: ['directivo'],
-  enviarRondasAMi: ['directivo']
+  enviarRondasAMi: ['directivo'],
+  editarReunion: ['directivo']
 };
 
 function apiFunciones_() {
@@ -3282,7 +3348,8 @@ function apiFunciones_() {
     agregarGrupoProyecto: agregarGrupoProyecto,
     enviarInformeAMi: enviarInformeAMi,
     levantarMarcasEstudiante: levantarMarcasEstudiante,
-    informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi
+    informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
+    editarReunion: editarReunion
   };
 }
 

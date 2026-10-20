@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.19-e';
-var FECHA_VERSION = '2026-10-19';
+var VERSION_SISTEMA = '2026.10.20-a';
+var FECHA_VERSION = '2026-10-20';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.20-a', fecha: '2026-10-20', cambios: [
+    'Registrar novedades: nueva lista «Últimas novedades registradas» (lo más reciente primero), con las de la ronda y las del formulario, indicando de dónde vienen, quién las registró y los minutos.',
+    'Reuniones: listas de «Próximas reuniones» y «Últimas reuniones», y botón «✏ Editar» para cambiar tipo, nombre, fecha, horas, clases suspendidas y convocados (la asistencia ya registrada no se borra; queda en la bitácora).'] },
   { version: '2026.10.19-e', fecha: '2026-10-19', cambios: [
     'Ronda: indicador de guardado. Verde «✔ Ronda guardada y completa» (con la hora) cuando todo está guardado; naranja «Pendiente de guardar: N reportes nuevos y M cambios» cuando hay algo sin guardar. El botón pasa a «Guardar · N» (pulsa) o «✔ Guardada», y cada 2 minutos aparece un recordatorio mientras haya algo pendiente.'] },
   { version: '2026.10.19-d', fecha: '2026-10-19', cambios: [
@@ -79,7 +82,7 @@ var LEEME_HOJAS = [
   'Motivos / Listas  Catálogos de motivos (salud, permisos, licencias, comisión de servicios, calamidad…) con su categoría y si son justificados.',
   'Novedades         Novedades de asistencia (una fila por docente, día y sesión); Novedades_Anuladas guarda las anuladas.',
   'Registro_Ronda    Cada marca de la ronda (presente, no asistió, tarde…) con el directivo que la hizo.',
-  'Reuniones / Asistencia_Reunion   Reuniones y actividades sin estudiantes y su asistencia.',
+  'Reuniones / Asistencia_Reunion   Reuniones y actividades sin estudiantes y su asistencia (se pueden editar; los cambios quedan en Bitacora_Cambios).',
   'Incumplimientos   Reportes con rigor (solo se agrega; seguimiento por estados).',
   'Estudiantes / Marcas_Estudiantes / Grupos_Proyectos   Listado por grupo y marcas de seguimiento (los levantados quedan en la hoja).',
   'Semana_Alternancia / Alternancias   Quién dicta cada semana en las parejas que alternan.',

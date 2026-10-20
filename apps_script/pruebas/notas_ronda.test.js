@@ -361,6 +361,22 @@ const cr=run("cargarReunion({id:'"+rc1.id+"'})"); ok(cr.personas.length===1&&cr.
     const ah=run('avisosHoy()').reuniones.find(x=>x.nombre==='Hoy con nota'); ok(ah&&ah.observaciones==='Llevar computador','el aviso del día lleva las observaciones');
     [rA,rB,rH].forEach(r=>run(`anularReunion({id:'${r.id}',motivo:'prueba de observaciones'})`));
   }
+  // salida anticipada de estudiantes y comunicación a padres
+  {
+    const ds=hoyR;
+    const rS=run(`crearReunion({tipo:'Reunión de planeación',nombre:'Con salida anticipada',fecha:'${ds}',inicio:'12:00',fin:'13:30',convocados:'TODOS',salidaEst:'11:45',minAntesSalida:15,llevarComedor:true,informarPadres:false})`);
+    const s1=run(`cargarReunion({id:'${rS.id}'})`).reunion;
+    ok(s1.salidaEst==='11:45'&&s1.minAntesSalida===15&&s1.finClases==='11:30'&&s1.llevarComedor===true&&s1.informarPadres===true&&s1.sinEstudiantes===true,'salida anticipada: guarda la hora, las clases terminan 15 min antes (11:30), comedor y avisa a padres; las clases quedan suspendidas');
+    const conSal=run(`reunionesEnSesiones_('${ds}',[6],datos_('Franjas'))`).some(r=>r.nombre==='Con salida anticipada');
+    ok(conSal,'la ronda ya no se hace en la sesión que se cruza con el cierre de clases (antes de que empiece la reunión)');
+    const rN=run(`crearReunion({tipo:'Reunión de planeación',nombre:'Sin salida anticipada',fecha:'${ds}',inicio:'12:00',fin:'13:30',convocados:'TODOS',sinEstudiantes:true})`);
+    ok(!run(`reunionesEnSesiones_('${ds}',[6],datos_('Franjas'))`).some(r=>r.nombre==='Sin salida anticipada'),'sin salida anticipada la sesión 6 sigue con clases (la reunión empieza a las 12:00)');
+    let e1=null; try{ run(`crearReunion({tipo:'Reunión de planeación',nombre:'Hora mala',fecha:'${ds}',inicio:'12:00',fin:'13:30',convocados:'TODOS',salidaEst:'25:00'})`) }catch(x){e1=x} ok(e1&&/hora de salida/.test(e1.message),'hora de salida inválida: aviso');
+    const ap=run('avisosHoy()').reuniones.find(x=>x.nombre==='Con salida anticipada'); ok(ap&&ap.salidaEst==='11:45'&&ap.finClases==='11:30'&&ap.llevarComedor===true&&ap.informarPadres===true,'el aviso del día lleva la salida anticipada y el recordatorio de informar a padres');
+    run(`editarReunion({id:'${rS.id}',tipo:'Reunión de planeación',nombre:'Con salida anticipada',fecha:'${ds}',inicio:'12:00',fin:'13:30',convocados:'TODOS',salidaEst:'',informarPadres:false})`);
+    const s2=run(`cargarReunion({id:'${rS.id}'})`).reunion; ok(s2.salidaEst===''&&s2.finClases===''&&s2.informarPadres===false,'editar puede quitar la salida anticipada');
+    [rS,rN].forEach(r=>run(`anularReunion({id:'${r.id}',motivo:'prueba de salida'})`));
+  }
   // anular: solo quien administra
   const dh=hojas.Directivos.v[0], iCT=dh.indexOf('correo_temporal');
   hojas.Directivos.v[3][iCT]='harold@x.com'; EMAIL='harold@x.com';

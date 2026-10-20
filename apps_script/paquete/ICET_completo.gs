@@ -2037,7 +2037,7 @@ function purgarAudios() {
  * Hojas: Reuniones (una fila por reunión) y Asistencia_Reunion (una fila por persona y reunión; se reemplaza al volver a guardar).
  * Fechas y horas se guardan como TEXTO (con apóstrofo) para que Sheets no las convierta.
  */
-var COL_REUNIONES = ['id', 'fecha', 'tipo', 'nombre', 'inicio', 'fin', 'sin_estudiantes', 'convocados', 'creado_por', 'fecha_creacion', 'avisar_dias', 'avisar_min', 'avisar_ronda', 'lugar', 'fin_tipo', 'convoca_tipo', 'convoca_detalle', 'solicita_por', 'responsables', 'convocados_grupos', 'invitados', 'invitado_nombre', 'observaciones'];
+var COL_REUNIONES = ['id', 'fecha', 'tipo', 'nombre', 'inicio', 'fin', 'sin_estudiantes', 'convocados', 'creado_por', 'fecha_creacion', 'avisar_dias', 'avisar_min', 'avisar_ronda', 'lugar', 'fin_tipo', 'convoca_tipo', 'convoca_detalle', 'solicita_por', 'responsables', 'convocados_grupos', 'invitados', 'invitado_nombre', 'observaciones', 'salida_est', 'min_antes_salida', 'llevar_comedor', 'informar_padres'];
 /** A quiénes se convoca. Personal (genera lista de asistencia) y organismos e invitados (solo se anuncian). */
 var GRUPOS_PERSONAL = [
   ['TODOS', 'Todo el personal de la institución', 'Docentes, orientadoras, tutora PTAFI y directivos'],
@@ -2187,6 +2187,12 @@ var TIPOS_REUNION = [
   { tipo: 'Otra reunión o actividad (escriba el nombre)', sinEstudiantes: false, inicio: '08:00', fin: '09:00' }
 ];
 
+/** Resta minutos a una hora HH:MM. */
+function restaMin_(hhmm, n) {
+  var m = String(hhmm).match(/^(\d{1,2}):(\d{2})$/); if (!m) return '';
+  var t = Number(m[1]) * 60 + Number(m[2]) - n; if (t < 0) t = 0;
+  return ('0' + Math.floor(t / 60)).slice(-2) + ':' + ('0' + (t % 60)).slice(-2);
+}
 function limpiaTxt_(v) { return String(v == null ? '' : v).replace(/^'/, ''); }
 function txtForzado_(v) { return "'" + v; }
 
@@ -2207,6 +2213,13 @@ function reunionDeFila_(r) {
            lugar: String(r.lugar || ''), finTipo: FIN_TIPOS[r.fin_tipo] ? r.fin_tipo : 'FIJA', convocaTipo: String(r.convoca_tipo || ''), convocaDetalle: String(r.convoca_detalle || ''), solicitaPor: String(r.solicita_por || ''),
            responsables: String(r.responsables || '').split(';').map(function (x) { return x.trim(); }).filter(String),
            grupos: String(r.convocados_grupos || '').split(';').filter(String), invitados: String(r.invitados || '').split(';').filter(String), invitadoNombre: String(r.invitado_nombre || ''), observaciones: String(r.observaciones || '') };
+  // salida anticipada de estudiantes: se despachan a salidaEst; las clases terminan minAntesSalida antes (aseo y comedor)
+  x.salidaEst = hora_(String(r.salida_est || '').replace(/^'/, ''));
+  x.minAntesSalida = [10, 15, 20, 30].indexOf(Number(r.min_antes_salida)) >= 0 ? Number(r.min_antes_salida) : 15;
+  x.llevarComedor = String(r.llevar_comedor || '').toUpperCase() === 'SI';
+  x.informarPadres = String(r.informar_padres || '').toUpperCase() === 'SI';
+  x.finClases = x.salidaEst ? restaMin_(x.salidaEst, x.minAntesSalida) : '';
+  x.inicioClases = x.finClases && x.finClases < x.inicio ? x.finClases : x.inicio;
   x.convocadosResumen = resumenConvocados_(x);
   return x;
 }
@@ -2268,11 +2281,14 @@ function nombreRegistrador_(p) {
 function datosReunionDeP_(p) {
   var ini = hora_(p.inicio), finTipo = FIN_TIPOS[p.finTipo] ? p.finTipo : 'FIJA', fin = finTipo === 'JORNADA' ? finJornada_() : hora_(p.fin);
   if (!ini || !fin || fin <= ini) throw new Error(finTipo === 'JORNADA' ? 'La hora de inicio debe ser antes de que termine la jornada (' + finJornada_() + ').' : 'Revise la hora de inicio y de fin.');
+  var salida = hora_(p.salidaEst || ''), minAntes = [10, 15, 20, 30].indexOf(Number(p.minAntesSalida)) >= 0 ? Number(p.minAntesSalida) : 15;
+  if (p.salidaEst && !salida) throw new Error('Revise la hora de salida de los estudiantes.');
+  if (salida && restaMin_(salida, minAntes) < '06:00') throw new Error('Revise la hora de salida de los estudiantes: las clases terminarían antes de las 6:00.');
   var convoca = CONVOCA_TIPOS.indexOf(p.convocaTipo) >= 0 ? p.convocaTipo : '';
   var validos = personasReunion_().map(function (x) { return x.nombre; });
   var resp = (p.responsables || []).filter(function (n) { return validos.indexOf(n) >= 0; });
   return { ini: ini, fin: fin, finTipo: finTipo, lugar: String(p.lugar || '').trim().slice(0, 80), convocaTipo: convoca, convocaDetalle: String(p.convocaDetalle || '').trim().slice(0, 100),
-           solicitaPor: String(p.solicitaPor || '').trim().slice(0, 80), responsables: resp.join('; '), observaciones: String(p.observaciones || '').trim().slice(0, 400) };
+           solicitaPor: String(p.solicitaPor || '').trim().slice(0, 80), responsables: resp.join('; '), observaciones: String(p.observaciones || '').trim().slice(0, 400), salida: salida, minAntes: minAntes, comedor: salida && p.llevarComedor ? 'SI' : 'NO', padres: (p.informarPadres || salida) ? 'SI' : 'NO' };
 }
 /** Crea una reunión. p = {fecha?, tipo, nombre?, inicio, fin, sinEstudiantes, convocados: 'TODOS' | [nombres]} */
 function crearReunion(p) {
@@ -2297,8 +2313,8 @@ function crearReunion(p) {
     if (ya) return { id: ya.id, repetida: true };
     var id = Utilities.getUuid();
     reunionesHoja_().appendRow([id, txtForzado_(fecha), def.tipo, nombre, txtForzado_(d.ini), txtForzado_(d.fin),
-      p.sinEstudiantes ? 'SI' : 'NO', conv, por, ahoraTxt_(), recordatorioDeP_(p).dias, recordatorioDeP_(p).min, recordatorioDeP_(p).ronda,
-      d.lugar, d.finTipo, d.convocaTipo, d.convocaDetalle, d.solicitaPor, d.responsables, cv.grupos, cv.invitados, cv.entidad, d.observaciones]);
+      (p.sinEstudiantes || d.salida) ? 'SI' : 'NO', conv, por, ahoraTxt_(), recordatorioDeP_(p).dias, recordatorioDeP_(p).min, recordatorioDeP_(p).ronda,
+      d.lugar, d.finTipo, d.convocaTipo, d.convocaDetalle, d.solicitaPor, d.responsables, cv.grupos, cv.invitados, cv.entidad, d.observaciones, txtForzado_(d.salida), d.minAntes, d.comedor, d.padres]);
     return { id: id };
   } finally { lock.releaseLock(); }
 }
@@ -2351,14 +2367,16 @@ function avisosHoy() {
   var reuniones = todas.filter(function (r) { return r.fecha === hoy; }).sort(function (a, b) { return a.inicio < b.inicio ? -1 : (a.inicio > b.inicio ? 1 : 0); }).map(function (r) {
     var x = resumida(r), estado = hh < r.inicio ? 'proxima' : (hh <= r.fin ? 'ahora' : 'pasada'), faltan = aMinutos(r.inicio) - ahoraMin;
     return { id: r.id, nombre: r.nombre, tipo: r.tipo, inicio: r.inicio, fin: r.fin, sinEstudiantes: r.sinEstudiantes, convocadosN: x.conv, registrados: x.reg, estado: estado,
-             lugar: r.lugar, observaciones: r.observaciones, finTipo: r.finTipo, convocadosResumen: r.convocadosResumen, minutosHasta: faltan, avisarRonda: r.avisarRonda, avisarMin: r.avisarMin,
+             lugar: r.lugar, observaciones: r.observaciones, salidaEst: r.salidaEst, finClases: r.finClases, llevarComedor: r.llevarComedor, informarPadres: r.informarPadres, finTipo: r.finTipo, convocadosResumen: r.convocadosResumen, minutosHasta: faltan, avisarRonda: r.avisarRonda, avisarMin: r.avisarMin,
              urgente: estado === 'ahora' || (estado === 'proxima' && r.avisarMin > 0 && faltan <= r.avisarMin) };   // parpadea y vuelve a avisar durante la jornada
   });
   var previas = todas.filter(function (r) {
     var d = Math.round((new Date(r.fecha + 'T12:00:00Z') - new Date(hoy + 'T12:00:00Z')) / 86400000);
-    r.dias = d; return d > 0 && r.avisarDias > 0 && d <= r.avisarDias;
+    r.dias = d;
+    var viernes = Utilities.formatDate(ahora, TZ, 'u') === '5';   // el viernes también se recuerda lo del lunes (para empezar la semana)
+    return d > 0 && r.avisarDias > 0 && (d <= r.avisarDias || (viernes && d === 3));
   }).sort(function (a, b) { return a.fecha < b.fecha ? -1 : (a.fecha > b.fecha ? 1 : (a.inicio < b.inicio ? -1 : 1)); }).map(function (r) {
-    return { id: r.id, nombre: r.nombre, tipo: r.tipo, fecha: r.fecha, dias: r.dias, inicio: r.inicio, fin: r.fin, sinEstudiantes: r.sinEstudiantes, lugar: r.lugar, observaciones: r.observaciones };
+    return { id: r.id, nombre: r.nombre, tipo: r.tipo, fecha: r.fecha, dias: r.dias, inicio: r.inicio, fin: r.fin, sinEstudiantes: r.sinEstudiantes, lugar: r.lugar, observaciones: r.observaciones, salidaEst: r.salidaEst, finClases: r.finClases, llevarComedor: r.llevarComedor, informarPadres: r.informarPadres };
   });
   var por = {}, orden = [];
   datos_('Novedades').forEach(function (n) {
@@ -2434,8 +2452,8 @@ function editarReunion(p) {
     var antes = reunionDeFila_((function () { var o = {}; cab.forEach(function (k, i) { o[k] = v[fila][i]; }); return o; })());
     var nueva = v[fila].slice();
     nueva[c.fecha] = txtForzado_(p.fecha); nueva[c.tipo] = def.tipo; nueva[c.nombre] = String(p.nombre || '').slice(0, 120) || def.tipo;
-    nueva[c.inicio] = txtForzado_(ini); nueva[c.fin] = txtForzado_(fin); nueva[c.sin_estudiantes] = p.sinEstudiantes ? 'SI' : 'NO'; nueva[c.convocados] = conv; var rd = recordatorioDeP_(p); nueva[c.avisar_dias] = rd.dias; nueva[c.avisar_min] = rd.min; nueva[c.avisar_ronda] = rd.ronda;
-    nueva[c.lugar] = d.lugar; nueva[c.fin_tipo] = d.finTipo; nueva[c.convoca_tipo] = d.convocaTipo; nueva[c.convoca_detalle] = d.convocaDetalle; nueva[c.solicita_por] = d.solicitaPor; nueva[c.responsables] = d.responsables; nueva[c.convocados_grupos] = cv.grupos; nueva[c.invitados] = cv.invitados; nueva[c.invitado_nombre] = cv.entidad; nueva[c.observaciones] = d.observaciones;
+    nueva[c.inicio] = txtForzado_(ini); nueva[c.fin] = txtForzado_(fin); nueva[c.sin_estudiantes] = (p.sinEstudiantes || d.salida) ? 'SI' : 'NO'; nueva[c.convocados] = conv; var rd = recordatorioDeP_(p); nueva[c.avisar_dias] = rd.dias; nueva[c.avisar_min] = rd.min; nueva[c.avisar_ronda] = rd.ronda;
+    nueva[c.lugar] = d.lugar; nueva[c.fin_tipo] = d.finTipo; nueva[c.convoca_tipo] = d.convocaTipo; nueva[c.convoca_detalle] = d.convocaDetalle; nueva[c.solicita_por] = d.solicitaPor; nueva[c.responsables] = d.responsables; nueva[c.convocados_grupos] = cv.grupos; nueva[c.invitados] = cv.invitados; nueva[c.invitado_nombre] = cv.entidad; nueva[c.observaciones] = d.observaciones; nueva[c.salida_est] = txtForzado_(d.salida); nueva[c.min_antes_salida] = d.minAntes; nueva[c.llevar_comedor] = d.comedor; nueva[c.informar_padres] = d.padres;
     sh.getRange(fila + 1, 1, 1, nueva.length).setValues([nueva]);
     bitacora_('Editó reunión', antes.nombre + ' (' + antes.fecha + ' ' + antes.inicio + '-' + antes.fin + ') → ' + nueva[c.nombre] + ' (' + p.fecha + ' ' + ini + '-' + fin + ')' + (antes.sinEstudiantes !== !!p.sinEstudiantes ? ' · clases ' + (p.sinEstudiantes ? 'suspendidas' : 'no suspendidas') : '') + ' · por ' + por);
   } finally { lock.releaseLock(); }
@@ -2484,9 +2502,9 @@ function reunionesEnSesiones_(fecha, sesiones, franjas) {
   if (!hs.length) return [];
   var ini = hhmm_(hs[0].inicio), fin = hhmm_(hs[hs.length - 1].fin);
   hs.forEach(function (f) { if (hhmm_(f.inicio) < ini) ini = hhmm_(f.inicio); if (hhmm_(f.fin) > fin) fin = hhmm_(f.fin); });
-  return reunionesDe_(fecha).filter(function (r) { return r.inicio < fin && r.fin > ini; }).map(function (r) {
+  return reunionesDe_(fecha).filter(function (r) { return (r.sinEstudiantes ? r.inicioClases : r.inicio) < fin && r.fin > ini; }).map(function (r) {
     var a = asistenciaDe_(r.id), est = {}; Object.keys(a).forEach(function (n) { est[n] = a[n].estado; });
-    return { id: r.id, nombre: r.nombre, tipo: r.tipo, inicio: r.inicio, fin: r.fin, sinEstudiantes: r.sinEstudiantes, convocados: r.convocados, asistencia: est };
+    return { id: r.id, nombre: r.nombre, tipo: r.tipo, inicio: r.inicio, fin: r.fin, sinEstudiantes: r.sinEstudiantes, salidaEst: r.salidaEst, finClases: r.finClases, convocados: r.convocados, asistencia: est };
   });
 }
 /** ¿Esa persona está convocada a la reunión? */
@@ -3155,11 +3173,16 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.20-h';
+var VERSION_SISTEMA = '2026.10.20-i';
 var FECHA_VERSION = '2026-10-20';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.20-i', fecha: '2026-10-20', cambios: [
+    'Aviso del día: ahora se queda el doble de tiempo (10 segundos y 4 más por cada aviso; los recordatorios urgentes, 14 y 4 por aviso).',
+    'Reuniones: «Salida anticipada de estudiantes»: hora en que se despachan, minutos antes en que terminan las clases (10, 15, 20 o 30, para el aseo y el comedor) y si se lleva a los estudiantes al comedor antes de despacharlos. Las clases se suspenden desde que terminan (la ronda de aula no se hace en ese horario) y el aviso del día lo recuerda a los directivos.',
+    'Reuniones: casilla «Informar a docentes, estudiantes y padres de familia» y botón «📣 Comunicados» con textos listos para docentes (que informan a estudiantes y padres) y para padres de familia, para copiar o enviar por WhatsApp. El aviso del día lo recuerda el día de la reunión y la víspera; el viernes también recuerda lo del lunes para empezar la semana.',
+    'La hoja Reuniones recibe las columnas salida_est, min_antes_salida, llevar_comedor e informar_padres.'] },
   { version: '2026.10.20-h', fecha: '2026-10-20', cambios: [
     'Reuniones: nuevo campo «Asunto u observaciones (opcional)» para aclarar de qué trata la reunión; se ve en la tarjeta y, solo si se escribió, en el aviso del día y en los recordatorios. La hoja Reuniones recibe la columna observaciones.',
     'Reuniones: los tipos «Jornada pedagógica» y «Reunión de desarrollo institucional» se unificaron en «Jornada pedagógica o de desarrollo institucional» (las reuniones ya guardadas se muestran con el nombre nuevo). Tipos nuevos: taller pedagógico, charla o conferencia, reunión de área o de grado, reunión con padres de familia o acudientes, escuela de padres, acto cívico o cultural y simulacro de evacuación.'] },

@@ -80,7 +80,7 @@
   </div>
   <div class="card"><h2>Últimas novedades registradas</h2><div class="sub" style="margin-bottom:6px">Las más recientes, hechas en la ronda o con este formulario.</div><div id="ultimas"><div class="aviso">Cargando…</div></div></div>
   <div class="card"><h2>Registradas desde aquí (últimos 7 días y próximas)</h2><div id="recientes"><div class="aviso">Cargando…</div></div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.20-h</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.20-i</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -210,12 +210,12 @@ function avisoDiaPintar(r,soloUrgentes){
     var urg=!!x.urgente&&x.estado!=='pasada'; if(urg) parp=true;
     var cl=x.estado==='ahora'?'ahora':(x.estado==='pasada'?'falta':(urg?'ahora':'prox'));
     var et=x.estado==='ahora'?'<b class="av-e av-ahora">AHORA</b>':(x.estado==='pasada'?'<b class="av-e av-falta">Falta registrar asistencia</b>':(urg?'<b class="av-e av-ahora">EN '+Math.max(0,x.minutosHasta)+' MIN</b>':'<b class="av-e av-prox">Hoy</b>'));
-    items.push({c:cl,p:urg,h:'<span class="av-ic">👥</span><div><b>'+avEsc(x.inicio)+' – '+avEsc(x.fin)+'</b> · '+avEsc(x.nombre)+' '+et+'<br><small>'+avEsc(x.tipo)+(x.lugar?' · 📍 '+avEsc(x.lugar):'')+(x.finTipo==='JORNADA'?' · hasta finalizar la jornada':'')+(x.sinEstudiantes?' · <b>sin clases</b> (se suspende la ronda de aula)':'')+(x.convocadosResumen?' · convoca a: '+avEsc(x.convocadosResumen):(x.convocadosN?' · convocados: '+x.convocadosN:''))+'</small>'+(x.observaciones?'<div class="av-obs">📝 '+avEsc(x.observaciones)+'</div>':'')+'</div>'});
+    items.push({c:cl,p:urg,h:'<span class="av-ic">👥</span><div><b>'+avEsc(x.inicio)+' – '+avEsc(x.fin)+'</b> · '+avEsc(x.nombre)+' '+et+'<br><small>'+avEsc(x.tipo)+(x.lugar?' · 📍 '+avEsc(x.lugar):'')+(x.finTipo==='JORNADA'?' · hasta finalizar la jornada':'')+(x.sinEstudiantes?' · <b>sin clases</b> (se suspende la ronda de aula)':'')+(x.convocadosResumen?' · convoca a: '+avEsc(x.convocadosResumen):(x.convocadosN?' · convocados: '+x.convocadosN:''))+'</small>'+(x.observaciones?'<div class="av-obs">📝 '+avEsc(x.observaciones)+'</div>':'')+avExtra(x)+'</div>'});
   });
   if(!soloUrgentes){
     (r.previas||[]).forEach(function(x){
       var f=String(x.fecha).split('-');
-      items.push({c:'prox',h:'<span class="av-ic">📅</span><div><b>'+(x.dias===1?'MAÑANA':'En '+x.dias+' días')+' · '+avEsc(x.inicio)+' – '+avEsc(x.fin)+'</b> · '+avEsc(x.nombre)+'<br><small>'+f[2]+'/'+f[1]+' · '+avEsc(x.tipo)+(x.lugar?' · 📍 '+avEsc(x.lugar):'')+(x.sinEstudiantes?' · <b>sin clases</b>':'')+'</small>'+(x.observaciones?'<div class="av-obs">📝 '+avEsc(x.observaciones)+'</div>':'')+'</div>'});
+      items.push({c:'prox',h:'<span class="av-ic">📅</span><div><b>'+(x.dias===1?'MAÑANA':'En '+x.dias+' días')+' · '+avEsc(x.inicio)+' – '+avEsc(x.fin)+'</b> · '+avEsc(x.nombre)+'<br><small>'+f[2]+'/'+f[1]+' · '+avEsc(x.tipo)+(x.lugar?' · 📍 '+avEsc(x.lugar):'')+(x.sinEstudiantes?' · <b>sin clases</b>':'')+'</small>'+(x.observaciones?'<div class="av-obs">📝 '+avEsc(x.observaciones)+'</div>':'')+avExtra(x)+'</div>'});
     });
     (r.actividades||[]).forEach(function(a){
       items.push({c:'act',h:'<span class="av-ic">🚌</span><div><b>'+avEsc(a.motivo)+'</b><br><small>Con estudiantes fuera del colegio: '+avEsc(a.docentes.slice(0,4).join(', '))+(a.docentes.length>4?' y '+(a.docentes.length-4)+' más':'')+' · no se marca ausentes</small></div>'});
@@ -226,7 +226,7 @@ function avisoDiaPintar(r,soloUrgentes){
   if(!soloUrgentes){ try{ localStorage.setItem('icet_aviso_t',String(Date.now())); }catch(e){} }
   var viejo=document.getElementById('avisoDia'); if(viejo) viejo.remove();
   var v=document.createElement('div'); v.id='avisoDia'; v.setAttribute('role','status'); v.setAttribute('aria-live','polite');
-  var seg=Math.min(parp?16:14,(parp?7:5)+items.length*2);   // 5 segundos y 2 más por cada aviso (7 si hay algo urgente; máximo 14 o 16)
+  var seg=Math.min(parp?32:28,(parp?14:10)+items.length*4);   // 10 segundos y 4 más por cada aviso (14 si hay algo urgente; máximo 28 o 32)
   v.innerHTML='<div class="av-caja'+(parp?' av-parp':'')+'"><div class="av-tit"><span>'+(parp?'🔔 Recordatorio':'📌 Hoy en el colegio')+'</span><button type="button" class="av-x" aria-label="Cerrar">✕</button></div>'+
     items.slice(0,6).map(function(i){return '<div class="av-it av-'+i.c+(i.p?' av-parpi':'')+'">'+i.h+'</div>';}).join('')+(items.length>6?'<div class="av-mas">y '+(items.length-6)+' más en Reuniones</div>':'')+
     '<div class="av-barra"><div class="av-prog" style="animation-duration:'+seg+'s"></div></div><div class="av-pie">Toque para cerrar · se cierra solo en unos segundos</div></div>';
@@ -250,6 +250,13 @@ function avisoDiaPintar(r,soloUrgentes){
   if(parp){ try{ if(navigator.vibrate) navigator.vibrate([200,100,200]); }catch(e){} }
   var cierra=function(){ if(v.parentNode) v.parentNode.removeChild(v); }, timer=setTimeout(cierra,seg*1000);
   v.querySelector('.av-caja').addEventListener('click',function(){ clearTimeout(timer); cierra(); });
+}
+/* salida anticipada de estudiantes y comunicación a padres */
+function avExtra(x){
+  var h='';
+  if(x.salidaEst) h+='<div class="av-obs">🚸 Los estudiantes salen a las <b>'+avEsc(x.salidaEst)+'</b> (clases hasta las '+avEsc(x.finClases)+(x.llevarComedor?'; llevar al comedor antes de despacharlos':'')+')</div>';
+  if(x.informarPadres) h+='<div class="av-obs">📣 Informar a los docentes, estudiantes y padres de familia (grupos de WhatsApp) desde el comienzo de la jornada</div>';
+  return h;
 }
 function avEsc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 if(!window.AVISO_MANUAL) setTimeout(function(){ avisoDia(false); },1200);

@@ -95,7 +95,7 @@ function doGet(e) {
     return ContentService.createTextOutput('ICET API').setMimeType(ContentService.MimeType.TEXT);
   }
   var pag = (e && e.parameter && e.parameter.p) || 'menu';   // sin parámetros abre el menú de entrada
-  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], novedad: ['Novedad', 'ICET - Registrar novedades'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y actividades'], horarios: ['Horarios', 'ICET - Horarios y consultas'], ayuda: ['Ayuda', 'ICET - Ayuda y manual de uso'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'] };
+  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], novedad: ['Novedad', 'ICET - Registrar novedades'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y actividades'], horarios: ['Horarios', 'ICET - Horarios y listados'], ayuda: ['Ayuda', 'ICET - Ayuda y manual de uso'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'] };
   var pg = PAGINAS[pag] || PAGINAS.menu;
   return HtmlService.createHtmlOutputFromFile(pg[0])
     .setTitle(pg[1])
@@ -2937,11 +2937,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.20-b';
+var VERSION_SISTEMA = '2026.10.20-c';
 var FECHA_VERSION = '2026-10-20';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.20-c', fecha: '2026-10-20', cambios: [
+    'Menú principal: el botón «Horarios y consultas» ahora se llama «Horarios y listados» (también en el título de la pantalla y en el manual de Ayuda).'] },
   { version: '2026.10.20-b', fecha: '2026-10-20', cambios: [
     'Reuniones: las listas (del día, próximas y últimas) van después del formulario y del botón de crear, también dentro del formulario de crear o editar. Marcas de prioridad: HOY (alta, naranja), MAÑANA (media, amarillo), próximas (azul); las pasadas se atenúan: verdes «Aplicada» si ya tienen asistencia, grises si no.',
     'Reuniones: botón «🗑 Anular» solo para quien administra (dueño del libro, columna administra = SI en Directivos o coordinación académica); exige motivo y deja la reunión en la hoja Reuniones_Anuladas con quién, cuándo y por qué.',

@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.20-b</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.20-c</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -63,7 +63,7 @@
   <li><a href="#senal">Si se cae la señal</a></li>
   <li><a href="#novedades">Registrar novedades sin hacer la ronda</a></li>
   <li><a href="#reuniones">Reuniones y actividades</a></li>
-  <li><a href="#horarios">Horarios y consultas</a></li>
+  <li><a href="#horarios">Horarios y listados</a></li>
   <li><a href="#estudiantes">Estudiantes y sus marcas</a></li>
   <li><a href="#panel">Panel e informes</a></li>
   <li><a href="#docente">Si usted es docente</a></li>
@@ -162,11 +162,11 @@
 <p><b>Colores:</b> <b>HOY</b> (naranja, prioridad alta), <b>MAÑANA</b> (amarillo), <b>próximas</b> (azul); las reuniones pasadas se ven atenuadas: <b>verde «Aplicada»</b> si ya tienen asistencia registrada y gris si les falta. Las listas aparecen <b>debajo</b> del formulario para ir consultándolas mientras crea o edita.</p>
 <p>Solo quien administra el sistema ve el botón <b>🗑 Anular</b>; pide el motivo y la reunión queda guardada como anulada.</p></section>
 
-<section id="horarios"><h2>12. Horarios y consultas</h2>
+<section id="horarios"><h2>12. Horarios y listados</h2>
 <p>Consulte el horario de un docente o de un grupo, quiénes deben estar <b>ahora</b> y quién es el director de grupo. Puede imprimir o guardar en PDF.</p></section>
 
 <section id="estudiantes"><h2>13. Estudiantes y sus marcas</h2>
-<ol><li>En <b>Horarios y consultas</b> abra la pestaña <b>Estudiantes</b>.</li>
+<ol><li>En <b>Horarios y listados</b> abra la pestaña <b>Estudiantes</b>.</li>
 <li>Elija el grupo o el nivel. Use la búsqueda y los filtros (los filtros se conservan al recargar).</li>
 <li>Seleccione estudiantes y toque <b>Marcar</b>: elija el tipo (seguimiento, apoyos, grupos y proyectos, etc.) y escriba una nota.</li>
 <li>Para quitar una marca: <b>✕ Quitar marca</b>. La app muestra qué marcas tiene el estudiante; elija cuál quitar. Queda registrado quién y cuándo la quitó.</li>
@@ -199,7 +199,7 @@
 <p class="tip">¿Algo no aparece en este manual? Dígaselo a coordinación académica para incluirlo en la próxima versión.</p></section>
 
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.20-b</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.20-c</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

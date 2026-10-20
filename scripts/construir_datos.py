@@ -71,8 +71,8 @@ MAPA = {
 #    hay que ejecutar scripts/intercambio_educacion_fisica.py (intercambia las filas ERD de horario_maestro.csv; no repite si ya se hizo).
 PENDIENTES = {}
 NOTAS_DOCENTE = {
-    57: "Reemplazo de Terán Guevara Jorge Alberto: atiende su horario (desde el cambio del rector, el de Educación Física que tenía Arizala, Docente 1)",
-    4: "Desde el cambio del rector atiende el horario de Educación Física que tenía Terán, hoy Armero (Docente 2); su clase de CNA se queda con él",
+    57: "Reemplazo de Terán Guevara Jorge Alberto: atiende su horario (desde el cambio del rector, todo el horario que tenía Arizala, Docente 1)",
+    4: "Desde el cambio del rector atiende todo el horario (Educación Física y Ciencias Naturales) que tenía Terán, hoy Armero (Docente 2)",
     47: "Reemplazado por Armero Dájome Jesús: su horario lo atiende Armero",
     37: "Reemplazo de la docente Luz María Cortés Tenorio. Desde el cambio del rector atiende el horario que tenía Puches (Docente 1)",
     39: "Desde el cambio del rector atiende el horario que tenía Prado Maribel (Docente 2 de Arte)",

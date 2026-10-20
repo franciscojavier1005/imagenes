@@ -118,7 +118,7 @@ function consultaHorarios(p) {
 /**
  * El rector intercambió en Educación Física (ERD) el horario de «Docente 1» (Arizala Castro Roberto Carlos) con el de «Docente 2» (Terán, hoy
  * reemplazado por Armero Dájome Jesús) y no lo informó a tiempo. Esta corrección pasa de uno al otro el horario y lo ya registrado.
- * Con area = 'ERD' solo se mueve esa área (la clase de CNA de Arizala se queda con él); con area vacía se intercambia el horario completo.
+ * Con area vacía se intercambia el horario completo de los dos (Educación Física y Ciencias Naturales, como se hizo con Arte); con area = 'ERD' solo esa área.
  * Con aplicar = false solo cuenta lo que cambiaría. Se hace una sola vez (marca en Parametros) y queda constancia en Bitacora_Cambios.
  * No toca ausencias de jornada completa (JC), «hasta el final» (S#-FIN) ni novedades que no vienen de la ronda: solo las cuenta para revisar.
  */
@@ -226,10 +226,7 @@ function corregirDocentes1y2EducacionFisica() {
   exigirEditor_();
   var ui = SpreadsheetApp.getUi();
   if (parametro_(MARCA_INTERCAMBIO_ERD, '')) { ui.alert('Esta corrección ya se aplicó el ' + parametro_(MARCA_INTERCAMBIO_ERD, '') + '. No se repite.'); return; }
-  var op = ui.alert('Docente 1 y Docente 2 de Educación Física',
-    'Se intercambia el horario (y lo ya registrado) entre ' + ERD_DOCENTE_1 + ' y ' + ERD_DOCENTE_2 + '.\n\n¿Solo Educación Física (la clase de CNA de Arizala se queda con él)?\n\nSí = solo Educación Física\nNo = el horario completo de los dos\nCancelar = salir', ui.ButtonSet.YES_NO_CANCEL);
-  if (op === ui.Button.CANCEL || op === ui.Button.CLOSE) return;
-  var area = op === ui.Button.YES ? 'ERD' : '';
+  var area = '';   // horario completo de los dos (Educación Física y Ciencias Naturales), confirmado por el coordinador
   var previa = intercambioDocentes_(ERD_DOCENTE_1, ERD_DOCENTE_2, area, false);
   if (ui.alert('Vista previa', textoIntercambio_(previa, false) + '\n\n¿Aplicar ahora? (se hace una sola vez)', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
   var r = intercambioDocentes_(ERD_DOCENTE_1, ERD_DOCENTE_2, area, true);

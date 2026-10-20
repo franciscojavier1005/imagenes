@@ -2701,7 +2701,7 @@ function consultaHorarios(p) {
 /**
  * El rector intercambió en Educación Física (ERD) el horario de «Docente 1» (Arizala Castro Roberto Carlos) con el de «Docente 2» (Terán, hoy
  * reemplazado por Armero Dájome Jesús) y no lo informó a tiempo. Esta corrección pasa de uno al otro el horario y lo ya registrado.
- * Con area = 'ERD' solo se mueve esa área (la clase de CNA de Arizala se queda con él); con area vacía se intercambia el horario completo.
+ * Con area vacía se intercambia el horario completo de los dos (Educación Física y Ciencias Naturales, como se hizo con Arte); con area = 'ERD' solo esa área.
  * Con aplicar = false solo cuenta lo que cambiaría. Se hace una sola vez (marca en Parametros) y queda constancia en Bitacora_Cambios.
  * No toca ausencias de jornada completa (JC), «hasta el final» (S#-FIN) ni novedades que no vienen de la ronda: solo las cuenta para revisar.
  */
@@ -2809,10 +2809,7 @@ function corregirDocentes1y2EducacionFisica() {
   exigirEditor_();
   var ui = SpreadsheetApp.getUi();
   if (parametro_(MARCA_INTERCAMBIO_ERD, '')) { ui.alert('Esta corrección ya se aplicó el ' + parametro_(MARCA_INTERCAMBIO_ERD, '') + '. No se repite.'); return; }
-  var op = ui.alert('Docente 1 y Docente 2 de Educación Física',
-    'Se intercambia el horario (y lo ya registrado) entre ' + ERD_DOCENTE_1 + ' y ' + ERD_DOCENTE_2 + '.\n\n¿Solo Educación Física (la clase de CNA de Arizala se queda con él)?\n\nSí = solo Educación Física\nNo = el horario completo de los dos\nCancelar = salir', ui.ButtonSet.YES_NO_CANCEL);
-  if (op === ui.Button.CANCEL || op === ui.Button.CLOSE) return;
-  var area = op === ui.Button.YES ? 'ERD' : '';
+  var area = '';   // horario completo de los dos (Educación Física y Ciencias Naturales), confirmado por el coordinador
   var previa = intercambioDocentes_(ERD_DOCENTE_1, ERD_DOCENTE_2, area, false);
   if (ui.alert('Vista previa', textoIntercambio_(previa, false) + '\n\n¿Aplicar ahora? (se hace una sola vez)', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
   var r = intercambioDocentes_(ERD_DOCENTE_1, ERD_DOCENTE_2, area, true);
@@ -3304,7 +3301,7 @@ var FECHA_VERSION = '2026-10-20';
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
   { version: '2026.10.20-k', fecha: '2026-10-20', cambios: [
-    'Educación Física: el rector intercambió sin avisar el horario de Docente 1 (Arizala Castro Roberto Carlos) y Docente 2 (Armero Dájome Jesús, reemplazo de Terán). Se corrigió el horario en los datos y el menú «Corregir Docente 1 y 2 de Educación Física (una vez)» muestra primero lo que cambiaría y, al confirmar, pasa de uno al otro el horario, las marcas de la ronda, las novedades por sesión, los incumplimientos, las parejas de énfasis y Matriz_Grupos; no toca ausencias de jornada completa ni novedades de formulario o WhatsApp (las cuenta para revisarlas). Queda en Bitacora_Cambios.'] },
+    'Educación Física: el rector intercambió sin avisar el horario de Docente 1 (Arizala Castro Roberto Carlos) y Docente 2 (Armero Dájome Jesús, reemplazo de Terán). Se intercambia el horario completo de los dos (Educación Física y Ciencias Naturales). Se corrigió el horario en los datos y el menú «Corregir Docente 1 y 2 de Educación Física (una vez)» muestra primero lo que cambiaría y, al confirmar, pasa de uno al otro el horario, las marcas de la ronda, las novedades por sesión, los incumplimientos, las parejas de énfasis y Matriz_Grupos; no toca ausencias de jornada completa ni novedades de formulario o WhatsApp (las cuenta para revisarlas). Queda en Bitacora_Cambios.'] },
   { version: '2026.10.20-j', fecha: '2026-10-20', cambios: [
     'Aviso del día: cada reunión muestra la hora destacada con color según la prioridad (HOY naranja, MAÑANA amarillo, próximas azul, en curso rojo y parpadeante, sin asistencia rojo), el nombre en negrita y más grande, un icono de prioridad (🔥, ⏰, 📅, ⚠️) y el fondo del mismo color que en la lista de reuniones.',
     'Ronda: el nombre del directivo que hace la ronda pasa de la barra inferior al encabezado (se ve en amarillo; en rojo si falta elegirlo), lo que libera espacio para los contadores; el escudo del colegio se ve más grande en el celular; el encabezado muestra el nombre completo de la institución (Institución Ciudadela Educativa de Tumaco · ICET).'] },

@@ -126,11 +126,13 @@ ok(nr.length===2&&nr.map(r=>r[3]).sort().join()==='3,4','por bloque: queda regis
 ok(nuevos.length===2&&nuevos.map(r=>r[cc('Sesiones')]).sort().join()==='S3,S4'&&nuevos.every(r=>r[cc('Minutos Desatendidos')]===45),'por bloque: dos novedades (S3 y S4) de 45 min = 90 min del bloque');
 // ---- actualizar horario de preescolar en una hoja con el horario anterior (5 sesiones, 2 a 6)
 const hz=hojas.Horario.v, hh=hz[0];
-const viejo=[]; ['LUNES'].forEach(d=>{[2,3,4,5,6].forEach(hr=>{const f=hh.map(()=>''); f[hh.indexOf('docente')]='Prof Pre'; f[hh.indexOf('dia')]=d; f[hh.indexOf('hora')]=hr; f[hh.indexOf('grupo')]='0001'; f[hh.indexOf('inicio')]='07:15'; f[hh.indexOf('fin')]='08:00'; viejo.push(f);});});
+const viejo=[]; ['LUNES'].forEach(d=>{[2,3,4,5,6].forEach(hr=>{const f=hh.map(()=>''); f[0]=99; f[hh.indexOf('docente')]='Prof Pre'; f[hh.indexOf('dia')]=d; f[hh.indexOf('hora')]=hr; f[hh.indexOf('grupo')]='0001'; f[hh.indexOf('inicio')]='07:15'; f[hh.indexOf('fin')]='08:00'; viejo.push(f);});});
 const antesN=hz.length; viejo.forEach(f=>hz.push(f));
 hojas.Horario.getRange=function(r,c){const s=this;return {setNumberFormat(){},setValue(x){s.v[r-1][c-1]=x}}};
+const nJC=hojas.Novedades.v[0].map(()=>''); nJC[cc('Docente')]='Prof Pre'; nJC[cc('Sesiones')]='JC'; nJC[cc('Minutos Desatendidos')]=300; nJC[0]='x'; hojas.Novedades.v.push(nJC);
 const ra=run('actualizarHorarioPreescolar_()'), mias2=hz.filter(r=>r[hh.indexOf('docente')]==='Prof Pre');
 ok(ra.quitadas===1&&mias2.length===4&&mias2.every((r,i)=>r[hh.indexOf('hora')]===3+i)&&mias2[0][hh.indexOf('inicio')]==='07:30'&&mias2[3][hh.indexOf('fin')]==='11:30','actualizar horario: quita la sesión 2 y deja 07:30 a 11:30 en 4 periodos');
+ok(nJC[cc('Minutos Desatendidos')]===240&&ra.minutosAjustados===1,'una ausencia de jornada completa de preescolar que quedó en 300 min baja a 240 (4 periodos de 60)');
 const rb=run('actualizarHorarioPreescolar_()'); ok(rb.quitadas===0&&rb.corregidas===0,'repetirlo no cambia nada');
 ok(run("textoCod_('0101')")==="'0101"&&run("textoCod_('CS101')")==='CS101'&&run("textoCod_('1001+1002')")==='1001+1002','los códigos con cero inicial se escriben como texto');
 // ---- parejas que alternan por semana (ética/religión)

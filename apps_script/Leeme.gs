@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.21-a';
+var VERSION_SISTEMA = '2026.10.21-b';
 var FECHA_VERSION = '2026-10-21';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.21-b', fecha: '2026-10-21', cambios: [
+    'Preescolar (transición): una ausencia de jornada completa mostraba 300 minutos porque el libro conservaba el horario viejo de 5 periodos de 60 min. Ahora el libro corrige solo el horario de preescolar al abrirse (4 periodos de 60 min, de 7:30 a 11:30 = 240 min al día) y baja a 240 las ausencias de jornada completa ya guardadas de quien solo tiene grupos de preescolar (también desde el menú «Actualizar horario de preescolar»).'] },
   { version: '2026.10.21-a', fecha: '2026-10-21', cambios: [
     'Parejas que alternan (ética/religión, sociales/inglés, ciencias naturales): la alternancia semanal ahora también cambia a la persona en los equipos de énfasis (antes solo las clases), de modo que en la ronda y en Horarios aparece la tarjeta con «Cambiar» y lo definido vale de lunes a viernes para clases y énfasis a la vez.',
     'Corrección de quién dicta: ahora pasa las marcas de la ronda y las novedades por sesión de cada docente de la pareja al otro (en los dos sentidos) y también sirve para restablecer la asignación original, algo que antes fallaba al volver atrás.'] },

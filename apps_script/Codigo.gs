@@ -22,6 +22,7 @@ var MEDIO_RONDA = 'Inspección ocular/Ronda supervisión';
 var FUENTE_RONDA = 'Coordinador(a)';
 
 function onOpen() {
+  try { if (hoja_('Horario') && datos_('Horario').some(function (h) { return /^00/.test(String(h.grupo)) && Number(h.hora) === 2; })) actualizarHorarioPreescolar_(); } catch (e) { /* sin permiso de edición: se hace desde el menú */ }   // horario viejo de preescolar (5 periodos = 300 min)
   if (typeof leemeAlDia_ === 'function') leemeAlDia_();
   SpreadsheetApp.getUi().createMenu('Asistencia ICET')
     .addItem('Crear formulario de novedades (desplegables)', 'crearFormulario')
@@ -685,12 +686,34 @@ function actualizarHorarioPreescolar_() {
       ini.setValue(PERIODOS_PREESCOLAR[hora][0]); fin.setValue(PERIODOS_PREESCOLAR[hora][1]); corregidas++;
     }
   }
-  return { quitadas: quitadas, corregidas: corregidas };
+  var ajustes = ajustarMinutosPreescolar_();
+  return { quitadas: quitadas, corregidas: corregidas, minutosAjustados: ajustes };
+}
+/**
+ * Las docentes de preescolar atienden 4 periodos de 60 min (240 min al día). Con el horario viejo (5 periodos) una ausencia de jornada completa
+ * quedó en 300 min: aquí se bajan a 240 las de jornada completa (Novedades y Registro_Ronda) de quien solo tiene grupos de preescolar.
+ */
+function ajustarMinutosPreescolar_() {
+  var solo = {}, tope = 0;
+  for (var k in PERIODOS_PREESCOLAR) tope += 60;
+  var hz = datos_('Horario'), otros = {};
+  hz.forEach(function (h) { var cod = String(h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo); while (/^\d+$/.test(cod) && cod.length < 4) cod = '0' + cod; if (cod.indexOf('00') === 0) solo[h.docente] = 1; else otros[h.docente] = 1; });
+  var n = 0;
+  [['Novedades', 'Docente', 'Minutos Desatendidos', 'Sesiones'], ['Registro_Ronda', 'docente', 'minutos', '']].forEach(function (d) {
+    var sh = hoja_(d[0]); if (!sh) return;
+    var v = sh.getDataRange().getValues(), cab = v[0], iD = cab.indexOf(d[1]), iM = cab.indexOf(d[2]), iS = d[3] ? cab.indexOf(d[3]) : -1;
+    if (iD < 0 || iM < 0) return;
+    for (var i = 1; i < v.length; i++) {
+      if (!solo[v[i][iD]] || otros[v[i][iD]] || Number(v[i][iM]) <= tope || (iS >= 0 && String(v[i][iS]) !== 'JC')) continue;
+      sh.getRange(i + 1, iM + 1).setValue(tope); n++;
+    }
+  });
+  return n;
 }
 function actualizarHorarioPreescolar() {
   exigirEditor_();
   var r = actualizarHorarioPreescolar_();
-  SpreadsheetApp.getUi().alert('Horario de preescolar actualizado.\nFilas de la sesión 2 quitadas: ' + r.quitadas + '\nPeriodos corregidos: ' + r.corregidas);
+  SpreadsheetApp.getUi().alert('Horario de preescolar actualizado.\nFilas de la sesión 2 quitadas: ' + r.quitadas + '\nPeriodos corregidos: ' + r.corregidas + '\nAusencias de jornada completa bajadas a 240 min: ' + r.minutosAjustados);
 }
 
 function acercaDe() { SpreadsheetApp.getUi().alert('Acerca de este sistema', AUTORIA, SpreadsheetApp.getUi().ButtonSet.OK); }

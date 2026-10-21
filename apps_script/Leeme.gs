@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.21-d';
+var VERSION_SISTEMA = '2026.10.21-e';
 var FECHA_VERSION = '2026-10-21';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.21-e', fecha: '2026-10-21', cambios: [
+    'Respaldo: cada vez que se guarda una ronda, las marcas se anotan también en un libro de respaldo aparte («ICET · Respaldo de rondas (no borrar)», se crea solo en Drive). Menú «Respaldar rondas ahora» copia completas Registro_Ronda, Novedades e Incumplimientos.',
+    'Menú «Recuperar rondas desde una copia del libro»: con el enlace de una copia anterior (hecha desde el historial de versiones) o del libro de respaldo, agrega solo las filas que faltan (rondas, novedades, incumplimientos) sin cambiar ni borrar lo que ya está.'] },
   { version: '2026.10.21-d', fecha: '2026-10-21', cambios: [
     'Ronda: las marcas ya guardadas del bloque se ven siempre. Si una marca quedó a nombre de un docente que ya no tiene esa sesión (cambios de horario), aparece en la tarjeta de quien hoy la tiene (por fecha, sesión, grupo y área) y al guardar se reemplaza en vez de duplicarse; no hace falta tocar la hoja.',
     'Ronda: botones más cortos y con colores propios (Presente, No asistió, Otro a cargo, SED, Permiso, Tarde, Salió, Incumple). «SED» no pide motivo, horas ni actividad: registra la jornada completa con el tiempo que el docente tiene con estudiantes.',
@@ -131,6 +134,7 @@ var LEEME_HOJAS = [
   'Usuarios / Soportes / Parametros   Cuentas de docentes, soportes de ausencias y parámetros.',
   'Notas_Ronda / Bandeja_WhatsApp   Observaciones de la ronda y novedades propuestas desde WhatsApp.',
   'Directivos        Quiénes registran: claves (hash), correo, ve_todo (NO = solo ve sus rondas), cambia_asignacion (SI/NO: puede cambiar quién dicta en las parejas), administra (SI/NO: puede anular reuniones). No escriba PIN a mano.',
+  'Respaldo           Libro aparte en Drive «ICET · Respaldo de rondas (no borrar)» (su id está en Parametros: respaldo_id) con cada ronda guardada.',
   'Bitacora_Cambios  Quién cambió qué y cuándo (correcciones, sesiones prestadas, intercambio de Docente 1 y 2).',
   'Datos personales de docentes y estudiantes: acceso solo para directivos (Ley 1581 de 2012).'
 ];

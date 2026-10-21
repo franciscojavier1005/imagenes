@@ -35,6 +35,8 @@ function onOpen() {
     .addItem('Quitar reuniones repetidas', 'quitarReunionesDuplicadasLibro')
     .addItem('Corregir Docente 1 y 2 de Educación Física (una vez)', 'corregirDocentes1y2EducacionFisica')
     .addItem('Revisar y recuperar marcas de la ronda', 'recuperarMarcasRonda')
+    .addItem('Recuperar rondas desde una copia del libro', 'recuperarRondasDesdeCopia')
+    .addItem('Respaldar rondas ahora (libro de respaldo)', 'respaldarTodoAhora')
     .addItem('Borrar audios de ronda antiguos', 'purgarAudios')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')
@@ -484,7 +486,7 @@ function guardarRonda(p) {
     var regVals = reg.getDataRange().getValues();   // para reemplazar marcas repetidas
     var novVals = nov.getDataRange().getValues();
     var novCol = novVals[0].indexOf('Sesiones');
-    var guardados = 0;
+    var guardados = 0, filasRespaldo = [];
     (p.registros || []).forEach(function (r) {
       var sesion = Number(r.sesion || p.sesion);   // en la ronda por bloque cada marca trae su sesión (el bloque se guarda como sus dos sesiones)
       var fr = franjas.filter(function (f) { return Number(f.hora) === sesion; })[0];
@@ -546,6 +548,7 @@ function guardarRonda(p) {
       }
       if (idx > 0) { reg.getRange(idx + 1, 1, 1, fila.length).setValues([fila]); regVals[idx] = fila; }
       else { reg.appendRow(fila); regVals.push(fila); }
+      filasRespaldo.push(fila);
       // 2) Novedades (esquema del formulario de ausentismo): quitar la anterior y agregar si hay novedad
       for (var j = novVals.length - 1; j >= 1; j--) {
         var fj = novVals[j][1] instanceof Date ? ymd_(novVals[j][1]) : String(novVals[j][1]);
@@ -606,6 +609,7 @@ function guardarRonda(p) {
       }
       guardados++;
     });
+    if (typeof respaldarRonda_ === 'function') respaldarRonda_(filasRespaldo);   // copia en el libro de respaldo (si falla, el guardado no se afecta)
     return { ok: true, guardados: guardados };
   } finally { lock.releaseLock(); }
 }

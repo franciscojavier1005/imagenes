@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.21-b';
+var VERSION_SISTEMA = '2026.10.21-c';
 var FECHA_VERSION = '2026-10-21';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.21-c', fecha: '2026-10-21', cambios: [
+    'Ronda: nuevo botón «Evento SED» (capacitación, taller, charla o citación de la Secretaría de Educación, SED o SEM): queda como ausencia de toda la jornada con el motivo «Evento SED / SEM», sin justificar, y el tiempo sin atender es el que el docente tiene con estudiantes ese día (240 min en preescolar).',
+    'Menú del libro «Revisar y recuperar marcas de la ronda»: cuenta las marcas de Registro_Ronda por fecha, detecta las que la ronda no muestra porque quedaron a nombre de quien ya no tiene esa sesión (por cambios de horario) y, al confirmar, las devuelve a la vista; no borra nada.'] },
   { version: '2026.10.21-b', fecha: '2026-10-21', cambios: [
     'Preescolar (transición): una ausencia de jornada completa mostraba 300 minutos porque el libro conservaba el horario viejo de 5 periodos de 60 min. Ahora el libro corrige solo el horario de preescolar al abrirse (4 periodos de 60 min, de 7:30 a 11:30 = 240 min al día) y baja a 240 las ausencias de jornada completa ya guardadas de quien solo tiene grupos de preescolar (también desde el menú «Actualizar horario de preescolar»).'] },
   { version: '2026.10.21-a', fecha: '2026-10-21', cambios: [
@@ -97,7 +100,7 @@ var HISTORIAL_VERSIONES = [
 ];
 
 var LEEME_USO = [
-  'Presente / No asistió / Con reemplazo / Permiso por horas / Llegada tarde / Salida temprana / Incumplimiento: estados de cada docente en la ronda.',
+  'Presente / No asistió / Con reemplazo / Evento SED (capacitación o taller de la Secretaría de Educación, toda la jornada) / Permiso por horas / Llegada tarde / Salida temprana / Incumplimiento: estados de cada docente en la ronda.',
   'Con reemplazo: el titular no está (incapacidad, licencia, permiso…) pero otra persona atiende el grupo en su horario. Queda «No asistió» con quién atendió; no suma minutos sin atender.',
   'No asistió sin reemplazo: el tiempo sin atender es el asignado en su horario (sesiones del bloque o toda la jornada). Incapacidad y licencia marcan «toda la jornada» solas.',
   'Salida temprana: puede escribirse la hora de salida; el tiempo se calcula con el horario del docente de ese día.',

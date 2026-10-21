@@ -34,6 +34,7 @@ function onOpen() {
     .addItem('Actualizar hoja LEEME (versión y cambios)', 'actualizarLeeme')
     .addItem('Quitar reuniones repetidas', 'quitarReunionesDuplicadasLibro')
     .addItem('Corregir Docente 1 y 2 de Educación Física (una vez)', 'corregirDocentes1y2EducacionFisica')
+    .addItem('Revisar y recuperar marcas de la ronda', 'recuperarMarcasRonda')
     .addItem('Borrar audios de ronda antiguos', 'purgarAudios')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')
@@ -262,6 +263,7 @@ var ATIENDE_GRUPO = ['Nadie (grupo solo)', 'Se despachó al grupo temprano (auto
 
 /** Motivos agregados después de la primera versión del libro: se añaden solos a la hoja Motivos si faltan. */
 var MOTIVOS_NUEVOS = [
+  ['PERMISO INSTITUCIONAL', 'Evento SED / SEM (capacitación, taller, charla)', 'SI', 'Citación o invitación de la Secretaría de Educación', 'NO', 5],
   ['LICENCIA', 'Licencia de maternidad o paternidad', 'SI', 'Resolución o certificado de la licencia', 'SI', 5],
   ['LICENCIA', 'Licencia por luto', 'SI', 'Acta de defunción u otro soporte', 'SI', 5],
   ['LICENCIA', 'Licencia no remunerada', 'SI', 'Resolución o autorización de la licencia', 'SI', 5],

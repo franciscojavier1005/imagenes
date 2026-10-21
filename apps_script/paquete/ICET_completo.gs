@@ -35,6 +35,7 @@ function onOpen() {
     .addItem('Actualizar hoja LEEME (versión y cambios)', 'actualizarLeeme')
     .addItem('Quitar reuniones repetidas', 'quitarReunionesDuplicadasLibro')
     .addItem('Corregir Docente 1 y 2 de Educación Física (una vez)', 'corregirDocentes1y2EducacionFisica')
+    .addItem('Revisar y recuperar marcas de la ronda', 'recuperarMarcasRonda')
     .addItem('Borrar audios de ronda antiguos', 'purgarAudios')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')
@@ -263,6 +264,7 @@ var ATIENDE_GRUPO = ['Nadie (grupo solo)', 'Se despachó al grupo temprano (auto
 
 /** Motivos agregados después de la primera versión del libro: se añaden solos a la hoja Motivos si faltan. */
 var MOTIVOS_NUEVOS = [
+  ['PERMISO INSTITUCIONAL', 'Evento SED / SEM (capacitación, taller, charla)', 'SI', 'Citación o invitación de la Secretaría de Educación', 'NO', 5],
   ['LICENCIA', 'Licencia de maternidad o paternidad', 'SI', 'Resolución o certificado de la licencia', 'SI', 5],
   ['LICENCIA', 'Licencia por luto', 'SI', 'Acta de defunción u otro soporte', 'SI', 5],
   ['LICENCIA', 'Licencia no remunerada', 'SI', 'Resolución o autorización de la licencia', 'SI', 5],
@@ -2853,6 +2855,58 @@ function corregirDocentes1y2EducacionFisica() {
   ui.alert(textoIntercambio_(r, true));
 }
 
+/* ------------------------------ recuperar la visibilidad de las marcas de la ronda ------------------------------ */
+/**
+ * Las marcas de la ronda (Registro_Ronda) se ven en la tarjeta del docente que hoy tiene ese horario (o su pareja que alterna). Si el horario
+ * cambió y una marca quedó a nombre de alguien que ya no tiene esa sesión, la ronda la muestra «sin marcar». Aquí se cuentan esas marcas
+ * y, al aplicar, se pasan al docente que hoy tiene esa sesión y ese grupo (el docente puede quedar «cambiado», pero la marca vuelve a verse).
+ * No borra nada ni toca las demás columnas.
+ */
+function revisarRegistrosRonda_(aplicar) {
+  var altern = alternancias_(), ocupa = {}, hz = datos_('Horario');
+  function cod(x) { x = String(x == null ? '' : x).replace(/^'/, ''); while (/^\d+$/.test(x) && x.length < 4) x = '0' + x; return x; }
+  hz.forEach(function (h) {
+    var k = h.dia + '|' + Number(h.hora), grupos = String(h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo).split('+').map(cod);
+    (ocupa[k] = ocupa[k] || []).push({ docente: h.docente, area: String(h.area || ''), grupos: grupos, socio: parAlterna_(h, altern) });
+  });
+  var sh = hoja_('Registro_Ronda'), res = { total: 0, porFecha: {}, huerfanas: 0, corregidas: 0, sinResolver: 0, ejemplos: [] };
+  if (!sh) return res;
+  var v = sh.getDataRange().getValues(), c = {}; v[0].forEach(function (k, i) { c[k] = i; });
+  var sal = [];
+  for (var i = 1; i < v.length; i++) {
+    var fila = v[i], doc = fila[c.docente], nuevo = doc;
+    res.total++;
+    var f = fechaIso_(fila[c.fecha]); res.porFecha[f] = (res.porFecha[f] || 0) + 1;
+    var lista = ocupa[fila[c.dia] + '|' + Number(fila[c.sesion])] || [];
+    var validos = {}; lista.forEach(function (o) { validos[o.docente] = 1; if (o.socio) validos[o.socio] = 1; });
+    if (lista.length && !validos[doc]) {
+      res.huerfanas++;
+      var g = cod(fila[c.grupo]), area = String(fila[c.area] || '');
+      var cand = lista.filter(function (o) { return o.grupos.indexOf(g) >= 0 && (o.area === area || !area); });
+      if (!cand.length) cand = lista.filter(function (o) { return o.grupos.indexOf(g) >= 0; });
+      if (cand.length === 1) { nuevo = cand[0].docente; res.corregidas++; if (res.ejemplos.length < 6) res.ejemplos.push(f + ' S' + fila[c.sesion] + ': ' + doc + ' → ' + nuevo); }
+      else res.sinResolver++;
+    }
+    sal.push([nuevo]);
+  }
+  if (aplicar && res.corregidas) sh.getRange(2, c.docente + 1, sal.length, 1).setValues(sal);
+  return res;
+}
+
+/** Menú: «Revisar y recuperar marcas de la ronda». Cuenta las marcas por fecha, muestra cuántas no se ven y, al confirmar, las devuelve a la vista. */
+function recuperarMarcasRonda() {
+  exigirEditor_();
+  var ui = SpreadsheetApp.getUi(), r = revisarRegistrosRonda_(false);
+  var fechas = Object.keys(r.porFecha).sort().slice(-8).map(function (f) { return f + ': ' + r.porFecha[f]; }).join('\n');
+  var txt = 'Marcas guardadas en Registro_Ronda: ' + r.total + '\nÚltimas fechas:\n' + fechas + '\n\nMarcas que la ronda hoy no muestra (a nombre de quien ya no tiene esa sesión): ' + r.huerfanas +
+    '\nSe pueden devolver a la vista: ' + r.corregidas + '\nSin poder decidir: ' + r.sinResolver + (r.ejemplos.length ? '\n\nEjemplos:\n' + r.ejemplos.join('\n') : '');
+  if (!r.corregidas) { ui.alert('Marcas de la ronda', txt + '\n\nNo hay nada que recuperar con este método.', ui.ButtonSet.OK); return; }
+  if (ui.alert('Marcas de la ronda', txt + '\n\n¿Devolverlas a la vista ahora? (solo cambia el nombre del docente en esas filas)', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
+  var a = revisarRegistrosRonda_(true);
+  bitacora_('Recuperó marcas de la ronda', a.corregidas + ' marcas pasadas al docente que hoy tiene esa sesión');
+  ui.alert('Listo: ' + a.corregidas + ' marcas vuelven a verse en la ronda.');
+}
+
 // ===================== Novedades.gs =====================
 /**
  * Registro de novedades SIN necesidad de hacer la ronda (reemplaza el formulario de Google): permisos, incapacidades, talleres, llegadas tarde
@@ -3330,11 +3384,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.21-b';
+var VERSION_SISTEMA = '2026.10.21-c';
 var FECHA_VERSION = '2026-10-21';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.21-c', fecha: '2026-10-21', cambios: [
+    'Ronda: nuevo botón «Evento SED» (capacitación, taller, charla o citación de la Secretaría de Educación, SED o SEM): queda como ausencia de toda la jornada con el motivo «Evento SED / SEM», sin justificar, y el tiempo sin atender es el que el docente tiene con estudiantes ese día (240 min en preescolar).',
+    'Menú del libro «Revisar y recuperar marcas de la ronda»: cuenta las marcas de Registro_Ronda por fecha, detecta las que la ronda no muestra porque quedaron a nombre de quien ya no tiene esa sesión (por cambios de horario) y, al confirmar, las devuelve a la vista; no borra nada.'] },
   { version: '2026.10.21-b', fecha: '2026-10-21', cambios: [
     'Preescolar (transición): una ausencia de jornada completa mostraba 300 minutos porque el libro conservaba el horario viejo de 5 periodos de 60 min. Ahora el libro corrige solo el horario de preescolar al abrirse (4 periodos de 60 min, de 7:30 a 11:30 = 240 min al día) y baja a 240 las ausencias de jornada completa ya guardadas de quien solo tiene grupos de preescolar (también desde el menú «Actualizar horario de preescolar»).'] },
   { version: '2026.10.21-a', fecha: '2026-10-21', cambios: [
@@ -3422,7 +3479,7 @@ var HISTORIAL_VERSIONES = [
 ];
 
 var LEEME_USO = [
-  'Presente / No asistió / Con reemplazo / Permiso por horas / Llegada tarde / Salida temprana / Incumplimiento: estados de cada docente en la ronda.',
+  'Presente / No asistió / Con reemplazo / Evento SED (capacitación o taller de la Secretaría de Educación, toda la jornada) / Permiso por horas / Llegada tarde / Salida temprana / Incumplimiento: estados de cada docente en la ronda.',
   'Con reemplazo: el titular no está (incapacidad, licencia, permiso…) pero otra persona atiende el grupo en su horario. Queda «No asistió» con quién atendió; no suma minutos sin atender.',
   'No asistió sin reemplazo: el tiempo sin atender es el asignado en su horario (sesiones del bloque o toda la jornada). Incapacidad y licencia marcan «toda la jornada» solas.',
   'Salida temprana: puede escribirse la hora de salida; el tiempo se calcula con el horario del docente de ese día.',

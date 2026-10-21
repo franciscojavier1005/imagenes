@@ -506,4 +506,29 @@ EMAIL=''; ok(/Debe iniciar sesión/.test(falla("consultaHorarios({modo:'catalogo
   cs=run(`consultarSesion('${diaE}',${horaE},'sesion')`).filas.filter(f=>f.tipo==='ENFASIS'&&f.claveAlt===clave);
   ok(cs.length>=1&&cs.every(f=>f.definido)&&cs.some(f=>f.docente===MON),'definido el intercambio, en el equipo de énfasis aparece el otro docente');
 }
+// ---- intercambio de dos docentes: las marcas ya registradas siguen viéndose en la ronda (con el nuevo titular del horario)
+{
+  const D=H.Horario.slice(1).filter(r=>r[hi('tipo')]==='CLASE'&&r[hi('dia')]==='MARTES'&&Number(r[hi('hora')])===3&&r[hi('area')]!=='ETR');
+  const dA=D[0][hi('docente')], dB=D[1][hi('docente')], fecha=run("consultarSesion('MARTES',3,'sesion')").fecha;
+  const cabR=hojas.Registro_Ronda.v[0], ic=(k)=>cabR.indexOf(k);
+  const r=cabR.map(()=>''); r[0]='x'; r[ic('fecha')]=fecha; r[ic('sesion')]=3; r[ic('docente')]=dA; r[ic('grupo')]=D[0][hi('grupo')]; r[ic('area')]=D[0][hi('area')]; r[ic('estado')]='Presente'; hojas.Registro_Ronda.v.push(r);
+  const hzH=hojas.Horario; hzH.getRange=function(r_,c_,nr,nc){const q=this;return {setNumberFormat(){},setValue(x){q.v[r_-1][c_-1]=x},setValues(a){a.forEach((row,i)=>row.forEach((x,j)=>{q.v[r_-1+i][c_-1+j]=x}))},getValues(){return q.v.slice(r_-1,r_-1+nr).map(f=>f.slice(c_-1,c_-1+nc))}}};
+  const conMarca=(nom)=>{const f=run(`consultarSesion('MARTES',3,'sesion')`).filas.find(x=>x.docente===nom&&(x.previo||{}).estado==='Presente');return !!f};
+  ok(conMarca(dA),'antes del intercambio la marca aparece en la tarjeta de '+dA);
+  run(`intercambioDocentes_('${dA}','${dB}','',true)`);
+  ok(conMarca(dB)&&!conMarca(dA),'después del intercambio completo la marca sigue visible, ahora con el nuevo titular');
+}
+// ---- recuperar marcas que quedaron a nombre de quien ya no tiene la sesión
+{
+  const D=H.Horario.slice(1).filter(r=>r[hi('tipo')]==='CLASE'&&r[hi('dia')]==='MIERCOLES'&&Number(r[hi('hora')])===3&&r[hi('area')]!=='ETR');
+  const fecha=run("consultarSesion('MIERCOLES',3,'sesion')").fecha, cabR=hojas.Registro_Ronda.v[0], ic=(k)=>cabR.indexOf(k);
+  const usados=new Set(hojas.Registro_Ronda.v.map(x=>x[ic('docente')])), D0=D.find(x=>!usados.has(x[hi('docente')]))||D[0];
+  const titular=D0[hi('docente')], viejo='Docente que ya no tiene la sesión';
+  const r=cabR.map(()=>''); r[0]='x'; r[ic('fecha')]=fecha; r[ic('dia')]='MIERCOLES'; r[ic('sesion')]=3; r[ic('docente')]=viejo; r[ic('grupo')]="'"+D0[hi('grupo')]; r[ic('area')]=D0[hi('area')]; r[ic('estado')]='Presente'; hojas.Registro_Ronda.v.push(r);
+  const vista=()=>!!run("consultarSesion('MIERCOLES',3,'sesion')").filas.find(x=>x.docente===titular&&(x.previo||{}).estado==='Presente');
+  ok(!vista(),'una marca a nombre de quien ya no tiene la sesión no se ve en la ronda');
+  const p=run('revisarRegistrosRonda_(false)'); ok(p.huerfanas>=1&&p.corregidas>=1&&!vista(),'la vista previa cuenta las marcas que no se ven y no cambia nada');
+  const a=run('revisarRegistrosRonda_(true)'); ok(a.corregidas>=1&&vista(),'al aplicar, la marca vuelve a verse en la tarjeta del titular actual');
+  ok(run('revisarRegistrosRonda_(false)').huerfanas===0,'repetir no encuentra más');
+}
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

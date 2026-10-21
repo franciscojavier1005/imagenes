@@ -234,3 +234,55 @@ function corregirDocentes1y2EducacionFisica() {
   bitacora_('Intercambio Docente 1 y 2', ERD_DOCENTE_1 + ' ↔ ' + ERD_DOCENTE_2 + (area ? ' solo ' + area : ' todo') + ': horario ' + r.horario + ', marcas ' + r.registro + ', novedades ' + r.novedades + ', incumplimientos ' + r.incumplimientos);
   ui.alert(textoIntercambio_(r, true));
 }
+
+/* ------------------------------ recuperar la visibilidad de las marcas de la ronda ------------------------------ */
+/**
+ * Las marcas de la ronda (Registro_Ronda) se ven en la tarjeta del docente que hoy tiene ese horario (o su pareja que alterna). Si el horario
+ * cambió y una marca quedó a nombre de alguien que ya no tiene esa sesión, la ronda la muestra «sin marcar». Aquí se cuentan esas marcas
+ * y, al aplicar, se pasan al docente que hoy tiene esa sesión y ese grupo (el docente puede quedar «cambiado», pero la marca vuelve a verse).
+ * No borra nada ni toca las demás columnas.
+ */
+function revisarRegistrosRonda_(aplicar) {
+  var altern = alternancias_(), ocupa = {}, hz = datos_('Horario');
+  function cod(x) { x = String(x == null ? '' : x).replace(/^'/, ''); while (/^\d+$/.test(x) && x.length < 4) x = '0' + x; return x; }
+  hz.forEach(function (h) {
+    var k = h.dia + '|' + Number(h.hora), grupos = String(h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo).split('+').map(cod);
+    (ocupa[k] = ocupa[k] || []).push({ docente: h.docente, area: String(h.area || ''), grupos: grupos, socio: parAlterna_(h, altern) });
+  });
+  var sh = hoja_('Registro_Ronda'), res = { total: 0, porFecha: {}, huerfanas: 0, corregidas: 0, sinResolver: 0, ejemplos: [] };
+  if (!sh) return res;
+  var v = sh.getDataRange().getValues(), c = {}; v[0].forEach(function (k, i) { c[k] = i; });
+  var sal = [];
+  for (var i = 1; i < v.length; i++) {
+    var fila = v[i], doc = fila[c.docente], nuevo = doc;
+    res.total++;
+    var f = fechaIso_(fila[c.fecha]); res.porFecha[f] = (res.porFecha[f] || 0) + 1;
+    var lista = ocupa[fila[c.dia] + '|' + Number(fila[c.sesion])] || [];
+    var validos = {}; lista.forEach(function (o) { validos[o.docente] = 1; if (o.socio) validos[o.socio] = 1; });
+    if (lista.length && !validos[doc]) {
+      res.huerfanas++;
+      var g = cod(fila[c.grupo]), area = String(fila[c.area] || '');
+      var cand = lista.filter(function (o) { return o.grupos.indexOf(g) >= 0 && (o.area === area || !area); });
+      if (!cand.length) cand = lista.filter(function (o) { return o.grupos.indexOf(g) >= 0; });
+      if (cand.length === 1) { nuevo = cand[0].docente; res.corregidas++; if (res.ejemplos.length < 6) res.ejemplos.push(f + ' S' + fila[c.sesion] + ': ' + doc + ' → ' + nuevo); }
+      else res.sinResolver++;
+    }
+    sal.push([nuevo]);
+  }
+  if (aplicar && res.corregidas) sh.getRange(2, c.docente + 1, sal.length, 1).setValues(sal);
+  return res;
+}
+
+/** Menú: «Revisar y recuperar marcas de la ronda». Cuenta las marcas por fecha, muestra cuántas no se ven y, al confirmar, las devuelve a la vista. */
+function recuperarMarcasRonda() {
+  exigirEditor_();
+  var ui = SpreadsheetApp.getUi(), r = revisarRegistrosRonda_(false);
+  var fechas = Object.keys(r.porFecha).sort().slice(-8).map(function (f) { return f + ': ' + r.porFecha[f]; }).join('\n');
+  var txt = 'Marcas guardadas en Registro_Ronda: ' + r.total + '\nÚltimas fechas:\n' + fechas + '\n\nMarcas que la ronda hoy no muestra (a nombre de quien ya no tiene esa sesión): ' + r.huerfanas +
+    '\nSe pueden devolver a la vista: ' + r.corregidas + '\nSin poder decidir: ' + r.sinResolver + (r.ejemplos.length ? '\n\nEjemplos:\n' + r.ejemplos.join('\n') : '');
+  if (!r.corregidas) { ui.alert('Marcas de la ronda', txt + '\n\nNo hay nada que recuperar con este método.', ui.ButtonSet.OK); return; }
+  if (ui.alert('Marcas de la ronda', txt + '\n\n¿Devolverlas a la vista ahora? (solo cambia el nombre del docente en esas filas)', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
+  var a = revisarRegistrosRonda_(true);
+  bitacora_('Recuperó marcas de la ronda', a.corregidas + ' marcas pasadas al docente que hoy tiene esa sesión');
+  ui.alert('Listo: ' + a.corregidas + ' marcas vuelven a verse en la ronda.');
+}

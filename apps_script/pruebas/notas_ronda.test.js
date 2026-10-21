@@ -526,9 +526,13 @@ EMAIL=''; ok(/Debe iniciar sesión/.test(falla("consultaHorarios({modo:'catalogo
   const titular=D0[hi('docente')], viejo='Docente que ya no tiene la sesión';
   const r=cabR.map(()=>''); r[0]='x'; r[ic('fecha')]=fecha; r[ic('dia')]='MIERCOLES'; r[ic('sesion')]=3; r[ic('docente')]=viejo; r[ic('grupo')]="'"+D0[hi('grupo')]; r[ic('area')]=D0[hi('area')]; r[ic('estado')]='Presente'; hojas.Registro_Ronda.v.push(r);
   const vista=()=>!!run("consultarSesion('MIERCOLES',3,'sesion')").filas.find(x=>x.docente===titular&&(x.previo||{}).estado==='Presente');
-  ok(!vista(),'una marca a nombre de quien ya no tiene la sesión no se ve en la ronda');
-  const p=run('revisarRegistrosRonda_(false)'); ok(p.huerfanas>=1&&p.corregidas>=1&&!vista(),'la vista previa cuenta las marcas que no se ven y no cambia nada');
+  ok(vista(),'una marca a nombre de quien ya no tiene la sesión se ve igual en la tarjeta del titular actual (por fecha, sesión, grupo y área)');
+  const p=run('revisarRegistrosRonda_(false)'); ok(p.huerfanas>=1&&p.corregidas>=1&&hojas.Registro_Ronda.v.slice(-1)[0][ic('docente')]===viejo,'la vista previa cuenta esas marcas y no cambia nada en la hoja');
   const a=run('revisarRegistrosRonda_(true)'); ok(a.corregidas>=1&&vista(),'al aplicar, la marca vuelve a verse en la tarjeta del titular actual');
   ok(run('revisarRegistrosRonda_(false)').huerfanas===0,'repetir no encuentra más');
+  // guardar la ronda de ese puesto no duplica la marca vieja
+  hojas.Registro_Ronda.v.slice(-1)[0][ic('docente')]=viejo; const nReg=hojas.Registro_Ronda.v.length;
+  run(`guardarRonda({dia:'MIERCOLES',sesion:3,fecha:'${fecha}',registros:[{docente:${JSON.stringify(titular)},grupoCodigo:${JSON.stringify(D0[hi('grupo')])},area:${JSON.stringify(D0[hi('area')])},estado:'Presente'}]})`);
+  ok(hojas.Registro_Ronda.v.length===nReg&&hojas.Registro_Ronda.v.slice(-1)[0][ic('docente')]===titular,'al guardar el puesto se reemplaza la marca a nombre del anterior (no se duplica)');
 }
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

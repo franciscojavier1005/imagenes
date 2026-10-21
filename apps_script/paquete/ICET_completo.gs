@@ -152,20 +152,24 @@ function consultarSesion(dia, sesion, modo) {
                       jornada: String(n['Sesiones']) === 'JC' };
     }
   });
-  var yaMarcados = {};
+  var yaMarcados = {}, regHoy = [];
   datos_('Registro_Ronda').forEach(function (r) {
     var f = r.fecha instanceof Date ? ymd_(r.fecha) : String(r.fecha);
-    if (f === out.fecha && hs.indexOf(Number(r.sesion)) >= 0 && !yaMarcados[r.docente]) yaMarcados[r.docente] = r;
+    if (f === out.fecha && hs.indexOf(Number(r.sesion)) >= 0) { regHoy.push(r); if (!yaMarcados[r.docente]) yaMarcados[r.docente] = r; }
   });
   var altern = alternancias_(), totDia = {};
   var horarioDia = datos_('Horario').filter(function (h) { return h.dia === dia; });
   horarioDia.forEach(function (h) { totDia[h.docente] = (totDia[h.docente] || 0) + minutosSesion_(h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo); });
   var fuente = horarioDia.filter(function (h) { return hs.indexOf(Number(h.hora)) >= 0; })
     .sort(function (a, b) { return Number(a.hora) - Number(b.hora); });
+  /* Marcas a nombre de quien ya no tiene esa sesión (cambios de horario): se muestran en la tarjeta de quien hoy tiene esa sesión y ese grupo, para que nada se vea «sin marcar» */
+  var ocupantes = {}, huerfanas = {};
+  fuente.forEach(function (h) { ocupantes[h.docente] = 1; var so = parAlterna_(h, altern); if (so) ocupantes[so] = 1; });
+  regHoy.forEach(function (r) { if (!ocupantes[r.docente]) huerfanas[claveSlot_(r.sesion, r.grupo, r.area)] = huerfanas[claveSlot_(r.sesion, r.grupo, r.area)] || r; });
   out.filas = fuente.map(function (h) {
     var enf = h.tipo === 'ENFASIS';
     var nota = [/^00/.test(String(h.grupo)) ? 'Preescolar ' + hhmm_(h.inicio) + ' - ' + hhmm_(h.fin) : '', h.alternancia, h.equipo_enfasis ? 'Con: ' + h.equipo_enfasis : ''].filter(String).join(' · ');
-    var ya = yaMarcados[h.docente];
+    var ya = yaMarcados[h.docente] || huerfanas[claveSlot_(h.hora, enf ? h.grupos_enfasis : h.grupo, h.area || '(énfasis)')];
     return {
       docente: h.docente, grupoCodigo: enf ? h.grupos_enfasis : h.grupo,
       grupo: enf ? 'ÉNFASIS ' + String(h.grupos_enfasis).split('+').map(function (g) { return nombres[g] || g; }).join(' + ')
@@ -206,7 +210,7 @@ function consultarSesion(dia, sesion, modo) {
     var nuevo = /^CLASE/.test(f.claveAlt) ? (st.intercambio === 'SI' ? f.pareja.filter(function (n) { return n !== f.primario; })[0] : f.primario) : st.elegido;
     f.docente = nuevo; f.alternos = []; f.definido = { por: st.por };
     f.reporte = reportes[nuevo] || null; f.minutosDia = totDia[nuevo] || 0;
-    var ya2 = yaMarcados[nuevo];
+    var ya2 = yaMarcados[nuevo]; if (!ya2) f.sesiones.forEach(function (x) { ya2 = ya2 || huerfanas[claveSlot_(x.sesion, x.grupoCodigo, x.area)]; });
     f.previo = ya2 ? { estado: ya2.estado, motivo: ya2.motivo, minutos: ya2.minutos, observaciones: ya2.observaciones, atendidoPor: ya2.atendido_por || '' } : null;
   });
   if (out.modo === 'bloque') {   // una tarjeta por docente: sus sesiones del bloque quedan juntas
@@ -339,6 +343,10 @@ function estadosSemana_(semana) {
  * jornada completa (JC). Devuelve cuántas filas cambió.
  */
 /** Compañero de alternancia semanal de una fila de horario: en las clases de la pareja y también en los equipos de énfasis donde participa (el docente de la pareja que va al equipo cambia con la semana). */
+function claveSlot_(sesion, grupo, area) {
+  var g = String(grupo == null ? '' : grupo).replace(/^'/, ''); while (/^\d+$/.test(g) && g.length < 4) g = '0' + g;
+  return Number(sesion) + '|' + g + '|' + String(area || '');
+}
 function parAlterna_(h, altern) {
   if (!(h.tipo === 'CLASE' || (h.tipo === 'ENFASIS' && /^EQUIPO/.test(String(h.alternancia))))) return '';
   return altern[h.area + '|' + h.docente] || '';
@@ -529,6 +537,13 @@ function guardarRonda(p) {
       for (var i = 1; i < regVals.length; i++) {
         var f = regVals[i][1] instanceof Date ? ymd_(regVals[i][1]) : String(regVals[i][1]);
         if (f === fecha && Number(regVals[i][3]) === sesion && regVals[i][5] === r.docente) { idx = i; break; }
+      }
+      if (idx < 0) {   // una marca anterior del mismo puesto (fecha, sesión, grupo y área) a nombre de alguien que ya no tiene esa sesión se reemplaza en vez de duplicarse
+        var ocup = {}; hz.forEach(function (h) { if (h.dia === p.dia && Number(h.hora) === sesion) ocup[h.docente] = 1; });
+        for (var i2 = 1; i2 < regVals.length; i2++) {
+          var f2 = regVals[i2][1] instanceof Date ? ymd_(regVals[i2][1]) : String(regVals[i2][1]);
+          if (f2 === fecha && Number(regVals[i2][3]) === sesion && !ocup[regVals[i2][5]] && claveSlot_(sesion, regVals[i2][6], regVals[i2][7]) === claveSlot_(sesion, r.grupoCodigo, r.area)) { idx = i2; break; }
+        }
       }
       if (idx > 0) { reg.getRange(idx + 1, 1, 1, fila.length).setValues([fila]); regVals[idx] = fila; }
       else { reg.appendRow(fila); regVals.push(fila); }
@@ -3384,11 +3399,15 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.21-c';
+var VERSION_SISTEMA = '2026.10.21-d';
 var FECHA_VERSION = '2026-10-21';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.21-d', fecha: '2026-10-21', cambios: [
+    'Ronda: las marcas ya guardadas del bloque se ven siempre. Si una marca quedó a nombre de un docente que ya no tiene esa sesión (cambios de horario), aparece en la tarjeta de quien hoy la tiene (por fecha, sesión, grupo y área) y al guardar se reemplaza en vez de duplicarse; no hace falta tocar la hoja.',
+    'Ronda: botones más cortos y con colores propios (Presente, No asistió, Otro a cargo, SED, Permiso, Tarde, Salió, Incumple). «SED» no pide motivo, horas ni actividad: registra la jornada completa con el tiempo que el docente tiene con estudiantes.',
+    'Ronda: el botón «❗ Faltan: N · ver» abre una ventana con los nombres de quienes aún no tienen marca; tocar un nombre lleva a su tarjeta.'] },
   { version: '2026.10.21-c', fecha: '2026-10-21', cambios: [
     'Ronda: nuevo botón «Evento SED» (capacitación, taller, charla o citación de la Secretaría de Educación, SED o SEM): queda como ausencia de toda la jornada con el motivo «Evento SED / SEM», sin justificar, y el tiempo sin atender es el que el docente tiene con estudiantes ese día (240 min en preescolar).',
     'Menú del libro «Revisar y recuperar marcas de la ronda»: cuenta las marcas de Registro_Ronda por fecha, detecta las que la ronda no muestra porque quedaron a nombre de quien ya no tiene esa sesión (por cambios de horario) y, al confirmar, las devuelve a la vista; no borra nada.'] },
@@ -3479,7 +3498,7 @@ var HISTORIAL_VERSIONES = [
 ];
 
 var LEEME_USO = [
-  'Presente / No asistió / Con reemplazo / Evento SED (capacitación o taller de la Secretaría de Educación, toda la jornada) / Permiso por horas / Llegada tarde / Salida temprana / Incumplimiento: estados de cada docente en la ronda.',
+  'Presente / No asistió / Otro a cargo (antes Con reemplazo) / SED (evento, capacitación o taller de la Secretaría de Educación, toda la jornada) / Permiso por horas / Llegada tarde / Salida temprana / Incumplimiento: estados de cada docente en la ronda.',
   'Con reemplazo: el titular no está (incapacidad, licencia, permiso…) pero otra persona atiende el grupo en su horario. Queda «No asistió» con quién atendió; no suma minutos sin atender.',
   'No asistió sin reemplazo: el tiempo sin atender es el asignado en su horario (sesiones del bloque o toda la jornada). Incapacidad y licencia marcan «toda la jornada» solas.',
   'Salida temprana: puede escribirse la hora de salida; el tiempo se calcula con el horario del docente de ese día.',

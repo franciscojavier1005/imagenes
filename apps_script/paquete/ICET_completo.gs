@@ -310,7 +310,7 @@ function claveGrupo_(codigo) {
  * Guarda las marcas de la ronda.
  * p = {directivo, dia, sesion, fecha?, registros:[{docente, grupoCodigo, area, estado, motivo, minutos, obs, fuente, medio}]}
  */
-var SIN_ESTUDIANTES = ['Sin estudiantes: los despachó', 'Sin estudiantes: están en taller o actividad fuera del aula', 'Sin estudiantes: no asistieron (padres avisados)', 'Sin estudiantes: otro motivo (ver observaciones)'];   // docente presente, pero sin estudiantes en ese momento
+var SIN_ESTUDIANTES = ['Sin estudiantes: los despachó', 'Sin estudiantes: están en taller o actividad fuera del aula', 'Sin estudiantes: no asistieron (padres avisados)', 'Sin estudiantes: están en otra dependencia (laboratorio, biblioteca, sala)', 'Sin estudiantes: el docente no los está atendiendo', 'Sin estudiantes: el docente no quiso atenderlos', 'Sin estudiantes: otro motivo (ver observaciones)'];   // docente presente, pero sin estudiantes en ese momento
 var ATIENDE_GRUPO = ['Nadie (grupo solo)', 'Se despachó al grupo temprano (autorizado)', 'Sin clase: los niños no asistieron (padres avisados)', 'Reemplazo (docente)', 'Reemplazo (acordado con rectoría)', 'Persona de apoyo contratada (alcaldía u otra entidad)', 'Otro docente (con espacio libre)', 'No aplica (no tiene grupo asignado)', 'Practicante', 'Auxiliar o persona de apoyo del docente', 'Otro docente o directivo'];
 
 /** Motivos agregados después de la primera versión del libro: se añaden solos a la hoja Motivos si faltan. */
@@ -1486,7 +1486,7 @@ function htmlRondas_(desde, hasta, directivo, conPresentes) {
         return escRonda_(x.docente) + (x.motivo ? ' <i>(' + escRonda_(x.motivo) + (x.minutos ? ', ' + escRonda_(x.minutos) + ' min' : '') + ')</i>' : '');
       }).join('; ') + '</div>';
     });
-    if (conPresentes && b.presentes.length) h += '<div style="margin-top:5px;color:#1b5e20"><b>✔ Presentes</b>: ' + b.presentes.map(function (x) { return escRonda_(x.docente) + (/^Sin estudiantes/.test(String(x.atiende || '')) ? ' <i style="color:#567">(sin estudiantes)</i>' : ''); }).join('; ') + '</div>';
+    if (conPresentes && b.presentes.length) h += '<div style="margin-top:5px;color:#1b5e20"><b>✔ Presentes</b>: ' + b.presentes.map(function (x) { return escRonda_(x.docente) + (/^Sin estudiantes/.test(String(x.atiende || '')) ? ' <i style="color:#567">(' + escRonda_(String(x.atiende).toLowerCase()) + ')</i>' : ''); }).join('; ') + '</div>';
     h += '</div>';
   });
   return h;
@@ -3474,11 +3474,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.23-g';
+var VERSION_SISTEMA = '2026.10.23-h';
 var FECHA_VERSION = '2026-10-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.23-h', fecha: '2026-10-23', cambios: [
+    'Ronda: «Sin estudiantes» ahora ofrece más motivos: los despachó, están en taller o actividad fuera del aula, no asistieron (padres avisados), están en otra dependencia (laboratorio, biblioteca, sala), el docente no los está atendiendo, el docente no quiso atenderlos y otro motivo. El informe de rondas muestra el motivo junto al nombre del docente presente. (Para un incumplimiento formal use el botón «Reportar incumplimiento».)'] },
   { version: '2026.10.23-g', fecha: '2026-10-23', cambios: [
     'Ronda: los botones que se suman a «Presente» (llegada tarde, permiso por horas, salió antes, incumplimiento) forman una barra unida, sin líneas punteadas.',
     'Ronda: el interruptor «Con estudiantes / Sin estudiantes» queda siempre visible en la línea del área de cada docente (no aparece para orientación ni tutoría). Al tocar «Sin estudiantes» el docente queda presente y se elige el motivo en una lista debajo. El nombre del docente baja a 13,5 px en celular.'] },

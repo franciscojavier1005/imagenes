@@ -309,7 +309,7 @@ function claveGrupo_(codigo) {
  * Guarda las marcas de la ronda.
  * p = {directivo, dia, sesion, fecha?, registros:[{docente, grupoCodigo, area, estado, motivo, minutos, obs, fuente, medio}]}
  */
-var SIN_ESTUDIANTES = ['Sin estudiantes: los despachó', 'Sin estudiantes: están en taller o actividad fuera del aula', 'Sin estudiantes: no asistieron (padres avisados)', 'Sin estudiantes: otro motivo (ver observaciones)'];   // docente presente, pero sin estudiantes en ese momento
+var SIN_ESTUDIANTES = ['Sin estudiantes: los despachó', 'Sin estudiantes: están en taller o actividad fuera del aula', 'Sin estudiantes: no asistieron (padres avisados)', 'Sin estudiantes: están en otra dependencia (laboratorio, biblioteca, sala)', 'Sin estudiantes: el docente no los está atendiendo', 'Sin estudiantes: el docente no quiso atenderlos', 'Sin estudiantes: otro motivo (ver observaciones)'];   // docente presente, pero sin estudiantes en ese momento
 var ATIENDE_GRUPO = ['Nadie (grupo solo)', 'Se despachó al grupo temprano (autorizado)', 'Sin clase: los niños no asistieron (padres avisados)', 'Reemplazo (docente)', 'Reemplazo (acordado con rectoría)', 'Persona de apoyo contratada (alcaldía u otra entidad)', 'Otro docente (con espacio libre)', 'No aplica (no tiene grupo asignado)', 'Practicante', 'Auxiliar o persona de apoyo del docente', 'Otro docente o directivo'];
 
 /** Motivos agregados después de la primera versión del libro: se añaden solos a la hoja Motivos si faltan. */

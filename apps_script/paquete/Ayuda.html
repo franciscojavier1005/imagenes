@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.23-g</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.23-h</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -111,7 +111,7 @@
 <div class="seg"><span class="p">✔ Presente</span><span class="n">✖ No asistió</span><span class="r">👥 Otro a cargo</span><span>🏛 SED</span><span>⏳ Permiso</span><span>⏰ Tarde</span><span>↩ Salió</span><span>⚠ Incumple</span></div>
 <table class="tbl">
 <tr><th>Botón</th><th>Cuándo usarlo</th><th>Qué le pide</th></tr>
-<tr><td><b>Presente</b></td><td>Está en clase con su grupo.</td><td>Nada más. Si no hay estudiantes en ese momento (los despachó, están en un taller o fuera del aula), toque <b>«Sin estudiantes»</b> en el interruptor que está junto al área del docente (por defecto es «Con estudiantes») y elija el motivo en la lista que aparece debajo. No aplica a orientación ni a la tutora PTA.</td></tr>
+<tr><td><b>Presente</b></td><td>Está en clase con su grupo.</td><td>Nada más. Si no hay estudiantes en ese momento (los despachó, están en un taller o fuera del aula), toque <b>«Sin estudiantes»</b> en el interruptor que está junto al área del docente (por defecto es «Con estudiantes») y elija el motivo en la lista que aparece debajo (los despachó, taller o fuera del aula, no asistieron, otra dependencia, no los está atendiendo, no quiso atenderlos, otro). Para un incumplimiento formal use «Reportar incumplimiento». No aplica a orientación ni a la tutora PTA.</td></tr>
 <tr><td><b>No asistió</b></td><td>No vino y <b>nadie</b> atiende el grupo.</td><td>Motivo, hasta cuándo no estará y observación. El tiempo sin atender es el asignado en su horario.</td></tr>
 <tr><td><b>Otro a cargo</b> (antes «Con reemplazo»)</td><td>El titular no está pero <b>otra persona atiende el grupo</b> (reemplazo del rector, persona de apoyo, practicante, otro docente).</td><td>Motivo de la ausencia y <b>quién cubre</b> el grupo.</td></tr>
 <tr><td><b>SED</b></td><td>El docente está en una capacitación, taller, charla o citación de la Secretaría de Educación (SED o SEM). Es para toda la jornada y no hay que justificar.</td><td>Nada: no se piden motivo, horas ni actividad de aprendizaje. Cuenta como no atendido el tiempo que el docente tiene con estudiantes ese día (en preescolar, 240 min).</td></tr>
@@ -209,7 +209,7 @@
 <p class="tip">¿Algo no aparece en este manual? Dígaselo a coordinación académica para incluirlo en la próxima versión.</p></section>
 
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.23-g</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.23-h</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

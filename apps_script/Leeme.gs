@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.23-g';
+var VERSION_SISTEMA = '2026.10.23-h';
 var FECHA_VERSION = '2026-10-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.23-h', fecha: '2026-10-23', cambios: [
+    'Ronda: «Sin estudiantes» ahora ofrece más motivos: los despachó, están en taller o actividad fuera del aula, no asistieron (padres avisados), están en otra dependencia (laboratorio, biblioteca, sala), el docente no los está atendiendo, el docente no quiso atenderlos y otro motivo. El informe de rondas muestra el motivo junto al nombre del docente presente. (Para un incumplimiento formal use el botón «Reportar incumplimiento».)'] },
   { version: '2026.10.23-g', fecha: '2026-10-23', cambios: [
     'Ronda: los botones que se suman a «Presente» (llegada tarde, permiso por horas, salió antes, incumplimiento) forman una barra unida, sin líneas punteadas.',
     'Ronda: el interruptor «Con estudiantes / Sin estudiantes» queda siempre visible en la línea del área de cada docente (no aparece para orientación ni tutoría). Al tocar «Sin estudiantes» el docente queda presente y se elige el motivo en una lista debajo. El nombre del docente baja a 13,5 px en celular.'] },

@@ -203,3 +203,6 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 
 ## Versión 2026.10.23-g — Barra unida de complementarios e interruptor Con/Sin estudiantes
 - Elegida la opción C de la maqueta: `.segc` (barra unida) para las novedades complementarias, sin líneas punteadas; interruptor `.cs` «Con estudiantes / Sin estudiantes» en la línea del área (`.metaf`), solo para tipos con grupo y mientras el docente no esté marcado o esté Presente; `sinEst(id,true)` marca Presente y pone el motivo por defecto (`SINEST[0]`); la lista de motivos aparece bajo los botones (`.sinest`). Nombre del docente a 13,5 px en celular.
+
+## Versión 2026.10.23-h — Más motivos en «Sin estudiantes»
+- `SIN_ESTUDIANTES` (Codigo.gs) y `SINEST` (Consulta.html): 7 motivos (se conservan los textos y los índices 0-3 anteriores): los despachó, taller o fuera del aula, no asistieron (padres avisados), otra dependencia, el docente no los está atendiendo, el docente no quiso atenderlos, otro. El informe de rondas (Dashboard.gs/.html) muestra el motivo completo junto al docente presente.

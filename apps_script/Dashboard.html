@@ -157,7 +157,7 @@
     <div class="vacio">Cargando…</div>
   </div>
   <div class="pie" id="pie"></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.23-g</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.23-h</div>
 </div>
 </div>
 <div id="tip" role="tooltip"></div>
@@ -440,7 +440,7 @@ function pintarRondas(sec,r,dsel){
     var det=h('details',{},[h('summary',{style:'cursor:pointer;font-weight:600',text:fFecha(b.fecha)+' · Bloque '+b.bloque+' · ronda de '+(b.directivo||'—')+' · ✔ '+b.presentes.length+' presentes de '+b.total+(b.noAsistieron.length?' · ✖ '+b.noAsistieron.length+' no asistieron':'')+(b.conReemplazo&&b.conReemplazo.length?' · 👥 '+b.conReemplazo.length+' con reemplazo':'')+((b.permisos.length+b.tardes.length+b.incumplimientos.length)?' · con novedad: '+(b.permisos.length+b.tardes.length+b.incumplimientos.length):'')})]);
     cats.forEach(function(c){ var l=b[c[0]]; if(!l.length) return;
       det.appendChild(h('div',{style:'margin-top:6px;color:'+c[2]},[h('b',{text:c[1]+' ('+l.length+'): '}),document.createTextNode(l.map(function(x){return x.docente+(x.motivo?' ('+x.motivo+(x.minutos?', '+x.minutos+' min':'')+')':'');}).join('; '))])); });
-    if(b.presentes.length) det.appendChild(h('div',{style:'margin-top:6px;color:#1b5e20'},[h('b',{text:'✔ Presentes ('+b.presentes.length+'): '}),document.createTextNode(b.presentes.map(function(x){return x.docente+(/^Sin estudiantes/.test(x.atiende||'')?' (sin estudiantes)':'');}).join('; '))]));
+    if(b.presentes.length) det.appendChild(h('div',{style:'margin-top:6px;color:#1b5e20'},[h('b',{text:'✔ Presentes ('+b.presentes.length+'): '}),document.createTextNode(b.presentes.map(function(x){return x.docente+(/^Sin estudiantes/.test(x.atiende||'')?' ('+String(x.atiende).toLowerCase()+')':'');}).join('; '))]));
     return h('div',{style:'border:1px solid var(--grid);border-radius:10px;padding:8px 12px;margin-top:8px'},[det]);
   });
   sec.replaceChildren.apply(sec,[h('h2',{text:'📋 Rondas de verificación'}),cab].concat(items.length?items:[h('div',{class:'vacio',text:'No hay rondas guardadas en este periodo.'})]));

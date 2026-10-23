@@ -49,8 +49,52 @@ function onOpen() {
 /* ------------------------------ utilidades ------------------------------ */
 function hoja_(n) { return SpreadsheetApp.getActive().getSheetByName(n); }
 
+/**
+ * Hojas que casi nunca cambian (horario, franjas, motivos, grupos, parejas, docentes, listas): se guardan 10 minutos en la caché del script para no
+ * releerlas de la hoja de cálculo en cada pantalla (leer es lo que más tarda). Se borran solas al editar esas hojas (onEdit) y desde las herramientas
+ * que las cambian (invalidarCache_()).
+ */
+var HOJAS_CACHE = { Horario: 1, Franjas: 1, Motivos: 1, Grupos: 1, Direccion_Grupo: 1, Alternancias: 1, Listas: 1, Docentes: 1 };
+var CACHE_SEG = 600, CACHE_TROZO = 90000;
+function cacheOk_() { return typeof CacheService !== 'undefined' && CacheService.getScriptCache; }
+function cacheLee_(n) {
+  try {
+    var c = CacheService.getScriptCache(), k = 'ICETv1:' + n, meta = c.get(k + ':n');
+    if (!meta) return null;
+    var claves = []; for (var i = 0; i < Number(meta); i++) claves.push(k + ':' + i);
+    var got = c.getAll(claves), txt = '';
+    for (var j = 0; j < claves.length; j++) { if (got[claves[j]] == null) return null; txt += got[claves[j]]; }
+    return JSON.parse(txt, function (key, val) { return val && val.__d != null ? new Date(val.__d) : val; });
+  } catch (e) { return null; }
+}
+function cacheEscribe_(n, v) {
+  try {
+    var c = CacheService.getScriptCache(), k = 'ICETv1:' + n, txt = JSON.stringify(v, function (key, val) { var raw = this[key]; return raw instanceof Date ? { __d: raw.getTime() } : val; }), obj = {}, t = 0;
+    for (var i = 0; i < txt.length; i += CACHE_TROZO) obj[k + ':' + (t++)] = txt.substr(i, CACHE_TROZO);
+    if (t > 40) return;   // demasiado grande para la caché: se lee siempre de la hoja
+    obj[k + ':n'] = String(t); c.putAll(obj, CACHE_SEG);
+  } catch (e) { /* sin caché: se lee de la hoja */ }
+}
+/** Borra la caché de una hoja (o de todas). Llamar después de cambiar esas hojas desde el código. */
+function invalidarCache_(n) {
+  if (!cacheOk_()) return;
+  try {
+    var c = CacheService.getScriptCache(), nombres = n ? [n] : Object.keys(HOJAS_CACHE), claves = [];
+    nombres.forEach(function (x) { var meta = c.get('ICETv1:' + x + ':n'); claves.push('ICETv1:' + x + ':n'); for (var i = 0; i < Number(meta || 0); i++) claves.push('ICETv1:' + x + ':' + i); });
+    c.removeAll(claves);
+  } catch (e) { /* nada que borrar */ }
+}
+/** Se ejecuta sola al editar la hoja a mano: si es una hoja en caché, la borra para que el cambio se vea de inmediato. */
+function onEdit(e) { try { var nom = e && e.range && e.range.getSheet().getName(); if (nom && HOJAS_CACHE[nom]) invalidarCache_(nom); } catch (x) { /* nada */ } }
+function valores_(n) {
+  if (HOJAS_CACHE[n] && cacheOk_()) {
+    var c = cacheLee_(n); if (c) return c;
+    var v = hoja_(n).getDataRange().getValues(); cacheEscribe_(n, v); return v;
+  }
+  return hoja_(n).getDataRange().getValues();
+}
 function datos_(n) {
-  var v = hoja_(n).getDataRange().getValues(), h = v.shift();
+  var v = valores_(n), h = v.shift();
   return v.filter(function (r) { return r[0] !== ''; }).map(function (r) {
     var o = {}; h.forEach(function (k, i) { o[k] = r[i]; }); return o;
   });
@@ -297,7 +341,9 @@ var MOTIVOS_NUEVOS = [
 ];
 function asegurarMotivos_() {
   var sh = hoja_('Motivos'), existentes = datos_('Motivos').map(function (m) { return m.motivo; });
-  MOTIVOS_NUEVOS.forEach(function (f) { if (existentes.indexOf(f[1]) < 0) sh.appendRow(f); });
+  var agregado = false;
+  MOTIVOS_NUEVOS.forEach(function (f) { if (existentes.indexOf(f[1]) < 0) { sh.appendRow(f); agregado = true; } });
+  if (agregado) invalidarCache_('Motivos');
 }
 
 /** Parejas que alternan cada semana (hoja Alternancias; si no existe se crea con las dos parejas de ética y religión). */
@@ -312,7 +358,7 @@ var ALTERNANCIAS_DEFECTO = [
 function alternancias_() {
   var sh = hojaOCrea_('Alternancias', ['area', 'docente_a', 'docente_b', 'nota']);
   var areas = {}; datos_('Alternancias').forEach(function (a) { areas[a.area] = 1; });
-  ALTERNANCIAS_DEFECTO.forEach(function (f) { if (!areas[f[0]]) sh.appendRow(f); });   // un área sin ninguna pareja recibe las de la versión inicial (no toca lo que ya editó)
+  var nuevoAlt = false; ALTERNANCIAS_DEFECTO.forEach(function (f) { if (!areas[f[0]]) { sh.appendRow(f); nuevoAlt = true; } }); if (nuevoAlt) invalidarCache_('Alternancias');   // un área sin ninguna pareja recibe las de la versión inicial (no toca lo que ya editó)
   var m = {};
   datos_('Alternancias').forEach(function (a) {
     m[a.area + '|' + a.docente_a] = a.docente_b; m[a.area + '|' + a.docente_b] = a.docente_a;
@@ -475,7 +521,8 @@ function guardarRonda(p) {
   p.directivo = valido ? elegido : sesionDe;
   if (valido && elegido !== sesionDe) bitacora_('Ronda con sesión prestada', 'La ronda de ' + (p.fecha || '') + ' (sesión ' + (p.sesion || '') + ') la hizo ' + elegido + ' con la sesión de ' + sesionDe);
   var lock = LockService.getScriptLock();
-  lock.waitLock(20000);
+  try { lock.waitLock(45000); } catch (e) { throw new Error('Hay otro guardado en curso en el libro. Espere unos segundos y toque Guardar de nuevo.'); }
+  var filasRespaldo = [];
   try {
     var ahora = new Date(), fecha = p.fecha || ymd_(ahora);
     var franjas = datos_('Franjas');
@@ -486,7 +533,12 @@ function guardarRonda(p) {
     var regVals = reg.getDataRange().getValues();   // para reemplazar marcas repetidas
     var novVals = nov.getDataRange().getValues();
     var novCol = novVals[0].indexOf('Sesiones');
-    var guardados = 0, filasRespaldo = [];
+    var guardados = 0, pendReg = [], pendNov = [];
+    /* las filas nuevas se escriben de una sola vez (una llamada a la hoja en vez de una por fila); antes de borrar filas se vuelcan las pendientes */
+    function volcarReg() { if (!pendReg.length) return; reg.getRange(regVals.length - pendReg.length + 1, 1, pendReg.length, regVals[0].length).setValues(pendReg.map(function (f) { return rellena_(f, regVals[0].length); })); pendReg = []; }
+    function volcarNov() { if (!pendNov.length) return; nov.getRange(novVals.length - pendNov.length + 1, 1, pendNov.length, novVals[0].length).setValues(pendNov.map(function (f) { return rellena_(f, novVals[0].length); })); pendNov = []; }
+    var reunPorSesion = {};
+    function reunDe(ses) { return reunPorSesion[ses] || (reunPorSesion[ses] = reunionesEnSesiones_(fecha, [ses], franjas)); }
     (p.registros || []).forEach(function (r) {
       var sesion = Number(r.sesion || p.sesion);   // en la ronda por bloque cada marca trae su sesión (el bloque se guarda como sus dos sesiones)
       var fr = franjas.filter(function (f) { return Number(f.hora) === sesion; })[0];
@@ -494,7 +546,7 @@ function guardarRonda(p) {
       var franjaBase = hhmm_(fr.inicio) + ' - ' + hhmm_(fr.fin);
       // quien asistió a una reunión que se cruza con esta sesión no se marca ausente: queda "En reunión" y no suma tiempo
       if (r.estado === 'No asistió' || r.estado === 'Ausente temporal') {
-        var rr = reunionesEnSesiones_(fecha, [sesion], franjas).filter(function (x) { return convocadoA_(x, r.docente) && ESTADOS_REUNION_PRESENTE.indexOf(x.asistencia[r.docente]) >= 0; })[0];
+        var rr = reunDe(sesion).filter(function (x) { return convocadoA_(x, r.docente) && ESTADOS_REUNION_PRESENTE.indexOf(x.asistencia[r.docente]) >= 0; })[0];
         if (rr) r = Object.assign({}, r, { estado: 'En reunión', motivo: rr.nombre, minutos: '' });
       }
       // quien está fuera con estudiantes (salida pedagógica, intercolegiados...) registrada en Novedades no se marca ausente
@@ -546,8 +598,8 @@ function guardarRonda(p) {
           if (f2 === fecha && Number(regVals[i2][3]) === sesion && !ocup[regVals[i2][5]] && claveSlot_(sesion, regVals[i2][6], regVals[i2][7]) === claveSlot_(sesion, r.grupoCodigo, r.area)) { idx = i2; break; }
         }
       }
-      if (idx > 0) { reg.getRange(idx + 1, 1, 1, fila.length).setValues([fila]); regVals[idx] = fila; }
-      else { reg.appendRow(fila); regVals.push(fila); }
+      if (idx > 0) { if (idx >= regVals.length - pendReg.length) pendReg[idx - (regVals.length - pendReg.length)] = fila; else reg.getRange(idx + 1, 1, 1, fila.length).setValues([fila]); regVals[idx] = fila; }
+      else { pendReg.push(fila); regVals.push(fila); }
       filasRespaldo.push(fila);
       // 2) Novedades (esquema del formulario de ausentismo): quitar la anterior y agregar si hay novedad
       for (var j = novVals.length - 1; j >= 1; j--) {
@@ -556,7 +608,7 @@ function guardarRonda(p) {
         var sj = String(novVals[j][novCol]), mj = sj.match(/^S(\d)$/);
         if (novVals[j][3] === TIPO_EXTERNA) continue;   // la salida con estudiantes se anula solo desde la pantalla de novedades
         if ((fj === fecha || fj === fechaStr) && novVals[j][2] === r.docente && (sj === 'S' + sesion || sj === 'S' + sesion + '-FIN' || ((inc && inc.resto || resto) && mj && Number(mj[1]) >= sesion))) {
-          nov.deleteRow(j + 1); novVals.splice(j, 1);
+          volcarNov(); nov.deleteRow(j + 1); novVals.splice(j, 1);
         }
       }
       var completa = r.estado === 'No asistió' && r.alcance === 'JC';
@@ -565,7 +617,7 @@ function guardarRonda(p) {
         var total = 0; mias.forEach(function (h) { total += minutosSesion_(h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo); });
         for (var q = novVals.length - 1; q >= 1; q--) {
           if (fechaIso_(novVals[q][1]) === fecha && novVals[q][2] === r.docente && /no asisti/i.test(String(novVals[q][3])) &&
-              (String(novVals[q][novCol]) === 'JC' || /^S\d$/.test(String(novVals[q][novCol])))) { nov.deleteRow(q + 1); novVals.splice(q, 1); }
+              (String(novVals[q][novCol]) === 'JC' || /^S\d$/.test(String(novVals[q][novCol])))) { volcarNov(); nov.deleteRow(q + 1); novVals.splice(q, 1); }
         }
         var gs = {}, as = {};
         mias.forEach(function (h) { gs[h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo] = 1; as[h.area || '(énfasis)'] = 1; });
@@ -574,7 +626,7 @@ function guardarRonda(p) {
         var nj = [ahora, fecha, r.docente, r.estado, r.actividad || 'N/A', r.motivo || '', r.obs || '', r.fuente || FUENTE_RONDA, r.medio || MEDIO_RONDA,
                   pj.grado, pj.grupo, ak.length === 1 ? ak[0] : (mias.length ? 'Todas' : r.area), 'Jornada completa', total || minutos, p.directivo || '',
                   'JC', just, m.categoria || '', atiende];
-        nov.appendRow(nj); novVals.push(nj);
+        pendNov.push(nj); novVals.push(nj);
         guardados++;
         return;
       }
@@ -592,7 +644,7 @@ function guardarRonda(p) {
         var pgi = partesGrupo_(String(r.grupoCodigo).split('+')[0]);
         var ni = [ahora, fecha, r.docente, r.estado, r.actividad || 'N/A', 'Sin justificación', String(r.obs || '').slice(0, 300), r.fuente || FUENTE_RONDA, r.medio || MEDIO_RONDA, pgi.grado, pgi.grupo, r.area,
                   'H' + sesion + ' ' + franja + (pre ? '' : ' Bloque ' + Math.ceil(sesion / 2)), jc ? '' : minutos, p.directivo || '', 'S' + sesion + (inc.resto ? '-FIN' : ''), 'No', 'INCUMPLIMIENTO', atiende];
-        nov.appendRow(ni); novVals.push(ni);
+        pendNov.push(ni); novVals.push(ni);
         registrarIncumplimiento_({ fecha: fecha, docente: r.docente, tipo: inc.texto, sesiones: 'S' + sesion + (inc.resto ? ' a fin de jornada' : ''), grupo: String(r.grupoCodigo), area: r.area,
           minutos: minutos, donde: inc.donde, descripcion: r.obs, explicacion: inc.explicacion, por: p.directivo });
         guardados++;
@@ -605,14 +657,15 @@ function guardarRonda(p) {
                   'H' + sesion + ' ' + franja + (pre ? '' : ' Bloque ' + Math.ceil(sesion / 2)), minutos, p.directivo || '',
                   'S' + sesion + (resto ? '-FIN' : ''), just, m.categoria || '', atiende];
         if (resto) nf[12] = 'H' + sesion + ' ' + franja + ' · resto de la jornada';
-        nov.appendRow(nf); novVals.push(nf);
+        pendNov.push(nf); novVals.push(nf);
       }
       guardados++;
     });
-    if (typeof respaldarRonda_ === 'function') respaldarRonda_(filasRespaldo);   // copia en el libro de respaldo (si falla, el guardado no se afecta)
+    volcarReg(); volcarNov();
     return { ok: true, guardados: guardados };
-  } finally { lock.releaseLock(); }
+  } finally { lock.releaseLock(); if (typeof respaldarRonda_ === 'function') respaldarRonda_(filasRespaldo); }   // el respaldo va después de soltar el bloqueo y, si falla, el guardado no se afecta
 }
+function rellena_(f, n) { f = f.slice(0, n); while (f.length < n) f.push(''); return f; }
 
 /* ------------------------------ formulario de Google (radios) ------------------------------ */
 function crearFormulario() {
@@ -707,6 +760,7 @@ function actualizarHorarioPreescolar_() {
       ini.setValue(PERIODOS_PREESCOLAR[hora][0]); fin.setValue(PERIODOS_PREESCOLAR[hora][1]); corregidas++;
     }
   }
+  invalidarCache_('Horario');
   var ajustes = ajustarMinutosPreescolar_();
   return { quitadas: quitadas, corregidas: corregidas, minutosAjustados: ajustes };
 }

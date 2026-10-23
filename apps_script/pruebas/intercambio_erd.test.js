@@ -4,7 +4,7 @@ class Hoja{constructor(v){this.v=v}
   getDataRange(){return {getValues:()=>JSON.parse(JSON.stringify(this.v))}}
   getLastRow(){return this.v.length} getLastColumn(){return this.v[0].length}
   appendRow(r){this.v.push(r)}
-  getRange(r,c,nr,nc){const s=this;return {setValue(x){s.v[r-1][c-1]=x},setValues(a){a.forEach((row,i)=>row.forEach((x,j)=>{s.v[r-1+i][c-1+j]=x}))},getValues(){return JSON.parse(JSON.stringify(s.v.slice(r-1,r-1+nr).map(f=>f.slice(c-1,c-1+nc))))}}}}
+  getRange(r,c,nr,nc){const s=this;return {setValue(x){s.v[r-1][c-1]=x},setValues(a){a.forEach((row,i)=>{while(s.v.length<=r-1+i)s.v.push([]);row.forEach((x,j)=>{s.v[r-1+i][c-1+j]=x})})},getValues(){return JSON.parse(JSON.stringify(s.v.slice(r-1,r-1+nr).map(f=>f.slice(c-1,c-1+nc))))}}}}
 const A='Arizala Castro Roberto Carlos', B='Armero Dájome Jesús', O='Ordóñez Tenorio Jaime Marcial';
 const hz=[['docente_n','docente','dia','hora','tipo','grupo','area','grupos_enfasis','celda_original','formula'],
  [4,A,'LUNES',3,'CLASE','CS102','ERD','','CS102-ERD','f'],[4,A,'MARTES',7,'CLASE','CS102','CNA','','CS102-CNA','f'],

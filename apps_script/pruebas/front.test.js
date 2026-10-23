@@ -3,7 +3,7 @@ const fs=require('fs'), vm=require('vm'), path=require('path');
 const H=JSON.parse(fs.readFileSync(path.join(__dirname,'hojas.json'),'utf8')); const M=H._alias;
 class Hoja{constructor(v){this.v=v}
   getDataRange(){return {getValues:()=>JSON.parse(JSON.stringify(this.v))}} appendRow(r){this.v.push(r)}
-  getRange(r,c){const s=this;return {setValue(x){while(s.v.length<r)s.v.push([]);s.v[r-1][c-1]=x},setValues(a){a.forEach((row,i)=>row.forEach((x,j)=>{s.v[r-1+i][c-1+j]=x}))}}} deleteRow(r){this.v.splice(r-1,1)}}
+  getRange(r,c){const s=this;return {setValue(x){while(s.v.length<r)s.v.push([]);s.v[r-1][c-1]=x},setValues(a){a.forEach((row,i)=>{while(s.v.length<=r-1+i)s.v.push([]);row.forEach((x,j)=>{s.v[r-1+i][c-1+j]=x})})}}} deleteRow(r){this.v.splice(r-1,1)}}
 const hojas={}; Object.keys(H).filter(n=>n!=='_alias').forEach(n=>hojas[n]=new Hoja(H[n]));
 const fmt=(d,tz,p)=>{const o=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(d).reduce((a,x)=>(a[x.type]=x.value,a),{});
   const dia=`${o.year}-${o.month}-${o.day}`; if(p==='yyyy-MM-dd')return dia; if(p==='yyyy-MM-dd HH:mm')return `${dia} ${o.hour}:${o.minute}`;

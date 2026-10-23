@@ -210,6 +210,7 @@ function intercambioDocentes_(a, b, area, aplicar) {
     res.matriz = cambiadas;
     if (aplicar && cambiadas) rg.setValues(mv);
   }
+  if (aplicar) invalidarCache_();
   return res;
 }
 

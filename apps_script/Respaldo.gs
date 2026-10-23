@@ -25,14 +25,15 @@ function libroRespaldo_() {
   return libro;
 }
 
-/** Anota en el respaldo las filas de Registro_Ronda recién guardadas. Nunca lanza error. */
+var COL_RESPALDO_REGISTRO = ['marca_temporal', 'fecha', 'dia', 'sesion', 'franja', 'docente', 'grupo', 'area', 'estado', 'motivo', 'justificada', 'minutos', 'observaciones', 'directivo', 'atendido_por', 'guardado_en'];
+/** Anota en el respaldo, en una sola escritura, las filas de Registro_Ronda recién guardadas. Nunca lanza error. */
 function respaldarRonda_(filas) {
   try {
     if (!filas || !filas.length) return;
-    var libro = libroRespaldo_(), sh = libro.getSheetByName('Registro_Ronda_log'), cab = hoja_('Registro_Ronda').getDataRange().getValues()[0].concat(['guardado_en']);
-    if (!sh) { sh = libro.insertSheet('Registro_Ronda_log'); sh.appendRow(cab); }
-    var ahora = ahoraTxt_();
-    filas.forEach(function (f) { sh.appendRow(f.slice(0, cab.length - 1).concat([ahora])); });
+    var libro = libroRespaldo_(), sh = libro.getSheetByName('Registro_Ronda_log'), n = COL_RESPALDO_REGISTRO.length;
+    if (!sh) { sh = libro.insertSheet('Registro_Ronda_log'); sh.appendRow(COL_RESPALDO_REGISTRO); }
+    var ahora = ahoraTxt_(), datos = filas.map(function (f) { return rellena_(f, n - 1).concat([ahora]); });
+    sh.getRange(sh.getLastRow() + 1, 1, datos.length, n).setValues(datos);
   } catch (e) { Logger.log('Respaldo de ronda no disponible: ' + e); }
 }
 

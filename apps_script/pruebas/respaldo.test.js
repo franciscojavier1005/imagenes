@@ -2,7 +2,7 @@
 const fs=require('fs'), vm=require('vm'), path=require('path');
 class Hoja{constructor(v){this.v=v}
   getDataRange(){return {getValues:()=>JSON.parse(JSON.stringify(this.v))}}
-  appendRow(r){this.v.push(r)} clear(){this.v=[]}
+  appendRow(r){this.v.push(r)} clear(){this.v=[]} getLastRow(){return this.v.length}
   getRange(r,c,nr,nc){const s=this;return {setValues(a){a.forEach((row,i)=>{s.v[r-1+i]=s.v[r-1+i]||[];row.forEach((x,j)=>{s.v[r-1+i][c-1+j]=x})})}}}}
 const cabR=['marca_temporal','fecha','dia','sesion','franja','docente','grupo','area','estado'];
 const R=(f,s,d,g,a,e)=>['x',f,'MARTES',s,'',d,g,a,e];

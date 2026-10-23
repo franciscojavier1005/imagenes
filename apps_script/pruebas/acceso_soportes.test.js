@@ -5,7 +5,7 @@ const H=JSON.parse(fs.readFileSync(path.join(__dirname,'hojas.json'),'utf8')); c
 class Hoja{constructor(v){this.v=v}
   getDataRange(){return {getValues:()=>JSON.parse(JSON.stringify(this.v))}}
   appendRow(r){this.v.push(r)}
-  getRange(r,c){const s=this;return {setValue(x){while(s.v.length<r)s.v.push([]);s.v[r-1][c-1]=x},setValues(a){a.forEach((row,i)=>row.forEach((x,j)=>{s.v[r-1+i][c-1+j]=x}))}}}
+  getRange(r,c){const s=this;return {setValue(x){while(s.v.length<r)s.v.push([]);s.v[r-1][c-1]=x},setValues(a){a.forEach((row,i)=>{while(s.v.length<=r-1+i)s.v.push([]);row.forEach((x,j)=>{s.v[r-1+i][c-1+j]=x})})}}}
   deleteRow(r){this.v.splice(r-1,1)}}
 const hojas={}; Object.keys(H).filter(n=>n!=='_alias').forEach(n=>hojas[n]=new Hoja(H[n]));
 hojas.Parametros=new Hoja([['clave','valor'],['soportes_desde','2026-01-01']]);

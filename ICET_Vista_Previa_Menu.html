@@ -47,7 +47,7 @@
 <main>
   <div class="saludo" id="saludo"></div>
   <div id="botones"><div class="espera">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.21-d</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.23-a</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -166,11 +166,17 @@ function cambiar(){
 }
 function salir(){ var t=tokenGuardado(); borrarToken(); srv().withSuccessHandler(function(){ mostrarLogin(); }).withFailureHandler(function(){ mostrarLogin(); }).cerrarSesion(t); }
 function iniciar(){
-  srv().withSuccessHandler(function(u){ BASE=u||'';
-    if(!tokenGuardado()&&!window.PREVIEW){ mostrarLogin(); return; }
-    srv().withSuccessHandler(function(c){ if(!c||c.rol==='anonimo'){ borrarToken(); mostrarLogin(); } else pintar(c.rol,c.nombre,c); })
-      .withFailureHandler(function(){ borrarToken(); mostrarLogin(); }).contextoPanel();
-  }).withFailureHandler(function(){ mostrarLogin(); }).urlBase();
+  /* las dos consultas al libro (dirección de la aplicación y datos del usuario) se piden a la vez para que la primera pantalla salga antes */
+  var base=null, ctx=null, fallo=false, listo=false;
+  function fin(){
+    if(listo||fallo||base===null) return;
+    if(!tokenGuardado()&&!window.PREVIEW){ listo=true; mostrarLogin(); return; }
+    if(ctx===null) return;
+    listo=true; BASE=base;
+    if(!ctx||ctx.rol==='anonimo'){ borrarToken(); mostrarLogin(); } else pintar(ctx.rol,ctx.nombre,ctx);
+  }
+  srv().withSuccessHandler(function(u){ base=u||''; fin(); }).withFailureHandler(function(){ fallo=true; mostrarLogin(); }).urlBase();
+  if(tokenGuardado()||window.PREVIEW) srv().withSuccessHandler(function(c){ ctx=c||false; fin(); }).withFailureHandler(function(){ fallo=true; borrarToken(); mostrarLogin(); }).contextoPanel();
 }
 iniciar();
 </script>

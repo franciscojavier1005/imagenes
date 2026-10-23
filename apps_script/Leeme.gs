@@ -5,11 +5,15 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.21-e';
-var FECHA_VERSION = '2026-10-21';
+var VERSION_SISTEMA = '2026.10.23-a';
+var FECHA_VERSION = '2026-10-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.23-a', fecha: '2026-10-23', cambios: [
+    'Velocidad: guardar una ronda de ~40 docentes ahora hace 2 escrituras en la hoja (antes ~50, una por fila) y consulta las reuniones una vez por sesión; el respaldo se escribe de una vez y después de soltar el bloqueo. Si otro guardado está en curso, avisa «Espere unos segundos» en vez de fallar (el bloqueo espera hasta 45 s).',
+    'Velocidad: el horario, las franjas, los motivos, los grupos, las parejas, las listas y los docentes se guardan 10 minutos en la memoria del sistema (se borran solos al editar esas hojas) en vez de leerse de la hoja en cada pantalla. Los registros (rondas, novedades) siempre se leen frescos.',
+    'Menú principal: la dirección y los datos del usuario se piden a la vez, así la primera pantalla sale antes.'] },
   { version: '2026.10.21-e', fecha: '2026-10-21', cambios: [
     'Respaldo: cada vez que se guarda una ronda, las marcas se anotan también en un libro de respaldo aparte («ICET · Respaldo de rondas (no borrar)», se crea solo en Drive). Menú «Respaldar rondas ahora» copia completas Registro_Ronda, Novedades e Incumplimientos.',
     'Menú «Recuperar rondas desde una copia del libro»: con el enlace de una copia anterior (hecha desde el historial de versiones) o del libro de respaldo, agrega solo las filas que faltan (rondas, novedades, incumplimientos) sin cambiar ni borrar lo que ya está.'] },

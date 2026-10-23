@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.23-a';
+var VERSION_SISTEMA = '2026.10.23-b';
 var FECHA_VERSION = '2026-10-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.23-b', fecha: '2026-10-23', cambios: [
+    'Ronda: encabezado ordenado (escudo y título, reloj grande en vivo con segundos y fecha, «Menú», «Ver panel» y «Reuniones» en tres botones del mismo ancho, ◀ Bloque ▶ con día, modo y «Ahora» alineados, y el horario, el total y el directivo debajo).',
+    'Ronda: los 8 botones de estado quedan repartidos (4×2 en celular con texto corto y más bajos para que quepan más docentes; en computador 8 en una fila con el nombre largo: Otro docente a cargo, Evento SED, Permiso por horas, Llegada tarde, Salió antes (sin informar), Reportar incumplimiento).'] },
   { version: '2026.10.23-a', fecha: '2026-10-23', cambios: [
     'Velocidad: guardar una ronda de ~40 docentes ahora hace 2 escrituras en la hoja (antes ~50, una por fila) y consulta las reuniones una vez por sesión; el respaldo se escribe de una vez y después de soltar el bloqueo. Si otro guardado está en curso, avisa «Espere unos segundos» en vez de fallar (el bloqueo espera hasta 45 s).',
     'Velocidad: el horario, las franjas, los motivos, los grupos, las parejas, las listas y los docentes se guardan 10 minutos en la memoria del sistema (se borran solos al editar esas hojas) en vez de leerse de la hoja en cada pantalla. Los registros (rondas, novedades) siempre se leen frescos.',

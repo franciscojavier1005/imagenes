@@ -3474,11 +3474,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.23-f';
+var VERSION_SISTEMA = '2026.10.23-g';
 var FECHA_VERSION = '2026-10-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.23-g', fecha: '2026-10-23', cambios: [
+    'Ronda: los botones que se suman a «Presente» (llegada tarde, permiso por horas, salió antes, incumplimiento) forman una barra unida, sin líneas punteadas.',
+    'Ronda: el interruptor «Con estudiantes / Sin estudiantes» queda siempre visible en la línea del área de cada docente (no aparece para orientación ni tutoría). Al tocar «Sin estudiantes» el docente queda presente y se elige el motivo en una lista debajo. El nombre del docente baja a 13,5 px en celular.'] },
   { version: '2026.10.23-f', fecha: '2026-10-23', cambios: [
     'Vuelve el encabezado de celular reordenado (título a todo el ancho y con letra más grande, escudo proporcional, hora y fecha junto a los botones Menú, Ver panel y Reuniones) y la alternancia automática de las parejas que dictan por semana.',
     'Ronda: quien inició sesión queda siempre como responsable por defecto (se puede cambiar), aunque su nombre no esté en la hoja Directivos.'] },

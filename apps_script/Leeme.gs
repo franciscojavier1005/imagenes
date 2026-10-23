@@ -5,14 +5,11 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.23-e';
+var VERSION_SISTEMA = '2026.10.23-d';
 var FECHA_VERSION = '2026-10-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
-  { version: '2026.10.23-e', fecha: '2026-10-23', cambios: [
-    'Parejas que alternan (clases y énfasis de 6° y 7°): si la semana pasada ya se definió quién dictó, esta semana se alterna sola y la tarjeta lo dice («alternancia automática»); sigue la cadena hasta 8 semanas después de la última definición, y quien tiene permiso puede cambiarla con «Cambiar». Lo que se defina a mano en una semana tiene prioridad.',
-    'Ronda (celular): el título ocupa todo el ancho con el escudo proporcional, el sello de la versión queda a continuación de «ICET», la hora y la fecha bajan junto a los botones Menú, Ver panel y Reuniones, y las filas del encabezado son más bajas.'] },
   { version: '2026.10.23-d', fecha: '2026-10-23', cambios: [
     'Ronda: llegada tarde, permiso por horas, salió antes e incumplimiento ahora SE SUMAN a «Presente» (el docente está en el colegio): al marcar una de ellas «Presente» también queda marcado; tocarla de nuevo deja al docente solo «Presente». Los botones principales (Presente, No asistió, Otro docente a cargo, Evento SED) siguen siendo excluyentes. Aparecen en una segunda fila con borde punteado.',
     'Ronda (celular): los botones y los contadores muestran el nombre completo con letra más pequeña (los contadores en cero de novedades poco comunes se ocultan para ahorrar espacio).'] },

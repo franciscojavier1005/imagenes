@@ -253,7 +253,7 @@ function consultarSesion(dia, sesion, modo) {
     var st = f.claveAlt ? estados[f.claveAlt] : null;
     if (!st) return;
     var nuevo = /^CLASE/.test(f.claveAlt) ? (st.intercambio === 'SI' ? f.pareja.filter(function (n) { return n !== f.primario; })[0] : f.primario) : st.elegido;
-    f.docente = nuevo; f.alternos = []; f.definido = { por: st.por, auto: !!st.auto };
+    f.docente = nuevo; f.alternos = []; f.definido = { por: st.por };
     f.reporte = reportes[nuevo] || null; f.minutosDia = totDia[nuevo] || 0;
     var ya2 = yaMarcados[nuevo]; if (!ya2) f.sesiones.forEach(function (x) { ya2 = ya2 || huerfanas[claveSlot_(x.sesion, x.grupoCodigo, x.area)]; });
     f.previo = ya2 ? { estado: ya2.estado, motivo: ya2.motivo, minutos: ya2.minutos, observaciones: ya2.observaciones, atendidoPor: ya2.atendido_por || '' } : null;
@@ -372,25 +372,10 @@ function lunesDe_(f) { var d = resDia_(f); return resSumaDias_(f, -(d === 0 ? 6 
 var COL_SEMANA_ALT = ['semana', 'clave', 'elegido', 'intercambio', 'definido_por', 'fecha_definicion'];
 
 /** Quién dicta cada pareja esta semana: clave -> {intercambio, elegido, por}. Lo define un directivo una vez y vale de lunes a viernes. */
-var SEMANAS_AUTO = 8;   // la alternancia automática se arrastra hasta 8 semanas después de la última definición (después, vacaciones o cambios: se vuelve a definir)
 function estadosSemana_(semana) {
-  var m = {}, hist = {};
+  var m = {};
   datosOCrea_('Semana_Alternancia', COL_SEMANA_ALT).forEach(function (r) {
-    var sw = fechaIso_(String(r.semana).replace(/^'/, ''));
-    (hist[r.clave] = hist[r.clave] || []).push({ sw: sw, r: r });
-    if (sw === semana) m[r.clave] = { intercambio: r.intercambio, elegido: r.elegido, por: r.definido_por };
-  });
-  /* alternancia automática: si esa pareja no está definida esta semana pero sí en una semana anterior, cada semana que pasa se alterna sola */
-  var ms = new Date(semana + 'T12:00:00Z').getTime();
-  Object.keys(hist).forEach(function (clave) {
-    if (m[clave]) return;
-    var mejor = null; hist[clave].forEach(function (h) { if (h.sw < semana && (!mejor || h.sw > mejor.sw)) mejor = h; });
-    if (!mejor) return;
-    var k = Math.round((ms - new Date(mejor.sw + 'T12:00:00Z').getTime()) / 604800000);
-    if (k < 1 || k > SEMANAS_AUTO) return;
-    var r = mejor.r, par = clave.split('|').slice(2), cambia = k % 2 === 1;
-    m[clave] = { intercambio: String(clave).indexOf('CLASE|') === 0 ? (cambia ? (r.intercambio === 'SI' ? 'NO' : 'SI') : r.intercambio) : '',
-                 elegido: cambia ? (par.filter(function (n) { return n !== r.elegido; })[0] || r.elegido) : r.elegido, por: 'la alternancia automática', auto: true };
+    if (fechaIso_(String(r.semana).replace(/^'/, '')) === semana) m[r.clave] = { intercambio: r.intercambio, elegido: r.elegido, por: r.definido_por };
   });
   return m;
 }

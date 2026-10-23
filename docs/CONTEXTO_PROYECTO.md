@@ -185,3 +185,8 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 
 ## Versión 2026.10.23-b — Ronda: encabezado ordenado, reloj y botones repartidos
 - Aprobado por el usuario (celular y computador). Cambios en `Consulta.html` (CSS y encabezado): reloj en vivo `#relojHM`/`#relojDia`, enlaces `.enlaces` en 3 columnas, fila `.filanav`, botones con `<span class="ic|lc|ll">` (texto corto/largo según ancho, `LARGO`), `.seg` 4×2 en celular y 8×1 desde 900 px. El chip «Hora:» del servidor se retiró.
+
+## Versión 2026.10.23-c — Nombre «Tumac», «Sin estudiantes» y salida al menú
+- Nombre de la institución en el encabezado de la ronda (según el usuario): «Institución Ciudadela Educativa Tumac · ICET», con el sello de versión en la misma línea (otras pantallas dicen «I.E. ICET»; Tumaco sigue siendo la ciudad en la autoría y créditos).
+- «Sin estudiantes»: casilla bajo «Presente» (solo tipos CLASE, ENFASIS, AREAS_MULTIPLES; no ORIENTACION ni TUTORIA) con motivos `SINEST`/`SIN_ESTUDIANTES` (Codigo.gs); se guarda en `atendido_por` de Registro_Ronda; el informe de rondas (Dashboard.gs/.html) añade «(sin estudiantes)»; también opción en la lista «quién atendió al grupo» de las demás novedades.
+- Al guardar la ronda: resumen y «Cerrar y salir al menú» (`alMenu`).

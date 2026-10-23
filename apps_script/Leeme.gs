@@ -5,11 +5,15 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.23-b';
+var VERSION_SISTEMA = '2026.10.23-c';
 var FECHA_VERSION = '2026-10-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.23-c', fecha: '2026-10-23', cambios: [
+    'Ronda: el encabezado dice «Institución Ciudadela Educativa Tumac · ICET» con el sello de la versión justo a continuación, en la misma línea.',
+    'Ronda: casilla «Sin estudiantes» en los docentes presentes (con motivo: los despachó, están en taller o actividad fuera del aula, no asistieron los estudiantes u otro). Por defecto todos están con estudiantes; no aparece para orientación ni tutoría PTA, que no tienen estudiantes asignados. Queda en Registro_Ronda (columna atendido_por) y el informe de rondas marca «(sin estudiantes)». En las demás novedades, la lista «quién atendió al grupo» también trae «Sin estudiantes».',
+    'Ronda: al guardar se muestra el resumen y, al cerrarlo (botón «Cerrar y salir al menú»), se vuelve al menú principal.'] },
   { version: '2026.10.23-b', fecha: '2026-10-23', cambios: [
     'Ronda: encabezado ordenado (escudo y título, reloj grande en vivo con segundos y fecha, «Menú», «Ver panel» y «Reuniones» en tres botones del mismo ancho, ◀ Bloque ▶ con día, modo y «Ahora» alineados, y el horario, el total y el directivo debajo).',
     'Ronda: los 8 botones de estado quedan repartidos (4×2 en celular con texto corto y más bajos para que quepan más docentes; en computador 8 en una fila con el nombre largo: Otro docente a cargo, Evento SED, Permiso por horas, Llegada tarde, Salió antes (sin informar), Reportar incumplimiento).'] },
@@ -36,7 +40,7 @@ var HISTORIAL_VERSIONES = [
     'Educación Física: el rector intercambió sin avisar el horario de Docente 1 (Arizala Castro Roberto Carlos) y Docente 2 (Armero Dájome Jesús, reemplazo de Terán). Se intercambia el horario completo de los dos (Educación Física y Ciencias Naturales). Se corrigió el horario en los datos y el menú «Corregir Docente 1 y 2 de Educación Física (una vez)» muestra primero lo que cambiaría y, al confirmar, pasa de uno al otro el horario, las marcas de la ronda, las novedades por sesión, los incumplimientos, las parejas de énfasis y Matriz_Grupos; no toca ausencias de jornada completa ni novedades de formulario o WhatsApp (las cuenta para revisarlas). Queda en Bitacora_Cambios.'] },
   { version: '2026.10.20-j', fecha: '2026-10-20', cambios: [
     'Aviso del día: cada reunión muestra la hora destacada con color según la prioridad (HOY naranja, MAÑANA amarillo, próximas azul, en curso rojo y parpadeante, sin asistencia rojo), el nombre en negrita y más grande, un icono de prioridad (🔥, ⏰, 📅, ⚠️) y el fondo del mismo color que en la lista de reuniones.',
-    'Ronda: el nombre del directivo que hace la ronda pasa de la barra inferior al encabezado (se ve en amarillo; en rojo si falta elegirlo), lo que libera espacio para los contadores; el escudo del colegio se ve más grande en el celular; el encabezado muestra el nombre completo de la institución (Institución Ciudadela Educativa de Tumaco · ICET).'] },
+    'Ronda: el nombre del directivo que hace la ronda pasa de la barra inferior al encabezado (se ve en amarillo; en rojo si falta elegirlo), lo que libera espacio para los contadores; el escudo del colegio se ve más grande en el celular; el encabezado muestra el nombre completo de la institución (Institución Ciudadela Educativa Tumac · ICET).'] },
   { version: '2026.10.20-i', fecha: '2026-10-20', cambios: [
     'Aviso del día: ahora se queda el doble de tiempo (10 segundos y 4 más por cada aviso; los recordatorios urgentes, 14 y 4 por aviso).',
     'Reuniones: «Salida anticipada de estudiantes»: hora en que se despachan, minutos antes en que terminan las clases (10, 15, 20 o 30, para el aseo y el comedor) y si se lleva a los estudiantes al comedor antes de despacharlos. Las clases se suspenden desde que terminan (la ronda de aula no se hace en ese horario) y el aviso del día lo recuerda a los directivos.',

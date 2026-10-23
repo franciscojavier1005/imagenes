@@ -218,7 +218,7 @@ function htmlRondas_(desde, hasta, directivo, conPresentes) {
         return escRonda_(x.docente) + (x.motivo ? ' <i>(' + escRonda_(x.motivo) + (x.minutos ? ', ' + escRonda_(x.minutos) + ' min' : '') + ')</i>' : '');
       }).join('; ') + '</div>';
     });
-    if (conPresentes && b.presentes.length) h += '<div style="margin-top:5px;color:#1b5e20"><b>✔ Presentes</b>: ' + b.presentes.map(function (x) { return escRonda_(x.docente); }).join('; ') + '</div>';
+    if (conPresentes && b.presentes.length) h += '<div style="margin-top:5px;color:#1b5e20"><b>✔ Presentes</b>: ' + b.presentes.map(function (x) { return escRonda_(x.docente) + (/^Sin estudiantes/.test(String(x.atiende || '')) ? ' <i style="color:#567">(sin estudiantes)</i>' : ''); }).join('; ') + '</div>';
     h += '</div>';
   });
   return h;

@@ -535,4 +535,17 @@ EMAIL=''; ok(/Debe iniciar sesión/.test(falla("consultaHorarios({modo:'catalogo
   run(`guardarRonda({dia:'MIERCOLES',sesion:3,fecha:'${fecha}',registros:[{docente:${JSON.stringify(titular)},grupoCodigo:${JSON.stringify(D0[hi('grupo')])},area:${JSON.stringify(D0[hi('area')])},estado:'Presente'}]})`);
   ok(hojas.Registro_Ronda.v.length===nReg&&hojas.Registro_Ronda.v.slice(-1)[0][ic('docente')]===titular,'al guardar el puesto se reemplaza la marca a nombre del anterior (no se duplica)');
 }
+// ---- docente presente sin estudiantes (se guarda en «atendido_por») y salida del informe
+{
+  const D=H.Horario.slice(1).find(r=>r[hi('tipo')]==='CLASE'&&r[hi('dia')]==='MIERCOLES'&&Number(r[hi('hora')])===5);
+  const cabR=hojas.Registro_Ronda.v[0], ic=(k)=>cabR.indexOf(k), fecha=run("consultarSesion('MIERCOLES',5,'sesion')").fecha;
+  run(`guardarRonda({dia:'MIERCOLES',sesion:5,fecha:'${fecha}',directivo:'P',registros:[{docente:${JSON.stringify(D[hi('docente')])},grupoCodigo:${JSON.stringify(D[hi('grupo')])},area:${JSON.stringify(D[hi('area')])},estado:'Presente',atiende:'Sin estudiantes: están en taller o actividad fuera del aula'}]})`);
+  const fila=hojas.Registro_Ronda.v.slice().reverse().find(r=>r[ic('docente')]===D[hi('docente')]&&r[ic('sesion')]===5);
+  ok(fila&&fila[ic('atendido_por')]==='Sin estudiantes: están en taller o actividad fuera del aula'&&fila[ic('estado')]==='Presente','un docente presente sin estudiantes queda registrado con el motivo');
+  const card=run("consultarSesion('MIERCOLES',5,'sesion')").filas.find(f=>f.docente===D[hi('docente')]);
+  ok(card.previo&&/^Sin estudiantes/.test(card.previo.atendidoPor),'al volver a abrir la ronda la tarjeta recuerda «sin estudiantes»');
+  run(`guardarRonda({dia:'MIERCOLES',sesion:5,fecha:'${fecha}',directivo:'P',registros:[{docente:${JSON.stringify(D[hi('docente')])},grupoCodigo:${JSON.stringify(D[hi('grupo')])},area:${JSON.stringify(D[hi('area')])},estado:'Presente'}]})`);
+  const f2=hojas.Registro_Ronda.v.slice().reverse().find(r=>r[ic('docente')]===D[hi('docente')]&&r[ic('sesion')]===5);
+  ok(f2[ic('atendido_por')]==='','si se quita la marca queda con estudiantes (por defecto)');
+}
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

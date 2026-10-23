@@ -310,6 +310,7 @@ function claveGrupo_(codigo) {
  * Guarda las marcas de la ronda.
  * p = {directivo, dia, sesion, fecha?, registros:[{docente, grupoCodigo, area, estado, motivo, minutos, obs, fuente, medio}]}
  */
+var SIN_ESTUDIANTES = ['Sin estudiantes: los despachó', 'Sin estudiantes: están en taller o actividad fuera del aula', 'Sin estudiantes: no asistieron (padres avisados)', 'Sin estudiantes: otro motivo (ver observaciones)'];   // docente presente, pero sin estudiantes en ese momento
 var ATIENDE_GRUPO = ['Nadie (grupo solo)', 'Se despachó al grupo temprano (autorizado)', 'Sin clase: los niños no asistieron (padres avisados)', 'Reemplazo (docente)', 'Reemplazo (acordado con rectoría)', 'Persona de apoyo contratada (alcaldía u otra entidad)', 'Otro docente (con espacio libre)', 'No aplica (no tiene grupo asignado)', 'Practicante', 'Auxiliar o persona de apoyo del docente', 'Otro docente o directivo'];
 
 /** Motivos agregados después de la primera versión del libro: se añaden solos a la hoja Motivos si faltan. */
@@ -568,7 +569,7 @@ function guardarRonda(p) {
       }
       var m = inc ? { justificada: 'NO', categoria: 'INCUMPLIMIENTO' } : (motivos[r.motivo] || {});
       var just = sinNovedad_(r.estado) ? '' : (m.justificada === 'SI' ? 'Sí' : 'No');
-      var atiende = sinNovedad_(r.estado) ? '' : (ATIENDE_GRUPO.indexOf(r.atiende) >= 0 ? r.atiende : '');   // quién cubrió el grupo; NO cuenta como asistencia del docente
+      var atiende = (SIN_ESTUDIANTES.indexOf(r.atiende) >= 0 && (r.estado === 'Presente' || !sinNovedad_(r.estado))) ? r.atiende : (sinNovedad_(r.estado) ? '' : (ATIENDE_GRUPO.indexOf(r.atiende) >= 0 ? r.atiende : ''));   // quién cubrió el grupo; NO cuenta como asistencia del docente
       var pre = /^00/.test(String(r.grupoCodigo));
       var hrow = pre ? hz.filter(function (h) { return h.docente === r.docente && h.dia === p.dia && Number(h.hora) === sesion; })[0] : null;
       var franja = hrow ? hhmm_(hrow.inicio) + ' - ' + hhmm_(hrow.fin) : franjaBase;   // preescolar tiene sus propios periodos
@@ -1470,7 +1471,7 @@ function htmlRondas_(desde, hasta, directivo, conPresentes) {
         return escRonda_(x.docente) + (x.motivo ? ' <i>(' + escRonda_(x.motivo) + (x.minutos ? ', ' + escRonda_(x.minutos) + ' min' : '') + ')</i>' : '');
       }).join('; ') + '</div>';
     });
-    if (conPresentes && b.presentes.length) h += '<div style="margin-top:5px;color:#1b5e20"><b>✔ Presentes</b>: ' + b.presentes.map(function (x) { return escRonda_(x.docente); }).join('; ') + '</div>';
+    if (conPresentes && b.presentes.length) h += '<div style="margin-top:5px;color:#1b5e20"><b>✔ Presentes</b>: ' + b.presentes.map(function (x) { return escRonda_(x.docente) + (/^Sin estudiantes/.test(String(x.atiende || '')) ? ' <i style="color:#567">(sin estudiantes)</i>' : ''); }).join('; ') + '</div>';
     h += '</div>';
   });
   return h;
@@ -3458,11 +3459,15 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.23-b';
+var VERSION_SISTEMA = '2026.10.23-c';
 var FECHA_VERSION = '2026-10-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.23-c', fecha: '2026-10-23', cambios: [
+    'Ronda: el encabezado dice «Institución Ciudadela Educativa Tumac · ICET» con el sello de la versión justo a continuación, en la misma línea.',
+    'Ronda: casilla «Sin estudiantes» en los docentes presentes (con motivo: los despachó, están en taller o actividad fuera del aula, no asistieron los estudiantes u otro). Por defecto todos están con estudiantes; no aparece para orientación ni tutoría PTA, que no tienen estudiantes asignados. Queda en Registro_Ronda (columna atendido_por) y el informe de rondas marca «(sin estudiantes)». En las demás novedades, la lista «quién atendió al grupo» también trae «Sin estudiantes».',
+    'Ronda: al guardar se muestra el resumen y, al cerrarlo (botón «Cerrar y salir al menú»), se vuelve al menú principal.'] },
   { version: '2026.10.23-b', fecha: '2026-10-23', cambios: [
     'Ronda: encabezado ordenado (escudo y título, reloj grande en vivo con segundos y fecha, «Menú», «Ver panel» y «Reuniones» en tres botones del mismo ancho, ◀ Bloque ▶ con día, modo y «Ahora» alineados, y el horario, el total y el directivo debajo).',
     'Ronda: los 8 botones de estado quedan repartidos (4×2 en celular con texto corto y más bajos para que quepan más docentes; en computador 8 en una fila con el nombre largo: Otro docente a cargo, Evento SED, Permiso por horas, Llegada tarde, Salió antes (sin informar), Reportar incumplimiento).'] },
@@ -3489,7 +3494,7 @@ var HISTORIAL_VERSIONES = [
     'Educación Física: el rector intercambió sin avisar el horario de Docente 1 (Arizala Castro Roberto Carlos) y Docente 2 (Armero Dájome Jesús, reemplazo de Terán). Se intercambia el horario completo de los dos (Educación Física y Ciencias Naturales). Se corrigió el horario en los datos y el menú «Corregir Docente 1 y 2 de Educación Física (una vez)» muestra primero lo que cambiaría y, al confirmar, pasa de uno al otro el horario, las marcas de la ronda, las novedades por sesión, los incumplimientos, las parejas de énfasis y Matriz_Grupos; no toca ausencias de jornada completa ni novedades de formulario o WhatsApp (las cuenta para revisarlas). Queda en Bitacora_Cambios.'] },
   { version: '2026.10.20-j', fecha: '2026-10-20', cambios: [
     'Aviso del día: cada reunión muestra la hora destacada con color según la prioridad (HOY naranja, MAÑANA amarillo, próximas azul, en curso rojo y parpadeante, sin asistencia rojo), el nombre en negrita y más grande, un icono de prioridad (🔥, ⏰, 📅, ⚠️) y el fondo del mismo color que en la lista de reuniones.',
-    'Ronda: el nombre del directivo que hace la ronda pasa de la barra inferior al encabezado (se ve en amarillo; en rojo si falta elegirlo), lo que libera espacio para los contadores; el escudo del colegio se ve más grande en el celular; el encabezado muestra el nombre completo de la institución (Institución Ciudadela Educativa de Tumaco · ICET).'] },
+    'Ronda: el nombre del directivo que hace la ronda pasa de la barra inferior al encabezado (se ve en amarillo; en rojo si falta elegirlo), lo que libera espacio para los contadores; el escudo del colegio se ve más grande en el celular; el encabezado muestra el nombre completo de la institución (Institución Ciudadela Educativa Tumac · ICET).'] },
   { version: '2026.10.20-i', fecha: '2026-10-20', cambios: [
     'Aviso del día: ahora se queda el doble de tiempo (10 segundos y 4 más por cada aviso; los recordatorios urgentes, 14 y 4 por aviso).',
     'Reuniones: «Salida anticipada de estudiantes»: hora en que se despachan, minutos antes en que terminan las clases (10, 15, 20 o 30, para el aseo y el comedor) y si se lleva a los estudiantes al comedor antes de despacharlos. Las clases se suspenden desde que terminan (la ronda de aula no se hace en ese horario) y el aviso del día lo recuerda a los directivos.',

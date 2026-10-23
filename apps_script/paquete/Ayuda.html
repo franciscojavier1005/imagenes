@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.23-h</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.23-i</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -73,6 +73,7 @@
 <section id="que"><h2>1. Para qué sirve y quién lo usa</h2>
 <p>Esta aplicación sirve para <b>verificar quién está en clase</b> (la ronda), registrar las novedades de asistencia de los docentes (permisos, incapacidades, llegadas tarde, reuniones, salidas pedagógicas) y sacar <b>informes</b> para coordinación y rectoría.</p>
 <p><b>Novedades que se suman a «Presente»:</b> <i>Llegada tarde</i>, <i>Permiso por horas</i>, <i>Salió antes</i> e <i>Incumplimiento</i> están en una segunda fila (borde punteado). El docente sí está en el colegio, así que al marcarlas «Presente» también queda marcado. Para quitar la novedad, toque de nuevo el botón: queda solo «Presente».</p>
+<p><b>Contadores (barra de abajo):</b> en el celular se deslizan con el dedo hacia la izquierda; primero se ven el indicador de guardado, cuántos faltan por reportar (tóquelo para ver quiénes) y los presentes. Más a la derecha están sin estudiantes, no asistieron, otro docente a cargo, evento SED, permiso por horas, llegada tarde o salida antes, en reunión o actividad externa e incumplimientos.</p>
 <table class="tbl"><tr><th>Rol</th><th>Qué hace</th></tr>
 <tr><td>Directivos y coordinadores</td><td>Hacen la ronda, registran novedades, ven los informes, marcan estudiantes.</td></tr>
 <tr><td>Rector</td><td>Ve el panel y los informes de todo.</td></tr>
@@ -209,7 +210,7 @@
 <p class="tip">¿Algo no aparece en este manual? Dígaselo a coordinación académica para incluirlo en la próxima versión.</p></section>
 
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.23-h</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.23-i</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

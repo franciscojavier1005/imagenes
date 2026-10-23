@@ -3474,11 +3474,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.23-h';
+var VERSION_SISTEMA = '2026.10.23-i';
 var FECHA_VERSION = '2026-10-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.23-i', fecha: '2026-10-23', cambios: [
+    'Ronda: contadores reorganizados. En celular van en una fila deslizable (indicador de guardado, faltan por reportar, presentes, sin estudiantes, no asistieron, otro docente a cargo, evento SED, permiso por horas, llegada tarde o salida antes, en reunión o actividad externa e incumplimientos) con el texto completo; en computador, una fila de 10 casillas. Nuevo contador de docentes presentes «sin estudiantes». El recuadro de la hora tiene más espacio interior.'] },
   { version: '2026.10.23-h', fecha: '2026-10-23', cambios: [
     'Ronda: «Sin estudiantes» ahora ofrece más motivos: los despachó, están en taller o actividad fuera del aula, no asistieron (padres avisados), están en otra dependencia (laboratorio, biblioteca, sala), el docente no los está atendiendo, el docente no quiso atenderlos y otro motivo. El informe de rondas muestra el motivo junto al nombre del docente presente. (Para un incumplimiento formal use el botón «Reportar incumplimiento».)'] },
   { version: '2026.10.23-g', fecha: '2026-10-23', cambios: [

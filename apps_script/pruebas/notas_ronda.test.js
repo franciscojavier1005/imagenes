@@ -548,4 +548,22 @@ EMAIL=''; ok(/Debe iniciar sesión/.test(falla("consultaHorarios({modo:'catalogo
   const f2=hojas.Registro_Ronda.v.slice().reverse().find(r=>r[ic('docente')]===D[hi('docente')]&&r[ic('sesion')]===5);
   ok(f2[ic('atendido_por')]==='','si se quita la marca queda con estudiantes (por defecto)');
 }
+// ---- alternancia automática: si la semana pasada ya se definió la pareja, esta semana se alterna sola
+{
+  const dP=ejemplo[hi('docente')], dia=ejemplo[hi('dia')], hora=ejemplo[hi('hora')], sem=run("lunesDe_(ymd_(new Date()))");
+  const tarjeta=()=>run(`consultarSesion('${dia}',${hora},'sesion')`).filas.find(f=>f.claveAlt===claveE&&f.primario===dP);
+  hojas.Semana_Alternancia.v.splice(1);
+  const semPas=run(`resSumaDias_('${sem}',-7)`), sem2=run(`resSumaDias_('${sem}',-14)`);
+  run(`definirAlternancia({clave:'${claveE}',elegido:'${dP}',primario:'${dP}',fecha:'${semPas}',directivo:'P'})`);
+  let c=tarjeta(); ok(c&&c.docente===otro&&c.definido&&c.definido.auto,'la semana pasada dictó el titular: esta semana dicta el otro, sin tener que elegir');
+  hojas.Semana_Alternancia.v.splice(1);
+  run(`definirAlternancia({clave:'${claveE}',elegido:'${dP}',primario:'${dP}',fecha:'${sem2}',directivo:'P'})`);
+  c=tarjeta(); ok(c&&c.docente===dP&&c.definido&&c.definido.auto,'hace dos semanas dictó el titular: la semana pasada fue el otro y esta vuelve al titular');
+  run(`definirAlternancia({clave:'${claveE}',elegido:'${otro}',primario:'${dP}',fecha:'${sem}',directivo:'P'})`);
+  c=tarjeta(); ok(c&&c.docente===otro&&!c.definido.auto,'lo definido explícitamente esta semana tiene prioridad sobre la alternancia automática');
+  hojas.Semana_Alternancia.v.splice(1);
+  run(`definirAlternancia({clave:'${claveE}',elegido:'${dP}',primario:'${dP}',fecha:'${run(`resSumaDias_('${sem}',-84)`)}',directivo:'P'})`);
+  c=tarjeta(); ok(c&&!c.definido,'si pasaron más de 8 semanas desde la última definición, se vuelve a pedir');
+  hojas.Semana_Alternancia.v.splice(1);
+}
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

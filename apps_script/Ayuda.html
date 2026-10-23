@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.23-d</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.23-e</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -139,6 +139,7 @@
 <div class="ojo">Si el motivo no justifica toda la jornada (por ejemplo, una cita médica), cambie «¿Hasta cuándo no estará?» a «Solo este bloque».</div></section>
 
 <section id="parejas"><h2>8. Docentes que alternan (quién dicta esta semana)</h2>
+<p><b>Alternancia automática:</b> si la semana pasada ya se definió quién dictó, esta semana el sistema alterna solo con el otro docente y lo indica en la tarjeta; no hay que volver a elegir. Si no corresponde (vacaciones, cambio de acuerdo), la coordinación académica toca «Cambiar».</p>
 <p>En algunas áreas dos docentes se turnan cada semana (por ejemplo ética y religión). En la ronda aparece una tarjeta con los <b>dos nombres</b>:</p>
 <ol><li>Pregunte (o consulte con coordinación) a quién le corresponde esta semana.</li>
 <li>Toque su nombre y confirme. Queda definido de <b>lunes a viernes</b>.</li>
@@ -208,7 +209,7 @@
 <p class="tip">¿Algo no aparece en este manual? Dígaselo a coordinación académica para incluirlo en la próxima versión.</p></section>
 
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.23-d</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.23-e</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

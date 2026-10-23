@@ -211,3 +211,6 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 
 ## Versión 2026.10.23-i — Contadores reorganizados (aprobado)
 - Aprobado por el usuario: contadores `.tiles` (fila deslizable en celular con el indicador de guardado primero y textos completos; cuadrícula de 10 en computador), contador «sin estudiantes», recuadro de la hora con más padding. Ver notas anteriores del PRELIMINAR.
+
+## Versión 2026.10.23-j — Contadores principales siempre visibles en celular
+- Reporte: en la versión 2026.10.23-i, en celular solo se veían el indicador de guardado y «faltan»; presentes y no asistieron quedaban fuera de pantalla. Ahora `.tp` (fila fija de 5: guardado, faltan, presentes, no asistió, otro a cargo) y `.ts` (fila deslizable con el resto). En computador ambas filas se aplanan (`display:contents`) en 10 casillas y la línea de guardado queda arriba (`.tl-g`).

@@ -3474,11 +3474,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.23-i';
+var VERSION_SISTEMA = '2026.10.23-j';
 var FECHA_VERSION = '2026-10-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.23-j', fecha: '2026-10-23', cambios: [
+    'Ronda (celular): los contadores principales quedan siempre a la vista en una fila fija de 5 (sin guardar o guardados, faltan, presentes, no asistió, otro a cargo); debajo, una fila deslizable con sin estudiantes, evento SED, permiso por horas, llegada tarde o salida antes, en reunión o actividad externa e incumplimientos.'] },
   { version: '2026.10.23-i', fecha: '2026-10-23', cambios: [
     'Ronda: contadores reorganizados. En celular van en una fila deslizable (indicador de guardado, faltan por reportar, presentes, sin estudiantes, no asistieron, otro docente a cargo, evento SED, permiso por horas, llegada tarde o salida antes, en reunión o actividad externa e incumplimientos) con el texto completo; en computador, una fila de 10 casillas. Nuevo contador de docentes presentes «sin estudiantes». El recuadro de la hora tiene más espacio interior.'] },
   { version: '2026.10.23-h', fecha: '2026-10-23', cambios: [

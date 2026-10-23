@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.23-e';
+var VERSION_SISTEMA = '2026.10.23-f';
 var FECHA_VERSION = '2026-10-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.23-f', fecha: '2026-10-23', cambios: [
+    'Vuelve el encabezado de celular reordenado (título a todo el ancho y con letra más grande, escudo proporcional, hora y fecha junto a los botones Menú, Ver panel y Reuniones) y la alternancia automática de las parejas que dictan por semana.',
+    'Ronda: quien inició sesión queda siempre como responsable por defecto (se puede cambiar), aunque su nombre no esté en la hoja Directivos.'] },
   { version: '2026.10.23-e', fecha: '2026-10-23', cambios: [
     'Parejas que alternan (clases y énfasis de 6° y 7°): si la semana pasada ya se definió quién dictó, esta semana se alterna sola y la tarjeta lo dice («alternancia automática»); sigue la cadena hasta 8 semanas después de la última definición, y quien tiene permiso puede cambiarla con «Cambiar». Lo que se defina a mano en una semana tiene prioridad.',
     'Ronda (celular): el título ocupa todo el ancho con el escudo proporcional, el sello de la versión queda a continuación de «ICET», la hora y la fecha bajan junto a los botones Menú, Ver panel y Reuniones, y las filas del encabezado son más bajas.'] },

@@ -3459,11 +3459,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.23-c';
+var VERSION_SISTEMA = '2026.10.23-d';
 var FECHA_VERSION = '2026-10-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.23-d', fecha: '2026-10-23', cambios: [
+    'Ronda: llegada tarde, permiso por horas, salió antes e incumplimiento ahora SE SUMAN a «Presente» (el docente está en el colegio): al marcar una de ellas «Presente» también queda marcado; tocarla de nuevo deja al docente solo «Presente». Los botones principales (Presente, No asistió, Otro docente a cargo, Evento SED) siguen siendo excluyentes. Aparecen en una segunda fila con borde punteado.',
+    'Ronda (celular): los botones y los contadores muestran el nombre completo con letra más pequeña (los contadores en cero de novedades poco comunes se ocultan para ahorrar espacio).'] },
   { version: '2026.10.23-c', fecha: '2026-10-23', cambios: [
     'Ronda: el encabezado dice «Institución Ciudadela Educativa Tumac · ICET» con el sello de la versión justo a continuación, en la misma línea.',
     'Ronda: casilla «Sin estudiantes» en los docentes presentes (con motivo: los despachó, están en taller o actividad fuera del aula, no asistieron los estudiantes u otro). Por defecto todos están con estudiantes; no aparece para orientación ni tutoría PTA, que no tienen estudiantes asignados. Queda en Registro_Ronda (columna atendido_por) y el informe de rondas marca «(sin estudiantes)». En las demás novedades, la lista «quién atendió al grupo» también trae «Sin estudiantes».',

@@ -244,23 +244,28 @@
   .segc button.on{color:#fff!important}
   .segc button.on.b-Tarde{background:var(--tarde,#ef8f00)!important}.segc button.on.b-Temp{background:#5b6bc0!important}.segc button.on.b-Salida{background:#0277bd!important}.segc button.on.b-Inc{background:#7b1fa2!important}
   @media(max-width:560px){.doc .nombre{font-size:13.5px}.doc .meta{font-size:11px}.segc button{font-size:9.6px!important;padding:2px 2px!important}.seg-sep{font-size:9.5px}}
-  /* ===== contadores en cuadrícula minimalista ===== */
+  /* ===== contadores: fila deslizable en celular, cuadrícula en computador ===== */
   #estado{display:block!important;overflow:visible!important;font-size:11px}
-  #estado .fila-g{display:flex;gap:4px;margin-bottom:3px}
-  #estado .fila-g span{font-size:11px!important;padding:1px 8px!important}
-  .tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:3px}
-  .tl{display:flex;align-items:center;justify-content:center;gap:3px;border-radius:8px;padding:2px 3px;min-height:28px;background:#eef2f9;color:#234;line-height:1;min-width:0}
-  .tl .ti{font-size:11px;flex:none}.tl b{font-size:15px;font-weight:800;flex:none}.tl small{font-size:8.5px;font-weight:700;line-height:1.05;text-align:left;min-width:0}
-  .estado .tl .ti{background:transparent!important;padding:0!important;border-radius:0!important}
+  .tiles{display:flex;gap:5px;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;scrollbar-width:none;padding:1px 0 2px}.tiles::-webkit-scrollbar{display:none}
+  .tl,.tl-g{flex:none;scroll-snap-align:start}
+  .tl-g{display:flex;align-items:center}.tl-g span{font-size:11px!important;padding:4px 10px!important;border-radius:9px!important;white-space:nowrap}
+  .tl{display:flex;align-items:center;justify-content:center;gap:5px;border-radius:9px;padding:3px 10px;min-height:30px;background:#eef2f9;color:#234;line-height:1}
+  .estado .tl .ti{background:transparent!important;padding:0!important;border-radius:0!important;font-size:12px}
+  .tl b{font-size:14px;font-weight:800}.tl small{font-size:10.5px;font-weight:700;white-space:nowrap}
+  .tl .sc{display:none}.tl .sl{display:inline}
+  .estado .tl small span{background:transparent!important;padding:0!important;border-radius:0!important;font-size:inherit!important;color:inherit!important;font-weight:inherit!important}
   .tl.z{opacity:.5}
   .t-falta{background:#ffb300;color:#3b2a00;cursor:pointer;box-shadow:0 1px 0 rgba(0,0,0,.25)}.t-ok{background:#2e7d32;color:#fff}
   .t-pres{background:#e1f3e4;color:#1b5e20}.t-sin{background:#fff1da;color:#8a4b00}.t-no{background:#fde3e1;color:#a31515}.t-rp{background:#d6f0f0;color:#00695c}
   .t-sed{background:#ede7f6;color:#4527a0}.t-tp{background:#e3e6f8;color:#303f9f}.t-t{background:#fff0cc;color:#7a4b00}.t-rn{background:#e1f3e4;color:#1b5e20}.t-inc{background:#f3dcf8;color:#5a1273}
-  body{padding-bottom:128px}
+  body{padding-bottom:96px}
+  header .reloj-g{padding:5px 10px 4px!important}
   @media(min-width:900px){
-    .tiles{grid-template-columns:repeat(10,1fr);gap:6px}
-    .tl{min-height:42px;padding:4px 8px;gap:6px;border-radius:10px}.tl .ti{font-size:15px}.tl b{font-size:22px}.tl small{font-size:11.5px}
-    #estado .fila-g span{font-size:13px!important}
+    .tiles{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px;overflow:visible}
+    .tl-g{grid-column:1/-1}.tl-g span{font-size:13px!important}
+    .tl{min-height:42px;padding:4px 5px;gap:4px;border-radius:10px;min-width:0}.tl .ti{font-size:13px!important}.tl b{font-size:19px}.tl small{font-size:10.5px;white-space:normal;line-height:1.05;min-width:0}
+    .tl .sc{display:inline}.tl .sl{display:none}
+    header .reloj-g{padding:9px 14px 8px!important}
     body{padding-bottom:140px}
   }
 </style>
@@ -704,10 +709,11 @@ function cuenta(){
   }
   var bg=el('btnGuardar'); if(bg){ bg.classList.toggle('pend',dg.pend>0); bg.textContent=dg.pend?('Guardar · '+dg.pend):(dg.guardados?'✔ Guardada':'Guardar ronda'); }
   var sn=0; if(S) S.filas.forEach(function(f){ var m=marcas[f.docente]; if(m&&esSinEst(m)) sn++; });
-  function tl(cls,ic,n,txt,extra){ return '<div class="tl '+cls+(n?'':' z')+'"'+(extra||'')+'><span class="ti">'+ic+'</span><b>'+n+'</b><small>'+txt+'</small></div>'; }
-  var tFalta=faltan>0?tl('t-falta','❗',faltan,'faltan de '+total,' role="button" onclick="verFaltan()"'):tl('t-ok','✔','✔','todos reportados');
-  el('estado').innerHTML=(chipG?'<div class="fila-g">'+chipG+'</div>':'')+'<div class="tiles">'+tFalta+tl('t-pres','✔',p,'presentes')+tl('t-sin','🎓',sn,'sin estud.')+tl('t-no','✖',no,'no asistieron')+tl('t-rp','👥',rp,'otro a cargo')+
-    tl('t-sed','🏛',sd,'evento SED')+tl('t-tp','⏳',tp,'permiso horas')+tl('t-t','⏰',t,'tarde o salió')+tl('t-rn','📋',rn,'reunión o fuera')+tl('t-inc','⚠',ic,'incumplim.')+'</div>'+(sinGuardar()?'':'');
+  function tl(cls,ic,n,corto,largo,extra){ return '<div class="tl '+cls+(n?'':' z')+'"'+(extra||'')+'><span class="ti">'+ic+'</span><b>'+n+'</b><small><span class="sc">'+corto+'</span><span class="sl">'+(largo||corto)+'</span></small></div>'; }
+  var tFalta=faltan>0?tl('t-falta','❗',faltan,'faltan de '+total,'faltan por reportar de '+total,' role="button" onclick="verFaltan()"'):tl('t-ok','✔','✔','todos reportados','todos reportados');
+  el('estado').innerHTML='<div class="tiles">'+(chipG?'<div class="tl-g">'+chipG+'</div>':'')+tFalta+tl('t-pres','✔',p,'presentes','presentes')+tl('t-sin','🎓',sn,'sin estud.','sin estudiantes')+tl('t-no','✖',no,'no asistieron','no asistieron')+tl('t-rp','👥',rp,'otro a cargo','otro docente a cargo')+
+    tl('t-sed','🏛',sd,'evento SED','evento SED')+tl('t-tp','⏳',tp,'permiso horas','permiso por horas')+tl('t-t','⏰',t,'tarde o salió','llegada tarde o salida antes')+tl('t-rn','📋',rn,'reunión o fuera','en reunión o actividad externa')+tl('t-inc','⚠',ic,'incumplim.','incumplimientos')+'</div>';
+  var sn0=sn;
   guardaBorrador(); barraRed();
 }
 

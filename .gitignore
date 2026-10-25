@@ -8,3 +8,4 @@ apps_script/pruebas/hojas.json
 # datos de menores: nunca versionar
 ICET_Estudiantes*.xlsx
 **/Estudiantes*.xlsx
+salida_onedrive/

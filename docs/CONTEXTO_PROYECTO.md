@@ -252,3 +252,6 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 
 ## Limpieza (2026-10-25)
 - Vigente y verificado: versión **2026.10.25-f** (paquete en `apps_script/paquete/`, idéntico a las fuentes; 618 comprobaciones sin fallas y todo el JavaScript compila). Se borraron de `docs/` las capturas y las maquetas de propuesta de diseño (`*.png` y `VISTA_PREVIA_*.html`) que ya se aprobaron o descartaron; las versiones anteriores siguen en el historial de git (no se reescribió). Las pantallas de vista previa vigentes están en la raíz (`ICET_Vista_Previa_*.html`).
+
+## Entrega a OneDrive («App Asistencia»)
+Sin conector de escritura a OneDrive: se genera con `scripts/archivar_versiones.py` un zip (ULTIMA + 5 últimas versiones estables + LEEME, desde el historial git) y se envía como adjunto. Omitidas por defecto: 2026.10.25-b/c/d (Reuniones roto).

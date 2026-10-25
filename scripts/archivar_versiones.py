@@ -14,7 +14,7 @@ def versiones():
     out, vistos = [], set()
     for linea in git("log", "--format=%H %s").splitlines():
         h, _, s = linea.partition(" ")
-        m = re.search(r"\((20\d\d\.\d\d\.\d\d-[a-z])\)\s*$", s)
+        m = re.search(r"(?:\(|versión )(20\d\d\.\d\d\.\d\d-[a-z])\)?\s*$", s)
         if m and m.group(1) not in vistos and not s.startswith("Revert") and not s.startswith("Reapply"):
             vistos.add(m.group(1)); out.append((m.group(1), h))
     return out

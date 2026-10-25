@@ -259,9 +259,9 @@ const cr=run("cargarReunion({id:'"+rc1.id+"'})"); ok(cr.personas.length===1&&cr.
   ee=null; try{run(`editarReunion({id:'${rP.id}',tipo:'Consejo académico',fecha:'${dia2}',inicio:'09:00',fin:'08:00',convocados:'TODOS'})`)}catch(x){ee=x} ok(ee&&/hora/.test(ee.message),'editar con horas inválidas se rechaza');
   // aviso del día
   {
-    const rN=run(`crearReunion({tipo:'Consejo académico',nombre:'En curso',fecha:'${hoyR}',inicio:'00:00',fin:'23:59',convocados:'TODOS'})`);
-    const rA=run(`crearReunion({tipo:'Consejo académico',nombre:'Ya terminó',fecha:'${hoyR}',inicio:'00:01',fin:'00:02',convocados:'TODOS'})`);
-    const rS=run(`crearReunion({tipo:'Consejo académico',nombre:'Más tarde',fecha:'${hoyR}',inicio:'23:57',fin:'23:58',convocados:'TODOS'})`);
+    const rN=run(`crearReunion({tipo:'Consejo académico',nombre:'En curso',excepcional:true,fecha:'${hoyR}',inicio:'00:00',fin:'23:59',convocados:'TODOS'})`);
+    const rA=run(`crearReunion({tipo:'Consejo académico',nombre:'Ya terminó',excepcional:true,fecha:'${hoyR}',inicio:'00:01',fin:'00:02',convocados:'TODOS'})`);
+    const rS=run(`crearReunion({tipo:'Consejo académico',nombre:'Más tarde',excepcional:true,fecha:'${hoyR}',inicio:'23:57',fin:'23:58',convocados:'TODOS'})`);
     const nh=hojas.Novedades.v[0]; const fila=nh.map(()=>''); fila[0]='x'; fila[nh.indexOf('Fecha Novedad')]=hoyR; fila[nh.indexOf('Docente')]='Docente demo SEC 07'; fila[nh.indexOf('Tipo Novedad')]='Actividad externa con estudiantes'; fila[nh.indexOf('Motivo Ausencia')]='Salida pedagógica o recorrido con estudiantes'; hojas.Novedades.v.push(fila);
     const av=run('avisosHoy()');
     const e=n=>av.reuniones.find(x=>x.nombre===n);
@@ -276,7 +276,7 @@ const cr=run("cargarReunion({id:'"+rc1.id+"'})"); ok(cr.personas.length===1&&cr.
     ok(cr2.avisarDias===2&&cr2.avisarMin===30&&cr2.avisarRonda===false,'la reunión guarda sus recordatorios (días, minutos y ronda)');
     const av2=run('avisosHoy()');
     ok(av2.previas.some(x=>x.nombre==='Con aviso 2 días'&&x.dias===2)&&!av2.previas.some(x=>x.nombre==='Lejana'),'avisos previos: solo las reuniones dentro de sus días de anticipación');
-    const rU2=run(`crearReunion({tipo:'Consejo académico',nombre:'Pronto',fecha:'${hoyR}',inicio:'23:50',fin:'23:59',convocados:'TODOS',avisarDias:0,avisarMin:15,avisarRonda:false})`);
+    const rU2=run(`crearReunion({tipo:'Consejo académico',nombre:'Pronto',excepcional:true,fecha:'${hoyR}',inicio:'23:50',fin:'23:59',convocados:'TODOS',avisarDias:0,avisarMin:15,avisarRonda:false})`);
     const hm=new Date(); const hhmm=new Intl.DateTimeFormat('en-GB',{timeZone:'America/Bogota',hour:'2-digit',minute:'2-digit'}).format(hm);
     const pronto=run('avisosHoy()').reuniones.find(x=>x.nombre==='Pronto');
     ok(pronto&&pronto.avisarRonda===false&&pronto.avisarMin===15&&(pronto.estado==='proxima'?pronto.urgente===(pronto.minutosHasta<=15):true),'recordatorio del mismo día: «urgente» solo dentro de los minutos elegidos');
@@ -363,7 +363,7 @@ const cr=run("cargarReunion({id:'"+rc1.id+"'})"); ok(cr.personas.length===1&&cr.
     ok(run(`cargarReunion({id:'${rB.id}'})`).reunion.observaciones==='','sin observaciones: queda vacío (el aviso no muestra nada)');
     run(`editarReunion({id:'${rA.id}',tipo:'Taller pedagógico',nombre:'Con alias',fecha:'${dq}',inicio:'08:00',fin:'09:00',convocados:'TODOS',observaciones:'Nueva aclaración'})`);
     ok(run(`cargarReunion({id:'${rA.id}'})`).reunion.observaciones==='Nueva aclaración','editar cambia las observaciones');
-    const rH=run(`crearReunion({tipo:'Taller pedagógico',nombre:'Hoy con nota',fecha:'${hoyR}',inicio:'00:00',fin:'23:59',convocados:'TODOS',observaciones:'Llevar computador'})`);
+    const rH=run(`crearReunion({tipo:'Taller pedagógico',nombre:'Hoy con nota',excepcional:true,fecha:'${hoyR}',inicio:'00:00',fin:'23:59',convocados:'TODOS',observaciones:'Llevar computador'})`);
     const ah=run('avisosHoy()').reuniones.find(x=>x.nombre==='Hoy con nota'); ok(ah&&ah.observaciones==='Llevar computador','el aviso del día lleva las observaciones');
     [rA,rB,rH].forEach(r=>run(`anularReunion({id:'${r.id}',motivo:'prueba de observaciones'})`));
   }
@@ -637,8 +637,26 @@ EMAIL=''; ok(/Debe iniciar sesión/.test(falla("consultaHorarios({modo:'catalogo
   ok(hojas.Bitacora_Cambios.v.some(r=>/Editó novedad/.test(r[2])),'la edición de la novedad queda en la bitácora');
   // reuniones: solo días hábiles
   const sab=run("(function(){ var f=ymd_(new Date()); while(resDia_(f)!==6) f=resSumaDias_(f,1); return f; })()");
-  e1=null; try{ run(`crearReunion({tipo:'Consejo académico',fecha:'${sab}',inicio:'18:00',fin:'19:00',convocados:'TODOS'})`) }catch(x){ e1=x } ok(e1&&/días hábiles/.test(e1.message),'una reunión en sábado se rechaza (solo lunes a viernes)');
+  e1=null; try{ run(`crearReunion({tipo:'Consejo académico',fecha:'${sab}',inicio:'18:00',fin:'19:00',convocados:'TODOS'})`) }catch(x){ e1=x } ok(e1&&/lunes a viernes/.test(e1.message),'una reunión en sábado se rechaza si no se marca «Excepcional»');
   const fh2=run(`diasHabilesRango_('${fut}','${run(`resSumaDias_('${fut}',6)`)}')[0]`);
-  const rf=run(`crearReunion({tipo:'Consejo académico',nombre:'Fuera de jornada',fecha:'${fh2}',inicio:'17:30',fin:'19:00',convocados:'TODOS'})`); ok(rf&&rf.id,'una reunión fuera de la jornada escolar, pero del mismo día hábil, sí se permite');
+  const rf=run(`crearReunion({tipo:'Consejo académico',nombre:'Fuera de jornada',excepcional:true,fecha:'${fh2}',inicio:'17:30',fin:'19:00',convocados:'TODOS'})`); e1=null; try{ run(`crearReunion({tipo:'Consejo académico',nombre:'Fuera de jornada',fecha:'${fh2}',inicio:'17:30',fin:'19:00',convocados:'TODOS'})`) }catch(x){ e1=x } ok(e1&&/6:30|06:30/.test(e1.message),'fuera del horario de 6:30 a 18:00 se rechaza si no es excepcional');
+  ok(rf&&rf.id&&run(`cargarReunion({id:'${rf.id}'})`).reunion.excepcional===true,'marcada como excepcional se permite y queda marcada');
+  const rs=run(`crearReunion({tipo:'Actividad institucional general',nombre:'Bazar',fecha:'${sab}',inicio:'09:00',fin:'15:00',convocados:'TODOS',excepcional:true})`); ok(rs&&rs.id,'un sábado excepcional (bazar) se puede programar');
+}
+// ---- margen para registrar la ronda del día: fin de la jornada + 3 horas para los directivos; quien administra, sin límite
+{
+  ok(run('cierreRonda_()')==='16:30','el cierre de la ronda es el fin de la jornada (13:30) más 3 horas = 16:30');
+  const clase=H.Horario.slice(1).find(r=>r[hi('dia')]==='MIERCOLES'&&r[hi('tipo')]==='CLASE'&&Number(r[hi('hora')])===3), dd=clase[hi('docente')], gg=clase[hi('grupo')];
+  const reg=`_guardarRondaOrig({dia:'MIERCOLES',sesion:3,fecha:'2026-10-21',directivo:'P',registros:[{docente:${JSON.stringify(dd)},sesion:3,grupoCodigo:${JSON.stringify(gg)},area:'X',estado:'Presente'}]})`;
+  run("var _rc=rondaCerrada_, _pa2=puedeAdministrar_; rondaCerrada_=function(){return true}; puedeAdministrar_=function(){return false}");
+  let e1=null; try{ run(reg) }catch(x){ e1=x } ok(e1&&/se cerró a las 16:30/.test(e1.message),'pasado el margen, un directivo que no administra ya no puede guardar la ronda de hoy');
+  ok(run("consultarSesion(null,3,'sesion')").rondaCerrada===true,'la consulta avisa que la ronda de hoy está cerrada para ese directivo');
+  run("puedeAdministrar_=function(){return true}"); e1=null; try{ run(reg) }catch(x){ e1=x } ok(!e1,'quien administra puede guardar la ronda de hoy fuera del margen');
+  run("rondaCerrada_=_rc; puedeAdministrar_=_pa2");
+  // día anterior para los demás directivos: configurable (0 por defecto)
+  hojas.Parametros.v.push(['ronda_dias_atras','1']);
+  run("puedeAdministrar_=function(){return false}"); e1=null; try{ run(`_guardarRondaOrig({dia:'MARTES',sesion:3,fecha:'2026-10-20',directivo:'P',correccion:'Registro tardío por viaje',registros:[{docente:${JSON.stringify(dd)},sesion:3,grupoCodigo:${JSON.stringify(gg)},area:'X',estado:'Presente'}]})`) }catch(x){ e1=x } ok(!e1,'con ronda_dias_atras=1 un directivo puede registrar la ronda del día anterior (con motivo)');
+  e1=null; try{ run(`_guardarRondaOrig({dia:'LUNES',sesion:3,fecha:'2026-10-19',directivo:'P',correccion:'Registro tardío por viaje',registros:[{docente:${JSON.stringify(dd)},sesion:3,grupoCodigo:${JSON.stringify(gg)},area:'X',estado:'Presente'}]})`) }catch(x){ e1=x } ok(e1&&/Solo quien administra/.test(e1.message),'pero no dos días atrás');
+  run("puedeAdministrar_=_pa2"); hojas.Parametros.v.pop();
 }
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

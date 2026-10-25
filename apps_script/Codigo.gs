@@ -180,6 +180,15 @@ function reporteParaSesiones_(rep, sesiones) {
   delete o.filas;
   return o;
 }
+/** Hasta qué hora (HH:MM) pueden registrar la ronda del día los directivos que no administran: fin de la jornada escolar + margen (Parametros: ronda_horas_margen, 3 por defecto). Quien administra no tiene límite. */
+function cierreRonda_() {
+  var fin = finJornada_(), m = String(fin).match(/^(\d{1,2}):(\d{2})/), minutos = (m ? Number(m[1]) * 60 + Number(m[2]) : 13 * 60 + 30) + Math.round((Number(parametro_('ronda_horas_margen', '3')) || 0) * 60);
+  minutos = Math.min(minutos, 23 * 60 + 59);
+  return ('0' + Math.floor(minutos / 60)).slice(-2) + ':' + ('0' + (minutos % 60)).slice(-2);
+}
+function rondaCerrada_() { return Utilities.formatDate(new Date(), TZ, 'HH:mm') > cierreRonda_(); }
+/** Cuántos días atrás (además de hoy) pueden registrar la ronda los directivos que no administran: 0 por defecto (Parametros: ronda_dias_atras). */
+function diasAtrasRonda_() { return Math.max(0, Math.min(5, Number(parametro_('ronda_dias_atras', '0')) || 0)); }
 function consultarSesion(dia, sesion, modo, fecha) {
   exigirDirectivo_();
   asegurarMotivos_();
@@ -200,7 +209,8 @@ function consultarSesion(dia, sesion, modo, fecha) {
     sesionesBloque: [],
     filas: [], motivos: datos_('Motivos'), listas: datos_('Listas'),
     directivos: datos_('Directivos').map(function (d) { return d.nombre; }),
-    puedeEditarPasadas: (function () { try { return puedeAdministrar_(identidad_()); } catch (e) { return false; } })(),   // quien administra puede corregir rondas de fechas anteriores
+    puedeEditarPasadas: (function () { try { if (puedeAdministrar_(identidad_())) return true; var at = revision ? Math.round((new Date(hoyS + 'T12:00:00Z') - new Date(String(fecha) + 'T12:00:00Z')) / 86400000) : 0; return revision && at >= 1 && at <= diasAtrasRonda_(); } catch (e) { return false; } })(),   // quien administra (y, si se configura, los demás directivos unos días atrás) puede registrar o corregir rondas de fechas anteriores
+    rondaCerrada: (function () { try { return !revision && !puedeAdministrar_(identidad_()) && rondaCerrada_(); } catch (e) { return false; } })(), cierreRonda: cierreRonda_(),
     puedeCambiarAlt: (function () { try { return puedeCambiarAsignacion_(identidad_()); } catch (e) { return false; } })(),
     sesionDe: (function () { try { var i = identidad_(); return i.rol === 'directivo' ? (i.nombre || '') : ''; } catch (e) { return ''; } })(),   // quien inició sesión: sale preseleccionado como responsable de la ronda
     nota: s ? '' : (auto ? 'Descanso o fuera de jornada' : 'Sesión no válida')
@@ -573,9 +583,11 @@ function guardarRonda(p) {
   p.directivo = valido ? elegido : sesionDe;
   if (valido && elegido !== sesionDe) bitacora_('Ronda con sesión prestada', 'La ronda de ' + (p.fecha || '') + ' (sesión ' + (p.sesion || '') + ') la hizo ' + elegido + ' con la sesión de ' + sesionDe);
   // rondas de otra fecha: solo quien administra puede corregirlas, con el motivo de la corrección (queda en cada marca y en la bitácora)
-  var hoyG = ymd_(new Date()), fechaG = p.fecha ? fechaIso_(p.fecha) : hoyG, correccion = '', sufCorr = '';
+  var hoyG = ymd_(new Date()), fechaG = p.fecha ? fechaIso_(p.fecha) : hoyG, correccion = '', sufCorr = '', adminG = puedeAdministrar_(quien);
+  if (fechaG === hoyG && !adminG && rondaCerrada_()) throw new Error('La ronda de hoy se cerró a las ' + cierreRonda_() + '. Pídale a quien administra que la registre.');
   if (fechaG !== hoyG) {
-    if (!puedeAdministrar_(quien)) throw new Error('Solo quien administra puede guardar o corregir la ronda de otra fecha.');
+    var atras = Math.round((new Date(hoyG + 'T12:00:00Z') - new Date(fechaG + 'T12:00:00Z')) / 86400000);
+    if (!adminG && !(atras >= 1 && atras <= diasAtrasRonda_())) throw new Error('Solo quien administra puede guardar o corregir la ronda de otra fecha.');
     if (fechaG > hoyG) throw new Error('No se puede guardar una ronda de una fecha futura.');
     var dwG = resDia_(fechaG); if (dwG < 1 || dwG > 5) throw new Error('Elija un día hábil (lunes a viernes).');
     correccion = String(p.correccion || '').trim();

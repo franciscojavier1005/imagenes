@@ -5,11 +5,15 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.25-d';
+var VERSION_SISTEMA = '2026.10.25-e';
 var FECHA_VERSION = '2026-10-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.25-e', fecha: '2026-10-25', cambios: [
+    'CORRECCIÓN: en las versiones 2026.10.25-b, -c y -d la pantalla de Reuniones tenía un error de código (un comentario se comió parte de una línea) que la dejaba sin funcionar. Quedó corregido y se agregó una prueba que revisa que todo el JavaScript de las pantallas compile.',
+    'Ronda: los directivos que no administran pueden registrar la ronda del día hasta 3 horas después de terminar la jornada escolar (16:30 con jornada hasta la 1:30 p. m.); después solo quien administra, que puede hacerlo en cualquier momento (hoy o de fechas anteriores, con motivo; si no había marcas el motivo viene sugerido: «Registro posterior»). En Parametros se puede cambiar el margen (ronda_horas_margen) y habilitar el día anterior para los demás directivos (ronda_dias_atras = 1).',
+    'Reuniones: horario normal de lunes a viernes de 6:30 a 18:00 (se cambia en Parametros: reunion_desde, reunion_hasta). Para sábados, domingos u horas fuera de ese horario (bazar, cena de grados, celebraciones fuera del colegio, jornadas ampliadas) hay una casilla «⭐ Excepcional»; la reunión queda marcada como excepcional.'] },
   { version: '2026.10.25-d', fecha: '2026-10-25', cambios: [
     'Ronda anterior: quien administra puede corregirla. En «📅 Fecha…» aparece «✏️ Editar esta ronda»; al guardar se pide el motivo de la corrección, que queda en cada marca cambiada (observaciones) y en Bitacora_Cambios. El servidor ya no deja guardar rondas de otra fecha a quien no administra. La barra de fecha se repliega al elegir el día (con «Cambiar fecha» y «Volver a hoy» en el aviso azul).',
     'Novedades programadas: cada registro tiene «✏️ Editar» para completar o corregir el motivo, quién queda a cargo, si se dejó actividad y el detalle (todos sus días; lo que ya pasó solo lo corrige quien administra); queda en la bitácora.',

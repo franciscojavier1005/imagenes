@@ -181,6 +181,15 @@ function reporteParaSesiones_(rep, sesiones) {
   delete o.filas;
   return o;
 }
+/** Hasta qué hora (HH:MM) pueden registrar la ronda del día los directivos que no administran: fin de la jornada escolar + margen (Parametros: ronda_horas_margen, 3 por defecto). Quien administra no tiene límite. */
+function cierreRonda_() {
+  var fin = finJornada_(), m = String(fin).match(/^(\d{1,2}):(\d{2})/), minutos = (m ? Number(m[1]) * 60 + Number(m[2]) : 13 * 60 + 30) + Math.round((Number(parametro_('ronda_horas_margen', '3')) || 0) * 60);
+  minutos = Math.min(minutos, 23 * 60 + 59);
+  return ('0' + Math.floor(minutos / 60)).slice(-2) + ':' + ('0' + (minutos % 60)).slice(-2);
+}
+function rondaCerrada_() { return Utilities.formatDate(new Date(), TZ, 'HH:mm') > cierreRonda_(); }
+/** Cuántos días atrás (además de hoy) pueden registrar la ronda los directivos que no administran: 0 por defecto (Parametros: ronda_dias_atras). */
+function diasAtrasRonda_() { return Math.max(0, Math.min(5, Number(parametro_('ronda_dias_atras', '0')) || 0)); }
 function consultarSesion(dia, sesion, modo, fecha) {
   exigirDirectivo_();
   asegurarMotivos_();
@@ -201,7 +210,8 @@ function consultarSesion(dia, sesion, modo, fecha) {
     sesionesBloque: [],
     filas: [], motivos: datos_('Motivos'), listas: datos_('Listas'),
     directivos: datos_('Directivos').map(function (d) { return d.nombre; }),
-    puedeEditarPasadas: (function () { try { return puedeAdministrar_(identidad_()); } catch (e) { return false; } })(),   // quien administra puede corregir rondas de fechas anteriores
+    puedeEditarPasadas: (function () { try { if (puedeAdministrar_(identidad_())) return true; var at = revision ? Math.round((new Date(hoyS + 'T12:00:00Z') - new Date(String(fecha) + 'T12:00:00Z')) / 86400000) : 0; return revision && at >= 1 && at <= diasAtrasRonda_(); } catch (e) { return false; } })(),   // quien administra (y, si se configura, los demás directivos unos días atrás) puede registrar o corregir rondas de fechas anteriores
+    rondaCerrada: (function () { try { return !revision && !puedeAdministrar_(identidad_()) && rondaCerrada_(); } catch (e) { return false; } })(), cierreRonda: cierreRonda_(),
     puedeCambiarAlt: (function () { try { return puedeCambiarAsignacion_(identidad_()); } catch (e) { return false; } })(),
     sesionDe: (function () { try { var i = identidad_(); return i.rol === 'directivo' ? (i.nombre || '') : ''; } catch (e) { return ''; } })(),   // quien inició sesión: sale preseleccionado como responsable de la ronda
     nota: s ? '' : (auto ? 'Descanso o fuera de jornada' : 'Sesión no válida')
@@ -574,9 +584,11 @@ function guardarRonda(p) {
   p.directivo = valido ? elegido : sesionDe;
   if (valido && elegido !== sesionDe) bitacora_('Ronda con sesión prestada', 'La ronda de ' + (p.fecha || '') + ' (sesión ' + (p.sesion || '') + ') la hizo ' + elegido + ' con la sesión de ' + sesionDe);
   // rondas de otra fecha: solo quien administra puede corregirlas, con el motivo de la corrección (queda en cada marca y en la bitácora)
-  var hoyG = ymd_(new Date()), fechaG = p.fecha ? fechaIso_(p.fecha) : hoyG, correccion = '', sufCorr = '';
+  var hoyG = ymd_(new Date()), fechaG = p.fecha ? fechaIso_(p.fecha) : hoyG, correccion = '', sufCorr = '', adminG = puedeAdministrar_(quien);
+  if (fechaG === hoyG && !adminG && rondaCerrada_()) throw new Error('La ronda de hoy se cerró a las ' + cierreRonda_() + '. Pídale a quien administra que la registre.');
   if (fechaG !== hoyG) {
-    if (!puedeAdministrar_(quien)) throw new Error('Solo quien administra puede guardar o corregir la ronda de otra fecha.');
+    var atras = Math.round((new Date(hoyG + 'T12:00:00Z') - new Date(fechaG + 'T12:00:00Z')) / 86400000);
+    if (!adminG && !(atras >= 1 && atras <= diasAtrasRonda_())) throw new Error('Solo quien administra puede guardar o corregir la ronda de otra fecha.');
     if (fechaG > hoyG) throw new Error('No se puede guardar una ronda de una fecha futura.');
     var dwG = resDia_(fechaG); if (dwG < 1 || dwG > 5) throw new Error('Elija un día hábil (lunes a viernes).');
     correccion = String(p.correccion || '').trim();
@@ -2211,7 +2223,7 @@ function purgarAudios() {
  * Hojas: Reuniones (una fila por reunión) y Asistencia_Reunion (una fila por persona y reunión; se reemplaza al volver a guardar).
  * Fechas y horas se guardan como TEXTO (con apóstrofo) para que Sheets no las convierta.
  */
-var COL_REUNIONES = ['id', 'fecha', 'tipo', 'nombre', 'inicio', 'fin', 'sin_estudiantes', 'convocados', 'creado_por', 'fecha_creacion', 'avisar_dias', 'avisar_min', 'avisar_ronda', 'lugar', 'fin_tipo', 'convoca_tipo', 'convoca_detalle', 'solicita_por', 'responsables', 'convocados_grupos', 'invitados', 'invitado_nombre', 'observaciones', 'salida_est', 'min_antes_salida', 'llevar_comedor', 'informar_padres'];
+var COL_REUNIONES = ['id', 'fecha', 'tipo', 'nombre', 'inicio', 'fin', 'sin_estudiantes', 'convocados', 'creado_por', 'fecha_creacion', 'avisar_dias', 'avisar_min', 'avisar_ronda', 'lugar', 'fin_tipo', 'convoca_tipo', 'convoca_detalle', 'solicita_por', 'responsables', 'convocados_grupos', 'invitados', 'invitado_nombre', 'observaciones', 'salida_est', 'min_antes_salida', 'llevar_comedor', 'informar_padres', 'excepcional'];
 /** A quiénes se convoca. Personal (genera lista de asistencia) y organismos e invitados (solo se anuncian). */
 var GRUPOS_PERSONAL = [
   ['TODOS', 'Todo el personal de la institución', 'Docentes, orientadoras, tutora PTAFI y directivos'],
@@ -2392,6 +2404,7 @@ function reunionDeFila_(r) {
   x.minAntesSalida = [10, 15, 20, 30].indexOf(Number(r.min_antes_salida)) >= 0 ? Number(r.min_antes_salida) : 15;
   x.llevarComedor = String(r.llevar_comedor || '').toUpperCase() === 'SI';
   x.informarPadres = String(r.informar_padres || '').toUpperCase() === 'SI';
+  x.excepcional = String(r.excepcional || '').toUpperCase() === 'SI';
   x.finClases = x.salidaEst ? restaMin_(x.salidaEst, x.minAntesSalida) : '';
   x.inicioClases = x.finClases && x.finClases < x.inicio ? x.finClases : x.inicio;
   x.convocadosResumen = resumenConvocados_(x);
@@ -2473,7 +2486,7 @@ function crearReunion(p) {
   if (/^Otra/.test(def.tipo) && String(p.nombre || '').trim().length < 3) throw new Error('Escriba el nombre de la reunión o actividad.');
   var d = datosReunionDeP_(p);
   var fecha = p.fecha ? fechaIso_(p.fecha) : ymd_(new Date());
-  diaHabilReunion_(fecha);
+  ventanaReunion_(fecha, d.ini, d.fin, !!p.excepcional);
   var cv = convocadosDeP_(p), conv = cv.conv;
   var nombre = String(p.nombre || '').slice(0, 120) || def.tipo;
   var lock = LockService.getScriptLock(); lock.waitLock(20000);
@@ -2489,7 +2502,7 @@ function crearReunion(p) {
     var id = Utilities.getUuid();
     reunionesHoja_().appendRow([id, txtForzado_(fecha), def.tipo, nombre, txtForzado_(d.ini), txtForzado_(d.fin),
       (p.sinEstudiantes || d.salida) ? 'SI' : 'NO', conv, por, ahoraTxt_(), recordatorioDeP_(p).dias, recordatorioDeP_(p).min, recordatorioDeP_(p).ronda,
-      d.lugar, d.finTipo, d.convocaTipo, d.convocaDetalle, d.solicitaPor, d.responsables, cv.grupos, cv.invitados, cv.entidad, d.observaciones, txtForzado_(d.salida), d.minAntes, d.comedor, d.padres]);
+      d.lugar, d.finTipo, d.convocaTipo, d.convocaDetalle, d.solicitaPor, d.responsables, cv.grupos, cv.invitados, cv.entidad, d.observaciones, txtForzado_(d.salida), d.minAntes, d.comedor, d.padres, p.excepcional ? 'SI' : '']);
     var aus = ausentesConvocados_(id);
     return { id: id, ausentes: aus };
   } finally { lock.releaseLock(); }
@@ -2616,8 +2629,8 @@ function editarReunion(p) {
   var def = TIPOS_REUNION.filter(function (t) { return t.tipo === tipoReunion_(p.tipo); })[0];
   if (!def) throw new Error('Elija el tipo de reunión.');
   if (/^Otra/.test(def.tipo) && String(p.nombre || '').trim().length < 3) throw new Error('Escriba el nombre de la reunión o actividad.');
-  if (p.fecha) diaHabilReunion_(fechaIso_(p.fecha));
   var d = datosReunionDeP_(p), ini = d.ini, fin = d.fin;
+  if (p.fecha) ventanaReunion_(fechaIso_(p.fecha), ini, fin, !!p.excepcional);
   if (!esFechaIso_(p.fecha)) throw new Error('Revise la fecha.');
   var cv = convocadosDeP_(p), conv = cv.conv;
   var lock = LockService.getScriptLock(); lock.waitLock(20000);
@@ -2630,6 +2643,7 @@ function editarReunion(p) {
     var nueva = v[fila].slice();
     nueva[c.fecha] = txtForzado_(p.fecha); nueva[c.tipo] = def.tipo; nueva[c.nombre] = String(p.nombre || '').slice(0, 120) || def.tipo;
     nueva[c.inicio] = txtForzado_(ini); nueva[c.fin] = txtForzado_(fin); nueva[c.sin_estudiantes] = (p.sinEstudiantes || d.salida) ? 'SI' : 'NO'; nueva[c.convocados] = conv; var rd = recordatorioDeP_(p); nueva[c.avisar_dias] = rd.dias; nueva[c.avisar_min] = rd.min; nueva[c.avisar_ronda] = rd.ronda;
+    if (c.excepcional != null) nueva[c.excepcional] = p.excepcional ? 'SI' : '';
     nueva[c.lugar] = d.lugar; nueva[c.fin_tipo] = d.finTipo; nueva[c.convoca_tipo] = d.convocaTipo; nueva[c.convoca_detalle] = d.convocaDetalle; nueva[c.solicita_por] = d.solicitaPor; nueva[c.responsables] = d.responsables; nueva[c.convocados_grupos] = cv.grupos; nueva[c.invitados] = cv.invitados; nueva[c.invitado_nombre] = cv.entidad; nueva[c.observaciones] = d.observaciones; nueva[c.salida_est] = txtForzado_(d.salida); nueva[c.min_antes_salida] = d.minAntes; nueva[c.llevar_comedor] = d.comedor; nueva[c.informar_padres] = d.padres;
     sh.getRange(fila + 1, 1, 1, nueva.length).setValues([nueva]);
     bitacora_('Editó reunión', antes.nombre + ' (' + antes.fecha + ' ' + antes.inicio + '-' + antes.fin + ') → ' + nueva[c.nombre] + ' (' + p.fecha + ' ' + ini + '-' + fin + ')' + (antes.sinEstudiantes !== !!p.sinEstudiantes ? ' · clases ' + (p.sinEstudiantes ? 'suspendidas' : 'no suspendidas') : '') + ' · por ' + por);
@@ -2729,10 +2743,16 @@ function ausentesConvocados_(id) {
   } catch (e) { return []; }
 }
 
-/** Las reuniones se programan en días hábiles (lunes a viernes); la hora puede ser dentro o fuera de la jornada, pero del mismo día. */
-function diaHabilReunion_(fecha) {
-  var d = resDia_(String(fecha));
-  if (d < 1 || d > 5) throw new Error('Las reuniones se programan en días hábiles (lunes a viernes). Elija otra fecha.');
+/**
+ * Las reuniones se programan de lunes a viernes entre las 6:30 y las 18:00 (la jornada laboral). Con la marca «excepcional» se permiten sábados, domingos y horas
+ * fuera de esa franja (bazar, cena de grados, celebración fuera del colegio, jornada ampliada para compensatorios): queda marcada y se anota en la bitácora.
+ * Los límites se pueden cambiar en la hoja Parametros (reunion_desde, reunion_hasta).
+ */
+function ventanaReunion_(fecha, ini, fin, excepcional) {
+  if (excepcional) return;
+  var desde = String(parametro_('reunion_desde', '06:30')), hasta = String(parametro_('reunion_hasta', '18:00')), dw = resDia_(String(fecha));
+  if (dw < 1 || dw > 5) throw new Error('Las reuniones se programan de lunes a viernes. Si es excepcional (fin de semana), marque «Excepcional».');
+  if (ini < desde || fin > hasta) throw new Error('El horario de las reuniones es de ' + desde + ' a ' + hasta + '. Si es excepcional (fuera de ese horario), marque «Excepcional».');
 }
 
 // ===================== Incumplimientos.gs =====================
@@ -3606,11 +3626,15 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.25-d';
+var VERSION_SISTEMA = '2026.10.25-e';
 var FECHA_VERSION = '2026-10-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.25-e', fecha: '2026-10-25', cambios: [
+    'CORRECCIÓN: en las versiones 2026.10.25-b, -c y -d la pantalla de Reuniones tenía un error de código (un comentario se comió parte de una línea) que la dejaba sin funcionar. Quedó corregido y se agregó una prueba que revisa que todo el JavaScript de las pantallas compile.',
+    'Ronda: los directivos que no administran pueden registrar la ronda del día hasta 3 horas después de terminar la jornada escolar (16:30 con jornada hasta la 1:30 p. m.); después solo quien administra, que puede hacerlo en cualquier momento (hoy o de fechas anteriores, con motivo; si no había marcas el motivo viene sugerido: «Registro posterior»). En Parametros se puede cambiar el margen (ronda_horas_margen) y habilitar el día anterior para los demás directivos (ronda_dias_atras = 1).',
+    'Reuniones: horario normal de lunes a viernes de 6:30 a 18:00 (se cambia en Parametros: reunion_desde, reunion_hasta). Para sábados, domingos u horas fuera de ese horario (bazar, cena de grados, celebraciones fuera del colegio, jornadas ampliadas) hay una casilla «⭐ Excepcional»; la reunión queda marcada como excepcional.'] },
   { version: '2026.10.25-d', fecha: '2026-10-25', cambios: [
     'Ronda anterior: quien administra puede corregirla. En «📅 Fecha…» aparece «✏️ Editar esta ronda»; al guardar se pide el motivo de la corrección, que queda en cada marca cambiada (observaciones) y en Bitacora_Cambios. El servidor ya no deja guardar rondas de otra fecha a quien no administra. La barra de fecha se repliega al elegir el día (con «Cambiar fecha» y «Volver a hoy» en el aviso azul).',
     'Novedades programadas: cada registro tiene «✏️ Editar» para completar o corregir el motivo, quién queda a cargo, si se dejó actividad y el detalle (todos sus días; lo que ya pasó solo lo corrige quien administra); queda en la bitácora.',

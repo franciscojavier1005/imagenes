@@ -200,6 +200,7 @@ function consultarSesion(dia, sesion, modo, fecha) {
     sesionesBloque: [],
     filas: [], motivos: datos_('Motivos'), listas: datos_('Listas'),
     directivos: datos_('Directivos').map(function (d) { return d.nombre; }),
+    puedeEditarPasadas: (function () { try { return puedeAdministrar_(identidad_()); } catch (e) { return false; } })(),   // quien administra puede corregir rondas de fechas anteriores
     puedeCambiarAlt: (function () { try { return puedeCambiarAsignacion_(identidad_()); } catch (e) { return false; } })(),
     sesionDe: (function () { try { var i = identidad_(); return i.rol === 'directivo' ? (i.nombre || '') : ''; } catch (e) { return ''; } })(),   // quien inició sesión: sale preseleccionado como responsable de la ronda
     nota: s ? '' : (auto ? 'Descanso o fuera de jornada' : 'Sesión no válida')
@@ -571,6 +572,16 @@ function guardarRonda(p) {
   var valido = elegido && datos_('Directivos').some(function (d) { return d.nombre === elegido; });
   p.directivo = valido ? elegido : sesionDe;
   if (valido && elegido !== sesionDe) bitacora_('Ronda con sesión prestada', 'La ronda de ' + (p.fecha || '') + ' (sesión ' + (p.sesion || '') + ') la hizo ' + elegido + ' con la sesión de ' + sesionDe);
+  // rondas de otra fecha: solo quien administra puede corregirlas, con el motivo de la corrección (queda en cada marca y en la bitácora)
+  var hoyG = ymd_(new Date()), fechaG = p.fecha ? fechaIso_(p.fecha) : hoyG, correccion = '', sufCorr = '';
+  if (fechaG !== hoyG) {
+    if (!puedeAdministrar_(quien)) throw new Error('Solo quien administra puede guardar o corregir la ronda de otra fecha.');
+    if (fechaG > hoyG) throw new Error('No se puede guardar una ronda de una fecha futura.');
+    var dwG = resDia_(fechaG); if (dwG < 1 || dwG > 5) throw new Error('Elija un día hábil (lunes a viernes).');
+    correccion = String(p.correccion || '').trim();
+    if (correccion.length < 5) throw new Error('Escriba el motivo de la corrección (mínimo 5 letras).');
+    sufCorr = ' · Corregido por ' + sesionDe + ' el ' + hoyG + ': ' + correccion;   // queda en cada marca y novedad
+  }
   var lock = LockService.getScriptLock();
   try { lock.waitLock(45000); } catch (e) { throw new Error('Hay otro guardado en curso en el libro. Espere unos segundos y toque Guardar de nuevo.'); }
   var filasRespaldo = [];
@@ -636,7 +647,7 @@ function guardarRonda(p) {
       }
       // 1) Registro_Ronda: una fila por docente-fecha-sesión (se reemplaza si ya existía)
       var fila = [ahora, fecha, p.dia, sesion, franja, r.docente, textoCod_(r.grupoCodigo), r.area, r.estado,
-                  r.motivo || '', just, minutos, r.obs || '', p.directivo || '', atiende];
+                  r.motivo || '', just, minutos, ((r.obs || '') + sufCorr).slice(0, 300), p.directivo || '', atiende];
       var idx = -1;
       for (var i = 1; i < regVals.length; i++) {
         var f = regVals[i][1] instanceof Date ? ymd_(regVals[i][1]) : String(regVals[i][1]);
@@ -703,7 +714,7 @@ function guardarRonda(p) {
       }
       if (!sinNovedad_(r.estado) && !jornada) {
         var pg = partesGrupo_(String(r.grupoCodigo).split('+')[0]);
-        var nf = [ahora, fecha, r.docente, r.estado, r.actividad || 'N/A', r.motivo || '', r.obs || '',
+        var nf = [ahora, fecha, r.docente, r.estado, r.actividad || 'N/A', r.motivo || '', ((r.obs || '') + sufCorr).slice(0, 300),
                   r.fuente || FUENTE_RONDA, r.medio || MEDIO_RONDA, pg.grado, pg.grupo, r.area,
                   'H' + sesion + ' ' + franja + (pre ? '' : ' Bloque ' + Math.ceil(sesion / 2)), minutos, p.directivo || '',
                   'S' + sesion + (resto ? '-FIN' : ''), just, m.categoria || '', atiende];
@@ -713,6 +724,7 @@ function guardarRonda(p) {
       guardados++;
     });
     volcarReg(); volcarNov();
+    if (correccion) bitacora_('Corrigió ronda anterior', fechaG + ' (' + (p.dia || '') + ', sesión ' + (p.sesion || '') + '): ' + guardados + ' marcas · motivo: ' + correccion);
     return { ok: true, guardados: guardados };
   } finally { lock.releaseLock(); if (typeof respaldarRonda_ === 'function') respaldarRonda_(filasRespaldo); }   // el respaldo va después de soltar el bloqueo y, si falla, el guardado no se afecta
 }

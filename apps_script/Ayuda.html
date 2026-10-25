@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.25-c</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.25-d</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -150,7 +150,8 @@
 <tr><td>Reunión, consejo, jornada pedagógica, taller</td><td><b>Reuniones</b>. Los convocados quedan «En reunión» en la ronda mientras dura.</td><td>No se marcan ausentes; la asistencia se toma una sola vez en Reuniones, donde quien ya tiene ausencia reportada sale marcado «No asistió» con su motivo.</td></tr>
 <tr><td>Lo que <b>vea en el momento</b> (no estaba, llegó tarde, sin estudiantes, incumplimiento)</td><td>La <b>ronda</b>.</td><td>Solo se marca lo que se observa; lo que ya está en novedades o reuniones no se repite.</td></tr>
 </table>
-<p><b>Consultar una ronda anterior:</b> en la ronda, abra el selector de día y elija «📅 Fecha…»; escoja un día hábil (lunes a viernes, de hoy hacia atrás). Verá lo que se guardó ese día, en solo lectura. Toque «Ahora» para volver a hoy.</p>
+<p><b>Consultar una ronda anterior:</b> en la ronda, abra el selector de día y elija «📅 Fecha…»; escoja un día hábil (lunes a viernes, de hoy hacia atrás). Verá lo que se guardó ese día, en solo lectura. Toque «Ahora» para volver a hoy. Quien <b>administra</b> verá además «✏️ Editar esta ronda» para corregir un error de un compañero: al guardar escribe el motivo y queda anotado.</p>
+<p><b>Editar una novedad ya registrada:</b> en «Registradas desde aquí», toque «✏️ Editar» para agregar quién queda a cargo, si se dejó actividad, cambiar el motivo o el detalle. Las <b>reuniones</b> solo se programan de lunes a viernes.</p>
 <p>El aviso del día muestra al abrir las <b>reuniones de hoy</b> y los <b>docentes ausentes hoy</b> con su motivo y los días que faltarán.</p>
 </section>
 <section id="parejas"><h2>8. Docentes que alternan (quién dicta esta semana)</h2>
@@ -224,7 +225,7 @@
 <p class="tip">¿Algo no aparece en este manual? Dígaselo a coordinación académica para incluirlo en la próxima versión.</p></section>
 
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.25-c</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.25-d</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

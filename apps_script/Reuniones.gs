@@ -268,6 +268,7 @@ function crearReunion(p) {
   if (/^Otra/.test(def.tipo) && String(p.nombre || '').trim().length < 3) throw new Error('Escriba el nombre de la reunión o actividad.');
   var d = datosReunionDeP_(p);
   var fecha = p.fecha ? fechaIso_(p.fecha) : ymd_(new Date());
+  diaHabilReunion_(fecha);
   var cv = convocadosDeP_(p), conv = cv.conv;
   var nombre = String(p.nombre || '').slice(0, 120) || def.tipo;
   var lock = LockService.getScriptLock(); lock.waitLock(20000);
@@ -410,6 +411,7 @@ function editarReunion(p) {
   var def = TIPOS_REUNION.filter(function (t) { return t.tipo === tipoReunion_(p.tipo); })[0];
   if (!def) throw new Error('Elija el tipo de reunión.');
   if (/^Otra/.test(def.tipo) && String(p.nombre || '').trim().length < 3) throw new Error('Escriba el nombre de la reunión o actividad.');
+  if (p.fecha) diaHabilReunion_(fechaIso_(p.fecha));
   var d = datosReunionDeP_(p), ini = d.ini, fin = d.fin;
   if (!esFechaIso_(p.fecha)) throw new Error('Revise la fecha.');
   var cv = convocadosDeP_(p), conv = cv.conv;
@@ -520,4 +522,10 @@ function ausentesConvocados_(id) {
     return ausentesDelDia_(r.fecha).filter(function (a) { return a.jornada && conv.indexOf(a.docente) >= 0; })
       .map(function (a) { return { docente: a.corto || a.docente, motivo: a.motivo, dias: a.dias }; });
   } catch (e) { return []; }
+}
+
+/** Las reuniones se programan en días hábiles (lunes a viernes); la hora puede ser dentro o fuera de la jornada, pero del mismo día. */
+function diaHabilReunion_(fecha) {
+  var d = resDia_(String(fecha));
+  if (d < 1 || d > 5) throw new Error('Las reuniones se programan en días hábiles (lunes a viernes). Elija otra fecha.');
 }

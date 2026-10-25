@@ -19,8 +19,12 @@ const g={Utilities:{formatDate:fmt,getUuid:()=>'u'+Math.random().toString(36).sl
   DriveApp:{Access:{PRIVATE:1},Permission:{NONE:1},
     createFolder:()=>({getId:()=>'RAIZ',createFolder:n=>({createFile:b=>{const f={b,id:'F'+archivos.length,setSharing(){},getId(){return this.id},getUrl(){return 'https://drive/'+this.id}};archivos.push(f);return f},getFoldersByName:()=>({hasNext:()=>false})}),getFoldersByName:()=>({hasNext:()=>false})}),
     getFolderById:()=>{throw new Error('no')},getFileById:id=>({setTrashed(){papelera.push(id)}})},console};
+const FIJA=new Date('2026-10-21T15:00:00Z').getTime();   // miércoles 21 de octubre de 2026: un día hábil fijo (con los 2 días siguientes también hábiles), posterior a las fechas de los datos de prueba
+g.Date=class extends Date{constructor(...a){a.length?super(...a):super(FIJA)} static now(){return FIJA}};
 vm.createContext(g);
 ['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Reuniones.gs','Incumplimientos.gs','Horarios.gs','Novedades.gs','Estudiantes.gs','Sesion.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
+// las rondas de fechas anteriores (datos de prueba fijos) solo las guarda quien administra, con motivo: las pruebas lo aportan
+vm.runInContext("var _guardarRondaOrig=guardarRonda; guardarRonda=function(p){ if(p&&p.fecha&&!p.correccion) p.correccion='prueba automática'; return _guardarRondaOrig(p); }",g);
 let fallos=0; const ok=(c,m)=>{console.log((c?'  ok   ':'  FALLA ')+m); if(!c)fallos++;};
 const run=(c)=>vm.runInContext(c,g);
 const hi=H.Horario[0].indexOf.bind(H.Horario[0]);
@@ -228,7 +232,7 @@ ok(['Permiso por horas (personal)','Comité o consejo (calidad, académico, conv
 g.RS={desde:'2026-10-08',hasta:'2026-10-08',docentes:[],motivos:[],horario:[],novedades:[{fecha:'2026-10-08',docente:'X',tipo:'Ausente temporal',motivo:'Reunión PTAFI con la tutora',minutos:60,justificada:'Sí',categoria:'ACTIVIDAD INSTITUCIONAL'}]};
 const rsm=run('calcularResumen_(RS)').kpis; ok(rsm.permisosTemporales===1&&rsm.minutos===60&&rsm.ausencias===0,'panel: el permiso por horas suma sus minutos y NO cuenta como ausencia del día');
 // ---- reuniones y jornadas sin estudiantes
-EMAIL='dueno@gmail.com'; const hoyR=fmt(new Date(),'America/Bogota','yyyy-MM-dd');
+EMAIL='dueno@gmail.com'; const hoyR=fmt(new Date(FIJA),'America/Bogota','yyyy-MM-dd');
 const clase3=H.Horario.slice(1).find(r=>r[hi('dia')]==='VIERNES'&&r[hi('tipo')]==='CLASE'&&Number(r[hi('hora')])===3), dR=clase3[hi('docente')];
 g.RC={tipo:'Consejo académico',nombre:'Consejo académico de prueba',inicio:'08:00',fin:'10:00',sinEstudiantes:false,convocados:[dR,'Persona que no existe'],directivo:'P'};
 const rc1=run('crearReunion(RC)');
@@ -238,7 +242,7 @@ ok(ga.guardados===1,'la asistencia solo guarda a los convocados (se ignora a qui
 const cr=run("cargarReunion({id:'"+rc1.id+"'})"); ok(cr.personas.length===1&&cr.personas[0].registro.estado==='Asistió','cargarReunion devuelve convocados y lo registrado');
 // ---- editar una reunión y ver próximas / últimas
 {
-  const dmas=n=>new Date(new Date(hoyR+'T12:00:00Z').getTime()+86400000*n).toISOString().slice(0,10); const manana=dmas(1), ayer=dmas(-3);
+  const dmas=n=>new Date(new Date(hoyR+'T12:00:00Z').getTime()+86400000*n).toISOString().slice(0,10); const manana=dmas(1), ayer=dmas(-1);
   const rP=run(`crearReunion({tipo:'Consejo académico',fecha:'${manana}',inicio:'14:00',fin:'15:00',convocados:'TODOS'})`);
   const rU=run(`crearReunion({tipo:'Consejo académico',fecha:'${ayer}',inicio:'14:00',fin:'15:00',convocados:'TODOS'})`);
   const lr=run('listarReuniones({})');
@@ -349,7 +353,7 @@ const cr=run("cargarReunion({id:'"+rc1.id+"'})"); ok(cr.personas.length===1&&cr.
   }
   // asunto u observaciones y tipos unificados
   {
-    const dq=dmas(10), tp=run('listarReuniones({})').tipos.map(t=>t.tipo);
+    const dq=dmas(8), tp=run('listarReuniones({})').tipos.map(t=>t.tipo);
     ok(!tp.includes('Jornada pedagógica')&&!tp.includes('Reunión de desarrollo institucional')&&tp.includes('Jornada pedagógica o de desarrollo institucional'),'«jornada pedagógica» y «desarrollo institucional» quedan unificadas en un solo tipo');
     ok(['Taller pedagógico','Charla o conferencia','Capacitación en el colegio','Reunión con padres de familia o acudientes','Escuela de padres','Acto cívico o cultural','Simulacro de evacuación'].every(t=>tp.includes(t)),'tipos nuevos: taller, charla, capacitación, padres, escuela de padres, acto cívico, simulacro');
     const rA=run(`crearReunion({tipo:'Reunión de desarrollo institucional',nombre:'Con alias',fecha:'${dq}',inicio:'08:00',fin:'09:00',convocados:'TODOS',observaciones:'  Traer el informe de notas; la reunión es en el segundo piso.  '})`);
@@ -602,5 +606,39 @@ EMAIL=''; ok(/Debe iniciar sesión/.test(falla("consultaHorarios({modo:'catalogo
   ok(esperados.length>=1&&Array.isArray(rr.ausentes)&&rr.ausentes.length===esperados.length,'crearReunion avisa de los convocados con ausencia de jornada completa ese día ('+esperados.length+')');
   const lr=run(`cargarReunion({id:'${rr.id}'})`), pa=lr.personas.find(p=>p.ausente);
   ok(pa&&pa.ausente.motivo,'en la asistencia, esa persona trae su ausencia reportada (queda marcada «No asistió» con su motivo)');
+}
+// ---- corrección de una ronda anterior por quien administra, edición de novedades programadas y reuniones solo en días hábiles
+{
+  const clase=H.Horario.slice(1).find(r=>r[hi('dia')]==='MARTES'&&r[hi('tipo')]==='CLASE'&&Number(r[hi('hora')])===3), dd=clase[hi('docente')], gg=clase[hi('grupo')];
+  const cabR=hojas.Registro_Ronda.v[0], ic=(k)=>cabR.indexOf(k);
+  const body=(extra)=>`guardarRonda(Object.assign({dia:'MARTES',sesion:3,fecha:'2026-10-13',directivo:'P',registros:[{docente:${JSON.stringify(dd)},sesion:3,grupoCodigo:${JSON.stringify(gg)},area:'X',estado:'Presente'}]},${JSON.stringify(extra||{})}))`;
+  run("var _pa=puedeAdministrar_; puedeAdministrar_=function(){return false}");
+  let e1=null; try{ run(body({})) }catch(x){ e1=x } ok(e1&&/Solo quien administra/.test(e1.message),'quien no administra no puede guardar la ronda de otra fecha');
+  run("puedeAdministrar_=_pa");
+  e1=null; try{ run(`_guardarRondaOrig({dia:'MARTES',sesion:3,fecha:'2026-10-13',directivo:'P',registros:[{docente:${JSON.stringify(dd)},sesion:3,grupoCodigo:${JSON.stringify(gg)},area:'X',estado:'Presente'}]})`) }catch(x){ e1=x }
+  ok(e1&&/motivo de la corrección/.test(e1.message),'quien administra debe escribir el motivo de la corrección');
+  const nb=hojas.Bitacora_Cambios.v.length;
+  run(body({correccion:'Se marcó ausente por error de otro compañero'}));
+  const fila=hojas.Registro_Ronda.v.slice().reverse().find(r=>r[ic('docente')]===dd&&r[ic('fecha')]==='2026-10-13'&&Number(r[ic('sesion')])===3);
+  ok(fila&&/Corregido por .*Se marcó ausente por error/.test(String(fila[ic('observaciones')])),'cada marca corregida lleva quién la corrigió y el motivo');
+  ok(hojas.Bitacora_Cambios.v.length>nb&&/Corrigió ronda anterior/.test(hojas.Bitacora_Cambios.v[hojas.Bitacora_Cambios.v.length-1][2]),'la corrección queda en la bitácora con el motivo');
+  ok(run("consultarSesion(null,3,'sesion','2026-10-13')").puedeEditarPasadas===true,'la consulta le dice a quien administra que puede editar rondas anteriores');
+  // novedades programadas: se completan después
+  const dN=H.Horario.slice(1).find(r=>r[hi('dia')]==='JUEVES'&&r[hi('tipo')]==='CLASE')[hi('docente')], fut=run("resSumaDias_(ymd_(new Date()),7)");
+  const fh=run(`diasHabilesRango_('${fut}','${run(`resSumaDias_('${fut}',6)`)}')[0]`);
+  run(`registrarNovedad({docentes:[${JSON.stringify(dN)}],tipo:'AUSENCIA',desde:'${fh}',hasta:'${fh}',motivo:'Sin justificación',medio:'WhatsApp directo'})`);
+  const reg0=run('registrosRecientes_(ymd_(new Date()))').find(r=>r.docente===dN&&r.desde===fh);
+  ok(reg0&&reg0.editable&&!reg0.atiende,'la novedad programada aparece como editable y sin «a cargo»');
+  run(`editarNovedad({id:'${reg0.id}',docente:${JSON.stringify(dN)},motivo:'Invitación sindical (encuentro, asamblea, delegados)',atiende:'Otro docente (con espacio libre)',actividad:'Sí',descripcion:'Encuentro de delegados',observacion:'Completa los datos'})`);
+  const reg1=run('registrosRecientes_(ymd_(new Date()))').find(r=>r.id===reg0.id&&r.docente===dN);
+  ok(reg1&&reg1.atiende==='Otro docente (con espacio libre)'&&reg1.actividad==='Sí'&&/sindical/.test(reg1.motivo),'editarNovedad agrega quién queda a cargo, la actividad y cambia el motivo');
+  const cabN=hojas.Novedades.v[0], rn=hojas.Novedades.v.find(r=>r[cabN.indexOf('ID registro')]===reg0.id);
+  ok(rn&&rn[cabN.indexOf('Categoría motivo')]==='PERMISO SINDICAL','al cambiar el motivo se actualiza también la categoría');
+  ok(hojas.Bitacora_Cambios.v.some(r=>/Editó novedad/.test(r[2])),'la edición de la novedad queda en la bitácora');
+  // reuniones: solo días hábiles
+  const sab=run("(function(){ var f=ymd_(new Date()); while(resDia_(f)!==6) f=resSumaDias_(f,1); return f; })()");
+  e1=null; try{ run(`crearReunion({tipo:'Consejo académico',fecha:'${sab}',inicio:'18:00',fin:'19:00',convocados:'TODOS'})`) }catch(x){ e1=x } ok(e1&&/días hábiles/.test(e1.message),'una reunión en sábado se rechaza (solo lunes a viernes)');
+  const fh2=run(`diasHabilesRango_('${fut}','${run(`resSumaDias_('${fut}',6)`)}')[0]`);
+  const rf=run(`crearReunion({tipo:'Consejo académico',nombre:'Fuera de jornada',fecha:'${fh2}',inicio:'17:30',fin:'19:00',convocados:'TODOS'})`); ok(rf&&rf.id,'una reunión fuera de la jornada escolar, pero del mismo día hábil, sí se permite');
 }
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

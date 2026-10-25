@@ -5,11 +5,15 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.25-c';
+var VERSION_SISTEMA = '2026.10.25-d';
 var FECHA_VERSION = '2026-10-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.25-d', fecha: '2026-10-25', cambios: [
+    'Ronda anterior: quien administra puede corregirla. En «📅 Fecha…» aparece «✏️ Editar esta ronda»; al guardar se pide el motivo de la corrección, que queda en cada marca cambiada (observaciones) y en Bitacora_Cambios. El servidor ya no deja guardar rondas de otra fecha a quien no administra. La barra de fecha se repliega al elegir el día (con «Cambiar fecha» y «Volver a hoy» en el aviso azul).',
+    'Novedades programadas: cada registro tiene «✏️ Editar» para completar o corregir el motivo, quién queda a cargo, si se dejó actividad y el detalle (todos sus días; lo que ya pasó solo lo corrige quien administra); queda en la bitácora.',
+    'Reuniones: solo se programan de lunes a viernes (la hora puede ser dentro o fuera de la jornada, del mismo día).'] },
   { version: '2026.10.25-c', fecha: '2026-10-25', cambios: [
     'Ronda: el selector de día ahora trae «📅 Fecha…»: se elige un día hábil de hoy hacia atrás y se ve la ronda guardada ese día (solo lectura, con aviso azul); «Ahora» vuelve a hoy. No permite fines de semana ni fechas futuras.',
     'Ronda: las novedades por horas (permiso, llegada tarde, salida temprana) ahora también se marcan solas, pero solo en las sesiones que muestra la pantalla y con los minutos anotados; en otra sesión no aparecen.',

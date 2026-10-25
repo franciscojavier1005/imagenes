@@ -233,3 +233,9 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 - `reporteParaSesiones_`: las novedades del día solo se asocian a las sesiones mostradas (JC siempre; S3 solo en la 3; S3-FIN de la 3 en adelante) y traen `parcial` (estado, motivo, minutos, a cargo, actividad) para marcar solas las novedades por horas.
 - `ausentesConvocados_` (Reuniones.gs): `crearReunion` y `editarReunion` devuelven `ausentes`; Reunion.html muestra un aviso (`avisoAusentes`).
 - Pendiente (no hecho): permitir guardar/corregir una ronda de fecha anterior (hoy solo lectura; guardar sigue limitado al día actual).
+
+## Versión 2026.10.25-d — Corrección de rondas anteriores, edición de novedades, reuniones en días hábiles
+- `guardarRonda`: si `fecha` ≠ hoy exige `puedeAdministrar_`, fecha no futura, día hábil y `p.correccion` (≥5 letras); cada marca y novedad escritas llevan « · Corregido por X el AAAA-MM-DD: motivo» (`sufCorr`, tras las validaciones) y se registra «Corrigió ronda anterior» en Bitacora_Cambios. `consultarSesion` devuelve `puedeEditarPasadas`. Consulta.html: `editMode`, botón «✏️ Editar esta ronda» en el aviso azul (`textoRev`), `pideMotivo`, `enviaRonda`; la barra de fecha se repliega (`mostrarFecha`), la opción del selector muestra la fecha elegida.
+- `editarNovedad` (Novedades.gs, Api.gs): motivo (actualiza justificada y categoría), a cargo, actividad, detalle de todos los días del registro (id + docente); lo ya pasado solo lo edita quien administra; bitácora. `registrosRecientes_` devuelve atiende, actividad y `editable`. Novedad.html: botón «✏️ Editar» y diálogo.
+- Reuniones: `diaHabilReunion_` rechaza sábados y domingos al crear/editar; la hora es libre dentro del mismo día. Reunion.html valida la fecha antes de enviar.
+- Pruebas: las rondas de fecha fija usan un reloj fijo (miércoles 2026-10-21) y un envoltorio que añade `correccion`; las pruebas de reuniones usan días hábiles.

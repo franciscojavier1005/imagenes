@@ -81,7 +81,7 @@
   </div>
   <div class="card"><h2>Últimas novedades registradas</h2><div class="sub" style="margin-bottom:6px">Las más recientes, hechas en la ronda o con este formulario.</div><div id="ultimas"><div class="aviso">Cargando…</div></div></div>
   <div class="card"><h2>Registradas desde aquí (últimos 7 días y próximas)</h2><div id="recientes"><div class="aviso">Cargando…</div></div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.25-c</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.25-d</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -168,7 +168,30 @@ function pintaUltimas(){
 function pintaRecientes(){
   el('recientes').innerHTML=D.registros.length?D.registros.map(function(r){
     return '<div class="reg"><b>'+esc(r.docente)+'</b> · '+esc(r.tipo)+'<small>'+esc(r.motivo)+' · '+(r.desde===r.hasta?fmt(r.desde):fmt(r.desde)+' al '+fmt(r.hasta)+' ('+r.dias+' días)')+(r.descripcion?' · '+esc(r.descripcion):'')+' · lo registró '+esc(r.por)+'</small>'+
+      (r.atiende||/^(Sí|No)$/.test(r.actividad||'')?'<small>'+(r.atiende?'👥 a cargo: '+esc(r.atiende):'')+(/^(Sí|No)$/.test(r.actividad||'')?' · actividad: '+esc(r.actividad):'')+'</small>':'')+
+      (r.editable?'<button class="link" onclick="editar('+D.registros.indexOf(r)+')">✏️ Editar</button> ':'')+
       '<button class="link" onclick="quitar(\''+esc(r.id)+'\',\''+esc(r.docente).replace(/'/g,'')+'\')">Anular</button></div>';}).join(''):'<div class="aviso">Todavía no hay registros recientes.</div>';
+}
+var ATN_LISTA=['','Nadie (grupo solo)','Reemplazo (acordado con rectoría)','Persona de apoyo contratada (alcaldía u otra entidad)','Practicante','Otro docente (con espacio libre)','Auxiliar o persona de apoyo del docente','Reemplazo (docente)','Otro docente o directivo','Se despachó al grupo temprano (autorizado)','Sin clase: los niños no asistieron (padres avisados)','No aplica (no tiene grupo asignado)'];
+function editar(i){   // completar o corregir los detalles de una novedad ya registrada (antes de que ocurra o, si administra, después)
+  var r=D.registros[i]; if(!r) return;
+  var cats={}, ord=[]; D.motivos.forEach(function(m){ if(D.motivosExterna.indexOf(m.motivo)>=0) return; if(!cats[m.categoria]){cats[m.categoria]=[];ord.push(m.categoria);} cats[m.categoria].push(m.motivo); });
+  var mot=ord.map(function(c){return '<optgroup label="'+esc(c)+'">'+cats[c].map(function(x){return opt(x,x,x===r.motivo);}).join('')+'</optgroup>';}).join('');
+  var v=document.createElement('div'); v.style.cssText='position:fixed;inset:0;background:rgba(10,20,40,.55);display:flex;align-items:center;justify-content:center;z-index:99;padding:14px;overflow:auto';
+  v.innerHTML='<div style="background:#fff;border-radius:16px;padding:16px;max-width:460px;width:100%"><h2 style="margin:0 0 4px;font-size:17px;color:#0f2a5c">✏️ Editar novedad</h2><div class="sub" style="margin-bottom:8px"><b>'+esc(r.docente)+'</b> · '+esc(r.tipo)+' · '+(r.desde===r.hasta?fmt(r.desde):fmt(r.desde)+' al '+fmt(r.hasta))+'</div>'+
+    '<label>Motivo<select id="eMot">'+mot+'</select></label>'+
+    '<div class="fila2"><label>¿Quién queda a cargo del grupo?<select id="eAt">'+ATN_LISTA.map(function(x){return opt(x,x||'— Sin dato —',x===(r.atiende||''));}).join('')+'</select></label>'+
+    '<label>¿Se dejó actividad de aprendizaje?<select id="eAc">'+[['N/A','Sin dato'],['Sí','Sí, se dejó actividad'],['No','No se dejó actividad']].map(function(x){return opt(x[0],x[1],x[0]===(/^(Sí|No)$/.test(r.actividad||'')?r.actividad:'N/A'));}).join('')+'</select></label></div>'+
+    '<label>Detalle<input type="text" id="eDe" maxlength="200" value="'+esc(r.descripcion||'')+'"></label>'+
+    '<label>¿Por qué se edita? (opcional, queda en la bitácora)<input type="text" id="eOb" maxlength="150"></label><div id="eMsg" class="sub mal" style="min-height:16px"></div>'+
+    '<div style="display:flex;gap:8px;margin-top:6px"><button class="btn prim" style="flex:1" id="eSi">Guardar cambios</button><button class="btn" style="flex:1" id="eNo">Cancelar</button></div></div>';
+  document.body.appendChild(v);
+  v.querySelector('#eNo').onclick=function(){ v.remove(); };
+  v.querySelector('#eSi').onclick=function(){
+    var b=v.querySelector('#eSi'); b.disabled=true;
+    srv().withSuccessHandler(function(x){ v.remove(); msg('Novedad actualizada ('+x.editadas+' días).',true); recargar(); }).withFailureHandler(function(e){ b.disabled=false; v.querySelector('#eMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); })
+    .editarNovedad({id:r.id,docente:r.docente,motivo:v.querySelector('#eMot').value,atiende:v.querySelector('#eAt').value,actividad:v.querySelector('#eAc').value,descripcion:v.querySelector('#eDe').value,observacion:v.querySelector('#eOb').value});
+  };
 }
 function quitar(id,doc){
   if(!confirm('¿Anular esta novedad de '+doc+'? Queda anotado quién la anuló.')) return;

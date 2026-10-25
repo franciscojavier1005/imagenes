@@ -201,6 +201,7 @@ function consultarSesion(dia, sesion, modo, fecha) {
     sesionesBloque: [],
     filas: [], motivos: datos_('Motivos'), listas: datos_('Listas'),
     directivos: datos_('Directivos').map(function (d) { return d.nombre; }),
+    puedeEditarPasadas: (function () { try { return puedeAdministrar_(identidad_()); } catch (e) { return false; } })(),   // quien administra puede corregir rondas de fechas anteriores
     puedeCambiarAlt: (function () { try { return puedeCambiarAsignacion_(identidad_()); } catch (e) { return false; } })(),
     sesionDe: (function () { try { var i = identidad_(); return i.rol === 'directivo' ? (i.nombre || '') : ''; } catch (e) { return ''; } })(),   // quien inició sesión: sale preseleccionado como responsable de la ronda
     nota: s ? '' : (auto ? 'Descanso o fuera de jornada' : 'Sesión no válida')
@@ -572,6 +573,16 @@ function guardarRonda(p) {
   var valido = elegido && datos_('Directivos').some(function (d) { return d.nombre === elegido; });
   p.directivo = valido ? elegido : sesionDe;
   if (valido && elegido !== sesionDe) bitacora_('Ronda con sesión prestada', 'La ronda de ' + (p.fecha || '') + ' (sesión ' + (p.sesion || '') + ') la hizo ' + elegido + ' con la sesión de ' + sesionDe);
+  // rondas de otra fecha: solo quien administra puede corregirlas, con el motivo de la corrección (queda en cada marca y en la bitácora)
+  var hoyG = ymd_(new Date()), fechaG = p.fecha ? fechaIso_(p.fecha) : hoyG, correccion = '', sufCorr = '';
+  if (fechaG !== hoyG) {
+    if (!puedeAdministrar_(quien)) throw new Error('Solo quien administra puede guardar o corregir la ronda de otra fecha.');
+    if (fechaG > hoyG) throw new Error('No se puede guardar una ronda de una fecha futura.');
+    var dwG = resDia_(fechaG); if (dwG < 1 || dwG > 5) throw new Error('Elija un día hábil (lunes a viernes).');
+    correccion = String(p.correccion || '').trim();
+    if (correccion.length < 5) throw new Error('Escriba el motivo de la corrección (mínimo 5 letras).');
+    sufCorr = ' · Corregido por ' + sesionDe + ' el ' + hoyG + ': ' + correccion;   // queda en cada marca y novedad
+  }
   var lock = LockService.getScriptLock();
   try { lock.waitLock(45000); } catch (e) { throw new Error('Hay otro guardado en curso en el libro. Espere unos segundos y toque Guardar de nuevo.'); }
   var filasRespaldo = [];
@@ -637,7 +648,7 @@ function guardarRonda(p) {
       }
       // 1) Registro_Ronda: una fila por docente-fecha-sesión (se reemplaza si ya existía)
       var fila = [ahora, fecha, p.dia, sesion, franja, r.docente, textoCod_(r.grupoCodigo), r.area, r.estado,
-                  r.motivo || '', just, minutos, r.obs || '', p.directivo || '', atiende];
+                  r.motivo || '', just, minutos, ((r.obs || '') + sufCorr).slice(0, 300), p.directivo || '', atiende];
       var idx = -1;
       for (var i = 1; i < regVals.length; i++) {
         var f = regVals[i][1] instanceof Date ? ymd_(regVals[i][1]) : String(regVals[i][1]);
@@ -704,7 +715,7 @@ function guardarRonda(p) {
       }
       if (!sinNovedad_(r.estado) && !jornada) {
         var pg = partesGrupo_(String(r.grupoCodigo).split('+')[0]);
-        var nf = [ahora, fecha, r.docente, r.estado, r.actividad || 'N/A', r.motivo || '', r.obs || '',
+        var nf = [ahora, fecha, r.docente, r.estado, r.actividad || 'N/A', r.motivo || '', ((r.obs || '') + sufCorr).slice(0, 300),
                   r.fuente || FUENTE_RONDA, r.medio || MEDIO_RONDA, pg.grado, pg.grupo, r.area,
                   'H' + sesion + ' ' + franja + (pre ? '' : ' Bloque ' + Math.ceil(sesion / 2)), minutos, p.directivo || '',
                   'S' + sesion + (resto ? '-FIN' : ''), just, m.categoria || '', atiende];
@@ -714,6 +725,7 @@ function guardarRonda(p) {
       guardados++;
     });
     volcarReg(); volcarNov();
+    if (correccion) bitacora_('Corrigió ronda anterior', fechaG + ' (' + (p.dia || '') + ', sesión ' + (p.sesion || '') + '): ' + guardados + ' marcas · motivo: ' + correccion);
     return { ok: true, guardados: guardados };
   } finally { lock.releaseLock(); if (typeof respaldarRonda_ === 'function') respaldarRonda_(filasRespaldo); }   // el respaldo va después de soltar el bloqueo y, si falla, el guardado no se afecta
 }
@@ -2461,6 +2473,7 @@ function crearReunion(p) {
   if (/^Otra/.test(def.tipo) && String(p.nombre || '').trim().length < 3) throw new Error('Escriba el nombre de la reunión o actividad.');
   var d = datosReunionDeP_(p);
   var fecha = p.fecha ? fechaIso_(p.fecha) : ymd_(new Date());
+  diaHabilReunion_(fecha);
   var cv = convocadosDeP_(p), conv = cv.conv;
   var nombre = String(p.nombre || '').slice(0, 120) || def.tipo;
   var lock = LockService.getScriptLock(); lock.waitLock(20000);
@@ -2603,6 +2616,7 @@ function editarReunion(p) {
   var def = TIPOS_REUNION.filter(function (t) { return t.tipo === tipoReunion_(p.tipo); })[0];
   if (!def) throw new Error('Elija el tipo de reunión.');
   if (/^Otra/.test(def.tipo) && String(p.nombre || '').trim().length < 3) throw new Error('Escriba el nombre de la reunión o actividad.');
+  if (p.fecha) diaHabilReunion_(fechaIso_(p.fecha));
   var d = datosReunionDeP_(p), ini = d.ini, fin = d.fin;
   if (!esFechaIso_(p.fecha)) throw new Error('Revise la fecha.');
   var cv = convocadosDeP_(p), conv = cv.conv;
@@ -2713,6 +2727,12 @@ function ausentesConvocados_(id) {
     return ausentesDelDia_(r.fecha).filter(function (a) { return a.jornada && conv.indexOf(a.docente) >= 0; })
       .map(function (a) { return { docente: a.corto || a.docente, motivo: a.motivo, dias: a.dias }; });
   } catch (e) { return []; }
+}
+
+/** Las reuniones se programan en días hábiles (lunes a viernes); la hora puede ser dentro o fuera de la jornada, pero del mismo día. */
+function diaHabilReunion_(fecha) {
+  var d = resDia_(String(fecha));
+  if (d < 1 || d > 5) throw new Error('Las reuniones se programan en días hábiles (lunes a viernes). Elija otra fecha.');
 }
 
 // ===================== Incumplimientos.gs =====================
@@ -3157,6 +3177,7 @@ function ultimasNovedades_(max) {
 
 /** Registros hechos desde esta pantalla, de los últimos 7 días y los futuros (agrupados por ID). */
 function registrosRecientes_(hoy) {
+  var admin = false; try { admin = puedeAdministrar_(identidad_()); } catch (e) { admin = false; }
   var v = hoja_('Novedades').getDataRange().getValues(), cab = v[0], c = {}, desde = resSumaDias_(hoy, -7), por = {}, orden = [];
   cab.forEach(function (k, i) { c[k] = i; });
   if (c['ID registro'] == null) return [];
@@ -3164,12 +3185,14 @@ function registrosRecientes_(hoy) {
     var id = String(v[i][c['ID registro']] || ''); if (!id) continue;
     var f = fechaIso_(v[i][c['Fecha Novedad']]); if (f < desde) continue;
     var k = id + '|' + v[i][c['Docente']];
-    if (!por[k]) { por[k] = { id: id, docente: v[i][c['Docente']], tipo: v[i][c['Tipo Novedad']], motivo: v[i][c['Motivo Ausencia']], fechas: {}, descripcion: String(v[i][c['Descripción']] || ''), por: v[i][c['Directivo Docente']] }; orden.push(k); }
+    if (!por[k]) { por[k] = { id: id, docente: v[i][c['Docente']], tipo: v[i][c['Tipo Novedad']], motivo: v[i][c['Motivo Ausencia']], fechas: {}, descripcion: String(v[i][c['Descripción']] || ''), por: v[i][c['Directivo Docente']],
+      atiende: String(v[i][c['Grupo atendido por']] || ''), actividad: String(v[i][c['Actividad de Aprendizaje']] || '') }; orden.push(k); }
     por[k].fechas[f] = 1;
   }
   return orden.map(function (k) {
     var r = por[k], fs = Object.keys(r.fechas).sort();
-    return { id: r.id, docente: r.docente, tipo: r.tipo, motivo: r.motivo, desde: fs[0], hasta: fs[fs.length - 1], dias: fs.length, descripcion: r.descripcion.slice(0, 120), por: r.por };
+    return { id: r.id, docente: r.docente, tipo: r.tipo, motivo: r.motivo, desde: fs[0], hasta: fs[fs.length - 1], dias: fs.length, descripcion: r.descripcion.slice(0, 120), por: r.por,
+             atiende: r.atiende, actividad: r.actividad, editable: fs[fs.length - 1] >= hoy || admin };
   }).sort(function (a, b) { return a.desde < b.desde ? 1 : (a.desde > b.desde ? -1 : 0); });
 }
 
@@ -3297,6 +3320,37 @@ function externaDe_(fecha, docente, sesion, novedades) {
     if (s === 'JC' || s === 'S' + sesion) hit = { motivo: n['Motivo Ausencia'], texto: String(n['Descripción'] || '').slice(0, 160) };
   });
   return hit;
+}
+
+/**
+ * Edita los detalles de una novedad ya registrada (todos sus días, o solo los que aún no han pasado si quien edita no es administrador):
+ * motivo, quién queda a cargo, actividad de aprendizaje y detalle. p = {id, docente, motivo?, atiende?, actividad?, descripcion?, observacion}. Queda en Bitacora_Cambios.
+ */
+function editarNovedad(p) {
+  var quien = exigirDirectivo_(), por = quien.nombre || quien.email, id = String((p && p.id) || ''), docente = String((p && p.docente) || '');
+  if (!id || !docente) throw new Error('Falta el registro que se quiere editar.');
+  var admin = puedeAdministrar_(quien), hoy = ymd_(new Date());
+  var motivos = datos_('Motivos'), m = null;
+  if (p.motivo) { m = motivos.filter(function (x) { return x.motivo === p.motivo; })[0]; if (!m) throw new Error('Ese motivo no existe.'); }
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var nov = hoja_('Novedades'), v = nov.getDataRange().getValues(), c = {}, cambiadas = 0, bloqueadas = 0;
+    v[0].forEach(function (k, i) { c[k] = i; });
+    if (c['ID registro'] == null) throw new Error('No se encontró el registro.');
+    function pon(fila, col, valor) { if (c[col] != null) nov.getRange(fila + 1, c[col] + 1).setValue(valor); }
+    for (var j = 1; j < v.length; j++) {
+      if (String(v[j][c['ID registro']]) !== id || v[j][c['Docente']] !== docente) continue;
+      if (!admin && fechaIso_(v[j][c['Fecha Novedad']]) < hoy) { bloqueadas++; continue; }   // lo que ya pasó solo lo corrige quien administra
+      if (m) { pon(j, 'Motivo Ausencia', m.motivo); pon(j, 'Justificada', m.justificada === 'SI' ? 'Sí' : 'No'); pon(j, 'Categoría motivo', m.categoria || ''); }
+      if (p.atiende != null) pon(j, 'Grupo atendido por', (ATIENDE_GRUPO.indexOf(p.atiende) >= 0 || SIN_ESTUDIANTES.indexOf(p.atiende) >= 0) ? p.atiende : '');
+      if (p.actividad != null) pon(j, 'Actividad de Aprendizaje', ['Sí', 'No'].indexOf(p.actividad) >= 0 ? p.actividad : 'N/A');
+      if (p.descripcion != null) pon(j, 'Descripción', String(p.descripcion).slice(0, 200));
+      cambiadas++;
+    }
+    if (!cambiadas) throw new Error(bloqueadas ? 'Esa novedad ya pasó: solo quien administra puede corregirla.' : 'No se encontró el registro (puede que se haya anulado).');
+    bitacora_('Editó novedad', docente + ' (' + id.slice(0, 8) + '): ' + [m ? 'motivo → ' + m.motivo : '', p.atiende != null ? 'a cargo → ' + (p.atiende || 'sin dato') : '', p.actividad != null ? 'actividad → ' + p.actividad : '', p.descripcion != null ? 'detalle' : ''].filter(String).join(', ') + ' · ' + cambiadas + ' filas' + (p.observacion ? ' · ' + String(p.observacion).slice(0, 150) : ''));
+    return { editadas: cambiadas, bloqueadas: bloqueadas };
+  } finally { lock.releaseLock(); }
 }
 
 // ===================== Estudiantes.gs =====================
@@ -3552,11 +3606,15 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.25-c';
+var VERSION_SISTEMA = '2026.10.25-d';
 var FECHA_VERSION = '2026-10-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.25-d', fecha: '2026-10-25', cambios: [
+    'Ronda anterior: quien administra puede corregirla. En «📅 Fecha…» aparece «✏️ Editar esta ronda»; al guardar se pide el motivo de la corrección, que queda en cada marca cambiada (observaciones) y en Bitacora_Cambios. El servidor ya no deja guardar rondas de otra fecha a quien no administra. La barra de fecha se repliega al elegir el día (con «Cambiar fecha» y «Volver a hoy» en el aviso azul).',
+    'Novedades programadas: cada registro tiene «✏️ Editar» para completar o corregir el motivo, quién queda a cargo, si se dejó actividad y el detalle (todos sus días; lo que ya pasó solo lo corrige quien administra); queda en la bitácora.',
+    'Reuniones: solo se programan de lunes a viernes (la hora puede ser dentro o fuera de la jornada, del mismo día).'] },
   { version: '2026.10.25-c', fecha: '2026-10-25', cambios: [
     'Ronda: el selector de día ahora trae «📅 Fecha…»: se elige un día hábil de hoy hacia atrás y se ve la ronda guardada ese día (solo lectura, con aviso azul); «Ahora» vuelve a hoy. No permite fines de semana ni fechas futuras.',
     'Ronda: las novedades por horas (permiso, llegada tarde, salida temprana) ahora también se marcan solas, pero solo en las sesiones que muestra la pantalla y con los minutos anotados; en otra sesión no aparecen.',
@@ -4151,6 +4209,7 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   datosNovedades: ['directivo'],
   registrarNovedad: ['directivo'],
   quitarNovedad: ['directivo'],
+  editarNovedad: ['directivo'],
   datosEstudiantes: ['directivo'],
   marcarEstudiantes: ['directivo'],
   levantarMarcaEstudiante: ['directivo'],
@@ -4179,7 +4238,7 @@ function apiFunciones_() {
     listarIncumplimientos: listarIncumplimientos, actualizarSeguimiento: actualizarSeguimiento,
     consultaHorarios: consultaHorarios,
     guardarCorreo: guardarCorreo,
-    datosNovedades: datosNovedades, registrarNovedad: registrarNovedad, quitarNovedad: quitarNovedad,
+    datosNovedades: datosNovedades, registrarNovedad: registrarNovedad, quitarNovedad: quitarNovedad, editarNovedad: editarNovedad,
     datosEstudiantes: datosEstudiantes, marcarEstudiantes: marcarEstudiantes, levantarMarcaEstudiante: levantarMarcaEstudiante,
     agregarEstudiante: agregarEstudiante, moverEstudiante: moverEstudiante,
     agregarGrupoProyecto: agregarGrupoProyecto,

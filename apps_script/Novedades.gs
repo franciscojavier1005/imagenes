@@ -79,6 +79,7 @@ function ultimasNovedades_(max) {
 
 /** Registros hechos desde esta pantalla, de los últimos 7 días y los futuros (agrupados por ID). */
 function registrosRecientes_(hoy) {
+  var admin = false; try { admin = puedeAdministrar_(identidad_()); } catch (e) { admin = false; }
   var v = hoja_('Novedades').getDataRange().getValues(), cab = v[0], c = {}, desde = resSumaDias_(hoy, -7), por = {}, orden = [];
   cab.forEach(function (k, i) { c[k] = i; });
   if (c['ID registro'] == null) return [];
@@ -86,12 +87,14 @@ function registrosRecientes_(hoy) {
     var id = String(v[i][c['ID registro']] || ''); if (!id) continue;
     var f = fechaIso_(v[i][c['Fecha Novedad']]); if (f < desde) continue;
     var k = id + '|' + v[i][c['Docente']];
-    if (!por[k]) { por[k] = { id: id, docente: v[i][c['Docente']], tipo: v[i][c['Tipo Novedad']], motivo: v[i][c['Motivo Ausencia']], fechas: {}, descripcion: String(v[i][c['Descripción']] || ''), por: v[i][c['Directivo Docente']] }; orden.push(k); }
+    if (!por[k]) { por[k] = { id: id, docente: v[i][c['Docente']], tipo: v[i][c['Tipo Novedad']], motivo: v[i][c['Motivo Ausencia']], fechas: {}, descripcion: String(v[i][c['Descripción']] || ''), por: v[i][c['Directivo Docente']],
+      atiende: String(v[i][c['Grupo atendido por']] || ''), actividad: String(v[i][c['Actividad de Aprendizaje']] || '') }; orden.push(k); }
     por[k].fechas[f] = 1;
   }
   return orden.map(function (k) {
     var r = por[k], fs = Object.keys(r.fechas).sort();
-    return { id: r.id, docente: r.docente, tipo: r.tipo, motivo: r.motivo, desde: fs[0], hasta: fs[fs.length - 1], dias: fs.length, descripcion: r.descripcion.slice(0, 120), por: r.por };
+    return { id: r.id, docente: r.docente, tipo: r.tipo, motivo: r.motivo, desde: fs[0], hasta: fs[fs.length - 1], dias: fs.length, descripcion: r.descripcion.slice(0, 120), por: r.por,
+             atiende: r.atiende, actividad: r.actividad, editable: fs[fs.length - 1] >= hoy || admin };
   }).sort(function (a, b) { return a.desde < b.desde ? 1 : (a.desde > b.desde ? -1 : 0); });
 }
 
@@ -219,4 +222,35 @@ function externaDe_(fecha, docente, sesion, novedades) {
     if (s === 'JC' || s === 'S' + sesion) hit = { motivo: n['Motivo Ausencia'], texto: String(n['Descripción'] || '').slice(0, 160) };
   });
   return hit;
+}
+
+/**
+ * Edita los detalles de una novedad ya registrada (todos sus días, o solo los que aún no han pasado si quien edita no es administrador):
+ * motivo, quién queda a cargo, actividad de aprendizaje y detalle. p = {id, docente, motivo?, atiende?, actividad?, descripcion?, observacion}. Queda en Bitacora_Cambios.
+ */
+function editarNovedad(p) {
+  var quien = exigirDirectivo_(), por = quien.nombre || quien.email, id = String((p && p.id) || ''), docente = String((p && p.docente) || '');
+  if (!id || !docente) throw new Error('Falta el registro que se quiere editar.');
+  var admin = puedeAdministrar_(quien), hoy = ymd_(new Date());
+  var motivos = datos_('Motivos'), m = null;
+  if (p.motivo) { m = motivos.filter(function (x) { return x.motivo === p.motivo; })[0]; if (!m) throw new Error('Ese motivo no existe.'); }
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var nov = hoja_('Novedades'), v = nov.getDataRange().getValues(), c = {}, cambiadas = 0, bloqueadas = 0;
+    v[0].forEach(function (k, i) { c[k] = i; });
+    if (c['ID registro'] == null) throw new Error('No se encontró el registro.');
+    function pon(fila, col, valor) { if (c[col] != null) nov.getRange(fila + 1, c[col] + 1).setValue(valor); }
+    for (var j = 1; j < v.length; j++) {
+      if (String(v[j][c['ID registro']]) !== id || v[j][c['Docente']] !== docente) continue;
+      if (!admin && fechaIso_(v[j][c['Fecha Novedad']]) < hoy) { bloqueadas++; continue; }   // lo que ya pasó solo lo corrige quien administra
+      if (m) { pon(j, 'Motivo Ausencia', m.motivo); pon(j, 'Justificada', m.justificada === 'SI' ? 'Sí' : 'No'); pon(j, 'Categoría motivo', m.categoria || ''); }
+      if (p.atiende != null) pon(j, 'Grupo atendido por', (ATIENDE_GRUPO.indexOf(p.atiende) >= 0 || SIN_ESTUDIANTES.indexOf(p.atiende) >= 0) ? p.atiende : '');
+      if (p.actividad != null) pon(j, 'Actividad de Aprendizaje', ['Sí', 'No'].indexOf(p.actividad) >= 0 ? p.actividad : 'N/A');
+      if (p.descripcion != null) pon(j, 'Descripción', String(p.descripcion).slice(0, 200));
+      cambiadas++;
+    }
+    if (!cambiadas) throw new Error(bloqueadas ? 'Esa novedad ya pasó: solo quien administra puede corregirla.' : 'No se encontró el registro (puede que se haya anulado).');
+    bitacora_('Editó novedad', docente + ' (' + id.slice(0, 8) + '): ' + [m ? 'motivo → ' + m.motivo : '', p.atiende != null ? 'a cargo → ' + (p.atiende || 'sin dato') : '', p.actividad != null ? 'actividad → ' + p.actividad : '', p.descripcion != null ? 'detalle' : ''].filter(String).join(', ') + ' · ' + cambiadas + ' filas' + (p.observacion ? ' · ' + String(p.observacion).slice(0, 150) : ''));
+    return { editadas: cambiadas, bloqueadas: bloqueadas };
+  } finally { lock.releaseLock(); }
 }

@@ -5,11 +5,16 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.23-j';
-var FECHA_VERSION = '2026-10-23';
+var VERSION_SISTEMA = '2026.10.25-a';
+var FECHA_VERSION = '2026-10-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.25-a', fecha: '2026-10-25', cambios: [
+    'Motivos: nuevo motivo «Invitación sindical (encuentro, asamblea, delegados)» (se agrega solo a la hoja Motivos; en la ronda cuenta como toda la jornada).',
+    'Novedades anticipadas: ahora piden quién queda a cargo del grupo y si se dejó actividad de aprendizaje; quedan en Novedades (Grupo atendido por, Actividad de Aprendizaje). En la ronda, esos datos se ven en «Reportado hoy» y se precargan al marcar a ese docente (no hay que escribirlos de nuevo).',
+    'Aviso del día: nueva sección «Docentes ausentes hoy» con el nombre, el motivo, el tipo de ausencia, los días que va a estar ausente, quién queda a cargo y si dejó actividad.',
+    'Ronda, «Sin estudiantes»: dos motivos más (los despachó temprano con autorización, los despachó sin autorización); el motivo se elige en una lista debajo del interruptor.'] },
   { version: '2026.10.23-j', fecha: '2026-10-23', cambios: [
     'Ronda (celular): los contadores principales quedan siempre a la vista en una fila fija de 5 (sin guardar o guardados, faltan, presentes, no asistió, otro a cargo); debajo, una fila deslizable con sin estudiantes, evento SED, permiso por horas, llegada tarde o salida antes, en reunión o actividad externa e incumplimientos.'] },
   { version: '2026.10.23-i', fecha: '2026-10-23', cambios: [

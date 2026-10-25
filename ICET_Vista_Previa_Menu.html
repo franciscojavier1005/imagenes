@@ -47,7 +47,7 @@
 <main>
   <div class="saludo" id="saludo"></div>
   <div id="botones"><div class="espera">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.23-j</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.25-a</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -211,6 +211,14 @@ function avisoDiaPintar(r,soloUrgentes){
     var et=x.estado==='pasada'?'FALTA REGISTRAR ASISTENCIA':(x.estado==='ahora'?'AHORA':(urg?'EN '+Math.max(0,x.minutosHasta)+' MIN':'HOY · PRIORIDAD ALTA'));
     items.push({c:cl,p:urg,h:avFila(ic,x.inicio+' – '+x.fin,et,cl,x.nombre,x)});
   });
+  if(!soloUrgentes&&(r.ausentes||[]).length){
+    var fm=function(f){ try{ return new Date(f+'T12:00:00').toLocaleDateString('es-CO',{weekday:'short',day:'numeric',month:'short'}); }catch(e){ return f; } };
+    var lin=r.ausentes.slice(0,8).map(function(a){
+      var tx=a.jornada?'No asiste (toda la jornada)':(a.tipo==='Ausente temporal'?'Permiso por horas':(a.tipo==='Llegada tarde informada'?'Llega tarde':'Sale temprano'));
+      return '<div style="margin-top:3px"><b>'+avEsc(a.corto||a.docente)+'</b> · '+avEsc(a.motivo||'sin motivo')+'<br><small>'+tx+(a.dias>1?' · del '+fm(a.desde)+' al '+fm(a.hasta)+' ('+a.dias+' días)':'')+(a.atiende?' · a cargo: '+avEsc(a.atiende):'')+(/^(Sí|No)$/.test(a.actividad||'')?' · actividad: '+avEsc(a.actividad):'')+'</small></div>';
+    }).join('')+(r.ausentes.length>8?'<div style="margin-top:3px"><small>y '+(r.ausentes.length-8)+' más</small></div>':'');
+    items.push({c:'aus',h:'<span class="av-ic">🧑‍🏫</span><div><b>Docentes ausentes hoy ('+r.ausentes.length+')</b>'+lin+'</div>'});
+  }
   if(!soloUrgentes){
     (r.previas||[]).forEach(function(x){
       var f=String(x.fecha).split('-'), man=x.dias===1, cl=man?'man':'prox';
@@ -239,7 +247,7 @@ function avisoDiaPintar(r,soloUrgentes){
    '#avisoDia .av-tit{font-weight:800;color:#0f2a5c;font-size:16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}'+
    '#avisoDia .av-x{border:0;background:#e6edf5;border-radius:8px;width:30px;height:30px;font-weight:800;color:#234;font-size:14px}'+
    '#avisoDia .av-it{display:flex;gap:8px;align-items:flex-start;padding:6px 8px;margin:4px 0;border-radius:9px;background:#eef3fa;border-left:5px solid #1b4a8f;font-size:14px;color:#1d2a3a;line-height:1.3}'+
-   '#avisoDia .av-ahora{background:#fff1e0;border-left-color:#ef6c00}#avisoDia .av-falta{background:#fdeeee;border-left-color:#c62828}#avisoDia .av-act{background:#e8f5e9;border-left-color:#2e7d32}'+
+   '#avisoDia .av-ahora{background:#fff1e0;border-left-color:#ef6c00}#avisoDia .av-falta{background:#fdeeee;border-left-color:#c62828}#avisoDia .av-act{background:#e8f5e9;border-left-color:#2e7d32}#avisoDia .av-aus{background:#fdeeee;border-left-color:#c62828}'+
    '#avisoDia .av-ic{font-size:20px}#avisoDia small{color:#456}#avisoDia .av-e{border-radius:8px;padding:0 6px;font-size:11px;color:#fff;margin-left:4px}'+
    '#avisoDia .av-e.av-ahora{background:#ef6c00}#avisoDia .av-e.av-falta{background:#c62828}#avisoDia .av-e.av-prox{background:#1b4a8f}'+
    '#avisoDia .av-obs{font-size:12.5px;color:#234;margin-top:2px;white-space:pre-wrap}#avisoDia .av-mas{font-size:12.5px;color:#456;margin:2px 0}#avisoDia .av-barra{height:4px;background:#e3e9f0;border-radius:3px;margin-top:6px;overflow:hidden}'+

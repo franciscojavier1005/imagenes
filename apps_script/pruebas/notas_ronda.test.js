@@ -566,4 +566,18 @@ EMAIL=''; ok(/Debe iniciar sesión/.test(falla("consultaHorarios({modo:'catalogo
   c=tarjeta(); ok(c&&!c.definido,'si pasaron más de 8 semanas desde la última definición, se vuelve a pedir');
   hojas.Semana_Alternancia.v.splice(1);
 }
+// ---- novedad anticipada con quién queda a cargo y actividad; invitación sindical; docentes ausentes del día
+{
+  const dS=H.Horario.slice(1).find(r=>r[hi('dia')]==='MARTES'&&r[hi('tipo')]==='CLASE')[hi('docente')];
+  const hoyR=run("lunesDe_(ymd_(new Date()))");   // un lunes (las novedades solo cuentan días hábiles)
+  run('asegurarMotivos_()'); ok(hojas.Motivos.v.some(r=>/Invitación sindical/.test(String(r[1]))),'existe el motivo «Invitación sindical» (se agrega solo a la hoja Motivos)');
+  const n0=hojas.Novedades.v.length;
+  run(`registrarNovedad({docentes:[${JSON.stringify(dS)}],tipo:'AUSENCIA',desde:'${hoyR}',hasta:'${run(`resSumaDias_('${hoyR}',4)`)}',motivo:'Invitación sindical (encuentro, asamblea, delegados)',medio:'WhatsApp directo',atiende:'Otro docente (con espacio libre)',actividad:'Sí'})`);
+  const cabN=hojas.Novedades.v[0], filasN=hojas.Novedades.v.slice(n0);
+  ok(filasN.length>=1&&filasN.every(f=>f[cabN.indexOf('Grupo atendido por')]==='Otro docente (con espacio libre)'&&f[cabN.indexOf('Actividad de Aprendizaje')]==='Sí'),'la novedad anticipada guarda quién queda a cargo y si se dejó actividad');
+  const todosAus=run(`ausentesDelDia_('${hoyR}')`);
+  const aus=todosAus.find(a=>a.docente===dS);
+  ok(aus&&aus.motivo.indexOf('sindical')>=0&&aus.jornada&&aus.atiende&&aus.actividad==='Sí','el aviso del día lista al docente ausente con su motivo, quién queda a cargo y la actividad');
+  ok(aus&&aus.dias>=1&&aus.desde<=hoyR&&aus.hasta>=hoyR,'incluye el rango de días de esa novedad ('+(aus&&aus.dias)+' días)');
+}
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

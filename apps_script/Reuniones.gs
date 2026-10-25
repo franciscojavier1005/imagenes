@@ -354,7 +354,7 @@ function avisosHoy() {
     if (!por[k]) { por[k] = { motivo: k, docentes: [] }; orden.push(k); }
     if (por[k].docentes.indexOf(n['Docente']) < 0) por[k].docentes.push(n['Docente']);
   });
-  return { hoy: hoy, hora: hh, reuniones: reuniones, previas: previas, actividades: orden.map(function (k) { return por[k]; }) };
+  return { hoy: hoy, hora: hh, reuniones: reuniones, previas: previas, actividades: orden.map(function (k) { return por[k]; }), ausentes: ausentesDelDia_(hoy) };
 }
 
 /** Grupos de reuniones repetidas (mismo día, tipo, nombre, horas y convocados): devuelve las SOBRANTES (se conserva la que tiene asistencia o, si no, la primera). */
@@ -478,3 +478,33 @@ function reunionesEnSesiones_(fecha, sesiones, franjas) {
 }
 /** ¿Esa persona está convocada a la reunión? */
 function convocadoA_(reunion, nombre) { return reunion.convocados === 'TODOS' || reunion.convocados.indexOf(nombre) >= 0; }
+
+/**
+ * Docentes con novedad de ausencia en un día (no asiste, permiso por horas, llega tarde o sale temprano), con el motivo, el rango de días de esa novedad
+ * (las novedades de varios días comparten «ID registro»), quién queda a cargo y si se dejó actividad. Para el aviso del día.
+ */
+function ausentesDelDia_(hoy) {
+  var tipos = ['No asistió', 'Ausente temporal', 'Salida temprana informada', 'Llegada tarde informada'];
+  var v = hoja_('Novedades').getDataRange().getValues(), cab = v[0], c = {}; cab.forEach(function (k, i) { c[k] = i; });
+  function g(f, k) { return c[k] == null ? '' : f[c[k]]; }
+  var rango = {};   // id|docente -> {desde, hasta}
+  for (var i = 1; i < v.length; i++) {
+    var id = String(g(v[i], 'ID registro') || ''); if (!id) continue;
+    var f = fechaIso_(g(v[i], 'Fecha Novedad')), k = id + '|' + g(v[i], 'Docente'), o = rango[k] = rango[k] || { desde: f, hasta: f, dias: {} };
+    if (f < o.desde) o.desde = f; if (f > o.hasta) o.hasta = f; o.dias[f] = 1;
+  }
+  var por = {}, orden = [];
+  for (var j = 1; j < v.length; j++) {
+    var fila = v[j], doc = g(fila, 'Docente'), tipo = String(g(fila, 'Tipo Novedad'));
+    if (!doc || tipos.indexOf(tipo) < 0 || fechaIso_(g(fila, 'Fecha Novedad')) !== hoy) continue;
+    var jc = String(g(fila, 'Sesiones')) === 'JC' || (tipo === 'No asistió' && String(g(fila, 'Horario')) === 'Jornada completa');
+    var ant = por[doc];
+    if (ant && (ant.jornada || !jc)) continue;
+    var ri = rango[String(g(fila, 'ID registro') || '') + '|' + doc];
+    if (!ant) orden.push(doc);
+    por[doc] = { docente: doc, corto: nombreCortoDocente_(doc), motivo: String(g(fila, 'Motivo Ausencia') || ''), tipo: tipo, jornada: jc || tipo === 'No asistió',
+      desde: ri ? ri.desde : hoy, hasta: ri ? ri.hasta : hoy, dias: ri ? Object.keys(ri.dias).length : 1,
+      atiende: String(g(fila, 'Grupo atendido por') || ''), actividad: String(g(fila, 'Actividad de Aprendizaje') || '') };
+  }
+  return orden.map(function (d) { return por[d]; });
+}

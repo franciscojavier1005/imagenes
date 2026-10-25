@@ -152,7 +152,7 @@ function registrarNovedad(p) {
       docentes.forEach(function (doc) {
         var mias = hz.filter(function (h) { return h.docente === doc && h.dia === dia; }).sort(function (a, b) { return Number(a.hora) - Number(b.hora); });
         if (!mias.length) { res.sinClases.push(doc + ' (' + fecha + ')'); return; }
-        var base = { 'Marca temporal': ahora, 'Fecha Novedad': fecha, 'Docente': doc, 'Tipo Novedad': def.tipo, 'Actividad de Aprendizaje': p.actividad || 'N/A', 'Motivo Ausencia': motivo,
+        var base = { 'Marca temporal': ahora, 'Fecha Novedad': fecha, 'Docente': doc, 'Tipo Novedad': def.tipo, 'Actividad de Aprendizaje': ['Sí', 'No'].indexOf(p.actividad) >= 0 ? p.actividad : 'N/A', 'Grupo atendido por': (ATIENDE_GRUPO.indexOf(p.atiende) >= 0 || SIN_ESTUDIANTES.indexOf(p.atiende) >= 0) ? p.atiende : '', 'Motivo Ausencia': motivo,
           'Descripción': descripcion, 'Fuente Novedad': fuente, 'Medio Información': medio, 'Directivo Docente': por, 'Justificada': m.justificada === 'SI' ? 'Sí' : 'No', 'Categoría motivo': m.categoria || '', 'ID registro': id };
         var jcPrevio = v.slice(1).some(function (x) { return fechaIso_(x[c['Fecha Novedad']]) === fecha && x[c['Docente']] === doc && String(x[c['Sesiones']]) === 'JC' && /no asisti/i.test(String(x[c['Tipo Novedad']])); });
         if (def.id === 'AUSENCIA') {   // una sola novedad por día con el total de minutos (reemplaza lo anterior de ese día)

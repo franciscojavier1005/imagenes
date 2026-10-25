@@ -214,3 +214,10 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 
 ## Versión 2026.10.23-j — Contadores principales siempre visibles en celular
 - Reporte: en la versión 2026.10.23-i, en celular solo se veían el indicador de guardado y «faltan»; presentes y no asistieron quedaban fuera de pantalla. Ahora `.tp` (fila fija de 5: guardado, faltan, presentes, no asistió, otro a cargo) y `.ts` (fila deslizable con el resto). En computador ambas filas se aplanan (`display:contents`) en 10 casillas y la línea de guardado queda arriba (`.tl-g`).
+
+## Versión 2026.10.25-a — Invitación sindical, novedades con a cargo/actividad, ausentes en el aviso
+- Motivo `Invitación sindical (encuentro, asamblea, delegados)` (categoría PERMISO SINDICAL, requiere soporte) en `MOTIVOS_NUEVOS` y `data/motivos.csv` (se corrigió además el quoting de la fila «Evento SED / SEM…», que tenía comas sin comillas). `JORNADA_AUTO` incluye «sindical».
+- `registrarNovedad` (Novedades.gs) guarda `Grupo atendido por` (valores de `ATIENDE_GRUPO`/`SIN_ESTUDIANTES`) y `Actividad de Aprendizaje` (Sí/No/N/A); Novedad.html tiene los dos campos (ocultos para salidas con estudiantes). consultarSesion añade `atiende` y `actividad` a `reporte`; en Consulta.html se muestran en «Reportado hoy» y se precargan en `confirmarReportado` y `marcar`.
+- `ausentesDelDia_` (Reuniones.gs) y `avisosHoy().ausentes`: docentes con novedad de ausencia hoy, con motivo, rango de días (por `ID registro`), a cargo y actividad; sección «Docentes ausentes hoy» en `recursos/aviso_dia.html` (sincronizado a las pantallas).
+- `SINEST`/`SIN_ESTUDIANTES`: +2 motivos (despachó temprano con autorización; despachó sin autorización).
+- Nota de pruebas: el test «avisosHoy: reuniones de hoy…» falla si se corre entre las 23:57 y las 23:59 (hora de Bogotá) porque usa reuniones a esa hora.

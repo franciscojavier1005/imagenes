@@ -195,7 +195,7 @@ function consultarSesion(dia, sesion, modo) {
     if (fechaIso_(n['Fecha Novedad']) === out.fecha && n['Tipo Novedad'] && n['Tipo Novedad'] !== 'Presente') {
       var d = n['Docente'], medio = String(n['Medio Información'] || '');
       reportes[d] = { tipo: n['Tipo Novedad'], motivo: n['Motivo Ausencia'], texto: String(n['Descripción'] || '').slice(0, 160), medio: medio,
-                      jornada: String(n['Sesiones']) === 'JC' };
+                      jornada: String(n['Sesiones']) === 'JC', atiende: String(n['Grupo atendido por'] || ''), actividad: String(n['Actividad de Aprendizaje'] || '') };
     }
   });
   var yaMarcados = {}, regHoy = [];
@@ -310,11 +310,12 @@ function claveGrupo_(codigo) {
  * Guarda las marcas de la ronda.
  * p = {directivo, dia, sesion, fecha?, registros:[{docente, grupoCodigo, area, estado, motivo, minutos, obs, fuente, medio}]}
  */
-var SIN_ESTUDIANTES = ['Sin estudiantes: los despachó', 'Sin estudiantes: están en taller o actividad fuera del aula', 'Sin estudiantes: no asistieron (padres avisados)', 'Sin estudiantes: están en otra dependencia (laboratorio, biblioteca, sala)', 'Sin estudiantes: el docente no los está atendiendo', 'Sin estudiantes: el docente no quiso atenderlos', 'Sin estudiantes: otro motivo (ver observaciones)'];   // docente presente, pero sin estudiantes en ese momento
+var SIN_ESTUDIANTES = ['Sin estudiantes: los despachó', 'Sin estudiantes: están en taller o actividad fuera del aula', 'Sin estudiantes: no asistieron (padres avisados)', 'Sin estudiantes: están en otra dependencia (laboratorio, biblioteca, sala)', 'Sin estudiantes: el docente no los está atendiendo', 'Sin estudiantes: el docente no quiso atenderlos', 'Sin estudiantes: otro motivo (ver observaciones)', 'Sin estudiantes: los despachó temprano (con autorización)', 'Sin estudiantes: los despachó sin autorización'];   // docente presente, pero sin estudiantes en ese momento
 var ATIENDE_GRUPO = ['Nadie (grupo solo)', 'Se despachó al grupo temprano (autorizado)', 'Sin clase: los niños no asistieron (padres avisados)', 'Reemplazo (docente)', 'Reemplazo (acordado con rectoría)', 'Persona de apoyo contratada (alcaldía u otra entidad)', 'Otro docente (con espacio libre)', 'No aplica (no tiene grupo asignado)', 'Practicante', 'Auxiliar o persona de apoyo del docente', 'Otro docente o directivo'];
 
 /** Motivos agregados después de la primera versión del libro: se añaden solos a la hoja Motivos si faltan. */
 var MOTIVOS_NUEVOS = [
+  ['PERMISO SINDICAL', 'Invitación sindical (encuentro, asamblea, delegados)', 'SI', 'Invitación o citación del sindicato', 'SI', 5],
   ['PERMISO INSTITUCIONAL', 'Evento SED / SEM (capacitación, taller, charla)', 'SI', 'Citación o invitación de la Secretaría de Educación', 'NO', 5],
   ['LICENCIA', 'Licencia de maternidad o paternidad', 'SI', 'Resolución o certificado de la licencia', 'SI', 5],
   ['LICENCIA', 'Licencia por luto', 'SI', 'Acta de defunción u otro soporte', 'SI', 5],
@@ -2512,7 +2513,7 @@ function avisosHoy() {
     if (!por[k]) { por[k] = { motivo: k, docentes: [] }; orden.push(k); }
     if (por[k].docentes.indexOf(n['Docente']) < 0) por[k].docentes.push(n['Docente']);
   });
-  return { hoy: hoy, hora: hh, reuniones: reuniones, previas: previas, actividades: orden.map(function (k) { return por[k]; }) };
+  return { hoy: hoy, hora: hh, reuniones: reuniones, previas: previas, actividades: orden.map(function (k) { return por[k]; }), ausentes: ausentesDelDia_(hoy) };
 }
 
 /** Grupos de reuniones repetidas (mismo día, tipo, nombre, horas y convocados): devuelve las SOBRANTES (se conserva la que tiene asistencia o, si no, la primera). */
@@ -2636,6 +2637,36 @@ function reunionesEnSesiones_(fecha, sesiones, franjas) {
 }
 /** ¿Esa persona está convocada a la reunión? */
 function convocadoA_(reunion, nombre) { return reunion.convocados === 'TODOS' || reunion.convocados.indexOf(nombre) >= 0; }
+
+/**
+ * Docentes con novedad de ausencia en un día (no asiste, permiso por horas, llega tarde o sale temprano), con el motivo, el rango de días de esa novedad
+ * (las novedades de varios días comparten «ID registro»), quién queda a cargo y si se dejó actividad. Para el aviso del día.
+ */
+function ausentesDelDia_(hoy) {
+  var tipos = ['No asistió', 'Ausente temporal', 'Salida temprana informada', 'Llegada tarde informada'];
+  var v = hoja_('Novedades').getDataRange().getValues(), cab = v[0], c = {}; cab.forEach(function (k, i) { c[k] = i; });
+  function g(f, k) { return c[k] == null ? '' : f[c[k]]; }
+  var rango = {};   // id|docente -> {desde, hasta}
+  for (var i = 1; i < v.length; i++) {
+    var id = String(g(v[i], 'ID registro') || ''); if (!id) continue;
+    var f = fechaIso_(g(v[i], 'Fecha Novedad')), k = id + '|' + g(v[i], 'Docente'), o = rango[k] = rango[k] || { desde: f, hasta: f, dias: {} };
+    if (f < o.desde) o.desde = f; if (f > o.hasta) o.hasta = f; o.dias[f] = 1;
+  }
+  var por = {}, orden = [];
+  for (var j = 1; j < v.length; j++) {
+    var fila = v[j], doc = g(fila, 'Docente'), tipo = String(g(fila, 'Tipo Novedad'));
+    if (!doc || tipos.indexOf(tipo) < 0 || fechaIso_(g(fila, 'Fecha Novedad')) !== hoy) continue;
+    var jc = String(g(fila, 'Sesiones')) === 'JC' || (tipo === 'No asistió' && String(g(fila, 'Horario')) === 'Jornada completa');
+    var ant = por[doc];
+    if (ant && (ant.jornada || !jc)) continue;
+    var ri = rango[String(g(fila, 'ID registro') || '') + '|' + doc];
+    if (!ant) orden.push(doc);
+    por[doc] = { docente: doc, corto: nombreCortoDocente_(doc), motivo: String(g(fila, 'Motivo Ausencia') || ''), tipo: tipo, jornada: jc || tipo === 'No asistió',
+      desde: ri ? ri.desde : hoy, hasta: ri ? ri.hasta : hoy, dias: ri ? Object.keys(ri.dias).length : 1,
+      atiende: String(g(fila, 'Grupo atendido por') || ''), actividad: String(g(fila, 'Actividad de Aprendizaje') || '') };
+  }
+  return orden.map(function (d) { return por[d]; });
+}
 
 // ===================== Incumplimientos.gs =====================
 /**
@@ -3152,7 +3183,7 @@ function registrarNovedad(p) {
       docentes.forEach(function (doc) {
         var mias = hz.filter(function (h) { return h.docente === doc && h.dia === dia; }).sort(function (a, b) { return Number(a.hora) - Number(b.hora); });
         if (!mias.length) { res.sinClases.push(doc + ' (' + fecha + ')'); return; }
-        var base = { 'Marca temporal': ahora, 'Fecha Novedad': fecha, 'Docente': doc, 'Tipo Novedad': def.tipo, 'Actividad de Aprendizaje': p.actividad || 'N/A', 'Motivo Ausencia': motivo,
+        var base = { 'Marca temporal': ahora, 'Fecha Novedad': fecha, 'Docente': doc, 'Tipo Novedad': def.tipo, 'Actividad de Aprendizaje': ['Sí', 'No'].indexOf(p.actividad) >= 0 ? p.actividad : 'N/A', 'Grupo atendido por': (ATIENDE_GRUPO.indexOf(p.atiende) >= 0 || SIN_ESTUDIANTES.indexOf(p.atiende) >= 0) ? p.atiende : '', 'Motivo Ausencia': motivo,
           'Descripción': descripcion, 'Fuente Novedad': fuente, 'Medio Información': medio, 'Directivo Docente': por, 'Justificada': m.justificada === 'SI' ? 'Sí' : 'No', 'Categoría motivo': m.categoria || '', 'ID registro': id };
         var jcPrevio = v.slice(1).some(function (x) { return fechaIso_(x[c['Fecha Novedad']]) === fecha && x[c['Docente']] === doc && String(x[c['Sesiones']]) === 'JC' && /no asisti/i.test(String(x[c['Tipo Novedad']])); });
         if (def.id === 'AUSENCIA') {   // una sola novedad por día con el total de minutos (reemplaza lo anterior de ese día)
@@ -3474,11 +3505,16 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.23-j';
-var FECHA_VERSION = '2026-10-23';
+var VERSION_SISTEMA = '2026.10.25-a';
+var FECHA_VERSION = '2026-10-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.25-a', fecha: '2026-10-25', cambios: [
+    'Motivos: nuevo motivo «Invitación sindical (encuentro, asamblea, delegados)» (se agrega solo a la hoja Motivos; en la ronda cuenta como toda la jornada).',
+    'Novedades anticipadas: ahora piden quién queda a cargo del grupo y si se dejó actividad de aprendizaje; quedan en Novedades (Grupo atendido por, Actividad de Aprendizaje). En la ronda, esos datos se ven en «Reportado hoy» y se precargan al marcar a ese docente (no hay que escribirlos de nuevo).',
+    'Aviso del día: nueva sección «Docentes ausentes hoy» con el nombre, el motivo, el tipo de ausencia, los días que va a estar ausente, quién queda a cargo y si dejó actividad.',
+    'Ronda, «Sin estudiantes»: dos motivos más (los despachó temprano con autorización, los despachó sin autorización); el motivo se elige en una lista debajo del interruptor.'] },
   { version: '2026.10.23-j', fecha: '2026-10-23', cambios: [
     'Ronda (celular): los contadores principales quedan siempre a la vista en una fila fija de 5 (sin guardar o guardados, faltan, presentes, no asistió, otro a cargo); debajo, una fila deslizable con sin estudiantes, evento SED, permiso por horas, llegada tarde o salida antes, en reunión o actividad externa e incumplimientos.'] },
   { version: '2026.10.23-i', fecha: '2026-10-23', cambios: [

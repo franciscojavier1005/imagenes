@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.23-j</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.25-a</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -74,6 +74,7 @@
 <p>Esta aplicación sirve para <b>verificar quién está en clase</b> (la ronda), registrar las novedades de asistencia de los docentes (permisos, incapacidades, llegadas tarde, reuniones, salidas pedagógicas) y sacar <b>informes</b> para coordinación y rectoría.</p>
 <p><b>Novedades que se suman a «Presente»:</b> <i>Llegada tarde</i>, <i>Permiso por horas</i>, <i>Salió antes</i> e <i>Incumplimiento</i> están en una segunda fila (borde punteado). El docente sí está en el colegio, así que al marcarlas «Presente» también queda marcado. Para quitar la novedad, toque de nuevo el botón: queda solo «Presente».</p>
 <p><b>Contadores (barra de abajo):</b> en el celular, la fila de arriba siempre se ve completa (sin guardar, faltan por reportar —tóquelo para ver quiénes—, presentes, no asistió y otro a cargo); la de abajo se desliza con el dedo hacia la izquierda y trae sin estudiantes, no asistieron, otro docente a cargo, evento SED, permiso por horas, llegada tarde o salida antes, en reunión o actividad externa e incumplimientos.</p>
+<p><b>Novedades anticipadas y ausencias de varios días:</b> al registrar una novedad (módulo Registrar novedades) también se anota <i>quién queda a cargo del grupo</i> y <i>si se dejó actividad de aprendizaje</i>; en la ronda no hay que repetirlo. Motivos como <i>Invitación sindical</i> o <i>Evento SED</i> cuentan toda la jornada. El aviso del día muestra los <b>docentes ausentes hoy</b> con su motivo y los días que estarán ausentes.</p>
 <table class="tbl"><tr><th>Rol</th><th>Qué hace</th></tr>
 <tr><td>Directivos y coordinadores</td><td>Hacen la ronda, registran novedades, ven los informes, marcan estudiantes.</td></tr>
 <tr><td>Rector</td><td>Ve el panel y los informes de todo.</td></tr>
@@ -210,7 +211,7 @@
 <p class="tip">¿Algo no aparece en este manual? Dígaselo a coordinación académica para incluirlo en la próxima versión.</p></section>
 
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.23-j</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.25-a</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

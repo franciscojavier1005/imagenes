@@ -156,16 +156,47 @@ function doGet(e) {
  * Docentes que deben estar en la sesión indicada. Sin argumentos usa el día y la hora actuales.
  * También devuelve las listas para los radios (motivos, medios, fuentes).
  */
-function consultarSesion(dia, sesion, modo) {
+/**
+ * Novedades del día de un docente que corresponden a las sesiones de esta pantalla: la de toda la jornada (JC) siempre; las de una sesión (S3), las de «hasta el final»
+ * (S3-FIN: esa sesión y las siguientes) solo si caen en las sesiones mostradas. Devuelve null si ninguna aplica. Si son por horas, trae «parcial» con el estado a marcar.
+ */
+function reporteParaSesiones_(rep, sesiones) {
+  if (!rep) return null;
+  var jc = rep.filas.some(function (f) { return f.sesiones === 'JC'; });
+  var aplican = rep.filas.filter(function (f) {
+    if (f.sesiones === 'JC') return true;
+    var m = String(f.sesiones).match(/^S(\d)(-FIN)?$/); if (!m) return false;
+    var n = Number(m[1]);
+    return sesiones.some(function (x) { return m[2] ? x >= n : x === n; });
+  });
+  if (!aplican.length) return null;
+  var o = {}; for (var k in rep) o[k] = rep[k];
+  o.jornada = jc;
+  if (!jc) {
+    var f0 = aplican[0], min = 0; aplican.forEach(function (f) { min += f.minutos; });
+    var est = { 'No asistió': 'No asistió', 'Ausente temporal': 'Ausente temporal', 'Llegada tarde informada': 'Llegada tarde', 'Salida temprana informada': 'Salida temprana' }[f0.tipo];
+    o.tipo = f0.tipo; o.motivo = f0.motivo || o.motivo; o.atiende = f0.atiende; o.actividad = f0.actividad;
+    if (est) o.parcial = { estado: est, motivo: f0.motivo || 'Sin justificación', minutos: min, atiende: f0.atiende, actividad: f0.actividad };
+  }
+  delete o.filas;
+  return o;
+}
+function consultarSesion(dia, sesion, modo, fecha) {
   exigirDirectivo_();
   asegurarMotivos_();
-  var ahora = new Date();
+  var ahora = new Date(), hoyS = ymd_(ahora), revision = false;
+  if (fecha && /^\d{4}-\d{2}-\d{2}$/.test(String(fecha)) && String(fecha) !== hoyS) {   // consulta de la ronda de otra fecha (solo lectura): día hábil de hoy hacia atrás
+    if (String(fecha) > hoyS) throw new Error('Elija una fecha de hoy o anterior.');
+    var dw = resDia_(String(fecha));
+    if (dw < 1 || dw > 5) throw new Error('Elija un día hábil (lunes a viernes).');
+    revision = true; dia = DIAS[dw];
+  }
   var auto = !dia && !sesion;
   dia = dia || DIAS[Number(Utilities.formatDate(ahora, TZ, 'u'))];
-  var s = sesion ? Number(sesion) : sesionAhora_(ahora);
+  var s = sesion ? Number(sesion) : (revision ? 1 : sesionAhora_(ahora));
   var fr = datos_('Franjas').filter(function (f) { return Number(f.hora) === s; })[0];
   var out = {
-    dia: dia, diaHoy: DIAS[Number(Utilities.formatDate(ahora, TZ, 'u'))], sesion: s, auto: auto, hora: Utilities.formatDate(ahora, TZ, 'HH:mm'), fecha: ymd_(ahora),
+    dia: dia, diaHoy: DIAS[Number(Utilities.formatDate(ahora, TZ, 'u'))], sesion: s, auto: auto, hora: Utilities.formatDate(ahora, TZ, 'HH:mm'), fecha: revision ? String(fecha) : hoyS, revision: revision,
     franja: fr ? hhmm_(fr.inicio) + ' - ' + hhmm_(fr.fin) : '', bloque: fr ? Number(fr.bloque) : null, modo: modo === 'bloque' ? 'bloque' : 'sesion',
     sesionesBloque: [],
     filas: [], motivos: datos_('Motivos'), listas: datos_('Listas'),
@@ -194,8 +225,10 @@ function consultarSesion(dia, sesion, modo) {
     }
     if (fechaIso_(n['Fecha Novedad']) === out.fecha && n['Tipo Novedad'] && n['Tipo Novedad'] !== 'Presente') {
       var d = n['Docente'], medio = String(n['Medio Información'] || '');
-      reportes[d] = { tipo: n['Tipo Novedad'], motivo: n['Motivo Ausencia'], texto: String(n['Descripción'] || '').slice(0, 160), medio: medio,
-                      jornada: String(n['Sesiones']) === 'JC', atiende: String(n['Grupo atendido por'] || ''), actividad: String(n['Actividad de Aprendizaje'] || '') };
+      var rp = reportes[d] = { tipo: n['Tipo Novedad'], motivo: n['Motivo Ausencia'], texto: String(n['Descripción'] || '').slice(0, 160), medio: medio,
+                      jornada: String(n['Sesiones']) === 'JC', atiende: String(n['Grupo atendido por'] || ''), actividad: String(n['Actividad de Aprendizaje'] || ''), filas: (reportes[d] && reportes[d].filas) || [] };
+      rp.filas.push({ sesiones: String(n['Sesiones']), tipo: String(n['Tipo Novedad']), motivo: String(n['Motivo Ausencia'] || ''), minutos: Number(n['Minutos Desatendidos']) || 0,
+                      atiende: String(n['Grupo atendido por'] || ''), actividad: String(n['Actividad de Aprendizaje'] || '') });
     }
   });
   var yaMarcados = {}, regHoy = [];
@@ -259,6 +292,7 @@ function consultarSesion(dia, sesion, modo) {
     var ya2 = yaMarcados[nuevo]; if (!ya2) f.sesiones.forEach(function (x) { ya2 = ya2 || huerfanas[claveSlot_(x.sesion, x.grupoCodigo, x.area)]; });
     f.previo = ya2 ? { estado: ya2.estado, motivo: ya2.motivo, minutos: ya2.minutos, observaciones: ya2.observaciones, atendidoPor: ya2.atendido_por || '' } : null;
   });
+  out.filas.forEach(function (f) { f.reporte = reporteParaSesiones_(reportes[f.docente], hs); });   // solo las novedades que caen en las sesiones mostradas
   if (out.modo === 'bloque') {   // una tarjeta por docente: sus sesiones del bloque quedan juntas
     var por = {}, uni = [];
     out.filas.forEach(function (f) {
@@ -2443,7 +2477,8 @@ function crearReunion(p) {
     reunionesHoja_().appendRow([id, txtForzado_(fecha), def.tipo, nombre, txtForzado_(d.ini), txtForzado_(d.fin),
       (p.sinEstudiantes || d.salida) ? 'SI' : 'NO', conv, por, ahoraTxt_(), recordatorioDeP_(p).dias, recordatorioDeP_(p).min, recordatorioDeP_(p).ronda,
       d.lugar, d.finTipo, d.convocaTipo, d.convocaDetalle, d.solicitaPor, d.responsables, cv.grupos, cv.invitados, cv.entidad, d.observaciones, txtForzado_(d.salida), d.minAntes, d.comedor, d.padres]);
-    return { id: id };
+    var aus = ausentesConvocados_(id);
+    return { id: id, ausentes: aus };
   } finally { lock.releaseLock(); }
 }
 
@@ -2585,7 +2620,7 @@ function editarReunion(p) {
     sh.getRange(fila + 1, 1, 1, nueva.length).setValues([nueva]);
     bitacora_('Editó reunión', antes.nombre + ' (' + antes.fecha + ' ' + antes.inicio + '-' + antes.fin + ') → ' + nueva[c.nombre] + ' (' + p.fecha + ' ' + ini + '-' + fin + ')' + (antes.sinEstudiantes !== !!p.sinEstudiantes ? ' · clases ' + (p.sinEstudiantes ? 'suspendidas' : 'no suspendidas') : '') + ' · por ' + por);
   } finally { lock.releaseLock(); }
-  return { ok: true, id: p.id };
+  return { ok: true, id: p.id, ausentes: ausentesConvocados_(p.id) };
 }
 
 /** Datos para registrar la asistencia de una reunión: convocados y lo ya registrado. */
@@ -2667,6 +2702,17 @@ function ausentesDelDia_(hoy) {
       atiende: String(g(fila, 'Grupo atendido por') || ''), actividad: String(g(fila, 'Actividad de Aprendizaje') || '') };
   }
   return orden.map(function (d) { return por[d]; });
+}
+
+/** Convocados a una reunión que ya tienen una ausencia de toda la jornada reportada en Novedades ese día (para avisar al crear o editar). */
+function ausentesConvocados_(id) {
+  try {
+    var r = reunionesDatos_().map(reunionDeFila_).filter(function (x) { return x.id === id; })[0];
+    if (!r) return [];
+    var conv = convocadosDe_(r);
+    return ausentesDelDia_(r.fecha).filter(function (a) { return a.jornada && conv.indexOf(a.docente) >= 0; })
+      .map(function (a) { return { docente: a.corto || a.docente, motivo: a.motivo, dias: a.dias }; });
+  } catch (e) { return []; }
 }
 
 // ===================== Incumplimientos.gs =====================
@@ -3506,11 +3552,15 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.25-b';
+var VERSION_SISTEMA = '2026.10.25-c';
 var FECHA_VERSION = '2026-10-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.25-c', fecha: '2026-10-25', cambios: [
+    'Ronda: el selector de día ahora trae «📅 Fecha…»: se elige un día hábil de hoy hacia atrás y se ve la ronda guardada ese día (solo lectura, con aviso azul); «Ahora» vuelve a hoy. No permite fines de semana ni fechas futuras.',
+    'Ronda: las novedades por horas (permiso, llegada tarde, salida temprana) ahora también se marcan solas, pero solo en las sesiones que muestra la pantalla y con los minutos anotados; en otra sesión no aparecen.',
+    'Reuniones: al crear o editar una reunión se avisa qué convocados ya tienen una ausencia de toda la jornada ese día; en la asistencia salen marcados «No asistió» con su motivo.'] },
   { version: '2026.10.25-b', fecha: '2026-10-25', cambios: [
     'Coherencia entre novedades, ronda y reuniones: el docente con una ausencia de toda la jornada ya anotada en Novedades aparece MARCADO SOLO en la ronda (No asistió, Otro docente a cargo o SED) con su motivo, quién queda a cargo y la actividad dejada; basta guardar la ronda, y se cambia tocando otro botón. En la asistencia de una reunión, quien ya tiene ausencia reportada ese día sale marcado «No asistió» con su motivo.',
     'Manual: nueva sección «¿Dónde registro cada cosa? (sin repetir)» que dice qué va en novedades, ronda y reuniones.'] },

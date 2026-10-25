@@ -284,7 +284,8 @@ function crearReunion(p) {
     reunionesHoja_().appendRow([id, txtForzado_(fecha), def.tipo, nombre, txtForzado_(d.ini), txtForzado_(d.fin),
       (p.sinEstudiantes || d.salida) ? 'SI' : 'NO', conv, por, ahoraTxt_(), recordatorioDeP_(p).dias, recordatorioDeP_(p).min, recordatorioDeP_(p).ronda,
       d.lugar, d.finTipo, d.convocaTipo, d.convocaDetalle, d.solicitaPor, d.responsables, cv.grupos, cv.invitados, cv.entidad, d.observaciones, txtForzado_(d.salida), d.minAntes, d.comedor, d.padres]);
-    return { id: id };
+    var aus = ausentesConvocados_(id);
+    return { id: id, ausentes: aus };
   } finally { lock.releaseLock(); }
 }
 
@@ -426,7 +427,7 @@ function editarReunion(p) {
     sh.getRange(fila + 1, 1, 1, nueva.length).setValues([nueva]);
     bitacora_('Editó reunión', antes.nombre + ' (' + antes.fecha + ' ' + antes.inicio + '-' + antes.fin + ') → ' + nueva[c.nombre] + ' (' + p.fecha + ' ' + ini + '-' + fin + ')' + (antes.sinEstudiantes !== !!p.sinEstudiantes ? ' · clases ' + (p.sinEstudiantes ? 'suspendidas' : 'no suspendidas') : '') + ' · por ' + por);
   } finally { lock.releaseLock(); }
-  return { ok: true, id: p.id };
+  return { ok: true, id: p.id, ausentes: ausentesConvocados_(p.id) };
 }
 
 /** Datos para registrar la asistencia de una reunión: convocados y lo ya registrado. */
@@ -508,4 +509,15 @@ function ausentesDelDia_(hoy) {
       atiende: String(g(fila, 'Grupo atendido por') || ''), actividad: String(g(fila, 'Actividad de Aprendizaje') || '') };
   }
   return orden.map(function (d) { return por[d]; });
+}
+
+/** Convocados a una reunión que ya tienen una ausencia de toda la jornada reportada en Novedades ese día (para avisar al crear o editar). */
+function ausentesConvocados_(id) {
+  try {
+    var r = reunionesDatos_().map(reunionDeFila_).filter(function (x) { return x.id === id; })[0];
+    if (!r) return [];
+    var conv = convocadosDe_(r);
+    return ausentesDelDia_(r.fecha).filter(function (a) { return a.jornada && conv.indexOf(a.docente) >= 0; })
+      .map(function (a) { return { docente: a.corto || a.docente, motivo: a.motivo, dias: a.dias }; });
+  } catch (e) { return []; }
 }

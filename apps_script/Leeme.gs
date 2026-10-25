@@ -5,11 +5,15 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.25-b';
+var VERSION_SISTEMA = '2026.10.25-c';
 var FECHA_VERSION = '2026-10-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.25-c', fecha: '2026-10-25', cambios: [
+    'Ronda: el selector de día ahora trae «📅 Fecha…»: se elige un día hábil de hoy hacia atrás y se ve la ronda guardada ese día (solo lectura, con aviso azul); «Ahora» vuelve a hoy. No permite fines de semana ni fechas futuras.',
+    'Ronda: las novedades por horas (permiso, llegada tarde, salida temprana) ahora también se marcan solas, pero solo en las sesiones que muestra la pantalla y con los minutos anotados; en otra sesión no aparecen.',
+    'Reuniones: al crear o editar una reunión se avisa qué convocados ya tienen una ausencia de toda la jornada ese día; en la asistencia salen marcados «No asistió» con su motivo.'] },
   { version: '2026.10.25-b', fecha: '2026-10-25', cambios: [
     'Coherencia entre novedades, ronda y reuniones: el docente con una ausencia de toda la jornada ya anotada en Novedades aparece MARCADO SOLO en la ronda (No asistió, Otro docente a cargo o SED) con su motivo, quién queda a cargo y la actividad dejada; basta guardar la ronda, y se cambia tocando otro botón. En la asistencia de una reunión, quien ya tiene ausencia reportada ese día sale marcado «No asistió» con su motivo.',
     'Manual: nueva sección «¿Dónde registro cada cosa? (sin repetir)» que dice qué va en novedades, ronda y reuniones.'] },

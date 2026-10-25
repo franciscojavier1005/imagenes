@@ -227,3 +227,9 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 - Reuniones: `cargarReunion` devuelve `ausente` por persona (de `ausentesDelDia_(fecha)`, solo jornada completa); `abrir` en Reunion.html las marca «No asistió» con su motivo (`auto`).
 - Manual: sección «¿Dónde registro cada cosa?» (tabla situación → dónde → qué pasa en la ronda).
 - Pendiente de revisar con el usuario: (1) que las novedades por horas se apliquen solo a las sesiones de su rango; (2) alertar en Reuniones al convocar a quien ya tiene ausencia ese día.
+
+## Versión 2026.10.25-c — Otra fecha, novedades por horas por sesión, aviso en Reuniones
+- `consultarSesion(dia, sesion, modo, fecha)`: con `fecha` hábil ≤ hoy devuelve esa fecha con `revision:true` (solo lectura; sesión 1 por defecto); rechaza fines de semana y fechas futuras. Consulta.html: opción «📅 Fecha…» + `#fechaSel`, `fechaSel`, `soloLectura()` (bloquea marcar, todos presentes, sin estudiantes y guardar), banner `#avisoRev`; en revisión no se auto-marca.
+- `reporteParaSesiones_`: las novedades del día solo se asocian a las sesiones mostradas (JC siempre; S3 solo en la 3; S3-FIN de la 3 en adelante) y traen `parcial` (estado, motivo, minutos, a cargo, actividad) para marcar solas las novedades por horas.
+- `ausentesConvocados_` (Reuniones.gs): `crearReunion` y `editarReunion` devuelven `ausentes`; Reunion.html muestra un aviso (`avisoAusentes`).
+- Pendiente (no hecho): permitir guardar/corregir una ronda de fecha anterior (hoy solo lectura; guardar sigue limitado al día actual).

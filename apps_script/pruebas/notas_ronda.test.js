@@ -580,4 +580,27 @@ EMAIL=''; ok(/Debe iniciar sesión/.test(falla("consultaHorarios({modo:'catalogo
   ok(aus&&aus.motivo.indexOf('sindical')>=0&&aus.jornada&&aus.atiende&&aus.actividad==='Sí','el aviso del día lista al docente ausente con su motivo, quién queda a cargo y la actividad');
   ok(aus&&aus.dias>=1&&aus.desde<=hoyR&&aus.hasta>=hoyR,'incluye el rango de días de esa novedad ('+(aus&&aus.dias)+' días)');
 }
+// ---- consulta de una fecha anterior (solo lectura) y novedades por horas solo en sus sesiones
+{
+  const hoyR=run("ymd_(new Date())"), lunPas=run(`resSumaDias_(lunesDe_('${hoyR}'),-7)`);
+  const f3=H.Horario.slice(1).find(r=>r[hi('dia')]==='LUNES'&&r[hi('tipo')]==='CLASE'&&Number(r[hi('hora')])===3), dH=f3[hi('docente')];
+  const fr3=run("datos_('Franjas')").find(f=>Number(f.hora)===3);
+  const ini=run(`hhmm_(${JSON.stringify(fr3.inicio)})`), fin=run(`hhmm_(${JSON.stringify(fr3.fin)})`);
+  run(`registrarNovedad({docentes:[${JSON.stringify(dH)}],tipo:'HORAS',desde:'${lunPas}',hasta:'${lunPas}',horaIni:'${ini}',horaFin:'${fin}',motivo:'Cita médica',medio:'WhatsApp directo',atiende:'Otro docente (con espacio libre)',actividad:'Sí'})`);
+  const a3=run(`consultarSesion(null,3,'sesion','${lunPas}')`), c3=a3.filas.find(f=>f.docente===dH);
+  ok(a3.revision===true&&a3.fecha===lunPas&&a3.dia==='LUNES','consultarSesion con una fecha anterior: día hábil de esa fecha y modo de solo lectura');
+  ok(c3&&c3.reporte&&c3.reporte.parcial&&c3.reporte.parcial.estado==='Ausente temporal'&&c3.reporte.parcial.minutos>0&&c3.reporte.parcial.atiende,'el permiso por horas se ve en la sesión de su horario, con minutos y quién queda a cargo');
+  const a1=run(`consultarSesion(null,1,'sesion','${lunPas}')`), c1=a1.filas.find(f=>f.docente===dH);
+  ok(!c1||!c1.reporte,'en otra sesión que no es la del permiso, no aparece el aviso ni se marca');
+  let e1=null; try{run(`consultarSesion(null,1,'sesion','${run(`resSumaDias_('${lunPas}',-1)`)}')`)}catch(x){e1=x} ok(e1&&/hábil/.test(e1.message),'una fecha en fin de semana se rechaza');
+  e1=null; try{run(`consultarSesion(null,1,'sesion','${run(`resSumaDias_('${hoyR}',20)`)}')`)}catch(x){e1=x} ok(e1&&/anterior/.test(e1.message),'una fecha futura se rechaza');
+}
+// ---- al crear una reunión se avisa de los convocados que ya tienen ausencia reportada ese día
+{
+  const lun=run("lunesDe_(ymd_(new Date()))"), esperados=run(`ausentesDelDia_('${lun}')`).filter(a=>a.jornada);
+  const rr=run(`crearReunion({tipo:'Consejo académico',nombre:'Consejo con ausentes',fecha:'${lun}',inicio:'15:00',fin:'16:00',convocados:'TODOS'})`);
+  ok(esperados.length>=1&&Array.isArray(rr.ausentes)&&rr.ausentes.length===esperados.length,'crearReunion avisa de los convocados con ausencia de jornada completa ese día ('+esperados.length+')');
+  const lr=run(`cargarReunion({id:'${rr.id}'})`), pa=lr.personas.find(p=>p.ausente);
+  ok(pa&&pa.ausente.motivo,'en la asistencia, esa persona trae su ausencia reportada (queda marcada «No asistió» con su motivo)');
+}
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

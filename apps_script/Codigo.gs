@@ -155,16 +155,47 @@ function doGet(e) {
  * Docentes que deben estar en la sesión indicada. Sin argumentos usa el día y la hora actuales.
  * También devuelve las listas para los radios (motivos, medios, fuentes).
  */
-function consultarSesion(dia, sesion, modo) {
+/**
+ * Novedades del día de un docente que corresponden a las sesiones de esta pantalla: la de toda la jornada (JC) siempre; las de una sesión (S3), las de «hasta el final»
+ * (S3-FIN: esa sesión y las siguientes) solo si caen en las sesiones mostradas. Devuelve null si ninguna aplica. Si son por horas, trae «parcial» con el estado a marcar.
+ */
+function reporteParaSesiones_(rep, sesiones) {
+  if (!rep) return null;
+  var jc = rep.filas.some(function (f) { return f.sesiones === 'JC'; });
+  var aplican = rep.filas.filter(function (f) {
+    if (f.sesiones === 'JC') return true;
+    var m = String(f.sesiones).match(/^S(\d)(-FIN)?$/); if (!m) return false;
+    var n = Number(m[1]);
+    return sesiones.some(function (x) { return m[2] ? x >= n : x === n; });
+  });
+  if (!aplican.length) return null;
+  var o = {}; for (var k in rep) o[k] = rep[k];
+  o.jornada = jc;
+  if (!jc) {
+    var f0 = aplican[0], min = 0; aplican.forEach(function (f) { min += f.minutos; });
+    var est = { 'No asistió': 'No asistió', 'Ausente temporal': 'Ausente temporal', 'Llegada tarde informada': 'Llegada tarde', 'Salida temprana informada': 'Salida temprana' }[f0.tipo];
+    o.tipo = f0.tipo; o.motivo = f0.motivo || o.motivo; o.atiende = f0.atiende; o.actividad = f0.actividad;
+    if (est) o.parcial = { estado: est, motivo: f0.motivo || 'Sin justificación', minutos: min, atiende: f0.atiende, actividad: f0.actividad };
+  }
+  delete o.filas;
+  return o;
+}
+function consultarSesion(dia, sesion, modo, fecha) {
   exigirDirectivo_();
   asegurarMotivos_();
-  var ahora = new Date();
+  var ahora = new Date(), hoyS = ymd_(ahora), revision = false;
+  if (fecha && /^\d{4}-\d{2}-\d{2}$/.test(String(fecha)) && String(fecha) !== hoyS) {   // consulta de la ronda de otra fecha (solo lectura): día hábil de hoy hacia atrás
+    if (String(fecha) > hoyS) throw new Error('Elija una fecha de hoy o anterior.');
+    var dw = resDia_(String(fecha));
+    if (dw < 1 || dw > 5) throw new Error('Elija un día hábil (lunes a viernes).');
+    revision = true; dia = DIAS[dw];
+  }
   var auto = !dia && !sesion;
   dia = dia || DIAS[Number(Utilities.formatDate(ahora, TZ, 'u'))];
-  var s = sesion ? Number(sesion) : sesionAhora_(ahora);
+  var s = sesion ? Number(sesion) : (revision ? 1 : sesionAhora_(ahora));
   var fr = datos_('Franjas').filter(function (f) { return Number(f.hora) === s; })[0];
   var out = {
-    dia: dia, diaHoy: DIAS[Number(Utilities.formatDate(ahora, TZ, 'u'))], sesion: s, auto: auto, hora: Utilities.formatDate(ahora, TZ, 'HH:mm'), fecha: ymd_(ahora),
+    dia: dia, diaHoy: DIAS[Number(Utilities.formatDate(ahora, TZ, 'u'))], sesion: s, auto: auto, hora: Utilities.formatDate(ahora, TZ, 'HH:mm'), fecha: revision ? String(fecha) : hoyS, revision: revision,
     franja: fr ? hhmm_(fr.inicio) + ' - ' + hhmm_(fr.fin) : '', bloque: fr ? Number(fr.bloque) : null, modo: modo === 'bloque' ? 'bloque' : 'sesion',
     sesionesBloque: [],
     filas: [], motivos: datos_('Motivos'), listas: datos_('Listas'),
@@ -193,8 +224,10 @@ function consultarSesion(dia, sesion, modo) {
     }
     if (fechaIso_(n['Fecha Novedad']) === out.fecha && n['Tipo Novedad'] && n['Tipo Novedad'] !== 'Presente') {
       var d = n['Docente'], medio = String(n['Medio Información'] || '');
-      reportes[d] = { tipo: n['Tipo Novedad'], motivo: n['Motivo Ausencia'], texto: String(n['Descripción'] || '').slice(0, 160), medio: medio,
-                      jornada: String(n['Sesiones']) === 'JC', atiende: String(n['Grupo atendido por'] || ''), actividad: String(n['Actividad de Aprendizaje'] || '') };
+      var rp = reportes[d] = { tipo: n['Tipo Novedad'], motivo: n['Motivo Ausencia'], texto: String(n['Descripción'] || '').slice(0, 160), medio: medio,
+                      jornada: String(n['Sesiones']) === 'JC', atiende: String(n['Grupo atendido por'] || ''), actividad: String(n['Actividad de Aprendizaje'] || ''), filas: (reportes[d] && reportes[d].filas) || [] };
+      rp.filas.push({ sesiones: String(n['Sesiones']), tipo: String(n['Tipo Novedad']), motivo: String(n['Motivo Ausencia'] || ''), minutos: Number(n['Minutos Desatendidos']) || 0,
+                      atiende: String(n['Grupo atendido por'] || ''), actividad: String(n['Actividad de Aprendizaje'] || '') });
     }
   });
   var yaMarcados = {}, regHoy = [];
@@ -258,6 +291,7 @@ function consultarSesion(dia, sesion, modo) {
     var ya2 = yaMarcados[nuevo]; if (!ya2) f.sesiones.forEach(function (x) { ya2 = ya2 || huerfanas[claveSlot_(x.sesion, x.grupoCodigo, x.area)]; });
     f.previo = ya2 ? { estado: ya2.estado, motivo: ya2.motivo, minutos: ya2.minutos, observaciones: ya2.observaciones, atendidoPor: ya2.atendido_por || '' } : null;
   });
+  out.filas.forEach(function (f) { f.reporte = reporteParaSesiones_(reportes[f.docente], hs); });   // solo las novedades que caen en las sesiones mostradas
   if (out.modo === 'bloque') {   // una tarjeta por docente: sus sesiones del bloque quedan juntas
     var por = {}, uni = [];
     out.filas.forEach(function (f) {

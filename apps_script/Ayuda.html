@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.25-f</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.26-a</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -216,6 +216,7 @@
 <li>Para aclaraciones o descargos, comuníquese con coordinación.</li></ul></section>
 
 <section id="faq"><h2>16. Preguntas frecuentes</h2>
+<details><summary>¿Hay copias de seguridad del libro?</summary><p>Sí. Quien administra programa una sola vez, desde el menú del libro, «Respaldos: programar copia diaria (Drive)». Cada noche se copian el libro principal y el de respaldo de rondas a la carpeta «App Asistencia / Respaldos» de Drive: Diario (últimos 3 días), Semanal y Mensual. «Respaldos: copiar libros a Drive ahora» hace la copia al instante.</p></details>
 <details><summary>No me deja guardar la ronda</summary><p>Faltan docentes por reportar o hay una novedad incompleta (por ejemplo, falta elegir quién cubre el grupo o describir un incumplimiento). Mire el mensaje que aparece arriba y la barra «Faltan por reportar».</p></details>
 <details><summary>Me equivoqué de docente en una pareja que alterna</summary><p>Avise a la coordinación académica: ella toca «Cambiar» en la tarjeta (sirve para clases y para los equipos de énfasis, de lunes a viernes) y puede pasar a la persona correcta lo ya registrado, o volver a la asignación original.</p></details>
 <details><summary>Marqué a alguien por error y ya guardé</summary><p>Vuelva a marcar al docente con el estado correcto y guarde de nuevo: la marca anterior se reemplaza. Para registros de otros días, pida la corrección a coordinación.</p></details>
@@ -226,7 +227,7 @@
 <p class="tip">¿Algo no aparece en este manual? Dígaselo a coordinación académica para incluirlo en la próxima versión.</p></section>
 
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.25-f</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.26-a</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

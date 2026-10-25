@@ -255,3 +255,6 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 
 ## Entrega a OneDrive («App Asistencia»)
 Sin conector de escritura a OneDrive: se genera con `scripts/archivar_versiones.py` un zip (ULTIMA + 5 últimas versiones estables + LEEME, desde el historial git) y se envía como adjunto. Omitidas por defecto: 2026.10.25-b/c/d (Reuniones roto).
+
+### 2026.10.26-a · Copias programadas en Drive
+Respaldo.gs: `respaldoProgramado()` (disparador diario ≈23:30, instalado desde el menú) copia libro principal + respaldo de rondas + `respaldo_libros_extra` a Drive «App Asistencia/Respaldos/{Diario,Semanal,Mensual}». Diario: se reemplaza la del día y se conservan `respaldo_dias` (3); semanal: una por lunes; mensual: una por mes; `respaldo_semanas`/`respaldo_meses` (0 = todas). Prueba: `respaldo_drive.test.js`. No se puede reconstruir el pasado: las semanales/mensuales empiezan al activarlo. OneDrive: sin escritura desde aquí (se sincroniza la carpeta de Drive con el escritorio o se envía el zip).

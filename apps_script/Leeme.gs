@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.25-f';
-var FECHA_VERSION = '2026-10-25';
+var VERSION_SISTEMA = '2026.10.26-a';
+var FECHA_VERSION = '2026-10-26';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.26-a', fecha: '2026-10-26', cambios: [
+    'Copias de seguridad automáticas de los libros en Drive: carpeta «App Asistencia / Respaldos» con Diario (se reemplaza la copia del día y se conservan los últimos 3 días), Semanal (una por semana) y Mensual (una por mes). Copia el libro principal, el libro de respaldo de rondas y los libros que se agreguen en Parametros (respaldo_libros_extra). Menú «Respaldos: programar copia diaria (Drive)» (una sola vez, corre cada noche) y «Respaldos: copiar libros a Drive ahora». En Parametros se puede cambiar respaldo_dias, respaldo_semanas y respaldo_meses (0 = guardar todas).'] },
   { version: '2026.10.25-f', fecha: '2026-10-25', cambios: [
     'Rondas de otras fechas: solo quien administra las abre y las puede registrar o corregir (en «📅 Fecha…»); los demás directivos las revisan en los informes (Ver panel → Rondas guardadas).',
     'Reuniones en sábado: entrega de boletines, jornada pedagógica (compensatorios), escuela de padres, reunión con padres, ceremonias de grado o proclamación (nuevo tipo; transición, 5°, 9°, Caminar en Secundaria 2 y bachilleres) y clausura se programan sin la marca «Excepcional», también por la tarde hasta las 18:00. Cualquier otra reunión en sábado, el domingo o después de las 18:00 sigue necesitando «⭐ Excepcional».',
@@ -187,6 +189,7 @@ var LEEME_HOJAS = [
   'Usuarios / Soportes / Parametros   Cuentas de docentes, soportes de ausencias y parámetros.',
   'Notas_Ronda / Bandeja_WhatsApp   Observaciones de la ronda y novedades propuestas desde WhatsApp.',
   'Directivos        Quiénes registran: claves (hash), correo, ve_todo (NO = solo ve sus rondas), cambia_asignacion (SI/NO: puede cambiar quién dicta en las parejas), administra (SI/NO: puede anular reuniones). No escriba PIN a mano.',
+  'Copias en Drive    Carpeta «App Asistencia / Respaldos» (Diario 3 días, Semanal, Mensual) con el libro principal y el de respaldo; se programa desde el menú «Respaldos: programar copia diaria (Drive)».',
   'Respaldo           Libro aparte en Drive «ICET · Respaldo de rondas (no borrar)» (su id está en Parametros: respaldo_id) con cada ronda guardada.',
   'Bitacora_Cambios  Quién cambió qué y cuándo (correcciones, sesiones prestadas, intercambio de Docente 1 y 2).',
   'Datos personales de docentes y estudiantes: acceso solo para directivos (Ley 1581 de 2012).'

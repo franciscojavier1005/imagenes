@@ -38,6 +38,8 @@ function onOpen() {
     .addItem('Revisar y recuperar marcas de la ronda', 'recuperarMarcasRonda')
     .addItem('Recuperar rondas desde una copia del libro', 'recuperarRondasDesdeCopia')
     .addItem('Respaldar rondas ahora (libro de respaldo)', 'respaldarTodoAhora')
+    .addItem('Respaldos: copiar libros a Drive ahora', 'respaldoLibrosAhora')
+    .addItem('Respaldos: programar copia diaria (Drive)', 'instalarRespaldoDiario')
     .addItem('Borrar audios de ronda antiguos', 'purgarAudios')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')
@@ -3661,11 +3663,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.25-f';
-var FECHA_VERSION = '2026-10-25';
+var VERSION_SISTEMA = '2026.10.26-a';
+var FECHA_VERSION = '2026-10-26';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.26-a', fecha: '2026-10-26', cambios: [
+    'Copias de seguridad automáticas de los libros en Drive: carpeta «App Asistencia / Respaldos» con Diario (se reemplaza la copia del día y se conservan los últimos 3 días), Semanal (una por semana) y Mensual (una por mes). Copia el libro principal, el libro de respaldo de rondas y los libros que se agreguen en Parametros (respaldo_libros_extra). Menú «Respaldos: programar copia diaria (Drive)» (una sola vez, corre cada noche) y «Respaldos: copiar libros a Drive ahora». En Parametros se puede cambiar respaldo_dias, respaldo_semanas y respaldo_meses (0 = guardar todas).'] },
   { version: '2026.10.25-f', fecha: '2026-10-25', cambios: [
     'Rondas de otras fechas: solo quien administra las abre y las puede registrar o corregir (en «📅 Fecha…»); los demás directivos las revisan en los informes (Ver panel → Rondas guardadas).',
     'Reuniones en sábado: entrega de boletines, jornada pedagógica (compensatorios), escuela de padres, reunión con padres, ceremonias de grado o proclamación (nuevo tipo; transición, 5°, 9°, Caminar en Secundaria 2 y bachilleres) y clausura se programan sin la marca «Excepcional», también por la tarde hasta las 18:00. Cualquier otra reunión en sábado, el domingo o después de las 18:00 sigue necesitando «⭐ Excepcional».',
@@ -3843,6 +3847,7 @@ var LEEME_HOJAS = [
   'Usuarios / Soportes / Parametros   Cuentas de docentes, soportes de ausencias y parámetros.',
   'Notas_Ronda / Bandeja_WhatsApp   Observaciones de la ronda y novedades propuestas desde WhatsApp.',
   'Directivos        Quiénes registran: claves (hash), correo, ve_todo (NO = solo ve sus rondas), cambia_asignacion (SI/NO: puede cambiar quién dicta en las parejas), administra (SI/NO: puede anular reuniones). No escriba PIN a mano.',
+  'Copias en Drive    Carpeta «App Asistencia / Respaldos» (Diario 3 días, Semanal, Mensual) con el libro principal y el de respaldo; se programa desde el menú «Respaldos: programar copia diaria (Drive)».',
   'Respaldo           Libro aparte en Drive «ICET · Respaldo de rondas (no borrar)» (su id está en Parametros: respaldo_id) con cada ronda guardada.',
   'Bitacora_Cambios  Quién cambió qué y cuándo (correcciones, sesiones prestadas, intercambio de Docente 1 y 2).',
   'Datos personales de docentes y estudiantes: acceso solo para directivos (Ley 1581 de 2012).'
@@ -3998,6 +4003,77 @@ function recuperarRondasDesdeCopia() {
   plan.forEach(function (p) { p.filas.forEach(function (f) { p.dest.appendRow(f); }); });
   bitacora_('Recuperó rondas desde una copia', txt.replace(/\n/g, ' · '));
   ui.alert('Listo: se agregaron ' + total + ' filas.');
+}
+
+/* ---------------- Copias programadas de los libros en Drive (carpeta «App Asistencia») ----------------
+ * Cada noche se copian el libro principal, el libro de respaldo de rondas y los libros extra de Parametros (respaldo_libros_extra, ids separados por coma)
+ * a «App Asistencia / Respaldos»: Diario (se reemplaza la copia del día y se conservan los últimos respaldo_dias, 3 por defecto), Semanal (una por semana,
+ * la primera que se haga cada semana) y Mensual (una por mes). respaldo_semanas y respaldo_meses limitan cuántas se guardan (0 = todas).
+ * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco). */
+var CARPETA_APP = 'App Asistencia';
+function carpetaHija_(padre, nombre) {
+  var it = padre.getFoldersByName(nombre);
+  return it.hasNext() ? it.next() : padre.createFolder(nombre);
+}
+function carpetaRespaldos_() {
+  var raiz = carpetaHija_(DriveApp.getRootFolder(), CARPETA_APP);
+  return carpetaHija_(raiz, 'Respaldos');
+}
+function librosParaRespaldar_() {
+  var libro = SpreadsheetApp.getActive(), lista = [{ id: libro.getId(), nombre: libro.getName() }];
+  var rid = parametro_('respaldo_id', '');
+  if (rid) lista.push({ id: rid, nombre: NOMBRE_RESPALDO });
+  String(parametro_('respaldo_libros_extra', '')).split(',').forEach(function (x) { x = x.trim(); if (x) lista.push({ id: x, nombre: 'Libro extra ' + x.slice(0, 6) }); });
+  return lista;
+}
+/** Lunes de la semana de la fecha (texto aaaa-mm-dd). */
+function lunesDe_(d) { var x = new Date(d.getTime()); var dow = (Number(Utilities.formatDate(x, TZ, 'u')) || 1); x.setDate(x.getDate() - (dow - 1)); return ymd_(x); }
+function sufijoFecha_(nombre) { var m = String(nombre).match(/(\d{4}-\d{2}(?:-\d{2})?)$/); return m ? m[1] : ''; }
+function copiaUnica_(libro, carpeta, nombre) {
+  var it = carpeta.getFilesByName(nombre); while (it.hasNext()) it.next().setTrashed(true);
+  DriveApp.getFileById(libro.id).makeCopy(nombre, carpeta);
+}
+function conservarUltimas_(carpeta, cuantas) {
+  if (!cuantas || cuantas < 1) return 0;
+  var fs = [], it = carpeta.getFiles(); while (it.hasNext()) { var f = it.next(); fs.push({ f: f, s: sufijoFecha_(f.getName()) }); }
+  var fechas = {}; fs.forEach(function (x) { if (x.s) fechas[x.s] = 1; });
+  var validas = Object.keys(fechas).sort().reverse().slice(0, cuantas), borradas = 0;
+  fs.forEach(function (x) { if (x.s && validas.indexOf(x.s) < 0) { x.f.setTrashed(true); borradas++; } });
+  return borradas;
+}
+/** Hace las copias de hoy (diaria, y semanal/mensual si aún no existen) y poda las viejas. Devuelve un resumen de texto. */
+function respaldoProgramado(hoy) {
+  var d = hoy || new Date(), raiz = carpetaRespaldos_(), hoyTxt = ymd_(d), res = [];
+  var diario = carpetaHija_(raiz, 'Diario'), semanal = carpetaHija_(raiz, 'Semanal'), mensual = carpetaHija_(raiz, 'Mensual');
+  var lunes = lunesDe_(d), mes = hoyTxt.slice(0, 7);
+  librosParaRespaldar_().forEach(function (l) {
+    try {
+      copiaUnica_(l, diario, l.nombre + ' · ' + hoyTxt);
+      var nS = l.nombre + ' · semana ' + lunes;
+      if (!semanal.getFilesByName(nS).hasNext()) copiaUnica_(l, semanal, nS);
+      var nM = l.nombre + ' · ' + mes;
+      if (!mensual.getFilesByName(nM).hasNext()) copiaUnica_(l, mensual, nM);
+      res.push('✔ ' + l.nombre);
+    } catch (e) { res.push('✖ ' + l.nombre + ': ' + e); }
+  });
+  var dias = Number(parametro_('respaldo_dias', 3)) || 3, borr = conservarUltimas_(diario, dias);
+  conservarUltimas_(semanal, Number(parametro_('respaldo_semanas', 0)) || 0);
+  conservarUltimas_(mensual, Number(parametro_('respaldo_meses', 0)) || 0);
+  var txt = res.join(' · ') + ' · copias diarias viejas borradas: ' + borr;
+  try { bitacora_('Respaldo programado de libros', txt); } catch (e) { Logger.log(txt); }
+  return txt;
+}
+function respaldoLibrosAhora() {
+  exigirEditor_();
+  var txt = respaldoProgramado(), ui = SpreadsheetApp.getUi();
+  ui.alert('Copias hechas', txt.replace(/ · /g, '\n') + '\n\nCarpeta de Drive: ' + CARPETA_APP + ' / Respaldos', ui.ButtonSet.OK);
+}
+function instalarRespaldoDiario() {
+  exigirEditor_();
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'respaldoProgramado') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('respaldoProgramado').timeBased().everyDays(1).atHour(23).nearMinute(30).create();
+  var ui = SpreadsheetApp.getUi();
+  ui.alert('Copia diaria programada', 'Cada noche (≈ 11:30 p. m.) se copian los libros a Drive: «' + CARPETA_APP + ' / Respaldos» (Diario: últimos 3 días · Semanal · Mensual).\nPara probar ahora use «Respaldos: copiar libros ahora».', ui.ButtonSet.OK);
 }
 
 // ===================== Sesion.gs =====================

@@ -2593,10 +2593,11 @@ function cargarReunion(p) {
   exigirDirectivo_();
   var r = reunionesDatos_().map(reunionDeFila_).filter(function (x) { return x.id === (p && p.id); })[0];
   if (!r) throw new Error('No se encontró la reunión.');
-  var a = asistenciaDe_(r.id), roles = {};
+  var a = asistenciaDe_(r.id), roles = {}, ausentes = {};   // ausentes: ya reportados en Novedades para el día de la reunión (toda la jornada)
+  try { ausentesDelDia_(r.fecha).forEach(function (x) { if (x.jornada) ausentes[x.docente] = x; }); } catch (e) { /* sin novedades */ }
   personasReunion_().forEach(function (x) { roles[x.nombre] = x.rol; });
   return { reunion: r, motivos: datos_('Motivos').map(function (m) { return m.motivo; }),
-           personas: convocadosDe_(r).map(function (n) { return { nombre: n, rol: roles[n] || 'Docente', registro: a[n] || null }; }) };
+           personas: convocadosDe_(r).map(function (n) { var au = ausentes[n]; return { nombre: n, rol: roles[n] || 'Docente', registro: a[n] || null, ausente: au ? { motivo: au.motivo, dias: au.dias, desde: au.desde, hasta: au.hasta } : null }; }) };
 }
 
 /** Guarda la asistencia (reemplaza lo anterior de cada persona). p = {id, registros:[{persona, estado, motivo?, observacion?}]} */
@@ -3505,11 +3506,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.25-a';
+var VERSION_SISTEMA = '2026.10.25-b';
 var FECHA_VERSION = '2026-10-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.25-b', fecha: '2026-10-25', cambios: [
+    'Coherencia entre novedades, ronda y reuniones: el docente con una ausencia de toda la jornada ya anotada en Novedades aparece MARCADO SOLO en la ronda (No asistió, Otro docente a cargo o SED) con su motivo, quién queda a cargo y la actividad dejada; basta guardar la ronda, y se cambia tocando otro botón. En la asistencia de una reunión, quien ya tiene ausencia reportada ese día sale marcado «No asistió» con su motivo.',
+    'Manual: nueva sección «¿Dónde registro cada cosa? (sin repetir)» que dice qué va en novedades, ronda y reuniones.'] },
   { version: '2026.10.25-a', fecha: '2026-10-25', cambios: [
     'Motivos: nuevo motivo «Invitación sindical (encuentro, asamblea, delegados)» (se agrega solo a la hoja Motivos; en la ronda cuenta como toda la jornada).',
     'Novedades anticipadas: ahora piden quién queda a cargo del grupo y si se dejó actividad de aprendizaje; quedan en Novedades (Grupo atendido por, Actividad de Aprendizaje). En la ronda, esos datos se ven en «Reportado hoy» y se precargan al marcar a ese docente (no hay que escribirlos de nuevo).',

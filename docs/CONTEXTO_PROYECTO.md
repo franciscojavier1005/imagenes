@@ -221,3 +221,9 @@ Ver docs/PROPUESTA_ORIENTACION_Y_NOTAS.md §7: libro matriz + libros separados p
 - `ausentesDelDia_` (Reuniones.gs) y `avisosHoy().ausentes`: docentes con novedad de ausencia hoy, con motivo, rango de días (por `ID registro`), a cargo y actividad; sección «Docentes ausentes hoy» en `recursos/aviso_dia.html` (sincronizado a las pantallas).
 - `SINEST`/`SIN_ESTUDIANTES`: +2 motivos (despachó temprano con autorización; despachó sin autorización).
 - Nota de pruebas: el test «avisosHoy: reuniones de hoy…» falla si se corre entre las 23:57 y las 23:59 (hora de Bogotá) porque usa reuniones a esa hora.
+
+## Versión 2026.10.25-b — Coherencia novedades ↔ ronda ↔ reuniones
+- Ronda (Consulta.html, en `cargar`): tras calcular `INI`, las filas con `reporte` de ausencia de jornada completa (Novedades) y sin marca previa ni salida/reunión se marcan solas (`auto:true`): `No asistió` o `Con reemplazo` si `atiende` ∈ `COBERTURA`; `Evento SED` aparece por el motivo; motivo, a cargo y actividad precargados; quedan como «sin guardar» hasta guardar la ronda (así el registro de la ronda las incluye). Tocar otro botón quita `auto`. Los permisos por horas y llegadas tarde NO se auto-marcan (dependen de la sesión): solo aviso «Reportado hoy».
+- Reuniones: `cargarReunion` devuelve `ausente` por persona (de `ausentesDelDia_(fecha)`, solo jornada completa); `abrir` en Reunion.html las marca «No asistió» con su motivo (`auto`).
+- Manual: sección «¿Dónde registro cada cosa?» (tabla situación → dónde → qué pasa en la ronda).
+- Pendiente de revisar con el usuario: (1) que las novedades por horas se apliquen solo a las sesiones de su rango; (2) alertar en Reuniones al convocar a quien ya tiene ausencia ese día.

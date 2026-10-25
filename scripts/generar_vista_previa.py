@@ -81,6 +81,7 @@ var DATOS = %s;
       out.filas=uni;}
     function ck(c){var g=String(c).split('+')[0],m=g.match(/^CS([12])0?(\\d)$/);if(m)return(m[1]==='1'?6:9)*1000+500+Number(m[2]);m=g.match(/^(\\d\\d)(\\d\\d)$/);return m?Number(m[1])*1000+Number(m[2]):99000;}
     out.filas.sort(function(a,b){return ck(a.grupoCodigo)-ck(b.grupoCodigo);});
+    if(out.filas.length>2){ out.filas[1].reporte={tipo:'No asistió',motivo:'Invitación sindical (encuentro, asamblea, delegados)',texto:'Encuentro de delegados',medio:'WhatsApp directo',jornada:true,atiende:'Otro docente (con espacio libre)',actividad:'Sí'}; out.filas[2].reporte={tipo:'No asistió',motivo:'Mal estado de salud',medio:'Llamada',jornada:true,atiende:'',actividad:'N/A'}; }   // demostración: novedades ya anotadas
     return out;
   }
   function csv(p){

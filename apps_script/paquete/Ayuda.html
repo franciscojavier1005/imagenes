@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.25-a</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.10.25-b</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -59,6 +59,7 @@
   <li><a href="#estados">Qué marcar en cada caso</a></li>
   <li><a href="#reemplazo">Docente ausente con reemplazo</a></li>
   <li><a href="#tiempos">Cómo se calculan los minutos</a></li>
+  <li><a href="#donde">¿Dónde registro cada cosa?</a></li>
   <li><a href="#parejas">Docentes que alternan (quién dicta)</a></li>
   <li><a href="#senal">Si se cae la señal</a></li>
   <li><a href="#novedades">Registrar novedades sin hacer la ronda</a></li>
@@ -140,6 +141,17 @@
 <li><b>Llegada tarde:</b> minutos cortos (5, 10, 15…).</li></ul>
 <div class="ojo">Si el motivo no justifica toda la jornada (por ejemplo, una cita médica), cambie «¿Hasta cuándo no estará?» a «Solo este bloque».</div></section>
 
+<section id="donde"><h2>¿Dónde registro cada cosa? (sin repetir)</h2>
+<table class="tbl">
+<tr><th>Situación</th><th>Dónde se registra</th><th>Qué pasa en la ronda</th></tr>
+<tr><td>El docente avisa que <b>no vendrá</b> (hoy o días siguientes): enfermedad, licencia, invitación sindical, evento SED…</td><td><b>Registrar novedades</b>, con el motivo, <i>quién queda a cargo del grupo</i> y <i>si dejó actividad</i>. Si son varios días, una sola vez con «Desde / Hasta».</td><td>El docente aparece <b>ya marcado</b> («No asistió», «Otro docente a cargo» o «SED») con su motivo, quién cubre y la actividad; no hay que activar nada. Solo se guarda la ronda. Si hoy no corresponde (llegó), toque otro botón.</td></tr>
+<tr><td>Cita o permiso <b>por unas horas</b>, llegada tarde o salida temprana <b>avisados</b></td><td><b>Registrar novedades</b> (permiso por horas, llegará tarde, saldrá temprano).</td><td>Se ve el aviso «Reportado hoy». La marca se hace en la ronda de la sesión que corresponde (botones «además se suma a Presente»).</td></tr>
+<tr><td>Salida pedagógica con estudiantes fuera del colegio</td><td><b>Registrar novedades</b> → «Salida pedagógica».</td><td>Aparece «Fuera con estudiantes»: no se marca ausente.</td></tr>
+<tr><td>Reunión, consejo, jornada pedagógica, taller</td><td><b>Reuniones</b>. Los convocados quedan «En reunión» en la ronda mientras dura.</td><td>No se marcan ausentes; la asistencia se toma una sola vez en Reuniones, donde quien ya tiene ausencia reportada sale marcado «No asistió» con su motivo.</td></tr>
+<tr><td>Lo que <b>vea en el momento</b> (no estaba, llegó tarde, sin estudiantes, incumplimiento)</td><td>La <b>ronda</b>.</td><td>Solo se marca lo que se observa; lo que ya está en novedades o reuniones no se repite.</td></tr>
+</table>
+<p>El aviso del día muestra al abrir las <b>reuniones de hoy</b> y los <b>docentes ausentes hoy</b> con su motivo y los días que faltarán.</p>
+</section>
 <section id="parejas"><h2>8. Docentes que alternan (quién dicta esta semana)</h2>
 <p><b>Alternancia automática:</b> si la semana pasada ya se definió quién dictó, esta semana el sistema alterna solo con el otro docente y lo indica en la tarjeta; no hay que volver a elegir. Si no corresponde (vacaciones, cambio de acuerdo), la coordinación académica toca «Cambiar».</p>
 <p>En algunas áreas dos docentes se turnan cada semana (por ejemplo ética y religión). En la ronda aparece una tarjeta con los <b>dos nombres</b>:</p>
@@ -211,7 +223,7 @@
 <p class="tip">¿Algo no aparece en este manual? Dígaselo a coordinación académica para incluirlo en la próxima versión.</p></section>
 
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.25-a</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.10.25-b</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

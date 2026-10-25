@@ -434,10 +434,11 @@ function cargarReunion(p) {
   exigirDirectivo_();
   var r = reunionesDatos_().map(reunionDeFila_).filter(function (x) { return x.id === (p && p.id); })[0];
   if (!r) throw new Error('No se encontró la reunión.');
-  var a = asistenciaDe_(r.id), roles = {};
+  var a = asistenciaDe_(r.id), roles = {}, ausentes = {};   // ausentes: ya reportados en Novedades para el día de la reunión (toda la jornada)
+  try { ausentesDelDia_(r.fecha).forEach(function (x) { if (x.jornada) ausentes[x.docente] = x; }); } catch (e) { /* sin novedades */ }
   personasReunion_().forEach(function (x) { roles[x.nombre] = x.rol; });
   return { reunion: r, motivos: datos_('Motivos').map(function (m) { return m.motivo; }),
-           personas: convocadosDe_(r).map(function (n) { return { nombre: n, rol: roles[n] || 'Docente', registro: a[n] || null }; }) };
+           personas: convocadosDe_(r).map(function (n) { var au = ausentes[n]; return { nombre: n, rol: roles[n] || 'Docente', registro: a[n] || null, ausente: au ? { motivo: au.motivo, dias: au.dias, desde: au.desde, hasta: au.hasta } : null }; }) };
 }
 
 /** Guarda la asistencia (reemplaza lo anterior de cada persona). p = {id, registros:[{persona, estado, motivo?, observacion?}]} */

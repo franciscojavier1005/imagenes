@@ -81,7 +81,7 @@
   </div>
   <div class="card"><h2>Últimas novedades registradas</h2><div class="sub" style="margin-bottom:6px">Las más recientes, hechas en la ronda o con este formulario.</div><div id="ultimas"><div class="aviso">Cargando…</div></div></div>
   <div class="card"><h2>Registradas desde aquí (últimos 7 días y próximas)</h2><div id="recientes"><div class="aviso">Cargando…</div></div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.25-e</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.25-f</div>
 </main>
 <script>
 /* Vista previa de Registrar novedades: nada se guarda fuera de esta página. */
@@ -203,6 +203,7 @@ function editar(i){   // completar o corregir los detalles de una novedad ya reg
     '<label>Motivo<select id="eMot">'+mot+'</select></label>'+
     '<div class="fila2"><label>¿Quién queda a cargo del grupo?<select id="eAt">'+ATN_LISTA.map(function(x){return opt(x,x||'— Sin dato —',x===(r.atiende||''));}).join('')+'</select></label>'+
     '<label>¿Se dejó actividad de aprendizaje?<select id="eAc">'+[['N/A','Sin dato'],['Sí','Sí, se dejó actividad'],['No','No se dejó actividad']].map(function(x){return opt(x[0],x[1],x[0]===(/^(Sí|No)$/.test(r.actividad||'')?r.actividad:'N/A'));}).join('')+'</select></label></div>'+
+    (r.tipo==='No asistió'?'<div class="fila2"><label>Desde<input type="date" id="eDesde" value="'+esc(r.desde)+'"></label><label>Hasta<input type="date" id="eHasta" value="'+esc(r.hasta)+'"></label></div><div class="sub">Puede mover o ampliar los días de la ausencia (solo días con clases del docente).</div>':'')+
     '<label>Detalle<input type="text" id="eDe" maxlength="200" value="'+esc(r.descripcion||'')+'"></label>'+
     '<label>¿Por qué se edita? (opcional, queda en la bitácora)<input type="text" id="eOb" maxlength="150"></label><div id="eMsg" class="sub mal" style="min-height:16px"></div>'+
     '<div style="display:flex;gap:8px;margin-top:6px"><button class="btn prim" style="flex:1" id="eSi">Guardar cambios</button><button class="btn" style="flex:1" id="eNo">Cancelar</button></div></div>';
@@ -211,7 +212,7 @@ function editar(i){   // completar o corregir los detalles de una novedad ya reg
   v.querySelector('#eSi').onclick=function(){
     var b=v.querySelector('#eSi'); b.disabled=true;
     srv().withSuccessHandler(function(x){ v.remove(); msg('Novedad actualizada ('+x.editadas+' días).',true); recargar(); }).withFailureHandler(function(e){ b.disabled=false; v.querySelector('#eMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); })
-    .editarNovedad({id:r.id,docente:r.docente,motivo:v.querySelector('#eMot').value,atiende:v.querySelector('#eAt').value,actividad:v.querySelector('#eAc').value,descripcion:v.querySelector('#eDe').value,observacion:v.querySelector('#eOb').value});
+    .editarNovedad({id:r.id,docente:r.docente,desde:(v.querySelector('#eDesde')&&(v.querySelector('#eDesde').value!==r.desde||v.querySelector('#eHasta').value!==r.hasta))?v.querySelector('#eDesde').value:'',hasta:v.querySelector('#eHasta')?v.querySelector('#eHasta').value:'',motivo:v.querySelector('#eMot').value,atiende:v.querySelector('#eAt').value,actividad:v.querySelector('#eAc').value,descripcion:v.querySelector('#eDe').value,observacion:v.querySelector('#eOb').value});
   };
 }
 function quitar(id,doc){

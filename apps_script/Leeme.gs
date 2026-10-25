@@ -5,11 +5,15 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.25-e';
+var VERSION_SISTEMA = '2026.10.25-f';
 var FECHA_VERSION = '2026-10-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.25-f', fecha: '2026-10-25', cambios: [
+    'Rondas de otras fechas: solo quien administra las abre y las puede registrar o corregir (en «📅 Fecha…»); los demás directivos las revisan en los informes (Ver panel → Rondas guardadas).',
+    'Reuniones en sábado: entrega de boletines, jornada pedagógica (compensatorios), escuela de padres, reunión con padres, ceremonias de grado o proclamación (nuevo tipo; transición, 5°, 9°, Caminar en Secundaria 2 y bachilleres) y clausura se programan sin la marca «Excepcional», también por la tarde hasta las 18:00. Cualquier otra reunión en sábado, el domingo o después de las 18:00 sigue necesitando «⭐ Excepcional».',
+    'Edición: quien administra puede corregir reuniones y novedades de cualquier fecha; los demás, solo las de hoy en adelante. Una ausencia de toda la jornada se puede mover o ampliar de días desde «✏️ Editar» (solo días con clases del docente).'] },
   { version: '2026.10.25-e', fecha: '2026-10-25', cambios: [
     'CORRECCIÓN: en las versiones 2026.10.25-b, -c y -d la pantalla de Reuniones tenía un error de código (un comentario se comió parte de una línea) que la dejaba sin funcionar. Quedó corregido y se agregó una prueba que revisa que todo el JavaScript de las pantallas compile.',
     'Ronda: los directivos que no administran pueden registrar la ronda del día hasta 3 horas después de terminar la jornada escolar (16:30 con jornada hasta la 1:30 p. m.); después solo quien administra, que puede hacerlo en cualquier momento (hoy o de fechas anteriores, con motivo; si no había marcas el motivo viene sugerido: «Registro posterior»). En Parametros se puede cambiar el margen (ronda_horas_margen) y habilitar el día anterior para los demás directivos (ronda_dias_atras = 1).',

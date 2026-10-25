@@ -659,4 +659,29 @@ EMAIL=''; ok(/Debe iniciar sesión/.test(falla("consultaHorarios({modo:'catalogo
   e1=null; try{ run(`_guardarRondaOrig({dia:'LUNES',sesion:3,fecha:'2026-10-19',directivo:'P',correccion:'Registro tardío por viaje',registros:[{docente:${JSON.stringify(dd)},sesion:3,grupoCodigo:${JSON.stringify(gg)},area:'X',estado:'Presente'}]})`) }catch(x){ e1=x } ok(e1&&/Solo quien administra/.test(e1.message),'pero no dos días atrás');
   run("puedeAdministrar_=_pa2"); hojas.Parametros.v.pop();
 }
+// ---- sábados de entregas de boletines, jornadas, escuela de padres y ceremonias; cambiar los días de una ausencia; rondas anteriores solo para quien administra
+{
+  const sab=run("(function(){ var f=ymd_(new Date()); while(resDia_(f)!==6) f=resSumaDias_(f,1); return f; })()"), dom=run(`resSumaDias_('${sab}',1)`);
+  const cr=(tipo,f,ini,fin,ex)=>run(`crearReunion({tipo:${JSON.stringify(tipo)},nombre:'x ${tipo.slice(0,6)}',fecha:'${f}',inicio:'${ini}',fin:'${fin}',convocados:'TODOS'${ex?',excepcional:true':''}})`);
+  ok(['Entrega de boletines','Escuela de padres','Ceremonia de grado o proclamación'].every(t=>{ try{ return !!cr(t,sab,'14:00','17:00').id }catch(e){ return false } }),'boletines, escuela de padres y ceremonias de grado se programan en sábado sin marca excepcional (incluso por la tarde)');
+  let e1=null; try{ cr('Consejo académico',sab,'09:00','10:00') }catch(x){ e1=x } ok(e1&&/Excepcional/.test(e1.message),'un consejo académico en sábado sí necesita la marca excepcional');
+  e1=null; try{ cr('Entrega de boletines',dom,'09:00','10:00') }catch(x){ e1=x } ok(e1&&/Excepcional/.test(e1.message),'el domingo siempre necesita la marca excepcional');
+  e1=null; try{ cr('Ceremonia de grado o proclamación',sab,'18:30','21:00') }catch(x){ e1=x } ok(e1&&/18:00/.test(e1.message),'una ceremonia nocturna (después de las 18:00) necesita la marca excepcional');
+  // quien no administra no abre rondas de otras fechas
+  run("var _pa3=puedeAdministrar_; puedeAdministrar_=function(){return false}");
+  e1=null; try{ run(`consultarSesion(null,1,'sesion','${run("resSumaDias_(lunesDe_(ymd_(new Date())),-7)")}')`) }catch(x){ e1=x } ok(e1&&/informes/.test(e1.message),'quien no administra no abre rondas de otras fechas: se le indica el panel de informes');
+  e1=null; try{ run(`editarReunion({id:'${run("reunionesDatos_()")[0].id}',tipo:'Consejo académico',nombre:'cambio',fecha:'2026-10-05',inicio:'08:00',fin:'09:00',convocados:'TODOS'})`) }catch(x){ e1=x } ok(e1&&/ya pasaron|solo las corrige/.test(e1.message||''),'quien no administra no edita reuniones que ya pasaron');
+  run("puedeAdministrar_=_pa3");
+  // cambiar los días de una ausencia
+  const dN=H.Horario.slice(1).find(r=>r[hi('dia')]==='MARTES'&&r[hi('tipo')]==='CLASE')[hi('docente')];
+  const f0=run(`diasHabilesRango_('${run("resSumaDias_(ymd_(new Date()),7)")}','${run("resSumaDias_(ymd_(new Date()),20)")}')`);
+  run(`registrarNovedad({docentes:[${JSON.stringify(dN)}],tipo:'AUSENCIA',desde:'${f0[0]}',hasta:'${f0[0]}',motivo:'Sin justificación',medio:'WhatsApp directo'})`);
+  const rg=run('registrosRecientes_(ymd_(new Date()))').find(r=>r.docente===dN&&r.desde===f0[0]);
+  run(`editarNovedad({id:'${rg.id}',docente:${JSON.stringify(dN)},desde:'${f0[0]}',hasta:'${f0[4]}',observacion:'Se amplía la ausencia'})`);
+  const rg2=run('registrosRecientes_(ymd_(new Date()))').find(r=>r.id===rg.id&&r.docente===dN);
+  ok(rg2&&rg2.hasta>rg.hasta&&rg2.dias>rg.dias,'editarNovedad amplía los días de una ausencia ('+rg.dias+' → '+(rg2&&rg2.dias)+' días con clases)');
+  run(`editarNovedad({id:'${rg.id}',docente:${JSON.stringify(dN)},desde:'${f0[2]}',hasta:'${f0[2]}'})`);
+  const rg3=run('registrosRecientes_(ymd_(new Date()))').find(r=>r.id===rg.id&&r.docente===dN);
+  ok(rg3&&rg3.desde===f0[2]&&rg3.hasta===f0[2]&&rg3.dias<=1,'y también la puede mover o reducir a otro día');
+}
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

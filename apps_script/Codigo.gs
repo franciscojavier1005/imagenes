@@ -197,6 +197,9 @@ function consultarSesion(dia, sesion, modo, fecha) {
     if (String(fecha) > hoyS) throw new Error('Elija una fecha de hoy o anterior.');
     var dw = resDia_(String(fecha));
     if (dw < 1 || dw > 5) throw new Error('Elija un día hábil (lunes a viernes).');
+    var atrasC = Math.round((new Date(hoyS + 'T12:00:00Z') - new Date(String(fecha) + 'T12:00:00Z')) / 86400000), adminC = false;
+    try { adminC = puedeAdministrar_(identidad_()); } catch (e) { adminC = false; }
+    if (!adminC && !(atrasC >= 1 && atrasC <= diasAtrasRonda_())) throw new Error('Las rondas de fechas anteriores se consultan en los informes (Ver panel → Rondas guardadas). Aquí solo las abre quien administra.');
     revision = true; dia = DIAS[dw];
   }
   var auto = !dia && !sesion;

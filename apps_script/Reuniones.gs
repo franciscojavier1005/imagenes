@@ -146,6 +146,7 @@ var TIPOS_REUNION = [
   { tipo: 'Reunión PTAFI con la tutora', sinEstudiantes: false, inicio: '08:00', fin: '09:00' },
   { tipo: 'Reunión con padres de familia o acudientes', sinEstudiantes: false, inicio: '07:00', fin: '09:00' },
   { tipo: 'Escuela de padres', sinEstudiantes: false, inicio: '07:00', fin: '09:00' },
+  { tipo: 'Ceremonia de grado o proclamación', sinEstudiantes: false, inicio: '14:00', fin: '17:00' },
   { tipo: 'Entrega de boletines', sinEstudiantes: false, inicio: '07:00', fin: '13:30' },
   { tipo: 'Acto cívico o cultural', sinEstudiantes: false, inicio: '07:00', fin: '08:00' },
   { tipo: 'Simulacro de evacuación', sinEstudiantes: false, inicio: '09:00', fin: '09:30' },
@@ -155,6 +156,9 @@ var TIPOS_REUNION = [
   { tipo: 'Actividad institucional general', sinEstudiantes: true, inicio: '07:00', fin: '13:30' },
   { tipo: 'Otra reunión o actividad (escriba el nombre)', sinEstudiantes: false, inicio: '08:00', fin: '09:00' }
 ];
+
+/** Tipos de actividad que se hacen normalmente en sábado (entrega de boletines, jornada pedagógica de compensatorios, escuela de padres, ceremonias de grado, clausura): no necesitan la marca «excepcional» para ese día. */
+var TIPOS_SABADO = [TIPO_JORNADA, 'Entrega de boletines', 'Escuela de padres', 'Ceremonia de grado o proclamación', 'Clausura', 'Reunión con padres de familia o acudientes'];
 
 /** Resta minutos a una hora HH:MM. */
 function restaMin_(hhmm, n) {
@@ -237,7 +241,7 @@ function listarReuniones(p) {
   function resumida(r) { var a = asistenciaDe_(r.id), conv = convocadosDe_(r), reg = 0; conv.forEach(function (n) { if (a[n]) reg++; }); return Object.assign({}, r, { convocadosN: conv.length, registrados: reg }); }
   var proximas = todas.filter(function (r) { return r.fecha >= hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? -1 : 1) : (a.fecha < b.fecha ? -1 : 1); }).slice(0, 12).map(resumida);
   var ultimas = todas.filter(function (r) { return r.fecha < hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? 1 : -1) : (a.fecha < b.fecha ? 1 : -1); }).slice(0, 10).map(resumida);
-  return { puedeAnular: puedeAdministrar_(identidad_()), duplicadas: duplicadasDe_().length, catalogo: catalogoConvocados_(), convocaTipos: CONVOCA_TIPOS, lugares: lugaresReunion_(), finTipos: FIN_TIPOS, jornadaFin: finJornada_(), fecha: fecha, hoy: hoy, proximas: proximas, ultimas: ultimas, reuniones: reuniones, tipos: TIPOS_REUNION, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };
+  return { puedeAnular: puedeAdministrar_(identidad_()), duplicadas: duplicadasDe_().length, catalogo: catalogoConvocados_(), convocaTipos: CONVOCA_TIPOS, lugares: lugaresReunion_(), finTipos: FIN_TIPOS, jornadaFin: finJornada_(), fecha: fecha, hoy: hoy, proximas: proximas, ultimas: ultimas, reuniones: reuniones, tipos: TIPOS_REUNION, sabadoTipos: TIPOS_SABADO, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };
 }
 
 function hora_(s) { return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(s)) ? String(s) : ''; }
@@ -269,7 +273,7 @@ function crearReunion(p) {
   if (/^Otra/.test(def.tipo) && String(p.nombre || '').trim().length < 3) throw new Error('Escriba el nombre de la reunión o actividad.');
   var d = datosReunionDeP_(p);
   var fecha = p.fecha ? fechaIso_(p.fecha) : ymd_(new Date());
-  ventanaReunion_(fecha, d.ini, d.fin, !!p.excepcional);
+  ventanaReunion_(fecha, d.ini, d.fin, !!p.excepcional, def.tipo);
   var cv = convocadosDeP_(p), conv = cv.conv;
   var nombre = String(p.nombre || '').slice(0, 120) || def.tipo;
   var lock = LockService.getScriptLock(); lock.waitLock(20000);
@@ -413,7 +417,7 @@ function editarReunion(p) {
   if (!def) throw new Error('Elija el tipo de reunión.');
   if (/^Otra/.test(def.tipo) && String(p.nombre || '').trim().length < 3) throw new Error('Escriba el nombre de la reunión o actividad.');
   var d = datosReunionDeP_(p), ini = d.ini, fin = d.fin;
-  if (p.fecha) ventanaReunion_(fechaIso_(p.fecha), ini, fin, !!p.excepcional);
+  if (p.fecha) ventanaReunion_(fechaIso_(p.fecha), ini, fin, !!p.excepcional, def.tipo);
   if (!esFechaIso_(p.fecha)) throw new Error('Revise la fecha.');
   var cv = convocadosDeP_(p), conv = cv.conv;
   var lock = LockService.getScriptLock(); lock.waitLock(20000);
@@ -423,6 +427,7 @@ function editarReunion(p) {
     for (var i = 1; i < v.length; i++) if (String(v[i][c.id]) === String(p.id)) { fila = i; break; }
     if (fila < 0) throw new Error('No se encontró la reunión.');
     var antes = reunionDeFila_((function () { var o = {}; cab.forEach(function (k, i) { o[k] = v[fila][i]; }); return o; })());
+    if (antes.fecha < ymd_(new Date()) && !puedeAdministrar_(identidad_())) throw new Error('Las reuniones que ya pasaron solo las corrige quien administra.');
     var nueva = v[fila].slice();
     nueva[c.fecha] = txtForzado_(p.fecha); nueva[c.tipo] = def.tipo; nueva[c.nombre] = String(p.nombre || '').slice(0, 120) || def.tipo;
     nueva[c.inicio] = txtForzado_(ini); nueva[c.fin] = txtForzado_(fin); nueva[c.sin_estudiantes] = (p.sinEstudiantes || d.salida) ? 'SI' : 'NO'; nueva[c.convocados] = conv; var rd = recordatorioDeP_(p); nueva[c.avisar_dias] = rd.dias; nueva[c.avisar_min] = rd.min; nueva[c.avisar_ronda] = rd.ronda;
@@ -531,9 +536,9 @@ function ausentesConvocados_(id) {
  * fuera de esa franja (bazar, cena de grados, celebración fuera del colegio, jornada ampliada para compensatorios): queda marcada y se anota en la bitácora.
  * Los límites se pueden cambiar en la hoja Parametros (reunion_desde, reunion_hasta).
  */
-function ventanaReunion_(fecha, ini, fin, excepcional) {
+function ventanaReunion_(fecha, ini, fin, excepcional, tipo) {
   if (excepcional) return;
   var desde = String(parametro_('reunion_desde', '06:30')), hasta = String(parametro_('reunion_hasta', '18:00')), dw = resDia_(String(fecha));
-  if (dw < 1 || dw > 5) throw new Error('Las reuniones se programan de lunes a viernes. Si es excepcional (fin de semana), marque «Excepcional».');
+  if ((dw < 1 || dw > 5) && !(dw === 6 && TIPOS_SABADO.indexOf(tipoReunion_(tipo)) >= 0)) throw new Error('Las reuniones se programan de lunes a viernes (los sábados solo boletines, jornada pedagógica, escuela de padres, ceremonias de grado y clausura). Si es excepcional, marque «Excepcional».');
   if (ini < desde || fin > hasta) throw new Error('El horario de las reuniones es de ' + desde + ' a ' + hasta + '. Si es excepcional (fuera de ese horario), marque «Excepcional».');
 }

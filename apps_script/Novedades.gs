@@ -249,8 +249,35 @@ function editarNovedad(p) {
       if (p.descripcion != null) pon(j, 'Descripción', String(p.descripcion).slice(0, 200));
       cambiadas++;
     }
+    var cambioDias = '';
+    if (p.desde && cambiadas) {   // ausencias de toda la jornada: se pueden mover o ampliar los días (solo días hábiles con clases del docente)
+      var desde = String(p.desde), hasta = String(p.hasta || p.desde);
+      if (!esFechaIso_(desde) || !esFechaIso_(hasta) || hasta < desde) throw new Error('Revise las fechas.');
+      var nuevas = diasHabilesRango_(desde, hasta);
+      if (!nuevas.length) throw new Error('El rango no tiene días hábiles (lunes a viernes).');
+      var filas = [], plantilla = null;
+      for (var q = 1; q < v.length; q++) if (String(v[q][c['ID registro']]) === id && v[q][c['Docente']] === docente && String(v[q][c['Sesiones']]) === 'JC') { filas.push({ j: q, f: fechaIso_(v[q][c['Fecha Novedad']]) }); plantilla = plantilla || v[q]; }
+      if (!plantilla) throw new Error('Solo se pueden cambiar los días de una ausencia de toda la jornada.');
+      var hz = datos_('Horario'), tiene = {}; filas.forEach(function (x) { tiene[x.f] = 1; });
+      var agregadas = 0, quitadas = 0;
+      filas.slice().sort(function (a, b) { return b.j - a.j; }).forEach(function (x) {
+        if (nuevas.indexOf(x.f) >= 0) return;
+        if (!admin && x.f < hoy) return;
+        nov.deleteRow(x.j + 1); quitadas++;
+      });
+      nuevas.forEach(function (f) {
+        if (tiene[f]) return;
+        if (!admin && f < hoy) return;
+        var dia = DIAS[resDia_(f)], total = 0;
+        hz.forEach(function (h) { if (h.docente === docente && h.dia === dia) total += minutosSesion_(h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo); });
+        if (!total) return;   // ese día no tiene clases
+        var fila = plantilla.slice(); fila[c['Fecha Novedad']] = f; fila[c['Minutos Desatendidos']] = total; fila[c['Marca temporal']] = new Date();
+        nov.appendRow(fila); agregadas++;
+      });
+      cambioDias = ' · días: +' + agregadas + ' −' + quitadas + ' (' + desde + ' a ' + hasta + ')';
+    }
     if (!cambiadas) throw new Error(bloqueadas ? 'Esa novedad ya pasó: solo quien administra puede corregirla.' : 'No se encontró el registro (puede que se haya anulado).');
-    bitacora_('Editó novedad', docente + ' (' + id.slice(0, 8) + '): ' + [m ? 'motivo → ' + m.motivo : '', p.atiende != null ? 'a cargo → ' + (p.atiende || 'sin dato') : '', p.actividad != null ? 'actividad → ' + p.actividad : '', p.descripcion != null ? 'detalle' : ''].filter(String).join(', ') + ' · ' + cambiadas + ' filas' + (p.observacion ? ' · ' + String(p.observacion).slice(0, 150) : ''));
+    bitacora_('Editó novedad', docente + ' (' + id.slice(0, 8) + '): ' + [m ? 'motivo → ' + m.motivo : '', p.atiende != null ? 'a cargo → ' + (p.atiende || 'sin dato') : '', p.actividad != null ? 'actividad → ' + p.actividad : '', p.descripcion != null ? 'detalle' : ''].filter(String).join(', ') + ' · ' + cambiadas + ' filas' + cambioDias + (p.observacion ? ' · ' + String(p.observacion).slice(0, 150) : ''));
     return { editadas: cambiadas, bloqueadas: bloqueadas };
   } finally { lock.releaseLock(); }
 }

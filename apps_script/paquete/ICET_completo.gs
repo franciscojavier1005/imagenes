@@ -3678,11 +3678,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.26-e';
+var VERSION_SISTEMA = '2026.10.26-f';
 var FECHA_VERSION = '2026-10-26';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.26-f', fecha: '2026-10-26', cambios: [
+    'Ronda: el resumen que aparece al guardar ya no muestra «45 min» para todos. Una ausencia de toda la jornada muestra el total del día; «solo este bloque», los minutos de las sesiones del bloque; y «con reemplazo» no muestra minutos (no cuentan como tiempo sin atender).'] },
   { version: '2026.10.26-e', fecha: '2026-10-26', cambios: [
     'Ronda, «Toda la jornada»: el tiempo sin atender ya no cae en los 45 minutos de una sesión. Se respeta el mayor entre el horario del docente, el total que calcula la pantalla (que incluye las clases de su pareja de alternancia) y lo que ya estuviera anotado en una novedad de jornada completa de ese día. Volver a guardar no lo baja.'] },
   { version: '2026.10.26-d', fecha: '2026-10-26', cambios: [

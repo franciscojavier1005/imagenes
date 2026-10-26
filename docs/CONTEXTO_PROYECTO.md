@@ -270,3 +270,6 @@ Consulta.html: un comentario `//` agregado en -f se comía `el('sesion').textCon
 
 ### 2026.10.26-e · Jornada completa no baja a 45 min
 guardarRonda (rama `completa`): `total = max(horario del docente, r.minutosJornada (f.minutosDia de la pantalla, incluye la pareja de alternancia), minutos de la novedad JC ya existente)`. Consulta.html envía `minutosJornada`. Prueba en notas_ronda.test.js.
+
+### 2026.10.26-f · Resumen al guardar sin «45 min» fijo
+Consulta.html `resumenRonda`: No asistió → jornada (`f.minutosDia`) o `minSesiones(f)`; Con reemplazo sin minutos.

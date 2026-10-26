@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.26-a';
+var VERSION_SISTEMA = '2026.10.26-b';
 var FECHA_VERSION = '2026-10-26';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.26-b', fecha: '2026-10-26', cambios: [
+    'Novedades: nueva opción en «Quién informó»: «Conocimiento de la comunidad (público)», para hechos que se supieron por la comunidad educativa sin que el docente o el rector los informaran. Se agrega sola a la lista del libro.'] },
   { version: '2026.10.26-a', fecha: '2026-10-26', cambios: [
     'Copias de seguridad automáticas de los libros en Drive: carpeta «App Asistencia / Respaldos» con Diario (se reemplaza la copia del día y se conservan los últimos 3 días), Semanal (una por semana) y Mensual (una por mes). Copia el libro principal, el libro de respaldo de rondas y los libros que se agreguen en Parametros (respaldo_libros_extra). Menú «Respaldos: programar copia diaria (Drive)» (una sola vez, corre cada noche) y «Respaldos: copiar libros a Drive ahora». En Parametros se puede cambiar respaldo_dias, respaldo_semanas y respaldo_meses (0 = guardar todas).'] },
   { version: '2026.10.25-f', fecha: '2026-10-25', cambios: [

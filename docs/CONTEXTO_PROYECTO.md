@@ -258,3 +258,6 @@ Sin conector de escritura a OneDrive: se genera con `scripts/archivar_versiones.
 
 ### 2026.10.26-a · Copias programadas en Drive
 Respaldo.gs: `respaldoProgramado()` (disparador diario ≈23:30, instalado desde el menú) copia libro principal + respaldo de rondas + `respaldo_libros_extra` a Drive «App Asistencia/Respaldos/{Diario,Semanal,Mensual}». Diario: se reemplaza la del día y se conservan `respaldo_dias` (3); semanal: una por lunes; mensual: una por mes; `respaldo_semanas`/`respaldo_meses` (0 = todas). Prueba: `respaldo_drive.test.js`. No se puede reconstruir el pasado: las semanales/mensuales empiezan al activarlo. OneDrive: sin escritura desde aquí (se sincroniza la carpeta de Drive con el escritorio o se envía el zip).
+
+### 2026.10.26-b · Fuente «Conocimiento de la comunidad (público)»
+Novedades → «Quién informó»: nueva opción en la lista `fuente` (data/listas.csv); `asegurarListas_()` (Codigo.gs, `LISTAS_NUEVAS`) la agrega sola al libro existente.

@@ -392,6 +392,14 @@ var MOTIVOS_NUEVOS = [
   ['ACTIVIDAD INSTITUCIONAL', 'Salida cultural o artística con estudiantes', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
   ['ACTIVIDAD INSTITUCIONAL', 'Otra salida con estudiantes (escribir en el detalle)', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5]
 ];
+/** Opciones de las listas agregadas después de la primera versión del libro (hoja Listas): se añaden solas si faltan. */
+var LISTAS_NUEVAS = [['fuente', 'Conocimiento de la comunidad (público)']];
+function asegurarListas_() {
+  var sh = hoja_('Listas'); if (!sh) return;
+  var existentes = datos_('Listas').map(function (x) { return x.lista + '|' + x.valor; }), agregado = false;
+  LISTAS_NUEVAS.forEach(function (f) { if (existentes.indexOf(f[0] + '|' + f[1]) < 0) { sh.appendRow(f); agregado = true; } });
+  if (agregado) invalidarCache_('Listas');
+}
 function asegurarMotivos_() {
   var sh = hoja_('Motivos'), existentes = datos_('Motivos').map(function (m) { return m.motivo; });
   var agregado = false;
@@ -3166,7 +3174,7 @@ function filaNovedad_(cab, o) { return cab.map(function (c) { return o[c] == nul
 /** Datos para la pantalla de novedades. */
 function datosNovedades() {
   exigirDirectivo_();
-  asegurarMotivos_();
+  asegurarMotivos_(); asegurarListas_();
   var hoy = ymd_(new Date());
   var motivos = datos_('Motivos').map(function (m) { return { motivo: m.motivo, categoria: m.categoria, justificada: m.justificada }; });
   var l = function (n) { return datos_('Listas').filter(function (x) { return x.lista === n; }).map(function (x) { return x.valor; }); };
@@ -3247,7 +3255,7 @@ function registrarNovedad(p) {
   var desde = String(p.desde || ''), hasta = String(p.hasta || p.desde || '');
   if (!esFechaIso_(desde) || !esFechaIso_(hasta) || hasta < desde) throw new Error('Revise las fechas.');
   if (hasta > resSumaDias_(desde, 45)) throw new Error('El rango máximo es de 45 días; haga varios registros.');
-  asegurarMotivos_();
+  asegurarMotivos_(); asegurarListas_();
   var motivos = {}; datos_('Motivos').forEach(function (m) { motivos[m.motivo] = m; });
   var motivo = String(p.motivo || '');
   if (!motivos[motivo]) throw new Error('Elija el motivo.');
@@ -3663,11 +3671,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.26-a';
+var VERSION_SISTEMA = '2026.10.26-b';
 var FECHA_VERSION = '2026-10-26';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.26-b', fecha: '2026-10-26', cambios: [
+    'Novedades: nueva opción en «Quién informó»: «Conocimiento de la comunidad (público)», para hechos que se supieron por la comunidad educativa sin que el docente o el rector los informaran. Se agrega sola a la lista del libro.'] },
   { version: '2026.10.26-a', fecha: '2026-10-26', cambios: [
     'Copias de seguridad automáticas de los libros en Drive: carpeta «App Asistencia / Respaldos» con Diario (se reemplaza la copia del día y se conservan los últimos 3 días), Semanal (una por semana) y Mensual (una por mes). Copia el libro principal, el libro de respaldo de rondas y los libros que se agreguen en Parametros (respaldo_libros_extra). Menú «Respaldos: programar copia diaria (Drive)» (una sola vez, corre cada noche) y «Respaldos: copiar libros a Drive ahora». En Parametros se puede cambiar respaldo_dias, respaldo_semanas y respaldo_meses (0 = guardar todas).'] },
   { version: '2026.10.25-f', fecha: '2026-10-25', cambios: [

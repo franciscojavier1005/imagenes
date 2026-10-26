@@ -391,6 +391,14 @@ var MOTIVOS_NUEVOS = [
   ['ACTIVIDAD INSTITUCIONAL', 'Salida cultural o artística con estudiantes', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5],
   ['ACTIVIDAD INSTITUCIONAL', 'Otra salida con estudiantes (escribir en el detalle)', 'SI', 'No requiere soporte (actividad del colegio)', 'NO', 5]
 ];
+/** Opciones de las listas agregadas después de la primera versión del libro (hoja Listas): se añaden solas si faltan. */
+var LISTAS_NUEVAS = [['fuente', 'Conocimiento de la comunidad (público)']];
+function asegurarListas_() {
+  var sh = hoja_('Listas'); if (!sh) return;
+  var existentes = datos_('Listas').map(function (x) { return x.lista + '|' + x.valor; }), agregado = false;
+  LISTAS_NUEVAS.forEach(function (f) { if (existentes.indexOf(f[0] + '|' + f[1]) < 0) { sh.appendRow(f); agregado = true; } });
+  if (agregado) invalidarCache_('Listas');
+}
 function asegurarMotivos_() {
   var sh = hoja_('Motivos'), existentes = datos_('Motivos').map(function (m) { return m.motivo; });
   var agregado = false;

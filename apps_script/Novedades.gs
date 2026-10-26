@@ -38,7 +38,7 @@ function filaNovedad_(cab, o) { return cab.map(function (c) { return o[c] == nul
 /** Datos para la pantalla de novedades. */
 function datosNovedades() {
   exigirDirectivo_();
-  asegurarMotivos_();
+  asegurarMotivos_(); asegurarListas_();
   var hoy = ymd_(new Date());
   var motivos = datos_('Motivos').map(function (m) { return { motivo: m.motivo, categoria: m.categoria, justificada: m.justificada }; });
   var l = function (n) { return datos_('Listas').filter(function (x) { return x.lista === n; }).map(function (x) { return x.valor; }); };
@@ -119,7 +119,7 @@ function registrarNovedad(p) {
   var desde = String(p.desde || ''), hasta = String(p.hasta || p.desde || '');
   if (!esFechaIso_(desde) || !esFechaIso_(hasta) || hasta < desde) throw new Error('Revise las fechas.');
   if (hasta > resSumaDias_(desde, 45)) throw new Error('El rango máximo es de 45 días; haga varios registros.');
-  asegurarMotivos_();
+  asegurarMotivos_(); asegurarListas_();
   var motivos = {}; datos_('Motivos').forEach(function (m) { motivos[m.motivo] = m; });
   var motivo = String(p.motivo || '');
   if (!motivos[motivo]) throw new Error('Elija el motivo.');

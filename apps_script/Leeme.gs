@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.26-d';
+var VERSION_SISTEMA = '2026.10.26-e';
 var FECHA_VERSION = '2026-10-26';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.26-e', fecha: '2026-10-26', cambios: [
+    'Ronda, «Toda la jornada»: el tiempo sin atender ya no cae en los 45 minutos de una sesión. Se respeta el mayor entre el horario del docente, el total que calcula la pantalla (que incluye las clases de su pareja de alternancia) y lo que ya estuviera anotado en una novedad de jornada completa de ese día. Volver a guardar no lo baja.'] },
   { version: '2026.10.26-d', fecha: '2026-10-26', cambios: [
     'CORRECCIÓN: en la ronda el recuadro de la sesión o bloque mostraba solo «…» (desde la versión 2026.10.25-f un comentario se comía la línea que escribe «Sesión N» o «Bloque N»). Ya se ve el número otra vez y se agregó una prueba que detecta ese tipo de error.',
     'Ronda, «¿Quién cubre el grupo?» (Con reemplazo): nueva opción «Nadie / ninguna persona (el grupo queda solo)»; al elegirla el titular queda como «No asistió» y el tiempo sin atender es el asignado.'] },

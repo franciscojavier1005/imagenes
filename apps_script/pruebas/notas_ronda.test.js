@@ -97,6 +97,11 @@ reg(doc,grupo,3,{});                       // primero solo la sesión 3
 reg(doc,grupo,4,{alcance:'JC'});           // otro directivo la marca toda la jornada
 const filas=del(doc);
 ok(filas.length===1&&filas[0][cc('Sesiones')]==='JC'&&filas[0][cc('Minutos Desatendidos')]===filasDoc.length*45,`toda la jornada: una sola novedad JC que reemplaza las de sesión (${filas.length} fila, ${filas[0]&&filas[0][cc('Minutos Desatendidos')]} min = ${filasDoc.length} sesiones x 45)`);
+// el tiempo de la jornada nunca baja a 45: se respeta el total calculado por la pantalla (clases de la pareja de alternancia) y lo ya anotado
+reg(doc,grupo,4,{alcance:'JC',minutosJornada:filasDoc.length*45+135});
+ok(del(doc).length===1&&del(doc)[0][cc('Minutos Desatendidos')]===filasDoc.length*45+135,'toda la jornada: se respeta el total mayor que manda la pantalla, no se reemplaza por el del horario');
+reg(doc,grupo,4,{alcance:'JC'});
+ok(del(doc)[0][cc('Minutos Desatendidos')]===filasDoc.length*45+135,'al guardar de nuevo, la jornada ya anotada con más tiempo se respeta (no vuelve a 45)');
 const nJ=hojas.Novedades.v.length; reg(doc,grupo,5,{});
 ok(hojas.Novedades.v.length===nJ,'una marca posterior "No asistió" del mismo docente no suma más tiempo');
 ok(hojas.Registro_Ronda.v.slice(1).filter(r=>r[5]===doc&&r[8]==='No asistió'&&String(r[1]).slice(0,10)==='2026-10-02').length>=3,'pero cada ronda queda verificada en Registro_Ronda');

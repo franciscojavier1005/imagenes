@@ -702,9 +702,16 @@ function guardarRonda(p) {
       if (completa) {   // ausente toda la jornada: UNA sola novedad con el total de minutos; reemplaza las de sesiones y cualquier jornada ya registrada
         var mias = hz.filter(function (h) { return h.docente === r.docente && h.dia === p.dia; });
         var total = 0; mias.forEach(function (h) { total += minutosSesion_(h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo); });
+        /* el tiempo de la jornada nunca baja a los 45 minutos de una sesión: se respeta el mayor entre el horario del docente, el total que calculó la pantalla
+           (incluye las clases de su pareja de alternancia) y lo que ya estaba anotado en una novedad de jornada completa de ese día */
+        total = Math.max(total, Number(r.minutosJornada) || 0);
+        var colMin = novVals[0].indexOf('Minutos Desatendidos');
         for (var q = novVals.length - 1; q >= 1; q--) {
           if (fechaIso_(novVals[q][1]) === fecha && novVals[q][2] === r.docente && /no asisti/i.test(String(novVals[q][3])) &&
-              (String(novVals[q][novCol]) === 'JC' || /^S\d$/.test(String(novVals[q][novCol])))) { volcarNov(); nov.deleteRow(q + 1); novVals.splice(q, 1); }
+              (String(novVals[q][novCol]) === 'JC' || /^S\d$/.test(String(novVals[q][novCol])))) {
+            if (String(novVals[q][novCol]) === 'JC' && colMin >= 0) total = Math.max(total, Number(novVals[q][colMin]) || 0);
+            volcarNov(); nov.deleteRow(q + 1); novVals.splice(q, 1);
+          }
         }
         var gs = {}, as = {};
         mias.forEach(function (h) { gs[h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo] = 1; as[h.area || '(énfasis)'] = 1; });

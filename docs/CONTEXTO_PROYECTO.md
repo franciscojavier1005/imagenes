@@ -267,3 +267,6 @@ En -a y -b `Respaldo.gs` definía `lunesDe_` y pisaba la de Codigo.gs (alternanc
 
 ### 2026.10.26-d · Sesión/bloque visible y opción «Nadie»
 Consulta.html: un comentario `//` agregado en -f se comía `el('sesion').textContent=…; el('modo').value=modo;` (el recuadro mostraba «…»); ahora `/* */` y prueba en sintaxis_html.test.js. «¿Quién cubre el grupo?» incluye «Nadie / ninguna persona» (valor `__NADIE` → No asistió + «Nadie (grupo solo)»). -c queda marcada con defecto en archivar_versiones.py.
+
+### 2026.10.26-e · Jornada completa no baja a 45 min
+guardarRonda (rama `completa`): `total = max(horario del docente, r.minutosJornada (f.minutosDia de la pantalla, incluye la pareja de alternancia), minutos de la novedad JC ya existente)`. Consulta.html envía `minutosJornada`. Prueba en notas_ronda.test.js.

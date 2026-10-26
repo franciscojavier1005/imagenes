@@ -264,3 +264,6 @@ Novedades → «Quién informó»: nueva opción en la lista `fuente` (data/list
 
 ### 2026.10.26-c · Corrección urgente: la ronda no abría
 En -a y -b `Respaldo.gs` definía `lunesDe_` y pisaba la de Codigo.gs (alternancia semanal) → «d.getTime is not a function». Renombrada `lunesDeFecha_`. Prueba nueva `duplicados.test.js` (sin nombres globales repetidos entre .gs). Versiones -a y -b marcadas con defecto en `archivar_versiones.py`. Lección: los .gs comparten un solo espacio global; revisar nombres antes de agregar funciones.
+
+### 2026.10.26-d · Sesión/bloque visible y opción «Nadie»
+Consulta.html: un comentario `//` agregado en -f se comía `el('sesion').textContent=…; el('modo').value=modo;` (el recuadro mostraba «…»); ahora `/* */` y prueba en sintaxis_html.test.js. «¿Quién cubre el grupo?» incluye «Nadie / ninguna persona» (valor `__NADIE` → No asistió + «Nadie (grupo solo)»). -c queda marcada con defecto en archivar_versiones.py.

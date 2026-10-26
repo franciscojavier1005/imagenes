@@ -3671,11 +3671,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.26-c';
+var VERSION_SISTEMA = '2026.10.26-d';
 var FECHA_VERSION = '2026-10-26';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.26-d', fecha: '2026-10-26', cambios: [
+    'CORRECCIÓN: en la ronda el recuadro de la sesión o bloque mostraba solo «…» (desde la versión 2026.10.25-f un comentario se comía la línea que escribe «Sesión N» o «Bloque N»). Ya se ve el número otra vez y se agregó una prueba que detecta ese tipo de error.',
+    'Ronda, «¿Quién cubre el grupo?» (Con reemplazo): nueva opción «Nadie / ninguna persona (el grupo queda solo)»; al elegirla el titular queda como «No asistió» y el tiempo sin atender es el asignado.'] },
   { version: '2026.10.26-c', fecha: '2026-10-26', cambios: [
     'CORRECCIÓN URGENTE: en las versiones 2026.10.26-a y -b la ronda mostraba «d.getTime is not a function». Una función nueva de las copias de seguridad tenía el mismo nombre que otra de la alternancia semanal y la pisaba. Se renombró y se agregó una prueba que impide nombres repetidos entre archivos.'] },
   { version: '2026.10.26-b', fecha: '2026-10-26', cambios: [

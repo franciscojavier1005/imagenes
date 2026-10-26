@@ -11,4 +11,9 @@ for(const f of fs.readdirSync(dir).filter(x=>x.endsWith('.gs'))){
   let mal=null; try{ new vm.Script(fs.readFileSync(path.join(dir,f),'utf8'),{filename:f}); }catch(e){ mal=e.message; }
   ok(!mal,f+' compila'+(mal?' → '+mal:''));
 }
+for(const f of fs.readdirSync(dir).filter(x=>x.endsWith('.html'))){   // un comentario // en medio de una línea se come el código que sigue en esa misma línea
+  const t=fs.readFileSync(path.join(dir,f),'utf8'), malos=[];
+  t.split('\n').forEach((l,i)=>{ const m=l.match(/(?<![:"'\\])\/\/\s(.*)$/); if(m&&/(\bel\(|\.textContent|\.value=|\.innerHTML|\bvar \w+\s*=)/.test(m[1])&&!/^\s*\/\//.test(l)) malos.push(i+1); });
+  ok(!malos.length,f+': ningún comentario // se come código en la misma línea'+(malos.length?' → líneas '+malos.join(','):''));
+}
 console.log(fallos?'HAY FALLAS':'Todo bien'); process.exit(fallos?1:0);

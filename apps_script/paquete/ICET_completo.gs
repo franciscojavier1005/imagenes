@@ -3671,11 +3671,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.26-b';
+var VERSION_SISTEMA = '2026.10.26-c';
 var FECHA_VERSION = '2026-10-26';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.26-c', fecha: '2026-10-26', cambios: [
+    'CORRECCIÓN URGENTE: en las versiones 2026.10.26-a y -b la ronda mostraba «d.getTime is not a function». Una función nueva de las copias de seguridad tenía el mismo nombre que otra de la alternancia semanal y la pisaba. Se renombró y se agregó una prueba que impide nombres repetidos entre archivos.'] },
   { version: '2026.10.26-b', fecha: '2026-10-26', cambios: [
     'Novedades: nueva opción en «Quién informó»: «Conocimiento de la comunidad (público)», para hechos que se supieron por la comunidad educativa sin que el docente o el rector los informaran. Se agrega sola a la lista del libro.'] },
   { version: '2026.10.26-a', fecha: '2026-10-26', cambios: [
@@ -4037,7 +4039,7 @@ function librosParaRespaldar_() {
   return lista;
 }
 /** Lunes de la semana de la fecha (texto aaaa-mm-dd). */
-function lunesDe_(d) { var x = new Date(d.getTime()); var dow = (Number(Utilities.formatDate(x, TZ, 'u')) || 1); x.setDate(x.getDate() - (dow - 1)); return ymd_(x); }
+function lunesDeFecha_(d) { var x = new Date(d.getTime()); var dow = (Number(Utilities.formatDate(x, TZ, 'u')) || 1); x.setDate(x.getDate() - (dow - 1)); return ymd_(x); }
 function sufijoFecha_(nombre) { var m = String(nombre).match(/(\d{4}-\d{2}(?:-\d{2})?)$/); return m ? m[1] : ''; }
 function copiaUnica_(libro, carpeta, nombre) {
   var it = carpeta.getFilesByName(nombre); while (it.hasNext()) it.next().setTrashed(true);
@@ -4055,7 +4057,7 @@ function conservarUltimas_(carpeta, cuantas) {
 function respaldoProgramado(hoy) {
   var d = hoy || new Date(), raiz = carpetaRespaldos_(), hoyTxt = ymd_(d), res = [];
   var diario = carpetaHija_(raiz, 'Diario'), semanal = carpetaHija_(raiz, 'Semanal'), mensual = carpetaHija_(raiz, 'Mensual');
-  var lunes = lunesDe_(d), mes = hoyTxt.slice(0, 7);
+  var lunes = lunesDeFecha_(d), mes = hoyTxt.slice(0, 7);
   librosParaRespaldar_().forEach(function (l) {
     try {
       copiaUnica_(l, diario, l.nombre + ' · ' + hoyTxt);

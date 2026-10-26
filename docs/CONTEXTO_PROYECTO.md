@@ -261,3 +261,6 @@ Respaldo.gs: `respaldoProgramado()` (disparador diario ≈23:30, instalado desde
 
 ### 2026.10.26-b · Fuente «Conocimiento de la comunidad (público)»
 Novedades → «Quién informó»: nueva opción en la lista `fuente` (data/listas.csv); `asegurarListas_()` (Codigo.gs, `LISTAS_NUEVAS`) la agrega sola al libro existente.
+
+### 2026.10.26-c · Corrección urgente: la ronda no abría
+En -a y -b `Respaldo.gs` definía `lunesDe_` y pisaba la de Codigo.gs (alternancia semanal) → «d.getTime is not a function». Renombrada `lunesDeFecha_`. Prueba nueva `duplicados.test.js` (sin nombres globales repetidos entre .gs). Versiones -a y -b marcadas con defecto en `archivar_versiones.py`. Lección: los .gs comparten un solo espacio global; revisar nombres antes de agregar funciones.

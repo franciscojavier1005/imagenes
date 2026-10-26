@@ -117,7 +117,7 @@ function librosParaRespaldar_() {
   return lista;
 }
 /** Lunes de la semana de la fecha (texto aaaa-mm-dd). */
-function lunesDe_(d) { var x = new Date(d.getTime()); var dow = (Number(Utilities.formatDate(x, TZ, 'u')) || 1); x.setDate(x.getDate() - (dow - 1)); return ymd_(x); }
+function lunesDeFecha_(d) { var x = new Date(d.getTime()); var dow = (Number(Utilities.formatDate(x, TZ, 'u')) || 1); x.setDate(x.getDate() - (dow - 1)); return ymd_(x); }
 function sufijoFecha_(nombre) { var m = String(nombre).match(/(\d{4}-\d{2}(?:-\d{2})?)$/); return m ? m[1] : ''; }
 function copiaUnica_(libro, carpeta, nombre) {
   var it = carpeta.getFilesByName(nombre); while (it.hasNext()) it.next().setTrashed(true);
@@ -135,7 +135,7 @@ function conservarUltimas_(carpeta, cuantas) {
 function respaldoProgramado(hoy) {
   var d = hoy || new Date(), raiz = carpetaRespaldos_(), hoyTxt = ymd_(d), res = [];
   var diario = carpetaHija_(raiz, 'Diario'), semanal = carpetaHija_(raiz, 'Semanal'), mensual = carpetaHija_(raiz, 'Mensual');
-  var lunes = lunesDe_(d), mes = hoyTxt.slice(0, 7);
+  var lunes = lunesDeFecha_(d), mes = hoyTxt.slice(0, 7);
   librosParaRespaldar_().forEach(function (l) {
     try {
       copiaUnica_(l, diario, l.nombre + ' · ' + hoyTxt);

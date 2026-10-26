@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.26-b';
+var VERSION_SISTEMA = '2026.10.26-c';
 var FECHA_VERSION = '2026-10-26';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.26-c', fecha: '2026-10-26', cambios: [
+    'CORRECCIÓN URGENTE: en las versiones 2026.10.26-a y -b la ronda mostraba «d.getTime is not a function». Una función nueva de las copias de seguridad tenía el mismo nombre que otra de la alternancia semanal y la pisaba. Se renombró y se agregó una prueba que impide nombres repetidos entre archivos.'] },
   { version: '2026.10.26-b', fecha: '2026-10-26', cambios: [
     'Novedades: nueva opción en «Quién informó»: «Conocimiento de la comunidad (público)», para hechos que se supieron por la comunidad educativa sin que el docente o el rector los informaran. Se agrega sola a la lista del libro.'] },
   { version: '2026.10.26-a', fecha: '2026-10-26', cambios: [

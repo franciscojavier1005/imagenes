@@ -6,7 +6,7 @@ Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco)."""
 import os, re, subprocess, shutil, zipfile
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ARCHIVOS = ["ICET_completo.gs", "Ayuda.html", "Consulta.html", "Dashboard.html", "Horarios.html", "Menu.html", "Novedad.html", "Reunion.html", "appsscript.json"]
-VERSIONES_CON_DEFECTO = {"2026.10.25-b": "Reuniones no funcionaba (error de sintaxis en Reunion.html)", "2026.10.25-c": "Reuniones no funcionaba (error de sintaxis en Reunion.html)",
+VERSIONES_CON_DEFECTO = {"2026.10.26-a": "La ronda no abría (d.getTime is not a function)", "2026.10.26-b": "La ronda no abría (d.getTime is not a function)", "2026.10.25-b": "Reuniones no funcionaba (error de sintaxis en Reunion.html)", "2026.10.25-c": "Reuniones no funcionaba (error de sintaxis en Reunion.html)",
                          "2026.10.25-d": "Reuniones no funcionaba (error de sintaxis en Reunion.html)"}
 CUANTAS = 5
 def git(*a): return subprocess.run(["git", "-C", RAIZ] + list(a), capture_output=True, text=True, check=True).stdout

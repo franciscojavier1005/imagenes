@@ -590,6 +590,7 @@ function minutosDesdeHora_(docente, dia, hhmm, hz, franjas) {
 function minutosSesion_(grupoCodigo) { return /^00/.test(String(grupoCodigo).split('+')[0]) ? 60 : 45; }
 
 function guardarRonda(p) {
+  var t0 = new Date().getTime(), tLect = 0, nReg = 0, nNov = 0;
   var quien = exigirDirectivo_();
   // el responsable de la ronda es quien inició sesión, salvo que preste su teléfono o su sesión a otro directivo registrado: ese nombre sí se acepta
   var sesionDe = quien.nombre || quien.email, elegido = String(p.directivo || '').trim();
@@ -621,10 +622,18 @@ function guardarRonda(p) {
     var regVals = reg.getDataRange().getValues();   // para reemplazar marcas repetidas
     var novVals = nov.getDataRange().getValues();
     var novCol = novVals[0].indexOf('Sesiones');
+    tLect = new Date().getTime() - t0; nReg = regVals.length; nNov = novVals.length;
     var guardados = 0, pendReg = [], pendNov = [];
     /* las filas nuevas se escriben de una sola vez (una llamada a la hoja en vez de una por fila); antes de borrar filas se vuelcan las pendientes */
     function volcarReg() { if (!pendReg.length) return; reg.getRange(regVals.length - pendReg.length + 1, 1, pendReg.length, regVals[0].length).setValues(pendReg.map(function (f) { return rellena_(f, regVals[0].length); })); pendReg = []; }
     function volcarNov() { if (!pendNov.length) return; nov.getRange(novVals.length - pendNov.length + 1, 1, pendNov.length, novVals[0].length).setValues(pendNov.map(function (f) { return rellena_(f, novVals[0].length); })); pendNov = []; }
+    var extCache = null;   // solo las novedades de actividad externa, convertidas una vez (antes se convertía toda la hoja por cada docente ausente)
+    function novExternas() {
+      if (extCache) return extCache;
+      var ct = novVals[0].indexOf('Tipo Novedad'); extCache = [];
+      for (var q = 1; q < novVals.length; q++) if (novVals[q][ct] === TIPO_EXTERNA) { var o = {}; novVals[0].forEach(function (k, i) { o[k] = novVals[q][i]; }); extCache.push(o); }
+      return extCache;
+    }
     var reunPorSesion = {};
     function reunDe(ses) { return reunPorSesion[ses] || (reunPorSesion[ses] = reunionesEnSesiones_(fecha, [ses], franjas)); }
     (p.registros || []).forEach(function (r) {
@@ -639,7 +648,7 @@ function guardarRonda(p) {
       }
       // quien está fuera con estudiantes (salida pedagógica, intercolegiados...) registrada en Novedades no se marca ausente
       if (r.estado === 'No asistió' || r.estado === 'Ausente temporal') {
-        var ex = externaDe_(fecha, r.docente, sesion, novVals.slice(1).map(function (x) { var o = {}; novVals[0].forEach(function (k, i) { o[k] = x[i]; }); return o; }));
+        var ex = externaDe_(fecha, r.docente, sesion, novExternas());
         if (ex) r = Object.assign({}, r, { estado: 'En actividad externa', motivo: ex.motivo, minutos: '' });
       }
       // incumplimientos: se registran con rigor (descripción obligatoria, siempre sin justificación, y quedan además en la hoja Incumplimientos)
@@ -759,7 +768,12 @@ function guardarRonda(p) {
     volcarReg(); volcarNov();
     if (correccion) bitacora_('Corrigió ronda anterior', fechaG + ' (' + (p.dia || '') + ', sesión ' + (p.sesion || '') + '): ' + guardados + ' marcas · motivo: ' + correccion);
     return { ok: true, guardados: guardados };
-  } finally { lock.releaseLock(); if (typeof respaldarRonda_ === 'function') respaldarRonda_(filasRespaldo); }   // el respaldo va después de soltar el bloqueo y, si falla, el guardado no se afecta
+  } finally {
+    lock.releaseLock(); var tAntesResp = new Date().getTime();
+    if (typeof respaldarRonda_ === 'function') respaldarRonda_(filasRespaldo);
+    var tTot = new Date().getTime() - t0;
+    if (tTot > 5000) { try { bitacora_('Guardado de ronda lento', 'total ' + tTot + ' ms · hasta leer hojas ' + tLect + ' ms · respaldo ' + (new Date().getTime() - tAntesResp) + ' ms · filas Registro_Ronda ' + nReg + ' · Novedades ' + nNov + ' · marcas ' + (p.registros || []).length); } catch (e) { /* solo informativo */ } }
+  }   // el respaldo va después de soltar el bloqueo y, si falla, el guardado no se afecta
 }
 function rellena_(f, n) { f = f.slice(0, n); while (f.length < n) f.push(''); return f; }
 
@@ -3678,11 +3692,15 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.26-f';
-var FECHA_VERSION = '2026-10-26';
+var VERSION_SISTEMA = '2026.10.29-a';
+var FECHA_VERSION = '2026-10-29';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.29-a', fecha: '2026-10-29', cambios: [
+    'Novedades: al guardar, el formulario queda en blanco, la pantalla vuelve al comienzo y aparece un aviso verde «✔ Guardado» arriba; se puede registrar otra novedad sin salir del módulo (se sale con «« Menú»).',
+    'Reuniones: al crear una reunión nueva, el formulario queda en blanco, arriba, con el aviso «✔ Reunión creada»; el botón pasa a «Salir a la lista» para volver cuando se decida.',
+    'Guardado de la ronda: se quitó un trabajo repetido (por cada docente ausente se revisaba toda la hoja de Novedades) y, si un guardado tarda más de 5 segundos, queda en Bitacora_Cambios («Guardado de ronda lento») con lo que tardó cada parte y el tamaño de las hojas, para encontrar el cuello de botella.'] },
   { version: '2026.10.26-f', fecha: '2026-10-26', cambios: [
     'Ronda: el resumen que aparece al guardar ya no muestra «45 min» para todos. Una ausencia de toda la jornada muestra el total del día; «solo este bloque», los minutos de las sesiones del bloque; y «con reemplazo» no muestra minutos (no cuentan como tiempo sin atender).'] },
   { version: '2026.10.26-e', fecha: '2026-10-26', cambios: [

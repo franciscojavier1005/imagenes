@@ -273,3 +273,6 @@ guardarRonda (rama `completa`): `total = max(horario del docente, r.minutosJorna
 
 ### 2026.10.26-f · Resumen al guardar sin «45 min» fijo
 Consulta.html `resumenRonda`: No asistió → jornada (`f.minutosDia`) o `minSesiones(f)`; Con reemplazo sin minutos.
+
+### 2026.10.29-a · Formularios en blanco tras guardar + diagnóstico de velocidad
+Novedad.html: tras guardar se limpia el formulario, `scrollTo(0,0)` y banner `#okTop`. Reunion.html: tras crear (no editar) se vuelve a `nueva()` con `avisoCreada`; botón «Salir a la lista». Codigo.gs `guardarRonda`: `novExternas()` (una sola conversión de las novedades externas) y registro en Bitacora_Cambios «Guardado de ronda lento» (>5 s) con tiempos y tamaños. Pendiente de análisis con esos datos: lectura completa de Registro_Ronda/Novedades en cada guardado (crece cada día), respaldo (abre otro libro), segunda llamada `cargar()` tras guardar.

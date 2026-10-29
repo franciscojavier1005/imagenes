@@ -5,11 +5,15 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.26-f';
-var FECHA_VERSION = '2026-10-26';
+var VERSION_SISTEMA = '2026.10.29-a';
+var FECHA_VERSION = '2026-10-29';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.10.29-a', fecha: '2026-10-29', cambios: [
+    'Novedades: al guardar, el formulario queda en blanco, la pantalla vuelve al comienzo y aparece un aviso verde «✔ Guardado» arriba; se puede registrar otra novedad sin salir del módulo (se sale con «« Menú»).',
+    'Reuniones: al crear una reunión nueva, el formulario queda en blanco, arriba, con el aviso «✔ Reunión creada»; el botón pasa a «Salir a la lista» para volver cuando se decida.',
+    'Guardado de la ronda: se quitó un trabajo repetido (por cada docente ausente se revisaba toda la hoja de Novedades) y, si un guardado tarda más de 5 segundos, queda en Bitacora_Cambios («Guardado de ronda lento») con lo que tardó cada parte y el tamaño de las hojas, para encontrar el cuello de botella.'] },
   { version: '2026.10.26-f', fecha: '2026-10-26', cambios: [
     'Ronda: el resumen que aparece al guardar ya no muestra «45 min» para todos. Una ausencia de toda la jornada muestra el total del día; «solo este bloque», los minutos de las sesiones del bloque; y «con reemplazo» no muestra minutos (no cuentan como tiempo sin atender).'] },
   { version: '2026.10.26-e', fecha: '2026-10-26', cambios: [

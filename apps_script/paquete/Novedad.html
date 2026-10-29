@@ -67,6 +67,7 @@
 <main>
   <div class="card"><h2>Nueva novedad</h2>
     <div class="sub">Registre aquí lo que le avisaron (WhatsApp, llamada, permiso del rector...) para que quien haga la ronda ya lo vea. Puede ser para hoy, para días anteriores o para fechas futuras.</div>
+    <div id="okTop" style="display:none;background:#e6f6ea;border:2px solid #2e8b57;color:#14532d;border-radius:12px;padding:10px 12px;margin-bottom:8px;font-weight:700"></div>
     <label>¿Quién o quiénes? <input type="text" id="fil" placeholder="Escriba para buscar docentes" oninput="pintaDocentes()"></label>
     <div id="lista"></div><div class="sub" id="selN" style="margin-top:4px">Ninguno elegido</div>
     <label>¿Qué pasó?</label><div class="tp" id="tp"></div>
@@ -81,7 +82,7 @@
   </div>
   <div class="card"><h2>Últimas novedades registradas</h2><div class="sub" style="margin-bottom:6px">Las más recientes, hechas en la ronda o con este formulario.</div><div id="ultimas"><div class="aviso">Cargando…</div></div></div>
   <div class="card"><h2>Registradas desde aquí (últimos 7 días y próximas)</h2><div id="recientes"><div class="aviso">Cargando…</div></div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.26-f</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.29-a</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -133,7 +134,7 @@ function pintaTipos(){
   el('horas').innerHTML=h; if(def&&def.pide==='rango_o_dia') rangoExt(); pintaMotivos();
 }
 function rangoExt(){ el('rg').innerHTML=el('todo').checked?'':'<div class="fila2"><label>De<input type="time" id="hIni"></label><label>Hasta<input type="time" id="hFin"></label></div>'; }
-function eligeTipo(t){ tipo=t; pintaTipos(); }
+function eligeTipo(t){ var ot=el('okTop'); if(ot) ot.style.display='none'; tipo=t; pintaTipos(); }
 function pintaMotivos(){
   var ext=tipo==='EXTERNA', cats={}, ord=[];
   D.motivos.forEach(function(m){ var es=D.motivosExterna.indexOf(m.motivo)>=0; if(ext!==es) return; if(!cats[m.categoria]){cats[m.categoria]=[];ord.push(m.categoria);} cats[m.categoria].push(m.motivo); });
@@ -154,8 +155,12 @@ function guardar(){
     el('btnGuardar').disabled=false; var extra=[];
     if(r.sinClases.length) extra.push('Sin clases ese día (no se registró): '+r.sinClases.join(', '));
     if(r.yaAusente.length) extra.push('Ya estaban ausentes todo el día: '+r.yaAusente.join(', '));
-    msg('Listo: '+r.filas+' registro(s) en '+r.dias+' día(s).'+(extra.length?' '+extra.join(' · '):''),true);
-    sel={}; el('selN').textContent='Ninguno elegido'; el('detalle').value=''; pintaDocentes(); recargar();
+    msg('',true); var tt='✔ Guardado: '+r.filas+' registro(s) en '+r.dias+' día(s).'+(extra.length?' '+extra.join(' · '):''); var ot=el('okTop'); ot.innerHTML=esc(tt)+'<div style="font-weight:400;font-size:13px">El formulario quedó en blanco para otra novedad. Cuando termine, use «« Menú».</div>'; ot.style.display='block';
+    /* formulario en blanco y de vuelta arriba, con el aviso de guardado, para registrar otra novedad sin salir del módulo */
+    sel={}; tipo=''; el('selN').textContent='Ninguno elegido'; el('fil').value=''; el('detalle').value=''; el('desde').value=D.hoy; el('hasta').value='';
+    if(el('atiende')) el('atiende').value=''; if(el('actividad')) el('actividad').value='N/A';
+    el('medio').innerHTML=D.medios.map(function(x){return opt(x,x,x==='WhatsApp directo');}).join(''); el('fuente').innerHTML=D.fuentes.map(function(x){return opt(x,x,x==='Docente ausente');}).join('');
+    pintaDocentes(); pintaTipos(); recargar(); window.scrollTo(0,0);
   }).withFailureHandler(function(e){ el('btnGuardar').disabled=false; msg(String(e&&e.message||e).replace(/^Error: /,'')); }).registrarNovedad(p);
 }
 function fmt(f){ var a=f.split('-'); return a[2]+'/'+a[1]+'/'+a[0]; }

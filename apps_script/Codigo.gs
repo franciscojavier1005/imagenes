@@ -103,7 +103,13 @@ function datos_(n) {
 }
 
 function hhmm_(v) { return v instanceof Date ? Utilities.formatDate(v, TZ, 'HH:mm') : String(v).trim(); }
-function ymd_(d) { return Utilities.formatDate(d, TZ, 'yyyy-MM-dd'); }
+var MEMO_YMD_ = {};
+/** Fecha aaaa-mm-dd de un Date. Se recuerda por instante: formatear una fecha es lo más lento que hace el script (milisegundos) y al guardar la ronda se pregunta por la fecha de miles de filas, que son pocos días distintos. */
+function ymd_(d) {
+  var k = d.getTime(), v = MEMO_YMD_[k];
+  if (v === undefined) v = MEMO_YMD_[k] = Utilities.formatDate(d, TZ, 'yyyy-MM-dd');
+  return v;
+}
 
 function mapaGrupos_() {
   var m = {};
@@ -626,6 +632,8 @@ function guardarRonda(p) {
     /* las filas nuevas se escriben de una sola vez (una llamada a la hoja en vez de una por fila); antes de borrar filas se vuelcan las pendientes */
     function volcarReg() { if (!pendReg.length) return; reg.getRange(regVals.length - pendReg.length + 1, 1, pendReg.length, regVals[0].length).setValues(pendReg.map(function (f) { return rellena_(f, regVals[0].length); })); pendReg = []; }
     function volcarNov() { if (!pendNov.length) return; nov.getRange(novVals.length - pendNov.length + 1, 1, pendNov.length, novVals[0].length).setValues(pendNov.map(function (f) { return rellena_(f, novVals[0].length); })); pendNov = []; }
+    var delDia = [];   // posiciones (en regVals) de las filas de la fecha que se guarda
+    for (var rr_ = 1; rr_ < regVals.length; rr_++) { var fr_ = regVals[rr_][1]; if ((fr_ instanceof Date ? ymd_(fr_) : String(fr_)) === fecha) delDia.push(rr_); }
     var extCache = null;   // solo las novedades de actividad externa, convertidas una vez (antes se convertía toda la hoja por cada docente ausente)
     function novExternas() {
       if (extCache) return extCache;
@@ -683,19 +691,19 @@ function guardarRonda(p) {
       var fila = [ahora, fecha, p.dia, sesion, franja, r.docente, textoCod_(r.grupoCodigo), r.area, r.estado,
                   r.motivo || '', just, minutos, ((r.obs || '') + sufCorr).slice(0, 300), p.directivo || '', atiende];
       var idx = -1;
-      for (var i = 1; i < regVals.length; i++) {
-        var f = regVals[i][1] instanceof Date ? ymd_(regVals[i][1]) : String(regVals[i][1]);
-        if (f === fecha && Number(regVals[i][3]) === sesion && regVals[i][5] === r.docente) { idx = i; break; }
+      for (var ii = 0; ii < delDia.length; ii++) {   // solo las filas de esa fecha (antes se recorría toda la hoja por cada marca)
+        var i = delDia[ii];
+        if (Number(regVals[i][3]) === sesion && regVals[i][5] === r.docente) { idx = i; break; }
       }
       if (idx < 0) {   // una marca anterior del mismo puesto (fecha, sesión, grupo y área) a nombre de alguien que ya no tiene esa sesión se reemplaza en vez de duplicarse
         var ocup = {}; hz.forEach(function (h) { if (h.dia === p.dia && Number(h.hora) === sesion) ocup[h.docente] = 1; });
-        for (var i2 = 1; i2 < regVals.length; i2++) {
-          var f2 = regVals[i2][1] instanceof Date ? ymd_(regVals[i2][1]) : String(regVals[i2][1]);
-          if (f2 === fecha && Number(regVals[i2][3]) === sesion && !ocup[regVals[i2][5]] && claveSlot_(sesion, regVals[i2][6], regVals[i2][7]) === claveSlot_(sesion, r.grupoCodigo, r.area)) { idx = i2; break; }
+        for (var jj = 0; jj < delDia.length; jj++) {
+          var i2 = delDia[jj];
+          if (Number(regVals[i2][3]) === sesion && !ocup[regVals[i2][5]] && claveSlot_(sesion, regVals[i2][6], regVals[i2][7]) === claveSlot_(sesion, r.grupoCodigo, r.area)) { idx = i2; break; }
         }
       }
       if (idx > 0) { if (idx >= regVals.length - pendReg.length) pendReg[idx - (regVals.length - pendReg.length)] = fila; else reg.getRange(idx + 1, 1, 1, fila.length).setValues([fila]); regVals[idx] = fila; }
-      else { pendReg.push(fila); regVals.push(fila); }
+      else { pendReg.push(fila); regVals.push(fila); delDia.push(regVals.length - 1); }
       filasRespaldo.push(fila);
       // 2) Novedades (esquema del formulario de ausentismo): quitar la anterior y agregar si hay novedad
       for (var j = novVals.length - 1; j >= 1; j--) {

@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.10.29-a';
-var FECHA_VERSION = '2026-10-29';
+var VERSION_SISTEMA = '2026.11.03-a';
+var FECHA_VERSION = '2026-11-03';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.03-a', fecha: '2026-11-03', cambios: [
+    'VELOCIDAD DEL GUARDADO (causa encontrada): por cada marca de la ronda, el sistema formateaba la fecha de TODAS las filas históricas de Registro_Ronda y Novedades (decenas de miles de operaciones lentas que crecen cada día, por eso tardaba minutos). Ahora la fecha se calcula una sola vez por día distinto y solo se revisan las filas de la fecha que se guarda. En una prueba con 12 000 filas históricas, las operaciones de fecha bajaron de 72 000 a 121.',
+    'Ronda: al tocar «Guardar» el resumen aparece enseguida con «⏳ Guardando la ronda…» (los botones de salir e informe se activan al confirmarse ✔). Si falla, se cierra el resumen y las marcas siguen en pantalla y en el borrador del teléfono.'] },
   { version: '2026.10.29-a', fecha: '2026-10-29', cambios: [
     'Novedades: al guardar, el formulario queda en blanco, la pantalla vuelve al comienzo y aparece un aviso verde «✔ Guardado» arriba; se puede registrar otra novedad sin salir del módulo (se sale con «« Menú»).',
     'Reuniones: al crear una reunión nueva, el formulario queda en blanco, arriba, con el aviso «✔ Reunión creada»; el botón pasa a «Salir a la lista» para volver cuando se decida.',

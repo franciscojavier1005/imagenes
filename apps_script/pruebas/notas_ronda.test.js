@@ -689,4 +689,12 @@ EMAIL=''; ok(/Debe iniciar sesión/.test(falla("consultaHorarios({modo:'catalogo
   const rg3=run('registrosRecientes_(ymd_(new Date()))').find(r=>r.id===rg.id&&r.docente===dN);
   ok(rg3&&rg3.desde===f0[2]&&rg3.hasta===f0[2]&&rg3.dias<=1,'y también la puede mover o reducir a otro día');
 }
+// ---- velocidad: con miles de filas históricas con fecha tipo Date, guardar no formatea la fecha de cada fila (era lo que tardaba minutos)
+{ const rh0=hojas.Registro_Ronda.v[0], nh0=hojas.Novedades.v[0];
+  for(let d=0;d<120;d++){ const f=new (run('Date'))(Date.UTC(2026,4,1+d,5,0,0)); for(let k=0;k<100;k++){ const r=rh0.map(()=>''); r[0]='x'; r[rh0.indexOf('fecha')]=f; r[rh0.indexOf('sesion')]=1+k%8; r[rh0.indexOf('docente')]='Hist '+k; hojas.Registro_Ronda.v.push(r); const n=nh0.map(()=>''); n[0]='x'; n[1]=f; n[2]='Hist '+k; n[3]='Llegada tarde'; hojas.Novedades.v.push(n); } }
+  const dr0={}; ['Registro_Ronda','Novedades'].forEach(n=>{ const h=hojas[n]; dr0[n]=h.getDataRange; h.getDataRange=()=>({getValues:()=>h.v.map(r=>r.slice())}); });   // sin clonar por JSON: así las fechas siguen siendo Date, como en Google
+  let llamadas=0; const fmt0=g.Utilities.formatDate; g.Utilities.formatDate=(a,b,c)=>{llamadas++;return fmt0(a,b,c)};
+  const t0=Date.now(); run(`guardarRonda({dia:'VIERNES',sesion:3,fecha:'2026-10-02',registros:[{docente:${JSON.stringify(doc)},grupoCodigo:${JSON.stringify(grupo)},area:'X',estado:'No asistió',motivo:'Sin justificación'},{docente:'Otro 2',grupoCodigo:${JSON.stringify(grupo)},area:'X',estado:'Presente'}]})`);
+  ok(llamadas<400,`guardar con ${hojas.Registro_Ronda.v.length} filas históricas formatea pocas fechas (${llamadas} llamadas, ${Date.now()-t0} ms)`);
+  g.Utilities.formatDate=fmt0; Object.keys(dr0).forEach(n=>{ hojas[n].getDataRange=dr0[n]; }); }
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

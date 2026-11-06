@@ -198,7 +198,7 @@ function cierreRonda_() {
 function rondaCerrada_() { return Utilities.formatDate(new Date(), TZ, 'HH:mm') > cierreRonda_(); }
 /** Cuántos días atrás (además de hoy) pueden registrar la ronda los directivos que no administran: 0 por defecto (Parametros: ronda_dias_atras). */
 function diasAtrasRonda_() { return Math.max(0, Math.min(5, Number(parametro_('ronda_dias_atras', '0')) || 0)); }
-function consultarSesion(dia, sesion, modo, fecha) {
+function consultarSesion(dia, sesion, modo, fecha, ignorarReunion) {
   exigirDirectivo_();
   asegurarMotivos_();
   var ahora = new Date(), hoyS = ymd_(ahora), revision = false;
@@ -333,7 +333,9 @@ function consultarSesion(dia, sesion, modo, fecha) {
   // reuniones que se cruzan con este horario (se registran en la pantalla de reuniones): quien está en la reunión no se marca ausente
   var reun = reunionesEnSesiones_(out.fecha, hs, datos_('Franjas'));
   out.reuniones = reun.map(function (r) { return { id: r.id, nombre: r.nombre, tipo: r.tipo, inicio: r.inicio, fin: r.fin, sinEstudiantes: r.sinEstudiantes }; });
-  if (reun.some(function (r) { return r.sinEstudiantes; })) {
+  var hayBloqueo = reun.some(function (r) { return r.sinEstudiantes; });
+  if (hayBloqueo && ignorarReunion) out.reunionIgnorada = true;   // el directivo eligió hacer la ronda aunque haya una actividad sin clases (la actividad puede ser solo de algunos grupos)
+  if (hayBloqueo && !ignorarReunion) {
     out.sinEstudiantes = true; out.filas = [];
     out.nota = 'Hay una reunión, actividad o jornada sin clases en este horario (' + reun.filter(function (r) { return r.sinEstudiantes; })[0].nombre + '): no se hace ronda de aula. La asistencia se registra en Reuniones.';
   } else {
@@ -3700,11 +3702,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.03-a';
-var FECHA_VERSION = '2026-11-03';
+var VERSION_SISTEMA = '2026.11.06-a';
+var FECHA_VERSION = '2026-11-06';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.06-a', fecha: '2026-11-06', cambios: [
+    'Ronda independiente de las reuniones: cuando una actividad «sin clases» (jornada, actividad institucional general, etc.) suspende la ronda, aparece el botón «▶ Hacer la ronda de todos modos» (para actividades que son solo de algunos grupos o docentes). Queda activado para esa fecha en ese navegador y la ronda muestra el enlace «volver a respetar la reunión». También se puede editar la reunión (Reuniones → Editar) y quitar «Sin clases».'] },
   { version: '2026.11.03-a', fecha: '2026-11-03', cambios: [
     'VELOCIDAD DEL GUARDADO (causa encontrada): por cada marca de la ronda, el sistema formateaba la fecha de TODAS las filas históricas de Registro_Ronda y Novedades (decenas de miles de operaciones lentas que crecen cada día, por eso tardaba minutos). Ahora la fecha se calcula una sola vez por día distinto y solo se revisan las filas de la fecha que se guarda. En una prueba con 12 000 filas históricas, las operaciones de fecha bajaron de 72 000 a 121.',
     'Ronda: al tocar «Guardar» el resumen aparece enseguida con «⏳ Guardando la ronda…» (los botones de salir e informe se activan al confirmarse ✔). Si falla, se cierra el resumen y las marcas siguen en pantalla y en el borrador del teléfono.'] },

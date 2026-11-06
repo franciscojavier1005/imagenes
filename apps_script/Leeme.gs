@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.03-a';
-var FECHA_VERSION = '2026-11-03';
+var VERSION_SISTEMA = '2026.11.06-a';
+var FECHA_VERSION = '2026-11-06';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.06-a', fecha: '2026-11-06', cambios: [
+    'Ronda independiente de las reuniones: cuando una actividad «sin clases» (jornada, actividad institucional general, etc.) suspende la ronda, aparece el botón «▶ Hacer la ronda de todos modos» (para actividades que son solo de algunos grupos o docentes). Queda activado para esa fecha en ese navegador y la ronda muestra el enlace «volver a respetar la reunión». También se puede editar la reunión (Reuniones → Editar) y quitar «Sin clases».'] },
   { version: '2026.11.03-a', fecha: '2026-11-03', cambios: [
     'VELOCIDAD DEL GUARDADO (causa encontrada): por cada marca de la ronda, el sistema formateaba la fecha de TODAS las filas históricas de Registro_Ronda y Novedades (decenas de miles de operaciones lentas que crecen cada día, por eso tardaba minutos). Ahora la fecha se calcula una sola vez por día distinto y solo se revisan las filas de la fecha que se guarda. En una prueba con 12 000 filas históricas, las operaciones de fecha bajaron de 72 000 a 121.',
     'Ronda: al tocar «Guardar» el resumen aparece enseguida con «⏳ Guardando la ronda…» (los botones de salir e informe se activan al confirmarse ✔). Si falla, se cierra el resumen y las marcas siguen en pantalla y en el borrador del teléfono.'] },

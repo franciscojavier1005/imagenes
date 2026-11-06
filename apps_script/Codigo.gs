@@ -197,7 +197,7 @@ function cierreRonda_() {
 function rondaCerrada_() { return Utilities.formatDate(new Date(), TZ, 'HH:mm') > cierreRonda_(); }
 /** Cuántos días atrás (además de hoy) pueden registrar la ronda los directivos que no administran: 0 por defecto (Parametros: ronda_dias_atras). */
 function diasAtrasRonda_() { return Math.max(0, Math.min(5, Number(parametro_('ronda_dias_atras', '0')) || 0)); }
-function consultarSesion(dia, sesion, modo, fecha) {
+function consultarSesion(dia, sesion, modo, fecha, ignorarReunion) {
   exigirDirectivo_();
   asegurarMotivos_();
   var ahora = new Date(), hoyS = ymd_(ahora), revision = false;
@@ -332,7 +332,9 @@ function consultarSesion(dia, sesion, modo, fecha) {
   // reuniones que se cruzan con este horario (se registran en la pantalla de reuniones): quien está en la reunión no se marca ausente
   var reun = reunionesEnSesiones_(out.fecha, hs, datos_('Franjas'));
   out.reuniones = reun.map(function (r) { return { id: r.id, nombre: r.nombre, tipo: r.tipo, inicio: r.inicio, fin: r.fin, sinEstudiantes: r.sinEstudiantes }; });
-  if (reun.some(function (r) { return r.sinEstudiantes; })) {
+  var hayBloqueo = reun.some(function (r) { return r.sinEstudiantes; });
+  if (hayBloqueo && ignorarReunion) out.reunionIgnorada = true;   // el directivo eligió hacer la ronda aunque haya una actividad sin clases (la actividad puede ser solo de algunos grupos)
+  if (hayBloqueo && !ignorarReunion) {
     out.sinEstudiantes = true; out.filas = [];
     out.nota = 'Hay una reunión, actividad o jornada sin clases en este horario (' + reun.filter(function (r) { return r.sinEstudiantes; })[0].nombre + '): no se hace ronda de aula. La asistencia se registra en Reuniones.';
   } else {

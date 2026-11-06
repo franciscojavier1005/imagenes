@@ -416,6 +416,8 @@ ok(hojas.Novedades.v.length===novN+1,'si NO asistió a la reunión, la ausencia 
 g.RJ={tipo:'Jornada pedagógica',inicio:'07:00',fin:'13:30',sinEstudiantes:true,convocados:'TODOS',directivo:'P'}; const rj=run('crearReunion(RJ)');
 const rondaJ=run("consultarSesion('VIERNES',3,'bloque')");
 ok(rondaJ.sinEstudiantes===true&&rondaJ.filas.length===0&&/sin clases/.test(rondaJ.nota),'jornada pedagógica: la ronda de aula se suspende y avisa');
+const rondaJ2=run("consultarSesion('VIERNES',3,'bloque',null,true)");
+ok(!rondaJ2.sinEstudiantes&&rondaJ2.reunionIgnorada===true&&rondaJ2.filas.length>0,'el directivo puede hacer la ronda de todos modos aunque haya una actividad sin clases (los docentes aparecen)');
 const lj=run('listarReuniones({})'); ok(lj.reuniones.length===2&&lj.personas.length>40&&lj.tipos.some(t=>t.tipo==='Jornada pedagógica o de desarrollo institucional'),'listarReuniones: reuniones del día, tipos y personas (docentes + directivos)');
 g.RAT={id:rj.id,registros:H.Docentes.slice(1).map(r=>({persona:r[H.Docentes[0].indexOf('nombre_completo')],estado:'Asistió'})),directivo:'P'};
 const gj=run('guardarAsistenciaReunion(RAT)'); ok(gj.guardados>=50,'se registra la asistencia de todos de una vez ('+gj.guardados+')');

@@ -279,3 +279,6 @@ Novedad.html: tras guardar se limpia el formulario, `scrollTo(0,0)` y banner `#o
 
 ### 2026.11.03-a · Guardado de la ronda: causa de la lentitud corregida
 Causa: `guardarRonda` recorría todo Registro_Ronda/Novedades por cada marca llamando a `Utilities.formatDate` por fila. Ahora `ymd_` memoriza por instante y la búsqueda de duplicados usa `delDia` (filas de la fecha). Prueba con 12 024 filas: 72 002 → 121 llamadas (notas_ronda.test.js; ahí las hojas simuladas conservan `Date`). Cliente: el resumen sale al instante con «Guardando…» y se confirma con ✔. Pendiente si aún hiciera falta: leer solo las filas recientes y mover el respaldo fuera del guardado. Nota para pruebas en un entorno nuevo: `pip install openpyxl` y `python3 apps_script/pruebas/exportar_hojas.py` generan hojas.json.
+
+### 2026.11.06-a · Ronda independiente de reuniones «sin clases»
+`consultarSesion(dia, sesion, modo, fecha, ignorarReunion)` (Codigo.gs): con `ignorarReunion` no se vacía la lista y se devuelve `reunionIgnorada`. Consulta.html: botón «Hacer la ronda de todos modos» (localStorage `icet_ignora_reunion` = fecha) y enlace para volver a respetar. Prueba en notas_ronda.test.js.

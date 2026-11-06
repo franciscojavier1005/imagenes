@@ -82,7 +82,7 @@
   </div>
   <div class="card"><h2>Últimas novedades registradas</h2><div class="sub" style="margin-bottom:6px">Las más recientes, hechas en la ronda o con este formulario.</div><div id="ultimas"><div class="aviso">Cargando…</div></div></div>
   <div class="card"><h2>Registradas desde aquí (últimos 7 días y próximas)</h2><div id="recientes"><div class="aviso">Cargando…</div></div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.06-a</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.06-b</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -247,10 +247,10 @@ function avisoDiaPintar(r,soloUrgentes){
   });
   if(!soloUrgentes&&(r.ausentes||[]).length){
     var fm=function(f){ try{ return new Date(f+'T12:00:00').toLocaleDateString('es-CO',{weekday:'short',day:'numeric',month:'short'}); }catch(e){ return f; } };
-    var lin=r.ausentes.slice(0,8).map(function(a){
+    var lin=r.ausentes.map(function(a){
       var tx=a.jornada?'No asiste (toda la jornada)':(a.tipo==='Ausente temporal'?'Permiso por horas':(a.tipo==='Llegada tarde informada'?'Llega tarde':'Sale temprano'));
       return '<div style="margin-top:3px"><b>'+avEsc(a.corto||a.docente)+'</b> · '+avEsc(a.motivo||'sin motivo')+'<br><small>'+tx+(a.dias>1?' · del '+fm(a.desde)+' al '+fm(a.hasta)+' ('+a.dias+' días)':'')+(a.atiende?' · a cargo: '+avEsc(a.atiende):'')+(/^(Sí|No)$/.test(a.actividad||'')?' · actividad: '+avEsc(a.actividad):'')+'</small></div>';
-    }).join('')+(r.ausentes.length>8?'<div style="margin-top:3px"><small>y '+(r.ausentes.length-8)+' más</small></div>':'');
+    }).join('');
     items.push({c:'aus',h:'<span class="av-ic">🧑‍🏫</span><div><b>Docentes ausentes hoy ('+r.ausentes.length+')</b>'+lin+'</div>'});
   }
   if(!soloUrgentes){
@@ -269,11 +269,12 @@ function avisoDiaPintar(r,soloUrgentes){
   var v=document.createElement('div'); v.id='avisoDia'; v.setAttribute('role','status'); v.setAttribute('aria-live','polite');
   var seg=Math.min(parp?32:28,(parp?14:10)+items.length*4);   // 10 segundos y 4 más por cada aviso (14 si hay algo urgente; máximo 28 o 32)
   v.innerHTML='<div class="av-caja'+(parp?' av-parp':'')+'"><div class="av-tit"><span>'+(parp?'🔔 Recordatorio':'📌 Hoy en el colegio')+'</span><button type="button" class="av-x" aria-label="Cerrar">✕</button></div>'+
-    items.slice(0,6).map(function(i){return '<div class="av-it av-'+i.c+(i.p?' av-parpi':'')+'">'+i.h+'</div>';}).join('')+(items.length>6?'<div class="av-mas">y '+(items.length-6)+' más en Reuniones</div>':'')+
+    '<div class="av-lista">'+items.map(function(i){return '<div class="av-it av-'+i.c+(i.p?' av-parpi':'')+'">'+i.h+'</div>';}).join('')+'</div>'+
     '<div class="av-barra"><div class="av-prog" style="animation-duration:'+seg+'s"></div></div><div class="av-pie">Toque para cerrar · se cierra solo en unos segundos</div></div>';
   var st=document.createElement('style'); st.textContent=
    '#avisoDia{position:fixed;left:0;right:0;top:12px;z-index:9999;display:flex;justify-content:center;padding:0 10px;pointer-events:none}'+
-   '#avisoDia .av-caja{pointer-events:auto;background:#fff;border:2px solid #0f2a5c;border-radius:14px;box-shadow:0 8px 28px rgba(10,20,40,.45);max-width:460px;width:100%;padding:10px 12px;animation:avEntra .25s ease-out}'+
+   '#avisoDia .av-caja{pointer-events:auto;background:#fff;border:2px solid #0f2a5c;border-radius:14px;box-shadow:0 8px 28px rgba(10,20,40,.45);max-width:460px;width:100%;padding:10px 12px;animation:avEntra .25s ease-out;display:flex;flex-direction:column;max-height:calc(100vh - 24px)}'+
+   '#avisoDia .av-lista{overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1 1 auto;min-height:0;overscroll-behavior:contain;padding-right:2px}#avisoDia .av-lista::-webkit-scrollbar{width:7px}#avisoDia .av-lista::-webkit-scrollbar-thumb{background:#9fb3cf;border-radius:4px}'+
    '@keyframes avEntra{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}@keyframes avProg{from{width:100%}to{width:0}}'+
    '@keyframes avParp{0%,100%{background:#fff1e0;box-shadow:0 0 0 0 rgba(239,108,0,.0)}50%{background:#ffd54f;box-shadow:0 0 0 5px rgba(239,108,0,.55)}}'+
    '@keyframes avBorde{0%,100%{border-color:#0f2a5c}50%{border-color:#ef6c00}}'+
@@ -301,6 +302,8 @@ function avisoDiaPintar(r,soloUrgentes){
   if(parp){ try{ if(navigator.vibrate) navigator.vibrate([200,100,200]); }catch(e){} }
   var cierra=function(){ if(v.parentNode) v.parentNode.removeChild(v); }, timer=setTimeout(cierra,seg*1000);
   v.querySelector('.av-caja').addEventListener('click',function(){ clearTimeout(timer); cierra(); });
+  var pausa=function(){ clearTimeout(timer); var b=v.querySelector('.av-barra'); if(b) b.style.display='none'; var pie=v.querySelector('.av-pie'); if(pie) pie.textContent='Toque para cerrar'; };   // quien se desplaza para leer no debe perder el aviso
+  var lst=v.querySelector('.av-lista'); if(lst){ lst.addEventListener('scroll',pausa); lst.addEventListener('touchmove',pausa); lst.addEventListener('wheel',pausa); }
 }
 /* una fila del aviso: icono de prioridad, hora destacada (con color), nombre en negrita y un poco más grande, y el detalle */
 function avFila(ic,hora,etiqueta,cl,nombre,x){

@@ -175,6 +175,7 @@ function personasReunion_() {
   function agrega(n, rol) { n = String(n || '').trim(); if (n && !vistos[n]) { vistos[n] = 1; out.push({ nombre: n, rol: rol }); } }
   datos_('Docentes').forEach(function (d) { if (String(d.tiene_horario) === 'SI') agrega(d.nombre_completo, /PTAFI/i.test(String(d.nivel)) ? 'Tutora PTAFI' : 'Docente'); });
   datos_('Directivos').forEach(function (d) { agrega(d.nombre, 'Directivo'); });
+  String(parametro_('reunion_personas_extra', '')).split(/[;,]/).forEach(function (n) { agrega(n, 'Docente'); });   // opción para quien desarrolla: personas que siempre deben aparecer (p. ej. docentes sin horario)
   return out;
 }
 
@@ -447,7 +448,10 @@ function cargarReunion(p) {
   var a = asistenciaDe_(r.id), roles = {}, ausentes = {};   // ausentes: ya reportados en Novedades para el día de la reunión (toda la jornada)
   try { ausentesDelDia_(r.fecha).forEach(function (x) { if (x.jornada) ausentes[x.docente] = x; }); } catch (e) { /* sin novedades */ }
   personasReunion_().forEach(function (x) { roles[x.nombre] = x.rol; });
-  return { reunion: r, motivos: datos_('Motivos').map(function (m) { return m.motivo; }),
+  var yaEstan = {}; convocadosDe_(r).forEach(function (n) { yaEstan[n] = 1; });
+  var admin = false; try { admin = puedeAdministrar_(identidad_()); } catch (e) { /* sin identidad */ }
+  var otras = admin ? datos_('Docentes').map(function (d) { return String(d.nombre_completo || '').trim(); }).filter(function (n) { return n && !yaEstan[n]; }) : [];
+  return { reunion: r, puedeAdministrar: admin, otrasPersonas: otras, motivos: datos_('Motivos').map(function (m) { return m.motivo; }),
            personas: convocadosDe_(r).map(function (n) { var au = ausentes[n]; return { nombre: n, rol: roles[n] || 'Docente', registro: a[n] || null, ausente: au ? { motivo: au.motivo, dias: au.dias, desde: au.desde, hasta: au.hasta } : null }; }) };
 }
 
@@ -457,19 +461,52 @@ function guardarAsistenciaReunion(p) {
   var por = nombreRegistrador_(p);
   var r = reunionesDatos_().map(reunionDeFila_).filter(function (x) { return x.id === p.id; })[0];
   if (!r) throw new Error('No se encontró la reunión.');
-  var motivos = datos_('Motivos').map(function (m) { return m.motivo; }), convocados = convocadosDe_(r);
+  var motivos = datos_('Motivos').map(function (m) { return m.motivo; }), conv = convocadosDe_(r), convocados = {};
+  conv.forEach(function (n) { convocados[n] = 1; });
   var lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
-    var sh = hojaOCrea_('Asistencia_Reunion', COL_ASIST_REUNION), v = sh.getDataRange().getValues(), cuenta = { guardados: 0 };
+    var sh = hojaOCrea_('Asistencia_Reunion', COL_ASIST_REUNION), v = sh.getDataRange().getValues(), cuenta = { guardados: 0 }, ncol = COL_ASIST_REUNION.length;
+    var pos = {}; for (var i = 1; i < v.length; i++) if (v[i][0] === r.id) pos[v[i][2]] = i;   // solo las filas de esta reunión
+    var cambios = {}, nuevas = [], lo = -1, hi = -1;
     (p.registros || []).forEach(function (x) {
-      if (ESTADOS_REUNION.indexOf(x.estado) < 0 || convocados.indexOf(x.persona) < 0) return;
+      if (ESTADOS_REUNION.indexOf(x.estado) < 0 || !convocados[x.persona]) return;
       var motivo = x.estado === 'No asistió' ? (motivos.indexOf(x.motivo) >= 0 ? x.motivo : 'Sin justificación') : '';
-      var fila = [r.id, txtForzado_(r.fecha), x.persona, x.estado, motivo, String(x.observacion || '').slice(0, 200), por, ahoraTxt_()], idx = -1;
-      for (var i = 1; i < v.length; i++) if (v[i][0] === r.id && v[i][2] === x.persona) { idx = i; break; }
-      if (idx > 0) { sh.getRange(idx + 1, 1, 1, fila.length).setValues([fila]); v[idx] = fila; } else { sh.appendRow(fila); v.push(fila); }
+      var fila = [r.id, txtForzado_(r.fecha), x.persona, x.estado, motivo, String(x.observacion || '').slice(0, 200), por, ahoraTxt_()], idx = pos[x.persona];
+      if (idx > 0) { v[idx] = fila; lo = lo < 0 ? idx : Math.min(lo, idx); hi = Math.max(hi, idx); }
+      else { nuevas.push(fila); }
       cuenta.guardados++;
     });
+    /* escrituras por lotes (antes una por persona): un bloque con las filas ya existentes y otro con las nuevas */
+    if (lo > 0) sh.getRange(lo + 1, 1, hi - lo + 1, ncol).setValues(v.slice(lo, hi + 1).map(function (f) { return rellena_(f, ncol); }));
+    if (nuevas.length) sh.getRange(v.length + 1, 1, nuevas.length, ncol).setValues(nuevas);
     return cuenta;
+  } finally { lock.releaseLock(); }
+}
+
+/**
+ * Para quien administra: agrega a una reunión una persona que no aparece en su lista (p. ej. un docente sin horario o convocado por error de grupo).
+ * Si la reunión convoca a TODOS, pasa a una lista explícita con todos más esa persona. p = {id, persona}
+ */
+function agregarPersonaReunion(p) {
+  p = p || {};
+  var quien = identidad_();
+  if (!puedeAdministrar_(quien)) throw new Error('Solo quien administra puede agregar personas a una reunión.');
+  var persona = String(p.persona || '').trim().slice(0, 100);
+  if (persona.length < 3) throw new Error('Escriba o elija el nombre de la persona.');
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var sh = reunionesHoja_(), v = sh.getDataRange().getValues(), cab = v[0], c = {}, fila = -1;
+    cab.forEach(function (k, i) { c[k] = i; });
+    for (var i = 1; i < v.length; i++) if (String(v[i][c.id]) === String(p.id)) { fila = i; break; }
+    if (fila < 0) throw new Error('No se encontró la reunión.');
+    var actual = String(v[fila][c.convocados] || 'TODOS'), lista;
+    if (actual === 'TODOS') lista = personasReunion_().map(function (x) { return x.nombre; });
+    else lista = actual === 'NINGUNO' ? [] : actual.split(';').map(function (x) { return x.trim(); }).filter(String);
+    if (lista.indexOf(persona) >= 0) return { ok: true, yaEstaba: true };
+    lista.push(persona);
+    sh.getRange(fila + 1, c.convocados + 1).setValue(lista.join('; '));
+    bitacora_('Agregó persona a una reunión', persona + ' → ' + v[fila][c.nombre] + ' (' + fechaIso_(v[fila][c.fecha]) + ')');
+    return { ok: true, yaEstaba: false };
   } finally { lock.releaseLock(); }
 }
 

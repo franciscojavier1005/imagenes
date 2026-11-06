@@ -5,11 +5,16 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.06-a';
+var VERSION_SISTEMA = '2026.11.06-b';
 var FECHA_VERSION = '2026-11-06';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.06-b', fecha: '2026-11-06', cambios: [
+    'Ronda y reuniones, cada cosa por su lado: cuando una reunión o actividad sin clases coincide con el horario, la ronda ofrece dos botones, «▶ Hacer la ronda de las clases» y «📋 Registrar asistencia de la reunión/actividad» (según su naturaleza). La ronda ya no queda bloqueada.',
+    'Aviso del día («Hoy en el colegio»): ahora tiene barra de desplazamiento, muestra todas las reuniones y todos los docentes ausentes (sin límite) y deja de contar el tiempo mientras se desplaza.',
+    'Asistencia de reuniones y actividades: «○ N sin registrar · ver quiénes» abre la lista de los que faltan (con botón para marcarlos como asistió); al guardar aparece enseguida un resumen con barra de desplazamiento («Guardando…» y luego ✔) con «Cerrar y salir al menú»; el guardado escribe por lotes (más rápido). Se puede volver a abrir y corregir la asistencia.',
+    'Para quien administra: botón «➕ Persona que no aparece» en la asistencia, para agregar a la reunión a un docente que no sale en la lista (sin perder lo marcado). En Parametros, reunion_personas_extra (nombres separados por «;») agrega personas que deben aparecer siempre en las reuniones de TODOS.'] },
   { version: '2026.11.06-a', fecha: '2026-11-06', cambios: [
     'Ronda independiente de las reuniones: cuando una actividad «sin clases» (jornada, actividad institucional general, etc.) suspende la ronda, aparece el botón «▶ Hacer la ronda de todos modos» (para actividades que son solo de algunos grupos o docentes). Queda activado para esa fecha en ese navegador y la ronda muestra el enlace «volver a respetar la reunión». También se puede editar la reunión (Reuniones → Editar) y quitar «Sin clases».'] },
   { version: '2026.11.03-a', fecha: '2026-11-03', cambios: [

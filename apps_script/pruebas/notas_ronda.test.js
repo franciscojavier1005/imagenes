@@ -422,6 +422,10 @@ const lj=run('listarReuniones({})'); ok(lj.reuniones.length===2&&lj.personas.len
 g.RAT={id:rj.id,registros:H.Docentes.slice(1).map(r=>({persona:r[H.Docentes[0].indexOf('nombre_completo')],estado:'Asistió'})),directivo:'P'};
 const gj=run('guardarAsistenciaReunion(RAT)'); ok(gj.guardados>=50,'se registra la asistencia de todos de una vez ('+gj.guardados+')');
 run('guardarAsistenciaReunion(RAT)'); const filasAs=hojas.Asistencia_Reunion.v.filter(r=>r[0]===rj.id).length; ok(filasAs===gj.guardados,'volver a guardar reemplaza, no duplica');
+g.APR={id:rj.id,persona:'Docente Sin Horario Prueba'}; const ap=run('agregarPersonaReunion(APR)'); const crj=run("cargarReunion({id:'"+rj.id+"'})");
+ok(ap.ok&&!ap.yaEstaba&&crj.personas.some(x=>x.nombre==='Docente Sin Horario Prueba')&&crj.puedeAdministrar===true,'quien administra agrega a la reunión a una persona que no aparecía (y sigue convocado todo el personal)');
+ok(run('agregarPersonaReunion(APR)').yaEstaba===true,'agregar de nuevo a la misma persona no la duplica');
+g.RAX={id:rj.id,registros:[{persona:'Docente Sin Horario Prueba',estado:'Asistió'}],directivo:'P'}; ok(run('guardarAsistenciaReunion(RAX)').guardados===1,'se puede registrar la asistencia de la persona agregada');
 let eR=null; try{run("crearReunion({tipo:'Jornada pedagógica',inicio:'13:00',fin:'08:00',convocados:'TODOS'})")}catch(x){eR=x} ok(eR&&/hora/.test(eR.message),'rechaza horas inválidas');
 EMAIL='alguien@gmail.com'; eR=null; try{run("crearReunion({tipo:'Jornada pedagógica',inicio:'07:00',fin:'13:30',convocados:'TODOS'})")}catch(x){eR=x} ok(eR&&/Solo un directivo/.test(eR.message),'solo directivos registran reuniones'); EMAIL='dueno@gmail.com';
 // ---- incumplimientos con rigor

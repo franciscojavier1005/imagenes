@@ -282,3 +282,6 @@ Causa: `guardarRonda` recorría todo Registro_Ronda/Novedades por cada marca lla
 
 ### 2026.11.06-a · Ronda independiente de reuniones «sin clases»
 `consultarSesion(dia, sesion, modo, fecha, ignorarReunion)` (Codigo.gs): con `ignorarReunion` no se vacía la lista y se devuelve `reunionIgnorada`. Consulta.html: botón «Hacer la ronda de todos modos» (localStorage `icet_ignora_reunion` = fecha) y enlace para volver a respetar. Prueba en notas_ronda.test.js.
+
+### 2026.11.06-b · Ronda y reuniones independientes; asistencia de reuniones como la ronda
+Consulta.html: cuando una reunión «sin clases» coincide, `opcionesReunion()` ofrece «Hacer la ronda de las clases» / «Registrar asistencia de la reunión|actividad» (`naturaleza()`). aviso_dia.html (sincronizado a las pantallas): `.av-lista` con scroll, sin tope de items/ausentes, pausa el cierre al desplazarse. Reunion.html: `verFaltan()`, `resumenAsist()` (resumen inmediato «Guardando…»→✔, scroll, «Cerrar y salir al menú»), `agregarPersona()` (solo admin). Reuniones.gs: `guardarAsistenciaReunion` por lotes, `agregarPersonaReunion` (admin; convierte TODOS en lista explícita), `cargarReunion` devuelve `puedeAdministrar` y `otrasPersonas`; Parametros `reunion_personas_extra`. Posible causa de «no veo a algunos docentes»: Docentes con `tiene_horario` distinto de SI no entran en «TODOS».

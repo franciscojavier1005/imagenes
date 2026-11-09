@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.09-e';
+var VERSION_SISTEMA = '2026.11.09-f';
 var FECHA_VERSION = '2026-11-09';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.09-f', fecha: '2026-11-09', cambios: [
+    'Ronda, responsable: por defecto es SIEMPRE quien abrió la sesión (aparece primero en la lista, con «(usted)»); ya no queda recordado el nombre de otra persona ni se toma el primero de la lista. Si no se puede identificar a quien abrió la sesión, la lista pide elegir. Se puede cambiar eligiendo otro en esa pantalla.',
+    'Ronda, navegación: el recuadro del bloque (o de la sesión, según el modo) ahora es una lista desplegable para ir directo a otro bloque o sesión, además de las flechas ◀ ▶.'] },
   { version: '2026.11.09-e', fecha: '2026-11-09', cambios: [
     'Orientación: Johana (jornada 7:30 a 14:30; sesiones de la ronda hasta las 13:30) y Ángela (8:30 a 13:30) figuran solo dentro de su jornada, sin leyendas adicionales. Se quitó el texto «horario adicional voluntario» de la versión 2026.11.09-d.'] },
   { version: '2026.11.09-c', fecha: '2026-11-09', cambios: [

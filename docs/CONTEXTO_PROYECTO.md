@@ -294,3 +294,6 @@ Nota en la tarjeta del último periodo de preescolar: siguen hasta las 12:00 des
 
 ### 2026.11.09-e · Orientación sin leyenda adicional
 Johana: jornada 7:30–14:30 (sesiones 2 a 8, hasta 13:30); Ángela: 8:30–13:30 (sesiones 3 a 8). Solo figuran dentro de la jornada, sin texto de horario adicional (se revirtió 2026.11.09-d).
+
+### 2026.11.09-f · Responsable por defecto = quien abrió la sesión; lista desplegable de bloque/sesión
+Consulta.html: `pintarQuien()` (sin recordar nombres ni tomar el primero de la lista; quien abrió la sesión primero con «(usted)»), `pintaSesionSel()`/`irSesion()` (select en lugar del recuadro). Pendiente de confirmación del usuario: hoja de turnos por día y bloque (Rector/Harold/Verónica/Francisco) con aviso cuando alguien reemplaza.

@@ -227,6 +227,25 @@ function htmlReunionesInforme_(desde, hasta) {
     }).join('') + '</div>';
 }
 
+/** {id_reunion: {persona: true}} con una sola lectura de la hoja de asistencia. */
+function asistenciaPorReunion_() {
+  var m = {};
+  datosOCrea_('Asistencia_Reunion', COL_ASIST_REUNION).forEach(function (a) { (m[a.id_reunion] = m[a.id_reunion] || {})[a.persona] = true; });
+  return m;
+}
+/** Página de reuniones anteriores o próximas para «Últimas reuniones» / «Próximas reuniones» (desplazamiento infinito). p = {tipo:'ultimas'|'proximas', offset, limite} */
+function historialReuniones(p) {
+  exigirDirectivo_(); p = p || {};
+  var off = Math.max(0, Number(p.offset) || 0), lim = Math.min(40, Math.max(5, Number(p.limite) || 20)), hoy = ymd_(new Date()), asist = asistenciaPorReunion_();
+  var todas = reunionesDatos_().map(reunionDeFila_).filter(function (r) { return r.fecha; }), ult = p.tipo !== 'proximas';
+  var l = todas.filter(function (r) { return ult ? r.fecha < hoy : r.fecha >= hoy; }).sort(function (a, b) {
+    var d = a.fecha === b.fecha ? (a.inicio < b.inicio ? -1 : 1) : (a.fecha < b.fecha ? -1 : 1); return ult ? -d : d; });
+  var items = l.slice(off, off + lim).map(function (r) {
+    var a = asist[r.id] || {}, conv = convocadosDe_(r), reg = 0; conv.forEach(function (n) { if (a[n]) reg++; });
+    return Object.assign({}, r, { convocadosN: conv.length, registrados: reg });
+  });
+  return { items: items, hayMas: l.length > off + lim, total: l.length };
+}
 /** Reuniones de una fecha (por defecto hoy), con los tipos y las personas convocables. p = {fecha?} */
 function listarReuniones(p) {
   exigirDirectivo_();
@@ -239,7 +258,8 @@ function listarReuniones(p) {
   });
   // próximas (hoy en adelante, la más cercana primero) y últimas (días anteriores, la más reciente primero)
   var hoy = ymd_(new Date()), todas = reunionesDatos_().map(reunionDeFila_).filter(function (r) { return r.fecha; });
-  function resumida(r) { var a = asistenciaDe_(r.id), conv = convocadosDe_(r), reg = 0; conv.forEach(function (n) { if (a[n]) reg++; }); return Object.assign({}, r, { convocadosN: conv.length, registrados: reg }); }
+  var asist = asistenciaPorReunion_();   // una sola lectura de Asistencia_Reunion (antes una por reunión)
+  function resumida(r) { var a = asist[r.id] || {}, conv = convocadosDe_(r), reg = 0; conv.forEach(function (n) { if (a[n]) reg++; }); return Object.assign({}, r, { convocadosN: conv.length, registrados: reg }); }
   var proximas = todas.filter(function (r) { return r.fecha >= hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? -1 : 1) : (a.fecha < b.fecha ? -1 : 1); }).slice(0, 12).map(resumida);
   var ultimas = todas.filter(function (r) { return r.fecha < hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? 1 : -1) : (a.fecha < b.fecha ? 1 : -1); }).slice(0, 10).map(resumida);
   return { sesionDe: (function () { try { var i = identidad_(); return i.rol === 'directivo' ? (i.nombre || '') : ''; } catch (e) { return ''; } })(), puedeAnular: puedeAdministrar_(identidad_()), duplicadas: duplicadasDe_().length, catalogo: catalogoConvocados_(), convocaTipos: CONVOCA_TIPOS, lugares: lugaresReunion_(), finTipos: FIN_TIPOS, jornadaFin: finJornada_(), fecha: fecha, hoy: hoy, proximas: proximas, ultimas: ultimas, reuniones: reuniones, tipos: TIPOS_REUNION, sabadoTipos: TIPOS_SABADO, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };

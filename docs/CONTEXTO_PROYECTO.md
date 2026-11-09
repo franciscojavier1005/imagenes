@@ -306,3 +306,6 @@ Reunion.html/Novedad.html muestran «Registra: <sesionDe>» (`listarReuniones` y
 
 ### 2026.11.09-i · Cartilla de uso en PDF
 `scripts/manual/cartilla.html` (fuente) → `node scripts/generar_manual_pdf.js` → `docs/Manual_ICET_Asistencia_Docente.pdf` (dos pasadas para los números de página; requiere Playwright y pdftotext). **Regenerar la cartilla cuando cambie el uso de una pantalla** (junto con Ayuda.html). Ayuda.html suma el capítulo 17 (administración). `archivar_versiones.py` incluye el PDF en la carpeta «App Asistencia».
+
+### 2026.11.10-a · Escudo como menú, botón Menú en el panel, listas paginadas
+aviso_dia.html (fuente única): el escudo (`header img, .marca img`) llama a `irAlMenu()`; Dashboard: «« Menú» siempre visible. `historialNovedades` y `historialReuniones` (API) devuelven páginas; `ultimasNovedades_` lee solo el final de la hoja; `asistenciaPorReunion_` lee Asistencia_Reunion una vez. Novedad.html (`#ultimas`, `masUlt`) y Reunion.html (`iniciaMasReu`, `masReunion`) con scroll infinito.

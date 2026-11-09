@@ -5,11 +5,15 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.09-i';
-var FECHA_VERSION = '2026-11-09';
+var VERSION_SISTEMA = '2026.11.10-a';
+var FECHA_VERSION = '2026-11-10';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.10-a', fecha: '2026-11-10', cambios: [
+    'El escudo del colegio, en el encabezado de cualquier pantalla (ronda, novedades, reuniones, horarios y panel), lleva al menú principal. El panel además muestra siempre el botón «« Menú» (antes solo aparecía si cargaba el enlace).',
+    'Novedades: la lista «Últimas novedades registradas» ahora tiene barra de desplazamiento y carga las anteriores por páginas (25 cada vez, al llegar al final o con «⬇ Ver anteriores») hasta la primera registrada.',
+    'Reuniones: «Próximas reuniones» y «Últimas reuniones» también tienen barra de desplazamiento y cargan más por páginas (15 cada vez). Para no hacer lenta la aplicación solo se leen las filas necesarias, y la asistencia de reuniones se lee una sola vez para toda la lista.'] },
   { version: '2026.11.09-i', fecha: '2026-11-09', cambios: [
     'Manual: nueva cartilla de uso en PDF (docs/Manual_ICET_Asistencia_Docente.pdf, 15 páginas: ruta rápida por rol, la ronda en 7 pasos con dibujos de la pantalla, qué marcar en cada caso, novedades, reuniones, panel, problemas frecuentes y capítulo para quien administra). El manual dentro de la aplicación (Ayuda) suma el capítulo 17 «Para quien administra».'] },
   { version: '2026.11.09-h', fecha: '2026-11-09', cambios: [

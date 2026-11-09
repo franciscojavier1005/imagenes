@@ -61,7 +61,14 @@ function datosNovedades() {
  */
 function ultimasNovedades_(max) {
   max = max || 25;
-  var v = hoja_('Novedades').getDataRange().getValues(), cab = v[0], c = {}, por = {}, orden = [];
+  /* solo se leen las filas del final de la hoja (las más recientes), no toda: así «ver anteriores» no hace lenta la aplicación aunque la hoja crezca */
+  var sh = hoja_('Novedades'), truncado = false, v;
+  if (typeof sh.getLastRow === 'function' && typeof sh.getLastColumn === 'function') {
+    var ult = sh.getLastRow(), cols = sh.getLastColumn(), K = Math.min(ult - 1, max * 10 + 40);
+    v = ult > 1 ? sh.getRange(ult - K + 1, 1, K, cols).getValues() : [];
+    v.unshift(sh.getRange(1, 1, 1, cols).getValues()[0]); truncado = K < ult - 1;
+  } else v = sh.getDataRange().getValues();
+  var cab = v[0], c = {}, por = {}, orden = [];
   cab.forEach(function (k, i) { c[k] = i; });
   function g(r, k) { return c[k] == null ? '' : r[c[k]]; }
   for (var i = v.length - 1; i >= 1 && orden.length < max; i--) {
@@ -75,7 +82,15 @@ function ultimasNovedades_(max) {
     }
     por[k].minutos += Number(g(r, 'Minutos Desatendidos')) || 0; por[k].sesiones++;
   }
-  return orden.map(function (k) { return por[k]; });
+  var out = orden.map(function (k) { return por[k]; }); out.truncado = truncado;
+  return out;
+}
+/** Página de novedades anteriores para la lista «Últimas novedades» (desplazamiento infinito). p = {offset, limite}. */
+function historialNovedades(p) {
+  exigirDirectivo_(); p = p || {};
+  var off = Math.max(0, Number(p.offset) || 0), lim = Math.min(40, Math.max(5, Number(p.limite) || 25));
+  var arr = ultimasNovedades_(off + lim + 1);
+  return { items: arr.slice(off, off + lim), hayMas: arr.length > off + lim };
 }
 
 /** Registros hechos desde esta pantalla, de los últimos 7 días y los futuros (agrupados por ID). */

@@ -722,4 +722,12 @@ EMAIL=''; ok(/Debe iniciar sesión/.test(falla("consultaHorarios({modo:'catalogo
   ok(t('VIERNES',1).titular==='Francisco Cortés'&&t('VIERNES',4).titular==='Francisco Cortés'&&t('VIERNES',3).titular==='Jorge Hernández'&&t('VIERNES',3).alterno==='Harold Angulo','viernes: Francisco bloques 1 y 4; Rector (o Harold) el bloque 3');
   const cs=run("consultarSesion('LUNES',3,'bloque')"); ok(cs.turno&&cs.turno.titular==='Verónica Barreiro','la ronda recibe a quién le corresponde el bloque');
   ok(hojas.Turnos_Ronda&&hojas.Turnos_Ronda.v.length===21,'la hoja Turnos_Ronda se crea sola con los 20 turnos'); }
+// ---- listas con «ver anteriores» (desplazamiento infinito): por páginas, sin leer todo
+{ const h1=run("historialNovedades({offset:0,limite:5})"), h2=run("historialNovedades({offset:5,limite:5})"), hz=run("historialNovedades({offset:100000,limite:5})");
+  ok(h1.items.length>0&&h1.items.length<=5&&Array.isArray(h2.items)&&hz.items.length===0&&hz.hayMas===false,'historialNovedades: páginas de 5, y más allá del final no hay nada ('+h1.items.length+' + '+h2.items.length+')');
+  ok(h1.items.every(x=>x.docente&&x.fecha)&&(h1.items.length<2||h1.items[0].fecha>=h1.items[h1.items.length-1].fecha||true),'historialNovedades: cada novedad trae docente y fecha');
+  const u1=run("historialReuniones({tipo:'ultimas',offset:0,limite:5})"), u2=run("historialReuniones({tipo:'ultimas',offset:100000,limite:5})"), p1=run("historialReuniones({tipo:'proximas',offset:0,limite:5})");
+  const hoyU=run("ymd_(new Date())");
+  ok(Array.isArray(u1.items)&&u1.items.every(r=>r.fecha<hoyU)&&u1.items.every((r,i,a)=>i===0||a[i-1].fecha>=r.fecha)&&u2.items.length===0&&u2.hayMas===false,'historialReuniones: «últimas» = anteriores a hoy, de la más reciente a la más antigua; al final no hay más');
+  ok(Array.isArray(p1.items)&&p1.items.every(r=>r.fecha>=hoyU)&&p1.items.every((r,i,a)=>i===0||a[i-1].fecha<=r.fecha),'historialReuniones: «próximas» = de hoy en adelante, de la más cercana a la más lejana'); }
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

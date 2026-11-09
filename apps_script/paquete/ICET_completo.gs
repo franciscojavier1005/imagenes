@@ -2544,6 +2544,25 @@ function htmlReunionesInforme_(desde, hasta) {
     }).join('') + '</div>';
 }
 
+/** {id_reunion: {persona: true}} con una sola lectura de la hoja de asistencia. */
+function asistenciaPorReunion_() {
+  var m = {};
+  datosOCrea_('Asistencia_Reunion', COL_ASIST_REUNION).forEach(function (a) { (m[a.id_reunion] = m[a.id_reunion] || {})[a.persona] = true; });
+  return m;
+}
+/** Página de reuniones anteriores o próximas para «Últimas reuniones» / «Próximas reuniones» (desplazamiento infinito). p = {tipo:'ultimas'|'proximas', offset, limite} */
+function historialReuniones(p) {
+  exigirDirectivo_(); p = p || {};
+  var off = Math.max(0, Number(p.offset) || 0), lim = Math.min(40, Math.max(5, Number(p.limite) || 20)), hoy = ymd_(new Date()), asist = asistenciaPorReunion_();
+  var todas = reunionesDatos_().map(reunionDeFila_).filter(function (r) { return r.fecha; }), ult = p.tipo !== 'proximas';
+  var l = todas.filter(function (r) { return ult ? r.fecha < hoy : r.fecha >= hoy; }).sort(function (a, b) {
+    var d = a.fecha === b.fecha ? (a.inicio < b.inicio ? -1 : 1) : (a.fecha < b.fecha ? -1 : 1); return ult ? -d : d; });
+  var items = l.slice(off, off + lim).map(function (r) {
+    var a = asist[r.id] || {}, conv = convocadosDe_(r), reg = 0; conv.forEach(function (n) { if (a[n]) reg++; });
+    return Object.assign({}, r, { convocadosN: conv.length, registrados: reg });
+  });
+  return { items: items, hayMas: l.length > off + lim, total: l.length };
+}
 /** Reuniones de una fecha (por defecto hoy), con los tipos y las personas convocables. p = {fecha?} */
 function listarReuniones(p) {
   exigirDirectivo_();
@@ -2556,7 +2575,8 @@ function listarReuniones(p) {
   });
   // próximas (hoy en adelante, la más cercana primero) y últimas (días anteriores, la más reciente primero)
   var hoy = ymd_(new Date()), todas = reunionesDatos_().map(reunionDeFila_).filter(function (r) { return r.fecha; });
-  function resumida(r) { var a = asistenciaDe_(r.id), conv = convocadosDe_(r), reg = 0; conv.forEach(function (n) { if (a[n]) reg++; }); return Object.assign({}, r, { convocadosN: conv.length, registrados: reg }); }
+  var asist = asistenciaPorReunion_();   // una sola lectura de Asistencia_Reunion (antes una por reunión)
+  function resumida(r) { var a = asist[r.id] || {}, conv = convocadosDe_(r), reg = 0; conv.forEach(function (n) { if (a[n]) reg++; }); return Object.assign({}, r, { convocadosN: conv.length, registrados: reg }); }
   var proximas = todas.filter(function (r) { return r.fecha >= hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? -1 : 1) : (a.fecha < b.fecha ? -1 : 1); }).slice(0, 12).map(resumida);
   var ultimas = todas.filter(function (r) { return r.fecha < hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? 1 : -1) : (a.fecha < b.fecha ? 1 : -1); }).slice(0, 10).map(resumida);
   return { sesionDe: (function () { try { var i = identidad_(); return i.rol === 'directivo' ? (i.nombre || '') : ''; } catch (e) { return ''; } })(), puedeAnular: puedeAdministrar_(identidad_()), duplicadas: duplicadasDe_().length, catalogo: catalogoConvocados_(), convocaTipos: CONVOCA_TIPOS, lugares: lugaresReunion_(), finTipos: FIN_TIPOS, jornadaFin: finJornada_(), fecha: fecha, hoy: hoy, proximas: proximas, ultimas: ultimas, reuniones: reuniones, tipos: TIPOS_REUNION, sabadoTipos: TIPOS_SABADO, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };
@@ -3321,7 +3341,14 @@ function datosNovedades() {
  */
 function ultimasNovedades_(max) {
   max = max || 25;
-  var v = hoja_('Novedades').getDataRange().getValues(), cab = v[0], c = {}, por = {}, orden = [];
+  /* solo se leen las filas del final de la hoja (las más recientes), no toda: así «ver anteriores» no hace lenta la aplicación aunque la hoja crezca */
+  var sh = hoja_('Novedades'), truncado = false, v;
+  if (typeof sh.getLastRow === 'function' && typeof sh.getLastColumn === 'function') {
+    var ult = sh.getLastRow(), cols = sh.getLastColumn(), K = Math.min(ult - 1, max * 10 + 40);
+    v = ult > 1 ? sh.getRange(ult - K + 1, 1, K, cols).getValues() : [];
+    v.unshift(sh.getRange(1, 1, 1, cols).getValues()[0]); truncado = K < ult - 1;
+  } else v = sh.getDataRange().getValues();
+  var cab = v[0], c = {}, por = {}, orden = [];
   cab.forEach(function (k, i) { c[k] = i; });
   function g(r, k) { return c[k] == null ? '' : r[c[k]]; }
   for (var i = v.length - 1; i >= 1 && orden.length < max; i--) {
@@ -3335,7 +3362,15 @@ function ultimasNovedades_(max) {
     }
     por[k].minutos += Number(g(r, 'Minutos Desatendidos')) || 0; por[k].sesiones++;
   }
-  return orden.map(function (k) { return por[k]; });
+  var out = orden.map(function (k) { return por[k]; }); out.truncado = truncado;
+  return out;
+}
+/** Página de novedades anteriores para la lista «Últimas novedades» (desplazamiento infinito). p = {offset, limite}. */
+function historialNovedades(p) {
+  exigirDirectivo_(); p = p || {};
+  var off = Math.max(0, Number(p.offset) || 0), lim = Math.min(40, Math.max(5, Number(p.limite) || 25));
+  var arr = ultimasNovedades_(off + lim + 1);
+  return { items: arr.slice(off, off + lim), hayMas: arr.length > off + lim };
 }
 
 /** Registros hechos desde esta pantalla, de los últimos 7 días y los futuros (agrupados por ID). */
@@ -3796,11 +3831,15 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.09-i';
-var FECHA_VERSION = '2026-11-09';
+var VERSION_SISTEMA = '2026.11.10-a';
+var FECHA_VERSION = '2026-11-10';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.10-a', fecha: '2026-11-10', cambios: [
+    'El escudo del colegio, en el encabezado de cualquier pantalla (ronda, novedades, reuniones, horarios y panel), lleva al menú principal. El panel además muestra siempre el botón «« Menú» (antes solo aparecía si cargaba el enlace).',
+    'Novedades: la lista «Últimas novedades registradas» ahora tiene barra de desplazamiento y carga las anteriores por páginas (25 cada vez, al llegar al final o con «⬇ Ver anteriores») hasta la primera registrada.',
+    'Reuniones: «Próximas reuniones» y «Últimas reuniones» también tienen barra de desplazamiento y cargan más por páginas (15 cada vez). Para no hacer lenta la aplicación solo se leen las filas necesarias, y la asistencia de reuniones se lee una sola vez para toda la lista.'] },
   { version: '2026.11.09-i', fecha: '2026-11-09', cambios: [
     'Manual: nueva cartilla de uso en PDF (docs/Manual_ICET_Asistencia_Docente.pdf, 15 páginas: ruta rápida por rol, la ronda en 7 pasos con dibujos de la pantalla, qué marcar en cada caso, novedades, reuniones, panel, problemas frecuentes y capítulo para quien administra). El manual dentro de la aplicación (Ayuda) suma el capítulo 17 «Para quien administra».'] },
   { version: '2026.11.09-h', fecha: '2026-11-09', cambios: [
@@ -4545,6 +4584,8 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   cargarReunion: ['directivo'],
   guardarAsistenciaReunion: ['directivo'],
   agregarPersonaReunion: ['directivo'],
+  historialReuniones: ['directivo'],
+  historialNovedades: ['directivo'],
   cambiarClave: ['directivo'],
   listarIncumplimientos: ['directivo'],
   actualizarSeguimiento: ['directivo'],
@@ -4589,7 +4630,7 @@ function apiFunciones_() {
     enviarInformeAMi: enviarInformeAMi,
     levantarMarcasEstudiante: levantarMarcasEstudiante,
     informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
-    editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas
+    editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas
   };
 }
 

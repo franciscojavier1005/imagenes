@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.09-i</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.10-a</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -217,6 +217,7 @@
 <li>Para aclaraciones o descargos, comuníquese con coordinación.</li></ul></section>
 
 <section id="faq"><h2>16. Preguntas frecuentes</h2>
+<details><summary>¿Cómo vuelvo al menú principal? ¿Cómo veo novedades o reuniones anteriores?</summary><p>Toque el <b>escudo del colegio</b> (arriba a la izquierda) en cualquier pantalla, o «« Menú». En Novedades y en Reuniones, las listas «Últimas…» tienen barra de desplazamiento: baje hasta el final (o toque «⬇ Ver anteriores») y se cargan las siguientes, hasta las primeras registradas.</p></details>
 <details><summary>Creo que otra persona usa mi usuario. ¿Qué hago?</summary><p>Cambie su clave desde la aplicación (se cierran las demás sesiones abiertas con su usuario). Quien administra puede ver cuántas sesiones tiene cada directivo en el menú del libro «Ver sesiones abiertas» y, si hace falta, usar «Restablecer la clave de un directivo» (cierra todas sus sesiones y da una clave temporal). Cada directivo debe entrar con su propia clave: lo que se registra queda a nombre de quien abrió la sesión.</p></details>
 <details><summary>¿Cómo voy a otro bloque o sesión? ¿Quién queda como responsable de la ronda?</summary><p>Toque el recuadro del bloque (o de la sesión) en el encabezado: se abre una lista para elegir directamente; las flechas ◀ ▶ siguen sirviendo. En «Ronda a cargo de» aparece por defecto quien abrió la sesión (con «(usted)»); si presta su teléfono, el otro directivo debe elegir su nombre.</p></details>
 <details><summary>¿Dónde marco a las profesoras de preescolar y a las orientadoras?</summary><p>Preescolar entra a las 7:30: sus periodos aparecen en el <b>bloque donde empiezan</b> (7:30 en el bloque 1; 8:30 y 9:30 en el bloque 2; 10:30 en el bloque 3). Las orientadoras aparecen según su horario (Johana desde el bloque 1, Ángela desde el bloque 2). Con «Ahora», en el descanso sigue el bloque que terminó con la etiqueta «☕ DESCANSO»; si necesita un bloque anterior, use ◀.</p></details>
@@ -245,7 +246,7 @@
 <p><b>ronda_horas_margen</b>: horas después de la jornada en que los demás directivos aún pueden registrar la ronda; <b>reunion_desde</b> / <b>reunion_hasta</b>: horario normal de reuniones; <b>reunion_personas_extra</b>: personas que siempre deben aparecer en las reuniones de todo el personal.</p></section>
 
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.09-i</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.10-a</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

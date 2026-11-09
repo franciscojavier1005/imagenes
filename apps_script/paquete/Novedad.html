@@ -49,6 +49,7 @@
   .tp{display:grid;gap:6px;margin-top:6px} .tp button{text-align:left;border:2px solid var(--borde);background:#fff;border-radius:10px;padding:10px;font-weight:700;font-size:14px;color:#2b3a4f;min-height:46px}
   .tp button.on{background:var(--azul);border-color:var(--azul);color:#fff}
   .reg{padding:8px 4px;border-bottom:1px solid #eef1f5;font-size:13.5px} .reg small{display:block;color:#567}
+  .lista-scroll{max-height:460px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:4px}.lista-scroll::-webkit-scrollbar{width:8px}.lista-scroll::-webkit-scrollbar-thumb{background:#9fb3cf;border-radius:4px}
   .ok{color:#1b5e20;font-weight:600} .mal{color:#a31515;font-weight:600}
   .link{background:none;border:0;color:#a31515;text-decoration:underline;font-size:13px;padding:4px}
   @media print{header,.tabs,.ctrl,.dias,.btn,.autoria{display:none!important} body{background:#fff} .card{box-shadow:none;border:0} table.hor{min-width:0}}
@@ -81,9 +82,9 @@
     <button class="btn prim" style="width:100%;margin-top:12px" id="btnGuardar" onclick="guardar()">Guardar novedad</button>
     <div id="msg" class="sub" style="margin-top:8px"></div>
   </div>
-  <div class="card"><h2>Últimas novedades registradas</h2><div class="sub" style="margin-bottom:6px">Las más recientes, hechas en la ronda o con este formulario.</div><div id="ultimas"><div class="aviso">Cargando…</div></div></div>
+  <div class="card"><h2>Últimas novedades registradas</h2><div class="sub" style="margin-bottom:6px">Las más recientes, hechas en la ronda o con este formulario. Desplácese hacia abajo para ver las anteriores.</div><div id="ultimas" class="lista-scroll"><div class="aviso">Cargando…</div></div></div>
   <div class="card"><h2>Registradas desde aquí (últimos 7 días y próximas)</h2><div id="recientes"><div class="aviso">Cargando…</div></div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.09-i</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.10-a</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -165,12 +166,26 @@ function guardar(){
   }).withFailureHandler(function(e){ el('btnGuardar').disabled=false; msg(String(e&&e.message||e).replace(/^Error: /,'')); }).registrarNovedad(p);
 }
 function fmt(f){ var a=f.split('-'); return a[2]+'/'+a[1]+'/'+a[0]; }
-function pintaUltimas(){
-  var u=D.ultimas||[];
-  el('ultimas').innerHTML=u.length?u.map(function(r){
+var ultCargando=false, ultHayMas=true;
+/* una novedad de la lista «Últimas novedades registradas» */
+function htmlUlt(r){
+
     var inc=/incumplimiento/i.test(r.tipo), cl=r.fecha===D.hoy?'nv-hoy':(r.fecha>D.hoy?'nv-prox':'nv-pas'), ins=r.fecha===D.hoy?'<span class="pri pri-alta">🔥 HOY</span>':(r.fecha>D.hoy?'<span class="pri pri-norm">📅 Próxima</span>':'<span class="pri pri-pas">Pasada</span>');
-    return '<div class="reg '+cl+'">'+ins+(inc?' <span class="pri pri-inc">⚠ Incumplimiento</span>':'')+(r.atiende?' <span class="pri pri-rep">👥 grupo cubierto</span>':'')+'<br><b>'+esc(r.docente)+'</b> · '+esc(r.tipo)+(r.atiende?' · '+esc(r.atiende):'')+'<small>'+esc(r.motivo||'Sin motivo')+' · '+fmt(r.fecha)+(r.minutos?' · '+r.minutos+' min':'')+(r.sesiones>1?' · '+r.sesiones+' sesiones':'')+' · '+esc(r.origen)+' · lo registró '+esc(r.por||'—')+(r.registrado?' ('+esc(r.registrado)+')':'')+'</small></div>';}).join(''):'<div class="aviso">Todavía no hay novedades registradas.</div>';
+    return '<div class="reg '+cl+'">'+ins+(inc?' <span class="pri pri-inc">⚠ Incumplimiento</span>':'')+(r.atiende?' <span class="pri pri-rep">👥 grupo cubierto</span>':'')+'<br><b>'+esc(r.docente)+'</b> · '+esc(r.tipo)+(r.atiende?' · '+esc(r.atiende):'')+'<small>'+esc(r.motivo||'Sin motivo')+' · '+fmt(r.fecha)+(r.minutos?' · '+r.minutos+' min':'')+(r.sesiones>1?' · '+r.sesiones+' sesiones':'')+' · '+esc(r.origen)+' · lo registró '+esc(r.por||'—')+(r.registrado?' ('+esc(r.registrado)+')':'')+'</small></div>';}
+function pintaUltimas(){
+  var u=D.ultimas||[]; ultHayMas=u.length>=25;
+  el('ultimas').innerHTML=u.length?u.map(htmlUlt).join('')+'<div id="ultMas" class="aviso"></div>':'<div class="aviso">Todavía no hay novedades registradas.</div>';
+  pintaUltMas();
 }
+function pintaUltMas(){ var m=el('ultMas'); if(!m) return; m.innerHTML=ultHayMas?'<button class="link" onclick="masUlt()">⬇ Ver anteriores</button> <small>(también se cargan al llegar al final de la lista)</small>':'<small>Esas son todas las novedades registradas.</small>'; }
+function masUlt(){
+  if(ultCargando||!ultHayMas) return; ultCargando=true; var m=el('ultMas'); if(m) m.textContent='Cargando…';
+  srv().withSuccessHandler(function(r){
+    ultCargando=false; var mm=el('ultMas'); if(mm) mm.remove(); D.ultimas=(D.ultimas||[]).concat(r.items); ultHayMas=!!r.hayMas;
+    el('ultimas').insertAdjacentHTML('beforeend',r.items.map(htmlUlt).join('')+'<div id="ultMas" class="aviso"></div>'); pintaUltMas();
+  }).withFailureHandler(function(e){ ultCargando=false; var mm=el('ultMas'); if(mm) mm.innerHTML='<span style="color:#a31515">No se pudo cargar. </span><button class="link" onclick="masUlt()">Reintentar</button>'; }).historialNovedades({offset:(D.ultimas||[]).length,limite:25});
+}
+try{ el('ultimas').addEventListener('scroll',function(){ if(this.scrollTop+this.clientHeight>=this.scrollHeight-60) masUlt(); }); }catch(e){}
 function pintaRecientes(){
   el('recientes').innerHTML=D.registros.length?D.registros.map(function(r){
     return '<div class="reg"><b>'+esc(r.docente)+'</b> · '+esc(r.tipo)+'<small>'+esc(r.motivo)+' · '+(r.desde===r.hasta?fmt(r.desde):fmt(r.desde)+' al '+fmt(r.hasta)+' ('+r.dias+' días)')+(r.descripcion?' · '+esc(r.descripcion):'')+' · lo registró '+esc(r.por)+'</small>'+
@@ -322,6 +337,16 @@ function avExtra(x){
 function avEsc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 if(!window.AVISO_MANUAL) setTimeout(function(){ avisoDia(false); },1200);
 setInterval(avisoVigilar,180000);   // recordatorios durante la jornada
+/* El escudo del colegio lleva al menú principal desde cualquier pantalla (en el menú mismo no hace nada). */
+(function(){
+  try{
+    if(typeof irAlMenu!=='function') return;
+    [].slice.call(document.querySelectorAll('header img, .marca img')).forEach(function(i){
+      if(i.getAttribute('data-menu')) return; i.setAttribute('data-menu','1'); i.style.cursor='pointer'; i.setAttribute('title','Ir al menú principal'); i.setAttribute('role','link'); i.setAttribute('tabindex','0');
+      var ir=function(){ irAlMenu(); }; i.addEventListener('click',ir); i.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); ir(); } });
+    });
+  }catch(e){}
+})();
 </script>
 <!--AVISO_DIA_FIN-->
 </body>

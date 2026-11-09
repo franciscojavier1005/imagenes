@@ -76,7 +76,7 @@
   <div class="ctrl" id="ctrl"></div>
   <div id="res"><div class="aviso">Cargando…</div></div>
   <div id="lote"></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.09-i</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.10-a</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -467,6 +467,16 @@ function avExtra(x){
 function avEsc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 if(!window.AVISO_MANUAL) setTimeout(function(){ avisoDia(false); },1200);
 setInterval(avisoVigilar,180000);   // recordatorios durante la jornada
+/* El escudo del colegio lleva al menú principal desde cualquier pantalla (en el menú mismo no hace nada). */
+(function(){
+  try{
+    if(typeof irAlMenu!=='function') return;
+    [].slice.call(document.querySelectorAll('header img, .marca img')).forEach(function(i){
+      if(i.getAttribute('data-menu')) return; i.setAttribute('data-menu','1'); i.style.cursor='pointer'; i.setAttribute('title','Ir al menú principal'); i.setAttribute('role','link'); i.setAttribute('tabindex','0');
+      var ir=function(){ irAlMenu(); }; i.addEventListener('click',ir); i.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); ir(); } });
+    });
+  }catch(e){}
+})();
 </script>
 <!--AVISO_DIA_FIN-->
 </body>

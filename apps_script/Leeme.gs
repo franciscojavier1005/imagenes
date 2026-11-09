@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.09-b';
+var VERSION_SISTEMA = '2026.11.09-c';
 var FECHA_VERSION = '2026-11-09';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.09-c', fecha: '2026-11-09', cambios: [
+    'Ronda, preescolar: en el último periodo (10:30 a 11:30) la tarjeta avisa que las docentes siguen en el colegio hasta las 12:00 organizando y despachando a los niños; con «Ahora» o con el bloque 3 elegido se pueden marcar hasta las 12:00. El tiempo sin atender sigue contando solo el horario de clases (hasta 11:30).'] },
   { version: '2026.11.09-b', fecha: '2026-11-09', cambios: [
     'Ronda, preescolar: entran a las 7:30 con los niños y sus periodos son de 60 min (07:30, 08:30, 09:30, 10:30). Ahora se muestran en el bloque donde EMPIEZA cada periodo: 07:30 en el bloque 1 (6:30–8:00), 08:30 y 09:30 en el bloque 2 y 10:30 en el bloque 3. Quedó sin efecto el cambio de «llegada temprana» de la versión 2026.11.09-a (las orientadoras vuelven a aparecer según su horario: Johana desde el bloque 1, Ángela desde el bloque 2).',
     'Ronda, descanso: con «Ahora», durante el descanso entre bloques (y hasta que empiece el siguiente) sigue apareciendo el bloque que terminó, con la etiqueta «☕ DESCANSO (aún puede marcar)» junto a la franja.'] },

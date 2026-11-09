@@ -288,3 +288,6 @@ Consulta.html: cuando una reunión «sin clases» coincide, `opcionesReunion()` 
 
 ### 2026.11.09-b · Preescolar por bloque de inicio y rótulo de descanso
 (Reemplaza la «llegada temprana» de 2026.11.09-a.) `consultarSesion`: las filas de grupo 00xx se incluyen en el bloque (o sesión) donde EMPIEZA su periodo (07:30→B1; 08:30, 09:30→B2; 10:30→B3) usando la ventana de las franjas; `hsEf` = sesiones realmente mostradas (marcas previas y reportes). `sesionAhora_` sigue la sesión terminada hasta 20 min en descansos; `enDescanso_` y `out.descanso` rotulan «☕ DESCANSO». Orientadoras según su horario. Pruebas en notas_ronda.test.js.
+
+### 2026.11.09-c · Preescolar hasta las 12:00 (nota)
+Nota en la tarjeta del último periodo de preescolar: siguen hasta las 12:00 despachando; el tiempo sin atender no cambia (clases hasta 11:30). Datos revisados: Ángela Ponce tiene sesiones 3 a 8 (hasta 13:30) todos los días; primaria y tutora PTAFI terminan en la sesión 6 (11:40); Martha Ortiz «Jornada 06:30 a 12:00»; Johana «07:30 a 14:30» con sesiones 2 a 8.

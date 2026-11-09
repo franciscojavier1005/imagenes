@@ -18,7 +18,11 @@ def versiones():
         if m and m.group(1) not in vistos and not s.startswith("Revert") and not s.startswith("Reapply"):
             vistos.add(m.group(1)); out.append((m.group(1), h))
     return out
+def version_actual():
+    m = re.search(r"VERSION_SISTEMA = '([^']+)'", open(os.path.join(RAIZ, 'apps_script', 'Leeme.gs'), encoding='utf-8').read()); return m.group(1) if m else ''
 def contenido(h, nombre):
+    if h == 'ACTUAL':   # la versión vigente se toma del paquete actual (aunque tenga cambios posteriores al último commit de versión)
+        f = os.path.join(RAIZ, 'apps_script', 'paquete', nombre); return open(f, 'rb').read() if os.path.exists(f) else None
     r = subprocess.run(["git", "-C", RAIZ, "show", f"{h}:apps_script/paquete/{nombre}"], capture_output=True)
     return r.stdout if r.returncode == 0 else None
 def main():
@@ -26,6 +30,7 @@ def main():
     estables = [v for v in todas if v[0] not in VERSIONES_CON_DEFECTO][:CUANTAS]
     if not estables: raise SystemExit("No hay versiones en el historial")
     ultima = estables[0][0]
+    if version_actual() == ultima: estables[0] = (ultima, 'ACTUAL')
     carpeta = os.path.join(RAIZ, "salida_onedrive"); shutil.rmtree(carpeta, ignore_errors=True)
     base = os.path.join(carpeta, "App Asistencia"); os.makedirs(base)
     def escribe(destino, h):

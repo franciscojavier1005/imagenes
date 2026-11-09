@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.06-b</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.09-a</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -216,6 +216,7 @@
 <li>Para aclaraciones o descargos, comuníquese con coordinación.</li></ul></section>
 
 <section id="faq"><h2>16. Preguntas frecuentes</h2>
+<details><summary>¿Dónde marco a las profesoras de preescolar y a las orientadoras al llegar?</summary><p>En el <b>bloque 1</b>: aparecen desde las 7:00 con su primera sesión del día (nota «Llegada temprana»). Su marca queda guardada y se ve igual en su bloque. Con «Ahora», en el descanso y hasta 20 minutos después de terminar el bloque sigue el bloque que acaba de terminar (el bloque 3 hasta las 12:00).</p></details>
 <details><summary>En la asistencia de una reunión me faltan docentes o no sé a quién me falta marcar</summary><p>Toque «○ N sin registrar · ver quiénes»: abre la lista de los que faltan. Si falta una persona que no aparece en la lista, quien administra puede tocar «➕ Persona que no aparece». Al guardar sale un resumen y puede volver a abrir la reunión después para corregir.</p></details>
 <details><summary>Hay una reunión o actividad «sin clases» y no me deja hacer la ronda</summary><p>Esa marca suspende la ronda de aula en ese horario. Si la actividad es solo de algunos grupos o docentes, toque «▶ Hacer la ronda de las clases» (o «📋 Registrar asistencia» si quiere pasar lista de la reunión): la ronda se abre normal para esa fecha (con el enlace «volver a respetar la reunión» para desactivarlo). Si la reunión está mal marcada, edítela en Reuniones y quite «Sin clases».</p></details>
 <details><summary>¿Hay copias de seguridad del libro?</summary><p>Sí. Quien administra programa una sola vez, desde el menú del libro, «Respaldos: programar copia diaria (Drive)». Cada noche se copian el libro principal y el de respaldo de rondas a la carpeta «App Asistencia / Respaldos» de Drive: Diario (últimos 3 días), Semanal y Mensual. «Respaldos: copiar libros a Drive ahora» hace la copia al instante.</p></details>
@@ -229,7 +230,7 @@
 <p class="tip">¿Algo no aparece en este manual? Dígaselo a coordinación académica para incluirlo en la próxima versión.</p></section>
 
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.06-b</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.09-a</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

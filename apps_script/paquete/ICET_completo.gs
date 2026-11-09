@@ -138,8 +138,16 @@ function partesGrupo_(g) {
 /** Sesión actual (1-8) o null en descanso / fuera de jornada. */
 function sesionAhora_(d) {
   var hm = Utilities.formatDate(d, TZ, 'HH:mm'), r = null;
-  datos_('Franjas').forEach(function (f) {
+  var fr = datos_('Franjas').slice().sort(function (x, y) { return Number(x.hora) - Number(y.hora); });
+  fr.forEach(function (f) {
     if (hhmm_(f.inicio) <= hm && hm < hhmm_(f.fin)) r = Number(f.hora);
+  });
+  /* en el descanso (o los 20 minutos siguientes a la última sesión de un bloque) sigue la sesión que acaba de terminar: así a las 11:42 aún se puede marcar el bloque 3
+     (preescolar y orientación terminan o llegan en esos minutos) en vez de mostrar «Descanso» */
+  if (r === null) fr.forEach(function (f, i) {
+    var aMin = function (t) { t = hhmm_(t); return Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5)); };
+    var sig = fr[i + 1], finMin = aMin(f.fin), hmMin = aMin(hm);
+    if (finMin <= hmMin && hmMin < finMin + 20 && (!sig || hmMin < aMin(sig.inicio))) r = Number(f.hora);
   });
   return r;
 }
@@ -253,16 +261,33 @@ function consultarSesion(dia, sesion, modo, fecha, ignorarReunion) {
                       atiende: String(n['Grupo atendido por'] || ''), actividad: String(n['Actividad de Aprendizaje'] || '') });
     }
   });
-  var yaMarcados = {}, regHoy = [];
+  var yaMarcados = {}, regHoy = [], regFecha = [];
   datos_('Registro_Ronda').forEach(function (r) {
     var f = r.fecha instanceof Date ? ymd_(r.fecha) : String(r.fecha);
-    if (f === out.fecha && hs.indexOf(Number(r.sesion)) >= 0) { regHoy.push(r); if (!yaMarcados[r.docente]) yaMarcados[r.docente] = r; }
+    if (f !== out.fecha) return;
+    regFecha.push(r);
+    if (hs.indexOf(Number(r.sesion)) >= 0) { regHoy.push(r); if (!yaMarcados[r.docente]) yaMarcados[r.docente] = r; }
   });
   var altern = alternancias_(), totDia = {};
   var horarioDia = datos_('Horario').filter(function (h) { return h.dia === dia; });
   horarioDia.forEach(function (h) { totDia[h.docente] = (totDia[h.docente] || 0) + minutosSesion_(h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo); });
   var fuente = horarioDia.filter(function (h) { return hs.indexOf(Number(h.hora)) >= 0; })
     .sort(function (a, b) { return Number(a.hora) - Number(b.hora); });
+  /* Llegada temprana: preescolar (07:30) y orientación (desde las 7:00) deben poder marcarse desde el primer bloque, aunque su primera clase sea después.
+     En el bloque 1 aparece su tarjeta con su primera sesión del día (la marca queda en esa sesión y se ve igual cuando se abra su bloque). */
+  if (Math.min.apply(null, hs) <= 2) {
+    var presentes = {}; fuente.forEach(function (h) { presentes[h.docente] = 1; });
+    var primera = {};
+    horarioDia.forEach(function (h) {
+      if (presentes[h.docente] || !(/^00/.test(String(h.grupo)) || h.tipo === 'ORIENTACION')) return;
+      if (!primera[h.docente] || Number(h.hora) < Number(primera[h.docente].hora)) primera[h.docente] = h;
+    });
+    Object.keys(primera).forEach(function (d) {
+      var h0 = Object.assign({}, primera[d]); h0.alternancia = ['Llegada temprana (su primera sesión es la ' + h0.hora + ')', h0.alternancia].filter(String).join(' · ');
+      fuente.push(h0);
+      regFecha.forEach(function (r) { if (r.docente === d && Number(r.sesion) === Number(h0.hora) && !yaMarcados[d]) yaMarcados[d] = r; });
+    });
+  }
   /* Marcas a nombre de quien ya no tiene esa sesión (cambios de horario): se muestran en la tarjeta de quien hoy tiene esa sesión y ese grupo, para que nada se vea «sin marcar» */
   var ocupantes = {}, huerfanas = {};
   fuente.forEach(function (h) { ocupantes[h.docente] = 1; var so = parAlterna_(h, altern); if (so) ocupantes[so] = 1; });
@@ -3739,11 +3764,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.06-b';
-var FECHA_VERSION = '2026-11-06';
+var VERSION_SISTEMA = '2026.11.09-a';
+var FECHA_VERSION = '2026-11-09';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.09-a', fecha: '2026-11-09', cambios: [
+    'Ronda, llegada temprana: en el bloque 1 aparecen también las docentes de preescolar (llegan 7:30) y las dos orientadoras (Johana y Ángela, desde las 7:00), aunque su primera clase sea después. Se marcan con su primera sesión del día y esa marca se ve igual cuando se abra su bloque.',
+    'Ronda, botón «Ahora»: en los descansos y hasta 20 minutos después de la última sesión de un bloque sigue mostrando la sesión que acaba de terminar (a las 11:42 aún se muestra el bloque 3 hasta las 12:00), en vez de «Descanso».'] },
   { version: '2026.11.06-b', fecha: '2026-11-06', cambios: [
     'Ronda y reuniones, cada cosa por su lado: cuando una reunión o actividad sin clases coincide con el horario, la ronda ofrece dos botones, «▶ Hacer la ronda de las clases» y «📋 Registrar asistencia de la reunión/actividad» (según su naturaleza). La ronda ya no queda bloqueada.',
     'Aviso del día («Hoy en el colegio»): ahora tiene barra de desplazamiento, muestra todas las reuniones y todos los docentes ausentes (sin límite) y deja de contar el tiempo mientras se desplaza.',

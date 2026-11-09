@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.06-b';
-var FECHA_VERSION = '2026-11-06';
+var VERSION_SISTEMA = '2026.11.09-a';
+var FECHA_VERSION = '2026-11-09';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.09-a', fecha: '2026-11-09', cambios: [
+    'Ronda, llegada temprana: en el bloque 1 aparecen también las docentes de preescolar (llegan 7:30) y las dos orientadoras (Johana y Ángela, desde las 7:00), aunque su primera clase sea después. Se marcan con su primera sesión del día y esa marca se ve igual cuando se abra su bloque.',
+    'Ronda, botón «Ahora»: en los descansos y hasta 20 minutos después de la última sesión de un bloque sigue mostrando la sesión que acaba de terminar (a las 11:42 aún se muestra el bloque 3 hasta las 12:00), en vez de «Descanso».'] },
   { version: '2026.11.06-b', fecha: '2026-11-06', cambios: [
     'Ronda y reuniones, cada cosa por su lado: cuando una reunión o actividad sin clases coincide con el horario, la ronda ofrece dos botones, «▶ Hacer la ronda de las clases» y «📋 Registrar asistencia de la reunión/actividad» (según su naturaleza). La ronda ya no queda bloqueada.',
     'Aviso del día («Hoy en el colegio»): ahora tiene barra de desplazamiento, muestra todas las reuniones y todos los docentes ausentes (sin límite) y deja de contar el tiempo mientras se desplaza.',

@@ -715,4 +715,11 @@ EMAIL=''; ok(/Debe iniciar sesión/.test(falla("consultaHorarios({modo:'catalogo
   ok(sesAhora('11:42')===6&&sesAhora('11:59')===6&&sesAhora('08:10')===2&&sesAhora('09:55')===4,'«Ahora» en un descanso sigue mostrando la sesión que terminó (11:42 → bloque 3)');
   ok(desc('11:42')===true&&desc('08:10')===true&&desc('11:00')===false&&desc('12:05')===false&&desc('14:00')===false,'el descanso se rotula solo entre sesiones');
   ok(sesAhora('12:05')===7&&sesAhora('06:45')===1&&sesAhora('14:00')===null,'a las 12:05 es la sesión 7; fuera de jornada no hay sesión'); }
+// ---- turnos de la ronda (hoja Turnos_Ronda): quién debe hacer cada bloque
+{ const t=(d,b)=>run(`turnoDe_('${d}',${b})`);
+  ok(t('LUNES',1).titular==='Jorge Hernández'&&t('LUNES',1).alterno==='Harold Angulo'&&t('LUNES',4).titular==='Jorge Hernández'&&t('MIERCOLES',4).alterno==='Harold Angulo','lunes y miércoles: el Rector abre (bloque 1) y cierra (bloque 4); suele reemplazarlo Harold');
+  ok(t('MARTES',1).titular==='Harold Angulo'&&t('JUEVES',4).titular==='Harold Angulo'&&t('LUNES',2).titular==='Verónica Barreiro'&&t('JUEVES',3).titular==='Francisco Cortés','martes y jueves Harold; bloque 2 Verónica; bloque 3 Francisco');
+  ok(t('VIERNES',1).titular==='Francisco Cortés'&&t('VIERNES',4).titular==='Francisco Cortés'&&t('VIERNES',3).titular==='Jorge Hernández'&&t('VIERNES',3).alterno==='Harold Angulo','viernes: Francisco bloques 1 y 4; Rector (o Harold) el bloque 3');
+  const cs=run("consultarSesion('LUNES',3,'bloque')"); ok(cs.turno&&cs.turno.titular==='Verónica Barreiro','la ronda recibe a quién le corresponde el bloque');
+  ok(hojas.Turnos_Ronda&&hojas.Turnos_Ronda.v.length===21,'la hoja Turnos_Ronda se crea sola con los 20 turnos'); }
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

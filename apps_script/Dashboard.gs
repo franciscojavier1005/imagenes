@@ -182,7 +182,7 @@ function rondasInterno_(desde, hasta, directivo) {
     if (!ant || pr > PRIORIDAD_RONDA_.indexOf(ant.estado) || (pr < 0 && ant.estado === 'Presente')) o.porDocente[r.docente] = { docente: r.docente, estado: r.estado, atiende: r.atendido_por || '', motivo: r.motivo || '', minutos: r.minutos || '', obs: r.observaciones || '' };
   });
   var bloques = Object.keys(mapa).sort().map(function (k) {
-    var o = mapa[k], out = { fecha: o.fecha, dia: o.dia, bloque: o.bloque, directivo: o.directivo, presentes: [], noAsistieron: [], conReemplazo: [], permisos: [], tardes: [], fuera: [], incumplimientos: [] };
+    var o = mapa[k], tn = turnoDe_(o.dia, o.bloque), out = { fecha: o.fecha, dia: o.dia, bloque: o.bloque, directivo: o.directivo, correspondia: tn && tn.titular && tn.titular !== o.directivo && tn.alterno !== o.directivo ? tn.titular : '', presentes: [], noAsistieron: [], conReemplazo: [], permisos: [], tardes: [], fuera: [], incumplimientos: [] };
     Object.keys(o.porDocente).sort().forEach(function (n) { var x = o.porDocente[n]; out[categoriaRonda_(x.estado, x.atiende)].push(x); });
     out.total = Object.keys(o.porDocente).length;
     return out;

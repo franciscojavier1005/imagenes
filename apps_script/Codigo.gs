@@ -241,6 +241,7 @@ function consultarSesion(dia, sesion, modo, fecha, ignorarReunion) {
     sesionDe: (function () { try { var i = identidad_(); return i.rol === 'directivo' ? (i.nombre || '') : ''; } catch (e) { return ''; } })(),   // quien inició sesión: sale preseleccionado como responsable de la ronda
     nota: s ? '' : (auto ? 'Descanso o fuera de jornada' : 'Sesión no válida'), descanso: descanso
   };
+  if (fr) out.turno = turnoDe_(dia, Number(fr.bloque));
   if (!s) return out;
   // por bloque: la visita cuenta para las dos sesiones del bloque (si no llegó en la primera, no estará en la segunda)
   var hs = [s];
@@ -439,6 +440,33 @@ function asegurarMotivos_() {
   var agregado = false;
   MOTIVOS_NUEVOS.forEach(function (f) { if (existentes.indexOf(f[1]) < 0) { sh.appendRow(f); agregado = true; } });
   if (agregado) invalidarCache_('Motivos');
+}
+
+/**
+ * Turnos de la ronda: quién debe hacerla en cada bloque de cada día (hoja Turnos_Ronda, que se crea sola con estos valores y se puede editar).
+ * Sirve para avisar en la ronda cuando alguien hace el bloque de otra persona y para mostrarlo en el panel de informes. No bloquea nada.
+ * dia, bloque, titular, alterno (quien suele reemplazar al titular; vacío si no hay).
+ */
+var COL_TURNOS = ['dia', 'bloque', 'titular', 'alterno'];
+var TURNOS_DEFECTO = (function () {
+  var R = 'Jorge Hernández', H = 'Harold Angulo', V = 'Verónica Barreiro', F = 'Francisco Cortés', t = [];
+  [['LUNES', R, H], ['MARTES', H, ''], ['MIERCOLES', R, H], ['JUEVES', H, '']].forEach(function (d) {   // el que abre la jornada la cierra en el cuarto bloque
+    t.push([d[0], 1, d[1], d[2]], [d[0], 2, V, ''], [d[0], 3, F, ''], [d[0], 4, d[1], d[2]]);
+  });
+  t.push(['VIERNES', 1, F, ''], ['VIERNES', 2, V, ''], ['VIERNES', 3, R, H], ['VIERNES', 4, F, '']);
+  return t;
+})();
+function turnosRonda_() {
+  var sh = SpreadsheetApp.getActive().getSheetByName('Turnos_Ronda');
+  if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('Turnos_Ronda'); sh.appendRow(COL_TURNOS); sh.getRange(2, 1, TURNOS_DEFECTO.length, COL_TURNOS.length).setValues(TURNOS_DEFECTO); }
+  return datos_('Turnos_Ronda');
+}
+/** {titular, alterno} del bloque de un día, o null si no está definido. */
+function turnoDe_(dia, bloque) {
+  try {
+    var f = turnosRonda_().filter(function (t) { return String(t.dia).toUpperCase() === String(dia).toUpperCase() && Number(t.bloque) === Number(bloque); })[0];
+    return f ? { titular: String(f.titular || '').trim(), alterno: String(f.alterno || '').trim() } : null;
+  } catch (e) { return null; }
 }
 
 /** Parejas que alternan cada semana (hoja Alternancias; si no existe se crea con las dos parejas de ética y religión). */

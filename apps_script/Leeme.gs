@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.09-f';
+var VERSION_SISTEMA = '2026.11.09-g';
 var FECHA_VERSION = '2026-11-09';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.09-g', fecha: '2026-11-09', cambios: [
+    'Turnos de la ronda: nueva hoja Turnos_Ronda (se crea sola y se puede editar) con quién debe hacer cada bloque cada día: lunes y miércoles el Rector (Jorge Hernández) abre y cierra, suele reemplazarlo Harold Angulo; martes y jueves Harold; bloque 2 todos los días Verónica Barreiro; bloque 3 Francisco Cortés (el viernes el Rector, o Harold); viernes bloques 1 y 4 Francisco.',
+    'La ronda muestra un aviso discreto bajo «Ronda a cargo de» («Este bloque le corresponde a …», o «Reemplaza a …»); no bloquea nada. En el panel, Rondas guardadas muestra «(le correspondía a …)» cuando la ronda la hizo alguien distinto del titular y de su reemplazo habitual.'] },
   { version: '2026.11.09-f', fecha: '2026-11-09', cambios: [
     'Ronda, responsable: por defecto es SIEMPRE quien abrió la sesión (aparece primero en la lista, con «(usted)»); ya no queda recordado el nombre de otra persona ni se toma el primero de la lista. Si no se puede identificar a quien abrió la sesión, la lista pide elegir. Se puede cambiar eligiendo otro en esa pantalla.',
     'Ronda, navegación: el recuadro del bloque (o de la sesión, según el modo) ahora es una lista desplegable para ir directo a otro bloque o sesión, además de las flechas ◀ ▶.'] },
@@ -224,6 +227,7 @@ var LEEME_HOJAS = [
   'Incumplimientos   Reportes con rigor (solo se agrega; seguimiento por estados).',
   'Estudiantes / Marcas_Estudiantes / Grupos_Proyectos   Listado por grupo y marcas de seguimiento (los levantados quedan en la hoja).',
   'Semana_Alternancia / Alternancias   Quién dicta cada semana en las parejas que alternan.',
+  'Turnos_Ronda       Quién debe hacer la ronda en cada bloque de cada día (titular y quien suele reemplazarlo). Se puede editar; solo avisa, no bloquea.',
   'Usuarios / Soportes / Parametros   Cuentas de docentes, soportes de ausencias y parámetros.',
   'Notas_Ronda / Bandeja_WhatsApp   Observaciones de la ronda y novedades propuestas desde WhatsApp.',
   'Directivos        Quiénes registran: claves (hash), correo, ve_todo (NO = solo ve sus rondas), cambia_asignacion (SI/NO: puede cambiar quién dicta en las parejas), administra (SI/NO: puede anular reuniones). No escriba PIN a mano.',

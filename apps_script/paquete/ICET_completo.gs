@@ -242,6 +242,7 @@ function consultarSesion(dia, sesion, modo, fecha, ignorarReunion) {
     sesionDe: (function () { try { var i = identidad_(); return i.rol === 'directivo' ? (i.nombre || '') : ''; } catch (e) { return ''; } })(),   // quien inició sesión: sale preseleccionado como responsable de la ronda
     nota: s ? '' : (auto ? 'Descanso o fuera de jornada' : 'Sesión no válida'), descanso: descanso
   };
+  if (fr) out.turno = turnoDe_(dia, Number(fr.bloque));
   if (!s) return out;
   // por bloque: la visita cuenta para las dos sesiones del bloque (si no llegó en la primera, no estará en la segunda)
   var hs = [s];
@@ -440,6 +441,33 @@ function asegurarMotivos_() {
   var agregado = false;
   MOTIVOS_NUEVOS.forEach(function (f) { if (existentes.indexOf(f[1]) < 0) { sh.appendRow(f); agregado = true; } });
   if (agregado) invalidarCache_('Motivos');
+}
+
+/**
+ * Turnos de la ronda: quién debe hacerla en cada bloque de cada día (hoja Turnos_Ronda, que se crea sola con estos valores y se puede editar).
+ * Sirve para avisar en la ronda cuando alguien hace el bloque de otra persona y para mostrarlo en el panel de informes. No bloquea nada.
+ * dia, bloque, titular, alterno (quien suele reemplazar al titular; vacío si no hay).
+ */
+var COL_TURNOS = ['dia', 'bloque', 'titular', 'alterno'];
+var TURNOS_DEFECTO = (function () {
+  var R = 'Jorge Hernández', H = 'Harold Angulo', V = 'Verónica Barreiro', F = 'Francisco Cortés', t = [];
+  [['LUNES', R, H], ['MARTES', H, ''], ['MIERCOLES', R, H], ['JUEVES', H, '']].forEach(function (d) {   // el que abre la jornada la cierra en el cuarto bloque
+    t.push([d[0], 1, d[1], d[2]], [d[0], 2, V, ''], [d[0], 3, F, ''], [d[0], 4, d[1], d[2]]);
+  });
+  t.push(['VIERNES', 1, F, ''], ['VIERNES', 2, V, ''], ['VIERNES', 3, R, H], ['VIERNES', 4, F, '']);
+  return t;
+})();
+function turnosRonda_() {
+  var sh = SpreadsheetApp.getActive().getSheetByName('Turnos_Ronda');
+  if (!sh) { sh = SpreadsheetApp.getActive().insertSheet('Turnos_Ronda'); sh.appendRow(COL_TURNOS); sh.getRange(2, 1, TURNOS_DEFECTO.length, COL_TURNOS.length).setValues(TURNOS_DEFECTO); }
+  return datos_('Turnos_Ronda');
+}
+/** {titular, alterno} del bloque de un día, o null si no está definido. */
+function turnoDe_(dia, bloque) {
+  try {
+    var f = turnosRonda_().filter(function (t) { return String(t.dia).toUpperCase() === String(dia).toUpperCase() && Number(t.bloque) === Number(bloque); })[0];
+    return f ? { titular: String(f.titular || '').trim(), alterno: String(f.alterno || '').trim() } : null;
+  } catch (e) { return null; }
 }
 
 /** Parejas que alternan cada semana (hoja Alternancias; si no existe se crea con las dos parejas de ética y religión). */
@@ -1580,7 +1608,7 @@ function rondasInterno_(desde, hasta, directivo) {
     if (!ant || pr > PRIORIDAD_RONDA_.indexOf(ant.estado) || (pr < 0 && ant.estado === 'Presente')) o.porDocente[r.docente] = { docente: r.docente, estado: r.estado, atiende: r.atendido_por || '', motivo: r.motivo || '', minutos: r.minutos || '', obs: r.observaciones || '' };
   });
   var bloques = Object.keys(mapa).sort().map(function (k) {
-    var o = mapa[k], out = { fecha: o.fecha, dia: o.dia, bloque: o.bloque, directivo: o.directivo, presentes: [], noAsistieron: [], conReemplazo: [], permisos: [], tardes: [], fuera: [], incumplimientos: [] };
+    var o = mapa[k], tn = turnoDe_(o.dia, o.bloque), out = { fecha: o.fecha, dia: o.dia, bloque: o.bloque, directivo: o.directivo, correspondia: tn && tn.titular && tn.titular !== o.directivo && tn.alterno !== o.directivo ? tn.titular : '', presentes: [], noAsistieron: [], conReemplazo: [], permisos: [], tardes: [], fuera: [], incumplimientos: [] };
     Object.keys(o.porDocente).sort().forEach(function (n) { var x = o.porDocente[n]; out[categoriaRonda_(x.estado, x.atiende)].push(x); });
     out.total = Object.keys(o.porDocente).length;
     return out;
@@ -3766,11 +3794,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.09-f';
+var VERSION_SISTEMA = '2026.11.09-g';
 var FECHA_VERSION = '2026-11-09';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.09-g', fecha: '2026-11-09', cambios: [
+    'Turnos de la ronda: nueva hoja Turnos_Ronda (se crea sola y se puede editar) con quién debe hacer cada bloque cada día: lunes y miércoles el Rector (Jorge Hernández) abre y cierra, suele reemplazarlo Harold Angulo; martes y jueves Harold; bloque 2 todos los días Verónica Barreiro; bloque 3 Francisco Cortés (el viernes el Rector, o Harold); viernes bloques 1 y 4 Francisco.',
+    'La ronda muestra un aviso discreto bajo «Ronda a cargo de» («Este bloque le corresponde a …», o «Reemplaza a …»); no bloquea nada. En el panel, Rondas guardadas muestra «(le correspondía a …)» cuando la ronda la hizo alguien distinto del titular y de su reemplazo habitual.'] },
   { version: '2026.11.09-f', fecha: '2026-11-09', cambios: [
     'Ronda, responsable: por defecto es SIEMPRE quien abrió la sesión (aparece primero en la lista, con «(usted)»); ya no queda recordado el nombre de otra persona ni se toma el primero de la lista. Si no se puede identificar a quien abrió la sesión, la lista pide elegir. Se puede cambiar eligiendo otro en esa pantalla.',
     'Ronda, navegación: el recuadro del bloque (o de la sesión, según el modo) ahora es una lista desplegable para ir directo a otro bloque o sesión, además de las flechas ◀ ▶.'] },
@@ -3985,6 +4016,7 @@ var LEEME_HOJAS = [
   'Incumplimientos   Reportes con rigor (solo se agrega; seguimiento por estados).',
   'Estudiantes / Marcas_Estudiantes / Grupos_Proyectos   Listado por grupo y marcas de seguimiento (los levantados quedan en la hoja).',
   'Semana_Alternancia / Alternancias   Quién dicta cada semana en las parejas que alternan.',
+  'Turnos_Ronda       Quién debe hacer la ronda en cada bloque de cada día (titular y quien suele reemplazarlo). Se puede editar; solo avisa, no bloquea.',
   'Usuarios / Soportes / Parametros   Cuentas de docentes, soportes de ausencias y parámetros.',
   'Notas_Ronda / Bandeja_WhatsApp   Observaciones de la ronda y novedades propuestas desde WhatsApp.',
   'Directivos        Quiénes registran: claves (hash), correo, ve_todo (NO = solo ve sus rondas), cambia_asignacion (SI/NO: puede cambiar quién dicta en las parejas), administra (SI/NO: puede anular reuniones). No escriba PIN a mano.',

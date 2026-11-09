@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.09-c';
+var VERSION_SISTEMA = '2026.11.09-d';
 var FECHA_VERSION = '2026-11-09';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.09-d', fecha: '2026-11-09', cambios: [
+    'Orientación: Johana y Ángela quedan con la misma jornada en la ronda: Johana de 7:30 a 13:30 y Ángela de 8:30 a 13:30 (el horario adicional, hasta las 14:30 o más tarde, es voluntario y no se controla). La tarjeta lo dice: «Jornada … (horario adicional voluntario)».'] },
   { version: '2026.11.09-c', fecha: '2026-11-09', cambios: [
     'Ronda, preescolar: en el último periodo (10:30 a 11:30) la tarjeta avisa que las docentes siguen en el colegio hasta las 12:00 organizando y despachando a los niños; con «Ahora» o con el bloque 3 elegido se pueden marcar hasta las 12:00. El tiempo sin atender sigue contando solo el horario de clases (hasta 11:30).'] },
   { version: '2026.11.09-b', fecha: '2026-11-09', cambios: [

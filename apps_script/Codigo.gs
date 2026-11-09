@@ -295,7 +295,8 @@ function consultarSesion(dia, sesion, modo, fecha, ignorarReunion) {
   regHoy.forEach(function (r) { if (!ocupantes[r.docente]) huerfanas[claveSlot_(r.sesion, r.grupo, r.area)] = huerfanas[claveSlot_(r.sesion, r.grupo, r.area)] || r; });
   out.filas = fuente.map(function (h) {
     var enf = h.tipo === 'ENFASIS';
-    var nota = [/^00/.test(String(h.grupo)) ? 'Preescolar ' + hhmm_(h.inicio) + ' - ' + hhmm_(h.fin) + (hhmm_(h.fin) >= '11:30' ? ' (siguen en el colegio hasta las 12:00: organizan y despachan a los niños)' : '') : '', h.alternancia, h.equipo_enfasis ? 'Con: ' + h.equipo_enfasis : ''].filter(String).join(' · ');
+    var altNota = h.tipo === 'ORIENTACION' ? String(h.alternancia || '').replace(/Jornada (\d\d:\d\d) a (14:30|\d\d:\d\d)/, function (m0, a1, a2) { return 'Jornada ' + a1 + ' a 13:30' + (/horario adicional/.test(String(h.alternancia || '')) ? '' : ' (horario adicional voluntario)'); }) : h.alternancia;   // orientación: misma jornada de 13:30; el adicional es voluntario y no se controla
+    var nota = [/^00/.test(String(h.grupo)) ? 'Preescolar ' + hhmm_(h.inicio) + ' - ' + hhmm_(h.fin) + (hhmm_(h.fin) >= '11:30' ? ' (siguen en el colegio hasta las 12:00: organizan y despachan a los niños)' : '') : '', altNota, h.equipo_enfasis ? 'Con: ' + h.equipo_enfasis : ''].filter(String).join(' · ');
     var ya = yaMarcados[h.docente] || huerfanas[claveSlot_(h.hora, enf ? h.grupos_enfasis : h.grupo, h.area || '(énfasis)')];
     return {
       docente: h.docente, grupoCodigo: enf ? h.grupos_enfasis : h.grupo,

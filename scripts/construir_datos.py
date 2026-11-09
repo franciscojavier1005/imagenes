@@ -80,10 +80,10 @@ NOTAS_DOCENTE = {
     36: "Docente orientadora: sin grupos, trabaja con todos los niveles",
     56: "Tutora PTAFI (Todos a Aprender - Formación Integral), transitoria: apoya preescolar y primaria (procesos básicos, centros de interés)",
 }
-# Personal sin grupo: (n, tipo, código de grupo, entrada, salida, área). Jornada confirmada por el coordinador: Casanova 7:30 a 14:30;
-# Ponce 8:30 a 13:30 (a veces llega más tarde o se queda más). Tutora PTAFI: jornada de primaria (confirmada: se deja así).
+# Personal sin grupo: (n, tipo, código de grupo, entrada, salida, área). Jornada confirmada por el coordinador (2026-11-09): Casanova 7:30 a 13:30 y Ponce 8:30 a 13:30,
+# con la misma intensidad (ambas pueden trabajar horario adicional, Casanova hasta las 14:30; no se controla en la ronda). Tutora PTAFI: jornada de primaria (confirmada: se deja así).
 ESPECIALES = {
-    7: ("ORIENTACION", "ORIENT", "07:30", "14:30", "ORIENTACIÓN ESCOLAR"),
+    7: ("ORIENTACION", "ORIENT", "07:30", "13:30", "ORIENTACIÓN ESCOLAR"),
     36: ("ORIENTACION", "ORIENT", "08:30", "13:30", "ORIENTACIÓN ESCOLAR"),
     56: ("TUTORIA", "PTAFI", "06:30", "12:00", "TUTORÍA PTAFI"),
 }
@@ -282,7 +282,7 @@ if __name__ == "__main__":
                     h.append({"docente_n": n, "docente": nombre_doc[n], "dia": dia, "hora": hora, "bloque": b, "sesion": ses,
                               "inicio": ini, "fin": fin, "tipo": tipo, "grupo": g, "area": area, "enfasis_ref": "",
                               "grupos_enfasis": "", "equipo_enfasis": "", "celda_original": "",
-                              "alternancia": f"Jornada {ent} a {sal}"})
+                              "alternancia": f"Jornada {ent} a {sal}" + (" (horario adicional voluntario)" if tipo == "ORIENTACION" else "")})
     h.sort(key=lambda r: (["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES"].index(r["dia"]), int(r["hora"]),
                           r["grupo"] or "~" + r["grupos_enfasis"], r["docente_n"]))
     con_horario = {r["docente_n"] for r in h}

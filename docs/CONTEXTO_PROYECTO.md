@@ -291,3 +291,6 @@ Consulta.html: cuando una reunión «sin clases» coincide, `opcionesReunion()` 
 
 ### 2026.11.09-c · Preescolar hasta las 12:00 (nota)
 Nota en la tarjeta del último periodo de preescolar: siguen hasta las 12:00 despachando; el tiempo sin atender no cambia (clases hasta 11:30). Datos revisados: Ángela Ponce tiene sesiones 3 a 8 (hasta 13:30) todos los días; primaria y tutora PTAFI terminan en la sesión 6 (11:40); Martha Ortiz «Jornada 06:30 a 12:00»; Johana «07:30 a 14:30» con sesiones 2 a 8.
+
+### 2026.11.09-d · Jornada de orientación
+Johana 07:30–13:30 (sesiones 2 a 8) y Ángela 08:30–13:30 (sesiones 3 a 8); adicional voluntario sin control. `construir_datos.py` (ESPECIALES) y data/horario_maestro.csv actualizados; la tarjeta muestra el texto aunque el libro vivo aún diga 14:30 (override en `consultarSesion`).

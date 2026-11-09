@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.09-a';
+var VERSION_SISTEMA = '2026.11.09-b';
 var FECHA_VERSION = '2026-11-09';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.09-b', fecha: '2026-11-09', cambios: [
+    'Ronda, preescolar: entran a las 7:30 con los niños y sus periodos son de 60 min (07:30, 08:30, 09:30, 10:30). Ahora se muestran en el bloque donde EMPIEZA cada periodo: 07:30 en el bloque 1 (6:30–8:00), 08:30 y 09:30 en el bloque 2 y 10:30 en el bloque 3. Quedó sin efecto el cambio de «llegada temprana» de la versión 2026.11.09-a (las orientadoras vuelven a aparecer según su horario: Johana desde el bloque 1, Ángela desde el bloque 2).',
+    'Ronda, descanso: con «Ahora», durante el descanso entre bloques (y hasta que empiece el siguiente) sigue apareciendo el bloque que terminó, con la etiqueta «☕ DESCANSO (aún puede marcar)» junto a la franja.'] },
   { version: '2026.11.09-a', fecha: '2026-11-09', cambios: [
     'Ronda, llegada temprana: en el bloque 1 aparecen también las docentes de preescolar (llegan 7:30) y las dos orientadoras (Johana y Ángela, desde las 7:00), aunque su primera clase sea después. Se marcan con su primera sesión del día y esa marca se ve igual cuando se abra su bloque.',
     'Ronda, botón «Ahora»: en los descansos y hasta 20 minutos después de la última sesión de un bloque sigue mostrando la sesión que acaba de terminar (a las 11:42 aún se muestra el bloque 3 hasta las 12:00), en vez de «Descanso».'] },

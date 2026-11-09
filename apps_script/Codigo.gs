@@ -135,6 +135,12 @@ function partesGrupo_(g) {
 }
 
 /** Sesión actual (1-8) o null en descanso / fuera de jornada. */
+/** ¿Ahora es un descanso (entre dos sesiones o los minutos siguientes a la última)? Con esto la ronda sigue mostrando la sesión que terminó y lo rotula «Descanso». */
+function enDescanso_(d) {
+  var hm = Utilities.formatDate(d, TZ, 'HH:mm'), enSesion = false;
+  datos_('Franjas').forEach(function (f) { if (hhmm_(f.inicio) <= hm && hm < hhmm_(f.fin)) enSesion = true; });
+  return !enSesion && sesionAhora_(d) !== null;
+}
 function sesionAhora_(d) {
   var hm = Utilities.formatDate(d, TZ, 'HH:mm'), r = null;
   var fr = datos_('Franjas').slice().sort(function (x, y) { return Number(x.hora) - Number(y.hora); });
@@ -219,6 +225,7 @@ function consultarSesion(dia, sesion, modo, fecha, ignorarReunion) {
     revision = true; dia = DIAS[dw];
   }
   var auto = !dia && !sesion;
+  var descanso = (function () { try { return auto && !sesion && enDescanso_(ahora); } catch (e) { return false; } })();   // «Ahora» cae en el descanso entre bloques: se sigue mostrando el bloque que terminó
   dia = dia || DIAS[Number(Utilities.formatDate(ahora, TZ, 'u'))];
   var s = sesion ? Number(sesion) : (revision ? 1 : sesionAhora_(ahora));
   var fr = datos_('Franjas').filter(function (f) { return Number(f.hora) === s; })[0];
@@ -232,7 +239,7 @@ function consultarSesion(dia, sesion, modo, fecha, ignorarReunion) {
     rondaCerrada: (function () { try { return !revision && !puedeAdministrar_(identidad_()) && rondaCerrada_(); } catch (e) { return false; } })(), cierreRonda: cierreRonda_(),
     puedeCambiarAlt: (function () { try { return puedeCambiarAsignacion_(identidad_()); } catch (e) { return false; } })(),
     sesionDe: (function () { try { var i = identidad_(); return i.rol === 'directivo' ? (i.nombre || '') : ''; } catch (e) { return ''; } })(),   // quien inició sesión: sale preseleccionado como responsable de la ronda
-    nota: s ? '' : (auto ? 'Descanso o fuera de jornada' : 'Sesión no válida')
+    nota: s ? '' : (auto ? 'Descanso o fuera de jornada' : 'Sesión no válida'), descanso: descanso
   };
   if (!s) return out;
   // por bloque: la visita cuenta para las dos sesiones del bloque (si no llegó en la primera, no estará en la segunda)
@@ -265,28 +272,23 @@ function consultarSesion(dia, sesion, modo, fecha, ignorarReunion) {
     var f = r.fecha instanceof Date ? ymd_(r.fecha) : String(r.fecha);
     if (f !== out.fecha) return;
     regFecha.push(r);
-    if (hs.indexOf(Number(r.sesion)) >= 0) { regHoy.push(r); if (!yaMarcados[r.docente]) yaMarcados[r.docente] = r; }
   });
   var altern = alternancias_(), totDia = {};
   var horarioDia = datos_('Horario').filter(function (h) { return h.dia === dia; });
   horarioDia.forEach(function (h) { totDia[h.docente] = (totDia[h.docente] || 0) + minutosSesion_(h.tipo === 'ENFASIS' ? h.grupos_enfasis : h.grupo); });
-  var fuente = horarioDia.filter(function (h) { return hs.indexOf(Number(h.hora)) >= 0; })
-    .sort(function (a, b) { return Number(a.hora) - Number(b.hora); });
-  /* Llegada temprana: preescolar (07:30) y orientación (desde las 7:00) deben poder marcarse desde el primer bloque, aunque su primera clase sea después.
-     En el bloque 1 aparece su tarjeta con su primera sesión del día (la marca queda en esa sesión y se ve igual cuando se abra su bloque). */
-  if (Math.min.apply(null, hs) <= 2) {
-    var presentes = {}; fuente.forEach(function (h) { presentes[h.docente] = 1; });
-    var primera = {};
-    horarioDia.forEach(function (h) {
-      if (presentes[h.docente] || !(/^00/.test(String(h.grupo)) || h.tipo === 'ORIENTACION')) return;
-      if (!primera[h.docente] || Number(h.hora) < Number(primera[h.docente].hora)) primera[h.docente] = h;
-    });
-    Object.keys(primera).forEach(function (d) {
-      var h0 = Object.assign({}, primera[d]); h0.alternancia = ['Llegada temprana (su primera sesión es la ' + h0.hora + ')', h0.alternancia].filter(String).join(' · ');
-      fuente.push(h0);
-      regFecha.forEach(function (r) { if (r.docente === d && Number(r.sesion) === Number(h0.hora) && !yaMarcados[d]) yaMarcados[d] = r; });
-    });
-  }
+  /* Preescolar entra a las 7:30 con los niños y tiene periodos propios de 60 min (07:30, 08:30, 09:30, 10:30): se muestran en el bloque donde EMPIEZA cada periodo
+     (07:30 → bloque 1; 08:30 y 09:30 → bloque 2; 10:30 → bloque 3), no por el número de hora del horario general. Los demás, por sus sesiones del bloque. */
+  var aMinF = function (t) { t = hhmm_(t); return Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5)); };
+  var franjasSel = datos_('Franjas').filter(function (f) { return hs.indexOf(Number(f.hora)) >= 0; });
+  var ventIni = franjasSel.length ? Math.min.apply(null, franjasSel.map(function (f) { return aMinF(f.inicio); })) : 0, ventFin = franjasSel.length ? Math.max.apply(null, franjasSel.map(function (f) { return aMinF(f.fin); })) : 0;
+  var fuente = horarioDia.filter(function (h) {
+    if (/^00/.test(String(h.grupo))) { var ini = aMinF(h.inicio); return ini >= ventIni && ini < ventFin; }
+    return hs.indexOf(Number(h.hora)) >= 0;
+  }).sort(function (a, b) { return Number(a.hora) - Number(b.hora); });
+  var hsEf = hs.slice(); fuente.forEach(function (h) { if (hsEf.indexOf(Number(h.hora)) < 0) hsEf.push(Number(h.hora)); });   // sesiones que realmente se muestran (preescolar usa las suyas)
+  regFecha.forEach(function (r) {
+    if (hsEf.indexOf(Number(r.sesion)) >= 0) { regHoy.push(r); if (!yaMarcados[r.docente]) yaMarcados[r.docente] = r; }
+  });
   /* Marcas a nombre de quien ya no tiene esa sesión (cambios de horario): se muestran en la tarjeta de quien hoy tiene esa sesión y ese grupo, para que nada se vea «sin marcar» */
   var ocupantes = {}, huerfanas = {};
   fuente.forEach(function (h) { ocupantes[h.docente] = 1; var so = parAlterna_(h, altern); if (so) ocupantes[so] = 1; });
@@ -338,7 +340,7 @@ function consultarSesion(dia, sesion, modo, fecha, ignorarReunion) {
     var ya2 = yaMarcados[nuevo]; if (!ya2) f.sesiones.forEach(function (x) { ya2 = ya2 || huerfanas[claveSlot_(x.sesion, x.grupoCodigo, x.area)]; });
     f.previo = ya2 ? { estado: ya2.estado, motivo: ya2.motivo, minutos: ya2.minutos, observaciones: ya2.observaciones, atendidoPor: ya2.atendido_por || '' } : null;
   });
-  out.filas.forEach(function (f) { f.reporte = reporteParaSesiones_(reportes[f.docente], hs); });   // solo las novedades que caen en las sesiones mostradas
+  out.filas.forEach(function (f) { f.reporte = reporteParaSesiones_(reportes[f.docente], hsEf); });   // solo las novedades que caen en las sesiones mostradas
   if (out.modo === 'bloque') {   // una tarjeta por docente: sus sesiones del bloque quedan juntas
     var por = {}, uni = [];
     out.filas.forEach(function (f) {

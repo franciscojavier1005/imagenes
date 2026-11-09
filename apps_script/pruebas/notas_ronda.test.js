@@ -703,13 +703,16 @@ EMAIL=''; ok(/Debe iniciar sesión/.test(falla("consultaHorarios({modo:'catalogo
   const t0=Date.now(); run(`guardarRonda({dia:'VIERNES',sesion:3,fecha:'2026-10-02',registros:[{docente:${JSON.stringify(doc)},grupoCodigo:${JSON.stringify(grupo)},area:'X',estado:'No asistió',motivo:'Sin justificación'},{docente:'Otro 2',grupoCodigo:${JSON.stringify(grupo)},area:'X',estado:'Presente'}]})`);
   ok(llamadas<400,`guardar con ${hojas.Registro_Ronda.v.length} filas históricas formatea pocas fechas (${llamadas} llamadas, ${Date.now()-t0} ms)`);
   g.Utilities.formatDate=fmt0; Object.keys(dr0).forEach(n=>{ hojas[n].getDataRange=dr0[n]; }); }
-// ---- llegada temprana (preescolar y orientación) en el bloque 1 y el descanso después del bloque 3
-{ const b1=run("consultarSesion('LUNES',1,'bloque')"), b2=run("consultarSesion('LUNES',3,'bloque')");
-  const pre1=b1.filas.filter(f=>/^00/.test(String(f.grupoCodigo))), ori1=b1.filas.filter(f=>f.tipo==='ORIENTACION');
-  ok(pre1.length>=2,'bloque 1: aparecen las docentes de preescolar (llegan 7:30) con su primera sesión ('+pre1.length+')');
-  ok(ori1.length===2&&ori1.every(f=>/Llegada temprana/.test(f.nota)||f.sesiones.some(x=>x.sesion<=2)),'bloque 1: aparecen las dos orientadoras ('+ori1.length+')');
-  const dPre=pre1[0].docente; ok(b2.filas.some(f=>f.docente===dPre),'bloque 2: la docente de preescolar sigue apareciendo en su bloque');
-  const sesAhora=h=>run(`sesionAhora_(new Date('2026-10-21T${h}:00-05:00'))`);
-  ok(sesAhora('11:42')===6&&sesAhora('11:59')===6,'a las 11:42 «Ahora» sigue en el bloque 3 hasta las 12:00 (ya no «Descanso»)');
-  ok(sesAhora('12:05')===7&&sesAhora('06:45')===1&&sesAhora('14:00')===null,'a las 12:05 es la sesión 7; antes de la jornada y después de las 14:00 no hay sesión'); }
+// ---- preescolar entra 7:30 (bloque 1) y se muestra en el bloque donde empieza cada periodo; el descanso se rotula
+{ const mir=(dia,ses)=>run(`consultarSesion('${dia}',${ses},'bloque')`), pre=b=>b.filas.filter(f=>/^00/.test(String(f.grupoCodigo)));
+  const b1=mir('LUNES',1), b2=mir('LUNES',3), b3=mir('LUNES',5), b4=mir('LUNES',7);
+  const hs_=b=>[].concat(...pre(b).map(f=>f.sesiones.map(x=>x.sesion))).sort().join(',');
+  ok(pre(b1).length>=2&&[...new Set([].concat(...pre(b1).map(f=>f.sesiones.map(x=>x.sesion))))].join()==='3','bloque 1: las docentes de preescolar aparecen (periodo de las 07:30, sesión 3)');
+  ok(new Set([].concat(...pre(b2).map(f=>f.sesiones.map(x=>x.sesion)))).size===2&&[...new Set([].concat(...pre(b2).map(f=>f.sesiones.map(x=>x.sesion))))].join()==='4,5','bloque 2: periodos de las 08:30 y 09:30 (sesiones 4 y 5)');
+  ok([...new Set([].concat(...pre(b3).map(f=>f.sesiones.map(x=>x.sesion))))].join()==='6'&&pre(b4).length===0,'bloque 3: periodo de las 10:30 (sesión 6); el bloque 4 no trae preescolar');
+  ok(b2.filas.some(f=>f.tipo==='ORIENTACION')&&!b1.filas.some(f=>f.tipo==='ORIENTACION'&&f.sesiones.some(x=>x.sesion>2)),'las orientadoras aparecen según su horario (la que llega más tarde, desde el bloque 2)');
+  const sesAhora=h=>run(`sesionAhora_(new Date('2026-10-21T${h}:00-05:00'))`), desc=h=>run(`enDescanso_(new Date('2026-10-21T${h}:00-05:00'))`);
+  ok(sesAhora('11:42')===6&&sesAhora('11:59')===6&&sesAhora('08:10')===2&&sesAhora('09:55')===4,'«Ahora» en un descanso sigue mostrando la sesión que terminó (11:42 → bloque 3)');
+  ok(desc('11:42')===true&&desc('08:10')===true&&desc('11:00')===false&&desc('12:05')===false&&desc('14:00')===false,'el descanso se rotula solo entre sesiones');
+  ok(sesAhora('12:05')===7&&sesAhora('06:45')===1&&sesAhora('14:00')===null,'a las 12:05 es la sesión 7; fuera de jornada no hay sesión'); }
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

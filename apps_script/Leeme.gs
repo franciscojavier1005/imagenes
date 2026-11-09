@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.09-h';
+var VERSION_SISTEMA = '2026.11.09-i';
 var FECHA_VERSION = '2026-11-09';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.09-i', fecha: '2026-11-09', cambios: [
+    'Manual: nueva cartilla de uso en PDF (docs/Manual_ICET_Asistencia_Docente.pdf, 16 páginas: ruta rápida por rol, la ronda en 7 pasos con dibujos de la pantalla, qué marcar en cada caso, novedades, reuniones, panel, problemas frecuentes y capítulo para quien administra). El manual dentro de la aplicación (Ayuda) suma el capítulo 17 «Para quien administra».'] },
   { version: '2026.11.09-h', fecha: '2026-11-09', cambios: [
     'Reuniones, actividades y novedades: lo que se registre queda a nombre de quien abrió la sesión (se muestra «Registra: …» y ya no se elige ni se recuerda otro nombre en esas pantallas).',
     'Seguridad de las sesiones: al cambiar la clave desde la aplicación se cierran las demás sesiones abiertas de esa persona (otros teléfonos o computadores) y queda abierta solo la actual. Nuevo menú «Ver sesiones abiertas (quién está usando el sistema)» con cuántas sesiones tiene cada directivo, desde cuándo y su último uso (se actualiza cada 10 minutos).'] },

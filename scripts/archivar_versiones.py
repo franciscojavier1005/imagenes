@@ -42,6 +42,8 @@ def main():
              f"VERSIONES: las {len(estables)} últimas versiones estables (para volver atrás si hiciera falta):"] + [f"  - {v}" for v, _ in estables]
     omit = [(v, VERSIONES_CON_DEFECTO[v]) for v, _ in todas if v in VERSIONES_CON_DEFECTO]
     if omit: leeme += ["", "Versiones omitidas por un defecto conocido (no las use):"] + [f"  - {v}: {m}" for v, m in omit]
+    pdf = os.path.join(RAIZ, "docs", "Manual_ICET_Asistencia_Docente.pdf")
+    if os.path.exists(pdf): shutil.copy(pdf, os.path.join(base, "Manual_ICET_Asistencia_Docente.pdf"))   # la cartilla de uso va en la carpeta
     open(os.path.join(base, "LEEME.txt"), "w", encoding="utf-8").write("\n".join(leeme) + "\n")
     z = os.path.join(carpeta, f"App_Asistencia_{ultima}.zip")
     with zipfile.ZipFile(z, "w", zipfile.ZIP_DEFLATED) as zf:

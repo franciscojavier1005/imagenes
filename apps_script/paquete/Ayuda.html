@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.09-h</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.09-i</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -69,6 +69,7 @@
   <li><a href="#panel">Panel e informes</a></li>
   <li><a href="#docente">Si usted es docente</a></li>
   <li><a href="#faq">Preguntas frecuentes</a></li>
+  <li><a href="#admin">Para quien administra: turnos, copias, claves y versiones</a></li>
 </ol></nav>
 
 <section id="que"><h2>1. Para qué sirve y quién lo usa</h2>
@@ -231,8 +232,20 @@
 <details><summary>Olvidé mi clave</summary><p>Pida a quien administra el libro que la restablezca: le dará una clave temporal que usted cambia al entrar.</p></details>
 <p class="tip">¿Algo no aparece en este manual? Dígaselo a coordinación académica para incluirlo en la próxima versión.</p></section>
 
+<section id="admin"><h2>17. Para quien administra: turnos, copias, claves y versiones</h2>
+<h3>Turnos de la ronda</h3>
+<p>La hoja <b>Turnos_Ronda</b> (se crea sola) dice quién debe hacer cada bloque de cada día y quién suele reemplazarlo. La ronda lo usa solo para avisar («Este bloque le corresponde a …») y el panel muestra «(le correspondía a …)» cuando la ronda la hizo otra persona. No bloquea nada. Para cambiarlo, edite la hoja; los nombres deben escribirse igual que en la hoja Directivos.</p>
+<h3>Copias de seguridad en Drive</h3>
+<p>En el menú del libro: <b>Respaldos: programar copia diaria (Drive)</b> (una sola vez) deja una copia cada noche del libro principal y del libro de respaldo de rondas en la carpeta de Drive <i>App Asistencia / Respaldos</i>: <b>Diario</b> (últimos 3 días), <b>Semanal</b> y <b>Mensual</b>. <b>Respaldos: copiar libros a Drive ahora</b> hace la copia al instante. En la hoja Parametros se ajusta cuántas se guardan (respaldo_dias, respaldo_semanas, respaldo_meses; 0 = todas).</p>
+<h3>Claves y sesiones</h3>
+<p>Cada directivo entra con su propia clave de 6 números (menú: <b>Generar claves de ingreso de los directivos</b>). Lo que se registra queda a nombre de quien abrió la sesión. <b>Ver sesiones abiertas</b> muestra cuántas sesiones tiene cada persona y su último uso. Si alguien usa el usuario de otro: cambie la clave desde la aplicación (se cierran las demás sesiones) o use <b>Restablecer la clave de un directivo</b> (cierra todas sus sesiones y da una clave temporal). Las rondas hechas con la sesión de otra persona quedan en la hoja Bitacora_Cambios como «Ronda con sesión prestada».</p>
+<h3>Instalar una versión nueva</h3>
+<p>En Apps Script reemplace <b>ICET_completo.gs</b> y los archivos HTML indicados, y publique con <b>Implementar → Gestionar implementaciones → Editar → Nueva versión</b> (no cree una «Nueva implementación»: cambiaría el enlace). Compare el número de versión del pie de las pantallas con el de la hoja LEEME.</p>
+<h3>Otros ajustes (hoja Parametros)</h3>
+<p><b>ronda_horas_margen</b>: horas después de la jornada en que los demás directivos aún pueden registrar la ronda; <b>reunion_desde</b> / <b>reunion_hasta</b>: horario normal de reuniones; <b>reunion_personas_extra</b>: personas que siempre deben aparecer en las reuniones de todo el personal.</p></section>
+
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.09-h</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.09-i</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

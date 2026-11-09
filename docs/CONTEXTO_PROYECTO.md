@@ -303,3 +303,6 @@ Hoja `Turnos_Ronda` (dia, bloque, titular, alterno) creada por `turnosRonda_()` 
 
 ### 2026.11.09-h · Registrador = quien abrió la sesión; cambiar la clave cierra las otras sesiones
 Reunion.html/Novedad.html muestran «Registra: <sesionDe>» (`listarReuniones` y `datosNovedades` devuelven `sesionDe`; el servidor ya registraba a nombre de la sesión). `cambiarClave` cierra las demás sesiones de la persona (`TOKEN_ACTUAL_`); `validarToken_` actualiza `ultimo_uso` cada 10 min; menú `verSesionesAbiertas`. Hallazgo: antes, cambiar la clave NO cerraba sesiones abiertas (14 días).
+
+### 2026.11.09-i · Cartilla de uso en PDF
+`scripts/manual/cartilla.html` (fuente) → `node scripts/generar_manual_pdf.js` → `docs/Manual_ICET_Asistencia_Docente.pdf` (dos pasadas para los números de página; requiere Playwright y pdftotext). **Regenerar la cartilla cuando cambie el uso de una pantalla** (junto con Ayuda.html). Ayuda.html suma el capítulo 17 (administración). `archivar_versiones.py` incluye el PDF en la carpeta «App Asistencia».

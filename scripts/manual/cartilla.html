@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Cartilla de uso · Control de asistencia docente · I.E. ICET</title>
+<!-- Cartilla de uso del sistema de control de asistencia docente. Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
+     Se convierte a PDF con scripts/generar_manual_pdf.js (los marcadores {{VERSION}} y {{FECHA}} los pone el script). -->
+<style>
+:root{--azul:#0f2a5c;--azul2:#1b4a8f;--oro:#f0c000;--ok:#2e7d32;--no:#c62828;--rep:#00897b;--ojo:#e0a800;--borde:#d5dbe3;--fondo:#eef3fa}
+@page{size:A4;margin:16mm 16mm 18mm 16mm} @page :first{margin:0}
+*{box-sizing:border-box} html{font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#1d2a3a}
+body{margin:0;font-size:11pt;line-height:1.38}
+h1,h2,h3,h4{color:var(--azul);margin:0}
+.cap{break-before:page} .cap:first-of-type{break-before:auto}
+.cap>h2{font-size:21pt;border-bottom:4px solid var(--oro);padding-bottom:4px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.cap>h2 .n{background:var(--azul);color:#fff;border-radius:10px;min-width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;font-size:19pt}
+h3{font-size:13.5pt;margin:12px 0 3px;color:var(--azul2);break-after:avoid} h4{font-size:12pt;margin:10px 0 2px;break-after:avoid}
+p{margin:5px 0} ul,ol{margin:5px 0;padding-left:22px} li{margin:2px 0}
+.portada{height:297mm;display:flex;flex-direction:column;justify-content:space-between;text-align:center;break-after:page;background:linear-gradient(160deg,#0b2150 0%,#1b4a8f 100%);color:#fff;margin:0;padding:34mm 20mm 30mm;width:210mm}
+.pag1{padding:0}
+.portada h1{color:#fff;font-size:34pt;line-height:1.1;margin:0 0 6px} .portada .sub{font-size:17pt;color:#dfe8f7}
+.portada .franja{width:130px;height:7px;background:var(--oro);margin:0 auto 22px;border-radius:4px}
+.portada .vb{display:inline-block;background:var(--oro);color:var(--azul);border-radius:16px;padding:5px 18px;font-weight:700;font-size:13pt}
+.portada .aut{font-size:11.5pt;line-height:1.7;color:#dfe8f7}.portada .aut b{color:#fff}
+.escudo{width:96px;height:96px;margin:0 auto 14px;border-radius:50%;background:#fff;color:var(--azul);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22pt;border:5px solid var(--oro)}
+.toc{break-after:page} .toc h2{font-size:21pt;border-bottom:4px solid var(--oro);padding-bottom:4px}
+.toc ol{list-style:none;padding:0;margin:10px 0} .toc li{display:flex;align-items:baseline;gap:8px;margin:7px 0;font-size:12.5pt}
+.toc li .t{flex:0 0 auto} .toc li .p{flex:1;border-bottom:2px dotted #9fb3cf;margin:0 4px;height:.7em} .toc li b.pg{color:var(--azul)}
+.toc li .nn{background:var(--azul);color:#fff;border-radius:7px;min-width:28px;text-align:center;font-weight:700}
+.caja{border-radius:10px;padding:6px 11px;margin:7px 0;border-left:6px solid;break-inside:avoid;font-size:11pt}
+.tip{background:#e8f5e9;border-color:var(--ok)}.ojo{background:#fff8e1;border-color:var(--ojo)}.alto{background:#fdeeee;border-color:var(--no)}.info{background:#e8f0fb;border-color:var(--azul2)}
+.caja b.et{display:block;font-size:10pt;letter-spacing:.4px;text-transform:uppercase;margin-bottom:1px}
+.tip b.et{color:var(--ok)}.ojo b.et{color:#9a6b00}.alto b.et{color:var(--no)}.info b.et{color:var(--azul2)}
+.paso{display:flex;gap:10px;margin:6px 0;break-inside:avoid;align-items:flex-start}
+.paso .num{flex:0 0 32px;height:32px;border-radius:50%;background:var(--azul);color:#fff;font-weight:800;font-size:14pt;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.paso .tx{flex:1} .paso .tx b.tit{font-size:12pt;color:var(--azul)}
+.tabla{width:100%;border-collapse:collapse;margin:6px 0;font-size:10pt;break-inside:auto} .tabla th{background:var(--azul);color:#fff;text-align:left;padding:5px 7px} .tabla td{border:1px solid var(--borde);padding:4px 7px;vertical-align:top} .tabla tr{break-inside:avoid} .tabla tr:nth-child(even) td{background:#f6f9fd}
+.btn{display:inline-block;border:1.5px solid #b6c3d6;border-radius:7px;padding:0 6px;font-weight:700;font-size:10pt;background:#f4f7fb;white-space:nowrap}
+.btn.az{background:var(--azul);color:#fff;border-color:var(--azul)}.btn.or{background:var(--oro);color:var(--azul);border-color:var(--oro)}
+.fig{margin:6px auto;break-inside:avoid;max-width:520px} .fig .cap-fig{font-size:9.5pt;color:#567;text-align:center;margin-top:3px}
+.tel{border:2px solid #b6c3d6;border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 2px 8px rgba(15,42,92,.15)}
+.hd{background:linear-gradient(120deg,#0b2150,#1b4a8f);color:#fff;padding:7px 9px;border-bottom:4px solid var(--oro)}
+.hd .t1{font-weight:800;font-size:11pt}.hd .t2{font-size:8.5pt;color:#cfdcf2}
+.hd .fila{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap;align-items:center}
+.hd .b{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);border-radius:7px;padding:2px 7px;font-size:8.5pt;font-weight:700}
+.hd .sel{background:#fff;color:var(--azul);border-radius:7px;padding:2px 8px;font-size:8.5pt;font-weight:700}.hd .ah{background:var(--oro);color:var(--azul);border-radius:7px;padding:2px 9px;font-size:8.5pt;font-weight:800}
+.hd .ch{background:rgba(255,255,255,.22);border-radius:10px;padding:1px 8px;font-size:8pt}
+.reloj{margin-left:auto;font-family:Consolas,monospace;font-weight:800;font-size:11pt;background:rgba(255,255,255,.14);border-radius:8px;padding:1px 8px}
+.tar{padding:8px 10px;border-bottom:1px solid var(--borde);font-size:9.5pt}
+.tar .nom{font-weight:800;color:var(--azul);font-size:10.5pt}.tar .m{color:#567;font-size:8.5pt}
+.tg{display:inline-flex;border:1.5px solid #b6c3d6;border-radius:9px;overflow:hidden;font-size:8.5pt;font-weight:700;margin-left:6px}.tg span{padding:1px 8px}.tg .on{background:var(--ok);color:#fff}
+.sg{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}.sg span{border:2px solid;border-radius:8px;padding:2px 6px;font-size:8.5pt;font-weight:700;background:#fff}
+.sg .p{border-color:var(--ok);color:var(--ok)}.sg .pp{background:var(--ok);color:#fff}.sg .n{border-color:var(--no);color:var(--no)}.sg .r{border-color:var(--rep);color:var(--rep)}.sg .s{border-color:#7e57c2;color:#7e57c2}.sg .t{border-color:#b58900;color:#8a6a00}
+.ba{background:#fff;border-top:2px solid var(--borde);padding:6px 8px}
+.ba .ch{display:inline-block;border-radius:10px;padding:1px 9px;font-size:8.5pt;font-weight:800;margin:1px}
+.c1{background:#ffd9a0;color:#7a4a00}.c2{background:#e0f2e1;color:#1b5e20}.c3{background:#fde3e1;color:#a31515}.c4{background:#d6f0f0;color:#00695c}.c5{background:#fff3cf;color:#8a6a00}
+.ba .bt{display:flex;gap:5px;margin-top:5px}.ba .bt span{border-radius:8px;padding:4px 8px;font-weight:700;font-size:9pt;text-align:center}
+.g1{background:#e8f5e9;color:#1b5e20}.g2{background:#fde3e1;color:#a31515;border:2px solid #e57373}.g3{background:var(--azul);color:#fff;flex:1.6}
+.nota-fig{display:inline-block;background:var(--oro);color:var(--azul);border-radius:50%;width:17px;height:17px;text-align:center;font-weight:800;font-size:8.5pt;line-height:17px}
+.leyenda{font-size:10pt;margin:4px 0 0;padding:0;list-style:none} .leyenda li{margin:2px 0}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:12px} .dos>div{break-inside:avoid}
+.ruta td:first-child{font-weight:700;color:var(--azul);width:26%}
+.final{text-align:center;margin-top:16px;color:#456;font-size:9.5pt}
+</style></head><body>
+
+<section class="portada">
+  <div><div class="franja"></div><div class="escudo">ICET</div><h1>Control de asistencia docente</h1><div class="sub">Cartilla de uso</div><p style="margin-top:14px"><span class="vb">versión {{VERSION}}</span></p></div>
+  <div class="aut"><b>Institución Educativa ICET</b> · San Andrés de Tumaco (Nariño, Colombia)<br>Ronda de aula · Novedades · Reuniones y actividades · Panel de informes<br><br>
+  <b>Autor del sistema:</b> Francisco Javier Cortés Cabezas<br>Coordinador académico · Especialista en Informática y Telemática<br>Magíster en Educación · Doctorando en Desarrollo de la Educación<br><br>{{FECHA}}</div>
+</section>
+
+<section class="toc"><h2>Contenido</h2>
+<ol>
+<li><span class="nn">0</span><span class="t">Cómo usar esta cartilla</span><span class="p"></span><b class="pg" data-cap="comousar"></b></li>
+<li><span class="nn">1</span><span class="t">Para qué sirve y quién lo usa</span><span class="p"></span><b class="pg" data-cap="que"></b></li>
+<li><span class="nn">2</span><span class="t">Entrar y dejar el icono en el celular</span><span class="p"></span><b class="pg" data-cap="entrar"></b></li>
+<li><span class="nn">3</span><span class="t">La ronda en 7 pasos</span><span class="p"></span><b class="pg" data-cap="ronda"></b></li>
+<li><span class="nn">4</span><span class="t">Qué marcar en cada caso</span><span class="p"></span><b class="pg" data-cap="estados"></b></li>
+<li><span class="nn">5</span><span class="t">Situaciones especiales de la ronda</span><span class="p"></span><b class="pg" data-cap="especiales"></b></li>
+<li><span class="nn">6</span><span class="t">Registrar novedades</span><span class="p"></span><b class="pg" data-cap="novedades"></b></li>
+<li><span class="nn">7</span><span class="t">Reuniones y actividades</span><span class="p"></span><b class="pg" data-cap="reuniones"></b></li>
+<li><span class="nn">8</span><span class="t">Panel e informes</span><span class="p"></span><b class="pg" data-cap="panel"></b></li>
+<li><span class="nn">9</span><span class="t">Horarios, estudiantes y docentes</span><span class="p"></span><b class="pg" data-cap="otros"></b></li>
+<li><span class="nn">10</span><span class="t">Si algo no funciona</span><span class="p"></span><b class="pg" data-cap="problemas"></b></li>
+<li><span class="nn">11</span><span class="t">Para quien administra</span><span class="p"></span><b class="pg" data-cap="admin"></b></li>
+</ol>
+<div class="caja info"><b class="et">Recuerde</b>Los datos son de uso exclusivo institucional (Ley 1581 de 2012). No comparta su clave ni capturas de pantalla con nombres de estudiantes.</div>
+</section>
+
+<section class="cap" id="comousar"><h2><span class="n">0</span>Cómo usar esta cartilla</h2>
+<p>Esta cartilla le enseña a usar el sistema <b>paso a paso</b>, con dibujos de las pantallas. No hace falta leerla completa: vaya al capítulo de lo que necesita.</p>
+<h3>Los avisos de colores</h3>
+<div class="caja tip"><b class="et">💡 Consejo</b>Un atajo o una forma más fácil de hacer algo.</div>
+<div class="caja ojo"><b class="et">👀 Ojo</b>Algo que conviene tener presente para no equivocarse.</div>
+<div class="caja alto"><b class="et">⛔ Cuidado</b>Algo que puede borrar o cambiar datos.</div>
+<div class="caja info"><b class="et">ℹ️ Dato</b>Información de contexto.</div>
+<h3>¿Por dónde empiezo? (ruta rápida)</h3>
+<table class="tabla ruta"><tr><th>Soy…</th><th>Quiero…</th><th>Capítulo</th></tr>
+<tr><td>Directivo</td><td>Hacer la ronda de mi bloque</td><td>2 y 3 (ronda en 7 pasos), 4 y 5 (casos)</td></tr>
+<tr><td>Directivo</td><td>Anotar que un docente no vendrá, llegará tarde o saldrá</td><td>6 Registrar novedades</td></tr>
+<tr><td>Directivo</td><td>Programar una reunión o tomar asistencia a una actividad</td><td>7 Reuniones y actividades</td></tr>
+<tr><td>Directivo</td><td>Ver o enviar informes</td><td>8 Panel e informes</td></tr>
+<tr><td>Docente</td><td>Ver mi informe y entregar soportes</td><td>9 (Si usted es docente)</td></tr>
+<tr><td>Quien administra</td><td>Turnos, copias de seguridad, claves y versiones</td><td>11 Para quien administra</td></tr>
+<tr><td>Cualquiera</td><td>Algo salió mal</td><td>10 Si algo no funciona</td></tr></table>
+<div class="caja tip"><b class="et">💡 Consejo</b>La misma ayuda está dentro de la aplicación (botón «Ayuda» del menú). Esta cartilla es para imprimir, enviar por WhatsApp o tener a mano sin conexión.</div>
+</section>
+
+<section class="cap" id="que"><h2><span class="n">1</span>Para qué sirve y quién lo usa</h2>
+<p>El sistema permite <b>verificar quién está en clase</b> (la ronda), registrar las novedades de asistencia de los docentes (permisos, incapacidades, llegadas tarde, reuniones, salidas pedagógicas) y sacar <b>informes</b> para coordinación y rectoría. Funciona en el celular y en el computador, desde un enlace.</p>
+<h3>Las cuatro herramientas</h3>
+<table class="tabla"><tr><th style="width:24%">Herramienta</th><th>Para qué se usa</th></tr>
+<tr><td><b>Ronda de aula</b></td><td>Pasar lista de los docentes de cada bloque mientras se recorre el colegio.</td></tr>
+<tr><td><b>Registrar novedades</b></td><td>Anotar de antemano o después lo que le pasó a un docente (no vendrá, llega tarde, sale a una salida pedagógica…).</td></tr>
+<tr><td><b>Reuniones y actividades</b></td><td>Programar reuniones, jornadas y actividades, y tomar la asistencia una sola vez.</td></tr>
+<tr><td><b>Panel e informes</b></td><td>Ver cifras, rondas guardadas y enviarse el informe al correo.</td></tr></table>
+<h3>Quién hace qué</h3>
+<table class="tabla"><tr><th style="width:24%">Rol</th><th>Qué hace</th></tr>
+<tr><td>Directivos y coordinadores</td><td>Hacen la ronda, registran novedades y reuniones, ven los informes y marcan estudiantes.</td></tr>
+<tr><td>Rector</td><td>Ve el panel y los informes de todo.</td></tr>
+<tr><td>Docentes</td><td>Ven su propio informe y entregan sus soportes (incapacidades, citas, actas).</td></tr></table>
+<div class="caja info"><b class="et">ℹ️ Dato</b>Lo que usted registra queda <b>a nombre de quien abrió la sesión</b>. Por eso cada directivo debe entrar con su propia clave.</div>
+</section>
+
+<section class="cap" id="entrar"><h2><span class="n">2</span>Entrar y dejar el icono en el celular</h2>
+<h3>Entrar con su clave</h3>
+<div class="paso"><div class="num">1</div><div class="tx"><b class="tit">Abra el enlace</b><br>El que le dio coordinación, o el icono del celular. En el computador, ábralo en Chrome o Safari.</div></div>
+<div class="paso"><div class="num">2</div><div class="tx"><b class="tit">Elija su nombre</b><br>En la lista, toque su nombre y escriba <b>su clave de 6 números</b>. Toque <span class="btn az">Entrar</span>.</div></div>
+<div class="paso"><div class="num">3</div><div class="tx"><b class="tit">Cambie la clave temporal</b><br>La primera vez le pedirá cambiarla por una suya. Anótela en un lugar seguro.</div></div>
+<div class="caja alto"><b class="et">⛔ Cuidado</b>La clave es personal. No la preste: todo lo que se registre con su sesión queda a su nombre. Si necesita que otro directivo haga la ronda con su celular, él debe elegir su propio nombre en «Ronda a cargo de».</div>
+<div class="caja tip"><b class="et">💡 Consejo</b>Si olvidó la clave, pídale a quien administra que la restablezca: le dará una clave temporal que usted cambia al entrar.</div>
+<h3>Dejar el icono en el celular</h3>
+<div class="dos"><div><h4>Android (Chrome)</h4><ol><li>Abra el enlace en Chrome.</li><li>Toque los <b>tres puntos ⋮</b> arriba a la derecha.</li><li>Elija <b>«Agregar a la pantalla de inicio»</b>.</li><li>Confirme con <b>Agregar</b>.</li></ol></div>
+<div><h4>iPhone (Safari)</h4><ol><li>Abra el enlace en Safari.</li><li>Toque el botón <b>Compartir ⬆</b>.</li><li>Elija <b>«Añadir a pantalla de inicio»</b>.</li><li>Toque <b>Añadir</b>.</li></ol></div></div>
+<div class="caja ojo"><b class="et">👀 Ojo</b>No use la ventana privada o de incógnito para trabajar: en ese modo el teléfono no puede guardar el borrador si se cae la señal.</div>
+</section>
+
+<section class="cap" id="ronda"><h2><span class="n">3</span>La ronda en 7 pasos</h2>
+<p>Un bloque son <b>dos sesiones seguidas</b>: bloque 1 de 6:30 a 8:00, bloque 2 de 8:20 a 9:50, bloque 3 de 10:10 a 11:40 y bloque 4 de 12:00 a 1:30.</p>
+<div class="fig"><div class="tel"><div class="hd"><div class="t1">Control de asistencia docente <span class="ch" style="background:var(--oro);color:var(--azul)">versión</span></div><div class="t2">Institución Ciudadela Educativa Tumaco · ICET</div>
+<div class="fila"><span class="b">« Menú</span><span class="b">Ver panel</span><span class="b">Reuniones</span><span class="reloj">10:12:45</span></div>
+<div class="fila"><span class="b">◀</span><span class="sel">Bloque 3 · 10:10 ▾</span><span class="b">▶</span><span class="sel">LUNES ▾</span><span class="sel">Bloque ▾</span><span class="ah">Ahora</span></div>
+<div class="fila"><span class="ch">10:10 - 11:40</span><span class="ch">42 docentes</span><span class="ch" style="background:var(--oro);color:var(--azul)">👤 Francisco Cortés</span></div></div>
+<div class="tar"><b>Ronda a cargo de:</b> Francisco Cortés (usted) ▾<br><small style="color:#1b5e20">✔ Este bloque le corresponde a usted.</small></div>
+<div class="tar"><div class="nom">Betancourt Ocampo Yohana Patricia <span class="tg"><span class="on">Con estudiantes</span><span>Sin estudiantes</span></span></div><div class="m">9°-2 · CSI · alternan cada semana</div>
+<div class="sg"><span class="p pp">✔ Presente</span><span class="n">✖ No asistió</span><span class="r">👥 Otro a cargo</span><span class="s">🏛 SED</span><span class="t">⏳ Permiso</span><span class="t">⏰ Tarde</span><span class="t">↩ Salió</span></div></div>
+<div class="ba"><span class="ch c1">💾 12 sin guardar</span><span class="ch c1">❗ 2 faltan de 42</span><span class="ch c2">✔ 30 presentes</span><span class="ch c3">✖ 4 no asistió</span><span class="ch c4">👥 4 otro a cargo</span>
+<div class="bt"><span class="g1">🔔</span><span class="g1">✔ Todos</span><span class="g2">↺ Limpiar</span><span class="g3">Guardar · 12</span></div></div></div>
+<div class="cap-fig">Pantalla de la ronda (dibujo): arriba el bloque y el responsable, en medio las tarjetas de los docentes, abajo los contadores y los botones.</div></div>
+<div class="paso"><div class="num">1</div><div class="tx"><b class="tit">Abra «Ronda de aula»</b><br>Desde el menú principal. Arriba verá el reloj, el bloque y quién hace la ronda.</div></div>
+<div class="paso"><div class="num">2</div><div class="tx"><b class="tit">Elija el bloque</b><br>Toque el recuadro <span class="btn">Bloque 3 · 10:10 ▾</span> y escoja directamente el bloque (o la sesión, según el modo). Las flechas <span class="btn">◀</span> <span class="btn">▶</span> pasan al anterior o siguiente, y <span class="btn or">Ahora</span> vuelve al bloque actual. En el descanso, «Ahora» sigue mostrando el bloque que terminó, con la etiqueta <b>☕ DESCANSO</b>: aún puede marcar.</div></div>
+<div class="paso"><div class="num">3</div><div class="tx"><b class="tit">Revise «Ronda a cargo de»</b><br>Por defecto aparece <b>quien abrió la sesión</b>, con «(usted)». Debajo se avisa a quién le corresponde ese bloque según los turnos; es solo un aviso, no bloquea nada.</div></div>
+<div class="paso"><div class="num">4</div><div class="tx"><b class="tit">Marque a cada docente</b><br>Toque su estado: <span class="btn">✔ Presente</span> si está con su grupo, u otro botón si hay novedad (capítulo 4). Si casi todos están, toque <span class="btn">✔ Todos</span> y corrija solo a quienes falten. Use la barra «Buscar docente o grupo» para encontrar a alguien.</div></div>
+<div class="paso"><div class="num">5</div><div class="tx"><b class="tit">Complete el detalle, si lo pide</b><br>Algunos botones abren más opciones: motivo, hasta cuándo no estará, quién cubre el grupo, observación. Solo llene lo que aparece.</div></div>
+<div class="paso"><div class="num">6</div><div class="tx"><b class="tit">Mire los contadores</b><br>«<b>❗ N faltan de 42</b>» debe llegar a cero. Tóquelo y verá <b>quiénes</b> faltan. Mientras falten docentes, no deja guardar.</div></div>
+<div class="paso"><div class="num">7</div><div class="tx"><b class="tit">Guarde</b><br>Toque <span class="btn az">Guardar ronda</span>. Al instante aparece el resumen con «⏳ Guardando…»; cuando el libro termina cambia a <b>«✔ Ronda guardada»</b>. Desde ahí puede <span class="btn az">✉ Enviarme este informe</span> o <span class="btn">Cerrar y salir al menú</span>.</div></div>
+<div class="caja tip"><b class="et">💡 Consejo</b>Si se equivoca antes de guardar, <span class="btn">↺ Limpiar</span> quita lo que aún no ha guardado. Si ya guardó, vuelva a marcar al docente con el estado correcto y guarde de nuevo: la marca anterior se reemplaza.</div>
+<div class="caja ojo"><b class="et">👀 Ojo</b>No cierre la pantalla mientras diga «Guardando…». Si falla, sus marcas siguen en pantalla y quedan en un borrador del teléfono para guardar de nuevo.</div>
+</section>
+
+<section class="cap" id="estados"><h2><span class="n">4</span>Qué marcar en cada caso</h2>
+<div class="fig"><div class="tel"><div class="tar"><div class="sg" style="margin:0"><span class="p pp">✔ Presente</span><span class="n">✖ No asistió</span><span class="r">👥 Otro a cargo</span><span class="s">🏛 SED</span><span class="t">⏳ Permiso</span><span class="t">⏰ Tarde</span><span class="t">↩ Salió</span><span class="n">⚠ Incumple</span></div></div></div><div class="cap-fig">Los botones de cada docente.</div></div>
+<table class="tabla"><tr><th style="width:19%">Botón</th><th style="width:36%">Cuándo usarlo</th><th>Qué le pide</th></tr>
+<tr><td><b>✔ Presente</b></td><td>Está en clase con su grupo.</td><td>Nada más. Si no hay estudiantes en ese momento, use «Sin estudiantes» (ver capítulo 5).</td></tr>
+<tr><td><b>✖ No asistió</b></td><td>No vino y nadie atiende el grupo.</td><td>Motivo, «¿Hasta cuándo no estará?» (solo este bloque o toda la jornada) y observación. El tiempo sin atender es el de su horario: usted no calcula nada.</td></tr>
+<tr><td><b>👥 Otro a cargo</b></td><td>El titular no está, pero otra persona atiende el grupo (reemplazo, persona de apoyo, practicante, otro docente).</td><td>Motivo de la ausencia y <b>quién cubre el grupo</b>. Si nadie lo cubre, elija «Nadie / ninguna persona (el grupo queda solo)».</td></tr>
+<tr><td><b>🏛 SED</b></td><td>Capacitación, taller, charla o citación de la Secretaría de Educación.</td><td>Nada: es toda la jornada y no se justifica.</td></tr>
+<tr><td><b>⏳ Permiso</b></td><td>Se ausenta unas horas (cita, diligencia).</td><td>Motivo y cuánto tiempo, o «hasta el final de la jornada».</td></tr>
+<tr><td><b>⏰ Tarde</b></td><td>Llegó después de la hora.</td><td>Cuántos minutos tarde.</td></tr>
+<tr><td><b>↩ Salió</b></td><td>Se fue antes de terminar su jornada.</td><td>La hora a la que salió (el sistema calcula el tiempo) o los minutos.</td></tr>
+<tr><td><b>⚠ Incumple</b></td><td>Está en el colegio pero no atiende al grupo, o despidió a los estudiantes sin autorización.</td><td>Tipo, dónde estaba, descripción (mínimo 15 letras) y confirmar que lo verificó personalmente.</td></tr></table>
+<h3>Cómo se calculan los minutos</h3>
+<ul><li><b>No asistió, incapacidad, licencia, duelo, comisión, descanso compensatorio:</b> toda la jornada; el tiempo es el que el docente tiene asignado ese día.</li>
+<li><b>No asistió «solo este bloque»:</b> 45 minutos por sesión (60 en preescolar).</li>
+<li><b>Salió temprano:</b> escriba la hora y el sistema suma lo que le faltaba por dictar.</li><li><b>Permiso por horas:</b> elija los minutos o «hasta el final de la jornada».</li></ul>
+<div class="caja ojo"><b class="et">👀 Ojo</b>Si el motivo no justifica toda la jornada (por ejemplo una cita médica), cambie «¿Hasta cuándo no estará?» a «Solo este bloque». El resumen al guardar muestra el tiempo real de cada uno.</div>
+</section>
+
+<section class="cap" id="especiales"><h2><span class="n">5</span>Situaciones especiales de la ronda</h2>
+<h3>🧑‍🏫 Preescolar y orientación</h3>
+<p>Las profesoras de <b>preescolar</b> entran a las 7:30 con los niños y tienen periodos de una hora. Aparecen en el bloque donde <b>empieza</b> cada periodo: 7:30 en el bloque 1; 8:30 y 9:30 en el bloque 2; 10:30 en el bloque 3. Siguen en el colegio hasta las 12:00 despachando a los niños (se pueden marcar hasta esa hora). Las <b>orientadoras</b> aparecen según su horario (Johana desde el bloque 1; Ángela desde el bloque 2, hasta la 1:30).</p>
+<h3>🔁 Docentes que alternan cada semana</h3>
+<p>En algunas áreas dos docentes se turnan por semana (por ejemplo ética y religión). La tarjeta muestra el nombre de quien dicta esta semana y dice «alternancia automática». Si no corresponde (vacaciones, cambio de acuerdo), la coordinación académica toca <span class="btn">Cambiar</span>. Pregunte antes de elegir: es mejor dejarlo pendiente que elegir mal.</p>
+<h3>📋 Hay una reunión o actividad en ese horario</h3>
+<p>Si una reunión o actividad «sin clases» coincide con el bloque, la ronda ofrece <b>dos botones</b>: <span class="btn az">▶ Hacer la ronda de las clases</span> o <span class="btn" style="background:#2e7d32;color:#fff">📋 Registrar asistencia de la reunión</span> (o «de la actividad»). Elija uno: la ronda no se bloquea. Si la actividad es solo de algunos grupos, haga la ronda; la elección queda para esa fecha y se puede volver a respetar la reunión desde la ronda.</p>
+<h3>🎓 «Sin estudiantes»</h3>
+<p>Si el docente está presente pero no tiene estudiantes en ese momento, cambie el interruptor <span class="btn">Con estudiantes | Sin estudiantes</span> junto al área y elija el motivo en la lista (los despachó, taller o fuera del aula, no asistieron, otra dependencia, no los está atendiendo, otro…). No aplica a orientación ni a la tutora PTA.</p>
+<h3>📶 Si se cae la señal</h3>
+<p>Siga marcando: todo se guarda como borrador en el teléfono y arriba aparece una barra roja «Sin conexión · N marcas pendientes». Cuando vuelva la señal, toque <span class="btn az">Guardar ronda</span>.</p>
+<h3>📅 Consultar o corregir la ronda de otro día</h3>
+<p>Solo quien administra abre rondas de otras fechas: en el selector de día elija «📅 Fecha…», escoja un día hábil y, para corregir, escriba el motivo (queda en cada marca). Los demás directivos consultan esas rondas en el panel (Rondas guardadas). Los directivos pueden registrar la ronda del día hasta 3 horas después de terminar la jornada; después, solo quien administra.</p>
+<div class="caja info"><b class="et">ℹ️ Dato</b>Lo que ya está en novedades o en reuniones no se repite en la ronda: el docente aparece ya marcado («No asistió», «Otro a cargo», «En reunión», «Fuera con estudiantes»). Solo marque lo que usted observa en ese momento.</div>
+</section>
+
+<section class="cap" id="novedades"><h2><span class="n">6</span>Registrar novedades</h2>
+<p>Use <b>Registrar novedades</b> cuando un docente le avisa de antemano (incapacidad de varios días, permiso, cita, salida pedagógica) o cuando necesita anotarlo fuera de la ronda.</p>
+<div class="paso"><div class="num">1</div><div class="tx"><b class="tit">Elija quién o quiénes</b><br>Escriba para buscar y marque a uno o varios docentes. Arriba verá «Registra: su nombre».</div></div>
+<div class="paso"><div class="num">2</div><div class="tx"><b class="tit">Elija qué pasó</b><br>No viene, llega tarde, sale temprano, permiso por horas, salida pedagógica…</div></div>
+<div class="paso"><div class="num">3</div><div class="tx"><b class="tit">Fechas y motivo</b><br>«Desde» y «Hasta» si son varios días (una sola vez), y el motivo de la lista.</div></div>
+<div class="paso"><div class="num">4</div><div class="tx"><b class="tit">Quién queda a cargo del grupo</b><br>Y si se dejó actividad de aprendizaje. Si nadie, elija «Nadie (grupo solo)».</div></div>
+<div class="paso"><div class="num">5</div><div class="tx"><b class="tit">¿Cómo se enteró? y ¿Quién informó?</b><br>Elija el medio (WhatsApp directo, llamada…) y la fuente (el propio docente, el rector, <b>conocimiento de la comunidad (público)</b>…). Toque <span class="btn az">Guardar novedad</span>.</div></div>
+<div class="caja tip"><b class="et">💡 Consejo</b>Al guardar aparece un aviso verde «✔ Guardado» arriba y el formulario queda en blanco: puede registrar otra novedad enseguida. Para salir, use «« Menú».</div>
+<div class="caja info"><b class="et">ℹ️ Dato</b>Lo que registre aparece solo en la ronda del día (ya marcado, con su motivo y quién cubre). Abajo, «Últimas novedades» permite <b>✏️ editar</b> (incluso cambiar los días) o anular una novedad; queda registro de quién lo hizo.</div>
+<table class="tabla"><tr><th style="width:36%">Situación</th><th>Dónde se registra</th></tr>
+<tr><td>El docente avisa que no vendrá (hoy o días siguientes)</td><td>Registrar novedades (una vez, con «Desde / Hasta»).</td></tr>
+<tr><td>Cita, permiso por horas, llegará tarde</td><td>Registrar novedades; la marca final se hace en la ronda de esa sesión.</td></tr>
+<tr><td>Salida pedagógica con estudiantes</td><td>Registrar novedades → «Salida pedagógica»: no se marca ausente.</td></tr>
+<tr><td>Reunión, consejo, jornada pedagógica</td><td>Reuniones y actividades (capítulo 7).</td></tr>
+<tr><td>Lo que usted ve en el momento</td><td>La ronda.</td></tr></table>
+</section>
+
+<section class="cap" id="reuniones"><h2><span class="n">7</span>Reuniones y actividades</h2>
+<h3>Programar una reunión o actividad</h3>
+<div class="paso"><div class="num">1</div><div class="tx"><b class="tit">Toque «＋ Nueva»</b><br>Elija el <b>tipo</b> (consejo, comité, jornada pedagógica, entrega de boletines, simulacro…). Si es «Otra», escriba el nombre.</div></div>
+<div class="paso"><div class="num">2</div><div class="tx"><b class="tit">Fecha y horas</b><br>El horario normal es de lunes a viernes, de 6:30 a 18:00. Los sábados se permiten para boletines, jornada pedagógica, escuela de padres, ceremonias de grado y clausura. Cualquier otra cosa (domingo, noche, bazar, cena de grados) se marca con <b>⭐ Excepcional</b>.</div></div>
+<div class="paso"><div class="num">3</div><div class="tx"><b class="tit">Lugar, quién convoca y a quiénes</b><br>Elija el lugar de la lista, quién convoca y a quiénes (todo el personal, directivos, por áreas, o persona por persona).</div></div>
+<div class="paso"><div class="num">4</div><div class="tx"><b class="tit">¿Se suspenden las clases?</b><br>La casilla «Sin clases» suspende la ronda de aula en ese horario (se puede hacer la ronda de todos modos, ver capítulo 5).</div></div>
+<div class="paso"><div class="num">5</div><div class="tx"><b class="tit">Toque «Crear reunión»</b><br>Aparece «✔ Reunión creada» y el formulario queda en blanco para programar otra. Para volver, «Salir a la lista».</div></div>
+<div class="caja tip"><b class="et">💡 Consejo</b>Desde la tarjeta de la reunión puede preparar los <b>comunicados</b> para docentes y padres (texto listo para copiar o enviar por WhatsApp) y editar o anular la reunión.</div>
+<h3>Tomar la asistencia</h3>
+<div class="paso"><div class="num">1</div><div class="tx"><b class="tit">Abra la reunión</b><br>Desde la lista: toque «Registrar asistencia». Arriba verá «Registra: su nombre».</div></div>
+<div class="paso"><div class="num">2</div><div class="tx"><b class="tit">Marque a cada persona</b><br><span class="btn">✔ Asistió</span> <span class="btn">✖ No asistió</span> <span class="btn">⏰ Tarde</span> <span class="btn">↩ Salió antes</span>. Quien ya tiene una ausencia reportada ese día sale marcado «No asistió» con su motivo.</div></div>
+<div class="paso"><div class="num">3</div><div class="tx"><b class="tit">Revise «○ N sin registrar · ver quiénes»</b><br>Toque ese contador: abre la lista de quienes faltan, con un botón para marcar a los que faltan como «asistió».</div></div>
+<div class="paso"><div class="num">4</div><div class="tx"><b class="tit">Guarde</b><br>Sale el resumen enseguida («Guardando…» y luego ✔), con barra de desplazamiento. Puede «Seguir revisando» o <span class="btn">Cerrar y salir al menú</span>. La asistencia se puede volver a abrir y corregir.</div></div>
+<div class="caja info"><b class="et">ℹ️ Dato</b>La asistencia se toma <b>una sola vez</b>, aquí. Quien asistió no aparece ausente en la ronda de esa hora. Si falta una persona en la lista, quien administra puede tocar <b>➕ Persona que no aparece</b>.</div>
+</section>
+
+<section class="cap" id="panel"><h2><span class="n">8</span>Panel e informes</h2>
+<div class="paso"><div class="num">1</div><div class="tx"><b class="tit">Abra «Ver panel»</b><br>Desde el menú o desde el encabezado de la ronda.</div></div>
+<div class="paso"><div class="num">2</div><div class="tx"><b class="tit">Elija el periodo</b><br>Hoy, semana, mes o fechas a su elección.</div></div>
+<div class="paso"><div class="num">3</div><div class="tx"><b class="tit">Lea las cifras</b><br>Horas de clase sin atender, ausencia total de docentes, ausencias, llegadas tarde, salidas, permisos, salidas pedagógicas, incumplimientos y porcentaje de novedades justificadas.</div></div>
+<div class="paso"><div class="num">4</div><div class="tx"><b class="tit">Filtre</b><br>Por nivel (preescolar, primaria, secundaria…) y por docente.</div></div>
+<div class="paso"><div class="num">5</div><div class="tx"><b class="tit">Rondas guardadas</b><br>Cada ronda por día y bloque, con quién la hizo, presentes, ausentes y novedades. Si la hizo alguien distinto del titular del turno, dice «(le correspondía a …)». Puede filtrar por directivo.</div></div>
+<div class="paso"><div class="num">6</div><div class="tx"><b class="tit">Envíe o imprima</b><br><span class="btn az">Enviarme el informe</span> llega a su correo (cualquier proveedor). Para PDF sin impresora, use Imprimir y «Guardar como PDF».</div></div>
+<div class="caja info"><b class="et">ℹ️ Dato</b>Los directivos con correo registrado reciben automáticamente el informe del día (hacia la 1:35 p. m.), el de la semana y el del mes.</div>
+<div class="caja tip"><b class="et">💡 Consejo</b>Al abrir cualquier pantalla aparece unos segundos el aviso <b>«Hoy en el colegio»</b>: reuniones y actividades del día, docentes ausentes con su motivo y recordatorios. Tiene barra de desplazamiento; si se desplaza, deja de cerrarse solo.</div>
+<h3>Dos cifras que no se confunden</h3>
+<ul><li><b>Tiempo de ausencia de los docentes:</b> incluye lo que cubrió otra persona.</li><li><b>Horas de clase sin atender:</b> solo lo que quedó sin quien atendiera al grupo.</li></ul>
+</section>
+
+<section class="cap" id="otros"><h2><span class="n">9</span>Horarios, estudiantes y docentes</h2>
+<h3>Horarios y listados</h3>
+<p>Consulte el horario de un docente o de un grupo, quiénes deben estar ahora y quién es el director de grupo. Puede imprimir o guardar en PDF.</p>
+<h3>Estudiantes y sus marcas</h3>
+<div class="paso"><div class="num">1</div><div class="tx">En Horarios y listados abra la pestaña <b>Estudiantes</b> y elija el grupo o el nivel.</div></div>
+<div class="paso"><div class="num">2</div><div class="tx">Seleccione estudiantes, toque <span class="btn">Marcar</span>, elija el tipo (seguimiento, apoyos, grupos y proyectos…) y escriba una nota.</div></div>
+<div class="paso"><div class="num">3</div><div class="tx">Para quitar una marca: <span class="btn">✕ Quitar marca</span>; queda registrado quién y cuándo.</div></div>
+<div class="caja alto"><b class="et">⛔ Cuidado</b>Las marcas de salud, discapacidad y otras sensibles son solo para directivos. No incluya documentos, teléfonos ni correos de estudiantes o familias.</div>
+<h3>Si usted es docente</h3>
+<div class="paso"><div class="num">1</div><div class="tx">Pida acceso con su correo; un directivo lo aprueba.</div></div>
+<div class="paso"><div class="num">2</div><div class="tx">Vea su informe de asistencia (solo el suyo).</div></div>
+<div class="paso"><div class="num">3</div><div class="tx">Entregue sus soportes (incapacidad, cita, acta, citación) dentro del plazo: <b>3 días hábiles</b> si la ausencia no está justificada y <b>máximo 5</b> en los demás casos, contados desde que se reintegra. Para aclaraciones o descargos, comuníquese con coordinación.</div></div>
+</section>
+
+<section class="cap" id="problemas"><h2><span class="n">10</span>Si algo no funciona</h2>
+<table class="tabla"><tr><th style="width:32%">Lo que pasa</th><th>Qué hacer</th></tr>
+<tr><td>«No se puede abrir el archivo» o «No se encontró la página»</td><td>El enlace está incompleto o tiene letras de más. Cópielo completo desde donde sí funciona y péguelo (no lo escriba a mano). Si tiene <b>/u/1/</b> después de <i>macros</i>, quítelo. Cierre sesión en las demás cuentas de Google o use una ventana de incógnito.</td></tr>
+<tr><td>Ni el libro ni Apps Script abren en el computador</td><td>Es la sesión de Google: cierre sesión en todas las cuentas, entre solo con la cuenta dueña del libro, pruebe en incógnito, borre datos del sitio y revise la fecha y hora del equipo.</td></tr>
+<tr><td>No me deja guardar la ronda</td><td>Faltan docentes por reportar (toque «faltan de N · ver quiénes») o hay un dato obligatorio sin llenar (por ejemplo, quién cubre el grupo).</td></tr>
+<tr><td>El guardado tarda</td><td>Espere el «✔ Ronda guardada». Si pasa de 10 segundos con frecuencia, avise a quien administra: queda registro en la hoja Bitacora_Cambios («Guardado de ronda lento»).</td></tr>
+<tr><td>No veo a un docente en mi bloque</td><td>Revise el bloque elegido y el día. Preescolar y orientación aparecen según su horario (capítulo 5). Si falta de verdad, avise a coordinación para revisar el horario.</td></tr>
+<tr><td>La ronda no deja hacer el bloque por una reunión</td><td>Toque «▶ Hacer la ronda de las clases» (capítulo 5).</td></tr>
+<tr><td>Marqué a alguien por error y ya guardé</td><td>Vuelva a marcar con el estado correcto y guarde de nuevo.</td></tr>
+<tr><td>Me equivoqué de docente en una pareja que alterna</td><td>Avise a coordinación académica: ella toca «Cambiar» y pasa lo ya registrado a la persona correcta.</td></tr>
+<tr><td>No veo los cambios nuevos</td><td>Cierre la pestaña y ábrala de nuevo, o recargue. Compare el número de versión del pie con el que indicó el administrador.</td></tr>
+<tr><td>Olvidé mi clave / creo que alguien usa mi usuario</td><td>Pida restablecerla (cierra todas sus sesiones) o cámbiela desde la aplicación (cierra las demás sesiones).</td></tr></table>
+</section>
+
+<section class="cap" id="admin"><h2><span class="n">11</span>Para quien administra</h2>
+<h3>Turnos de la ronda</h3>
+<p>La hoja <b>Turnos_Ronda</b> (se crea sola) dice quién debe hacer cada bloque cada día y quién suele reemplazarlo. La ronda solo avisa; no bloquea. Los nombres deben escribirse igual que en la hoja Directivos.</p>
+<table class="tabla"><tr><th>Bloque</th><th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th></tr>
+<tr><td><b>1 y puerta</b></td><td>Rector (suele reemplazar Harold)</td><td>Harold</td><td>Rector (suele reemplazar Harold)</td><td>Harold</td><td>Francisco</td></tr>
+<tr><td><b>2</b></td><td colspan="5" style="text-align:center">Verónica Barreiro, todos los días</td></tr>
+<tr><td><b>3</b></td><td>Francisco</td><td>Francisco</td><td>Francisco</td><td>Francisco</td><td>Rector (o Harold)</td></tr>
+<tr><td><b>4</b></td><td>Rector (suele reemplazar Harold)</td><td>Harold</td><td>Rector (suele reemplazar Harold)</td><td>Harold</td><td>Francisco</td></tr></table>
+<h3>Copias de seguridad en Drive</h3>
+<p>Menú del libro: <b>Respaldos: programar copia diaria (Drive)</b> (una sola vez). Cada noche se copian el libro principal y el de respaldo de rondas a la carpeta <i>App Asistencia / Respaldos</i>: <b>Diario</b> (últimos 3 días), <b>Semanal</b> y <b>Mensual</b>. <b>Respaldos: copiar libros a Drive ahora</b> la hace al instante. Parametros: respaldo_dias, respaldo_semanas, respaldo_meses (0 = todas).</p>
+<h3>Claves y sesiones</h3>
+<ul><li><b>Generar claves de ingreso de los directivos:</b> da a cada uno su clave de 6 números.</li><li><b>Ver sesiones abiertas:</b> cuántas sesiones tiene cada persona, desde cuándo y último uso.</li><li><b>Restablecer la clave de un directivo:</b> cierra todas sus sesiones y da una clave temporal.</li><li>Cambiar la clave desde la aplicación cierra las demás sesiones de esa persona.</li><li>Las rondas hechas con la sesión de otra persona quedan en Bitacora_Cambios como «Ronda con sesión prestada».</li></ul>
+<h3>Instalar una versión nueva</h3>
+<ol><li>En Apps Script reemplace <b>ICET_completo.gs</b> y los HTML que se le indiquen.</li><li>Publique con <b>Implementar → Gestionar implementaciones → Editar → Nueva versión</b>.</li></ol>
+<div class="caja alto"><b class="et">⛔ Cuidado</b>No cree una «Nueva implementación»: cambiaría el enlace que todos usan.</div>
+<h3>Ajustes (hoja Parametros)</h3>
+<ul><li><b>ronda_horas_margen:</b> horas después de la jornada en que los demás directivos aún pueden registrar la ronda.</li><li><b>reunion_desde / reunion_hasta:</b> horario normal de reuniones.</li><li><b>reunion_personas_extra:</b> personas que siempre deben aparecer en las reuniones de todo el personal.</li></ul>
+<p class="final">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b> · I.E. ICET, San Andrés de Tumaco · © 2026 · versión {{VERSION}}</p>
+</section>
+</body></html>

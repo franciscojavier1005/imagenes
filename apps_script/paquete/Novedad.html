@@ -67,6 +67,7 @@
 <main>
   <div class="card"><h2>Nueva novedad</h2>
     <div class="sub">Registre aquí lo que le avisaron (WhatsApp, llamada, permiso del rector...) para que quien haga la ronda ya lo vea. Puede ser para hoy, para días anteriores o para fechas futuras.</div>
+    <div id="regPor" style="font-size:13px;color:#345;margin-bottom:6px"></div>
     <div id="okTop" style="display:none;background:#e6f6ea;border:2px solid #2e8b57;color:#14532d;border-radius:12px;padding:10px 12px;margin-bottom:8px;font-weight:700"></div>
     <label>¿Quién o quiénes? <input type="text" id="fil" placeholder="Escriba para buscar docentes" oninput="pintaDocentes()"></label>
     <div id="lista"></div><div class="sub" id="selN" style="margin-top:4px">Ninguno elegido</div>
@@ -82,7 +83,7 @@
   </div>
   <div class="card"><h2>Últimas novedades registradas</h2><div class="sub" style="margin-bottom:6px">Las más recientes, hechas en la ronda o con este formulario.</div><div id="ultimas"><div class="aviso">Cargando…</div></div></div>
   <div class="card"><h2>Registradas desde aquí (últimos 7 días y próximas)</h2><div id="recientes"><div class="aviso">Cargando…</div></div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.09-g</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.09-h</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -207,7 +208,7 @@ function recargar(){ srv().withSuccessHandler(function(d){ D.registros=d.registr
 try{ srv().withSuccessHandler(function(u){ if(u){var m=el('irMenu'); m.href=u; m.style.display='inline';} }).urlBase(); }catch(e){}
 if(exigirSesion()){
   srv().withSuccessHandler(function(d){
-    D=d; el('desde').value=d.hoy;
+    D=d; el('desde').value=d.hoy; el('regPor').innerHTML=d.sesionDe?'<b>Registra:</b> '+esc(d.sesionDe)+' <small style="color:#789">(quien abrió la sesión)</small>':'';
     el('medio').innerHTML=d.medios.map(function(x){return opt(x,x,x==='WhatsApp directo');}).join('');
     el('fuente').innerHTML=d.fuentes.map(function(x){return opt(x,x,x==='Docente ausente');}).join('');
     pintaDocentes(); pintaTipos(); pintaRecientes(); pintaUltimas();

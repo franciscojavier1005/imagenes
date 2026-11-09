@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.09-g</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.09-h</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -216,6 +216,7 @@
 <li>Para aclaraciones o descargos, comuníquese con coordinación.</li></ul></section>
 
 <section id="faq"><h2>16. Preguntas frecuentes</h2>
+<details><summary>Creo que otra persona usa mi usuario. ¿Qué hago?</summary><p>Cambie su clave desde la aplicación (se cierran las demás sesiones abiertas con su usuario). Quien administra puede ver cuántas sesiones tiene cada directivo en el menú del libro «Ver sesiones abiertas» y, si hace falta, usar «Restablecer la clave de un directivo» (cierra todas sus sesiones y da una clave temporal). Cada directivo debe entrar con su propia clave: lo que se registra queda a nombre de quien abrió la sesión.</p></details>
 <details><summary>¿Cómo voy a otro bloque o sesión? ¿Quién queda como responsable de la ronda?</summary><p>Toque el recuadro del bloque (o de la sesión) en el encabezado: se abre una lista para elegir directamente; las flechas ◀ ▶ siguen sirviendo. En «Ronda a cargo de» aparece por defecto quien abrió la sesión (con «(usted)»); si presta su teléfono, el otro directivo debe elegir su nombre.</p></details>
 <details><summary>¿Dónde marco a las profesoras de preescolar y a las orientadoras?</summary><p>Preescolar entra a las 7:30: sus periodos aparecen en el <b>bloque donde empiezan</b> (7:30 en el bloque 1; 8:30 y 9:30 en el bloque 2; 10:30 en el bloque 3). Las orientadoras aparecen según su horario (Johana desde el bloque 1, Ángela desde el bloque 2). Con «Ahora», en el descanso sigue el bloque que terminó con la etiqueta «☕ DESCANSO»; si necesita un bloque anterior, use ◀.</p></details>
 <details><summary>En la asistencia de una reunión me faltan docentes o no sé a quién me falta marcar</summary><p>Toque «○ N sin registrar · ver quiénes»: abre la lista de los que faltan. Si falta una persona que no aparece en la lista, quien administra puede tocar «➕ Persona que no aparece». Al guardar sale un resumen y puede volver a abrir la reunión después para corregir.</p></details>
@@ -231,7 +232,7 @@
 <p class="tip">¿Algo no aparece en este manual? Dígaselo a coordinación académica para incluirlo en la próxima versión.</p></section>
 
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.09-g</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.09-h</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

@@ -149,4 +149,10 @@ EMAIL='dueno@gmail.com';
   ok(/fechas/.test(falla(`llamarSeguro(LM.token,'enviarInformeAMi',[{desde:'2026-10-05',hasta:'2026-10-01'}])`)||''),'fechas al revés: se rechaza');
   ok(falla("enviarInformeAMi({desde:'2026-10-01',hasta:'2026-10-02'})")!==null,'sin sesión no se puede usar');
 }
+// ---- al cambiar la clave se cierran las demás sesiones abiertas de esa persona (quien usaba su usuario sale) y la actual sigue abierta
+{ const pr=run('generarClavesDirectivos_(false)')[2]; const abiertas=()=>hojas.Sesiones.v.slice(1).filter(r=>r[1]===pr.nombre).length;
+  run(`ingresar({nombre:${JSON.stringify(pr.nombre)},pin:'${pr.pin}'})`); g.L4=run(`ingresar({nombre:${JSON.stringify(pr.nombre)},pin:'${pr.pin}'})`); const antesS=abiertas();
+  const rc=run(`llamarSeguro(L4.token,'cambiarClave',[{actual:'${pr.pin}',nueva:'573920'}])`);
+  ok(antesS>=2&&abiertas()===1&&rc.sesionesCerradas===antesS-1,'al cambiar la clave se cierran las otras sesiones abiertas de esa persona ('+antesS+' → '+abiertas()+')');
+  ok(!!run(`llamarSeguro(L4.token,'consultarSesion',['LUNES',3,'bloque'])`),'la sesión desde la que se cambió la clave sigue funcionando'); }
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.09-g';
+var VERSION_SISTEMA = '2026.11.09-h';
 var FECHA_VERSION = '2026-11-09';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.09-h', fecha: '2026-11-09', cambios: [
+    'Reuniones, actividades y novedades: lo que se registre queda a nombre de quien abrió la sesión (se muestra «Registra: …» y ya no se elige ni se recuerda otro nombre en esas pantallas).',
+    'Seguridad de las sesiones: al cambiar la clave desde la aplicación se cierran las demás sesiones abiertas de esa persona (otros teléfonos o computadores) y queda abierta solo la actual. Nuevo menú «Ver sesiones abiertas (quién está usando el sistema)» con cuántas sesiones tiene cada directivo, desde cuándo y su último uso (se actualiza cada 10 minutos).'] },
   { version: '2026.11.09-g', fecha: '2026-11-09', cambios: [
     'Turnos de la ronda: nueva hoja Turnos_Ronda (se crea sola y se puede editar) con quién debe hacer cada bloque cada día: lunes y miércoles el Rector (Jorge Hernández) abre y cierra, suele reemplazarlo Harold Angulo; martes y jueves Harold; bloque 2 todos los días Verónica Barreiro; bloque 3 Francisco Cortés (el viernes el Rector, o Harold); viernes bloques 1 y 4 Francisco.',
     'La ronda muestra un aviso discreto bajo «Ronda a cargo de» («Este bloque le corresponde a …», o «Reemplaza a …»); no bloquea nada. En el panel, Rondas guardadas muestra «(le correspondía a …)» cuando la ronda la hizo alguien distinto del titular y de su reemplazo habitual.'] },

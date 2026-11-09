@@ -30,6 +30,7 @@ function onOpen() {
     .addItem('Importar bandeja de WhatsApp (filas marcadas SI)', 'importarBandejaWhatsApp')
     .addItem('Generar claves de ingreso de los directivos', 'generarClavesDirectivos')
     .addItem('Restablecer la clave de un directivo', 'restablecerClaveDirectivo')
+    .addItem('Ver sesiones abiertas (quién está usando el sistema)', 'verSesionesAbiertas')
     .addItem('Acerca de este sistema', 'acercaDe')
     .addItem('Actualizar hoja LEEME (versión y cambios)', 'actualizarLeeme')
     .addItem('Quitar reuniones repetidas', 'quitarReunionesDuplicadasLibro')

@@ -31,6 +31,7 @@ function onOpen() {
     .addItem('Importar bandeja de WhatsApp (filas marcadas SI)', 'importarBandejaWhatsApp')
     .addItem('Generar claves de ingreso de los directivos', 'generarClavesDirectivos')
     .addItem('Restablecer la clave de un directivo', 'restablecerClaveDirectivo')
+    .addItem('Ver sesiones abiertas (quién está usando el sistema)', 'verSesionesAbiertas')
     .addItem('Acerca de este sistema', 'acercaDe')
     .addItem('Actualizar hoja LEEME (versión y cambios)', 'actualizarLeeme')
     .addItem('Quitar reuniones repetidas', 'quitarReunionesDuplicadasLibro')
@@ -2558,7 +2559,7 @@ function listarReuniones(p) {
   function resumida(r) { var a = asistenciaDe_(r.id), conv = convocadosDe_(r), reg = 0; conv.forEach(function (n) { if (a[n]) reg++; }); return Object.assign({}, r, { convocadosN: conv.length, registrados: reg }); }
   var proximas = todas.filter(function (r) { return r.fecha >= hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? -1 : 1) : (a.fecha < b.fecha ? -1 : 1); }).slice(0, 12).map(resumida);
   var ultimas = todas.filter(function (r) { return r.fecha < hoy; }).sort(function (a, b) { return a.fecha === b.fecha ? (a.inicio < b.inicio ? 1 : -1) : (a.fecha < b.fecha ? 1 : -1); }).slice(0, 10).map(resumida);
-  return { puedeAnular: puedeAdministrar_(identidad_()), duplicadas: duplicadasDe_().length, catalogo: catalogoConvocados_(), convocaTipos: CONVOCA_TIPOS, lugares: lugaresReunion_(), finTipos: FIN_TIPOS, jornadaFin: finJornada_(), fecha: fecha, hoy: hoy, proximas: proximas, ultimas: ultimas, reuniones: reuniones, tipos: TIPOS_REUNION, sabadoTipos: TIPOS_SABADO, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };
+  return { sesionDe: (function () { try { var i = identidad_(); return i.rol === 'directivo' ? (i.nombre || '') : ''; } catch (e) { return ''; } })(), puedeAnular: puedeAdministrar_(identidad_()), duplicadas: duplicadasDe_().length, catalogo: catalogoConvocados_(), convocaTipos: CONVOCA_TIPOS, lugares: lugaresReunion_(), finTipos: FIN_TIPOS, jornadaFin: finJornada_(), fecha: fecha, hoy: hoy, proximas: proximas, ultimas: ultimas, reuniones: reuniones, tipos: TIPOS_REUNION, sabadoTipos: TIPOS_SABADO, personas: personasReunion_(), motivos: datos_('Motivos').map(function (m) { return m.motivo; }) };
 }
 
 function hora_(s) { return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(s)) ? String(s) : ''; }
@@ -3302,6 +3303,7 @@ function datosNovedades() {
   var motivos = datos_('Motivos').map(function (m) { return { motivo: m.motivo, categoria: m.categoria, justificada: m.justificada }; });
   var l = function (n) { return datos_('Listas').filter(function (x) { return x.lista === n; }).map(function (x) { return x.valor; }); };
   return {
+    sesionDe: (function () { try { var i = identidad_(); return i.rol === 'directivo' ? (i.nombre || '') : ''; } catch (e) { return ''; } })(),   // quien abrió la sesión: a su nombre queda lo que se registre
     hoy: hoy,
     docentes: datos_('Docentes').filter(function (d) { return String(d.tiene_horario) === 'SI'; }).map(function (d) { return { nombre: d.nombre_completo, nivel: d.nivel }; })
       .sort(function (a, b) { return a.nombre < b.nombre ? -1 : 1; }),
@@ -3794,11 +3796,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.09-g';
+var VERSION_SISTEMA = '2026.11.09-h';
 var FECHA_VERSION = '2026-11-09';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.09-h', fecha: '2026-11-09', cambios: [
+    'Reuniones, actividades y novedades: lo que se registre queda a nombre de quien abrió la sesión (se muestra «Registra: …» y ya no se elige ni se recuerda otro nombre en esas pantallas).',
+    'Seguridad de las sesiones: al cambiar la clave desde la aplicación se cierran las demás sesiones abiertas de esa persona (otros teléfonos o computadores) y queda abierta solo la actual. Nuevo menú «Ver sesiones abiertas (quién está usando el sistema)» con cuántas sesiones tiene cada directivo, desde cuándo y su último uso (se actualiza cada 10 minutos).'] },
   { version: '2026.11.09-g', fecha: '2026-11-09', cambios: [
     'Turnos de la ronda: nueva hoja Turnos_Ronda (se crea sola y se puede editar) con quién debe hacer cada bloque cada día: lunes y miércoles el Rector (Jorge Hernández) abre y cierra, suele reemplazarlo Harold Angulo; martes y jueves Harold; bloque 2 todos los días Verónica Barreiro; bloque 3 Francisco Cortés (el viernes el Rector, o Harold); viernes bloques 1 y 4 Francisco.',
     'La ronda muestra un aviso discreto bajo «Ronda a cargo de» («Este bloque le corresponde a …», o «Reemplaza a …»); no bloquea nada. En el panel, Rondas guardadas muestra «(le correspondía a …)» cuando la ronda la hizo alguien distinto del titular y de su reemplazo habitual.'] },
@@ -4334,14 +4339,20 @@ function cerrarSesion(token) {
 function validarToken_(token) {
   if (!token || String(token).length < 40) return null;
   var h = hash_(token), v = hojaOCrea_('Sesiones', COL_SESIONES).getDataRange().getValues(), ahora = ahoraMs_();
-  for (var i = 1; i < v.length; i++) if (igualConstante_(v[i][0], h)) return Number(v[i][4]) > ahora ? { nombre: v[i][1], correo: String(v[i][2]).toLowerCase() } : null;
+  for (var i = 1; i < v.length; i++) if (igualConstante_(v[i][0], h)) {
+    if (Number(v[i][4]) <= ahora) return null;
+    if (ahora - Number(v[i][5] || 0) > 600000) { try { hojaOCrea_('Sesiones', COL_SESIONES).getRange(i + 1, 6).setValue(ahora); } catch (e) { /* solo informativo */ } }   // último uso (se actualiza cada 10 min como máximo)
+    return { nombre: v[i][1], correo: String(v[i][2]).toLowerCase() };
+  }
   return null;
 }
 
 /** ÚNICA puerta de entrada de las pantallas: valida el token y ejecuta la función permitida con la identidad del directivo. */
+var TOKEN_ACTUAL_ = '';   // token de la llamada en curso (para que cambiarClave deje abierta solo la sesión que la cambia)
 function llamarSeguro(token, fn, args) {
   var ses = validarToken_(token);
   if (!ses) throw new Error('SESION_VENCIDA');
+  TOKEN_ACTUAL_ = token;
   var out = apiDespachar_(ses.correo, fn, args);
   if (!out.ok) throw new Error(out.error);
   return out.data;
@@ -4355,7 +4366,10 @@ function cambiarClave(p) {
   if (String(p.nueva) === String(p.actual)) throw new Error('La clave nueva debe ser distinta.');
   var d = verificarClave_(id.nombre, p.actual);
   guardarClave_(d, p.nueva);
-  return { ok: true };
+  /* al cambiar la clave se cierran las demás sesiones abiertas de esa persona (otros teléfonos o computadores): quien tenía la clave anterior sale */
+  var sh = hojaOCrea_('Sesiones', COL_SESIONES), v = sh.getDataRange().getValues(), actual = TOKEN_ACTUAL_ ? hash_(TOKEN_ACTUAL_) : '', cerradas = 0;
+  for (var i = v.length - 1; i >= 1; i--) if (v[i][1] === d.v[d.col.nombre] && v[i][0] !== actual) { sh.deleteRow(i + 1); cerradas++; }
+  return { ok: true, sesionesCerradas: cerradas };
 }
 function guardarClave_(d, pin, temporal) {
   var sal = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
@@ -4481,6 +4495,21 @@ function registrarCorreoPropietario_() {
   var d = filaDirectivo_(fila.nombre);
   d.sh.getRange(d.fila, d.col.correo + 1).setValue(dueno);
   return dueno;
+}
+
+/** Menú: quién tiene sesiones abiertas (por directivo: cuántas, desde cuándo y último uso). Sirve para detectar si alguien usa la sesión de otra persona. */
+function verSesionesAbiertas() {
+  exigirEditor_();
+  var v = hojaOCrea_('Sesiones', COL_SESIONES).getDataRange().getValues(), ahora = ahoraMs_(), por = {};
+  for (var i = 1; i < v.length; i++) {
+    if (Number(v[i][4]) <= ahora) continue;
+    var o = por[v[i][1]] = por[v[i][1]] || { n: 0, desde: Infinity, uso: 0 };
+    o.n++; o.desde = Math.min(o.desde, Number(v[i][3])); o.uso = Math.max(o.uso, Number(v[i][5]) || 0);
+  }
+  var f = function (ms) { return ms && isFinite(ms) ? Utilities.formatDate(new Date(ms), TZ, 'dd/MM HH:mm') : '—'; };
+  var txt = Object.keys(por).map(function (n) { return n + ': ' + por[n].n + ' sesión(es) abierta(s) · la más antigua desde ' + f(por[n].desde) + ' · último uso ' + f(por[n].uso); }).join('\n') || 'No hay sesiones abiertas.';
+  var ui = SpreadsheetApp.getUi();
+  ui.alert('Sesiones abiertas', txt + '\n\nSi alguien tiene más sesiones de las que usa (por ejemplo otra persona con su usuario), restablezca su clave: «Restablecer la clave de un directivo» cierra todas sus sesiones.', ui.ButtonSet.OK);
 }
 
 // ===================== Api.gs =====================

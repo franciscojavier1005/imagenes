@@ -82,14 +82,20 @@ function cerrarSesion(token) {
 function validarToken_(token) {
   if (!token || String(token).length < 40) return null;
   var h = hash_(token), v = hojaOCrea_('Sesiones', COL_SESIONES).getDataRange().getValues(), ahora = ahoraMs_();
-  for (var i = 1; i < v.length; i++) if (igualConstante_(v[i][0], h)) return Number(v[i][4]) > ahora ? { nombre: v[i][1], correo: String(v[i][2]).toLowerCase() } : null;
+  for (var i = 1; i < v.length; i++) if (igualConstante_(v[i][0], h)) {
+    if (Number(v[i][4]) <= ahora) return null;
+    if (ahora - Number(v[i][5] || 0) > 600000) { try { hojaOCrea_('Sesiones', COL_SESIONES).getRange(i + 1, 6).setValue(ahora); } catch (e) { /* solo informativo */ } }   // último uso (se actualiza cada 10 min como máximo)
+    return { nombre: v[i][1], correo: String(v[i][2]).toLowerCase() };
+  }
   return null;
 }
 
 /** ÚNICA puerta de entrada de las pantallas: valida el token y ejecuta la función permitida con la identidad del directivo. */
+var TOKEN_ACTUAL_ = '';   // token de la llamada en curso (para que cambiarClave deje abierta solo la sesión que la cambia)
 function llamarSeguro(token, fn, args) {
   var ses = validarToken_(token);
   if (!ses) throw new Error('SESION_VENCIDA');
+  TOKEN_ACTUAL_ = token;
   var out = apiDespachar_(ses.correo, fn, args);
   if (!out.ok) throw new Error(out.error);
   return out.data;
@@ -103,7 +109,10 @@ function cambiarClave(p) {
   if (String(p.nueva) === String(p.actual)) throw new Error('La clave nueva debe ser distinta.');
   var d = verificarClave_(id.nombre, p.actual);
   guardarClave_(d, p.nueva);
-  return { ok: true };
+  /* al cambiar la clave se cierran las demás sesiones abiertas de esa persona (otros teléfonos o computadores): quien tenía la clave anterior sale */
+  var sh = hojaOCrea_('Sesiones', COL_SESIONES), v = sh.getDataRange().getValues(), actual = TOKEN_ACTUAL_ ? hash_(TOKEN_ACTUAL_) : '', cerradas = 0;
+  for (var i = v.length - 1; i >= 1; i--) if (v[i][1] === d.v[d.col.nombre] && v[i][0] !== actual) { sh.deleteRow(i + 1); cerradas++; }
+  return { ok: true, sesionesCerradas: cerradas };
 }
 function guardarClave_(d, pin, temporal) {
   var sal = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
@@ -229,4 +238,19 @@ function registrarCorreoPropietario_() {
   var d = filaDirectivo_(fila.nombre);
   d.sh.getRange(d.fila, d.col.correo + 1).setValue(dueno);
   return dueno;
+}
+
+/** Menú: quién tiene sesiones abiertas (por directivo: cuántas, desde cuándo y último uso). Sirve para detectar si alguien usa la sesión de otra persona. */
+function verSesionesAbiertas() {
+  exigirEditor_();
+  var v = hojaOCrea_('Sesiones', COL_SESIONES).getDataRange().getValues(), ahora = ahoraMs_(), por = {};
+  for (var i = 1; i < v.length; i++) {
+    if (Number(v[i][4]) <= ahora) continue;
+    var o = por[v[i][1]] = por[v[i][1]] || { n: 0, desde: Infinity, uso: 0 };
+    o.n++; o.desde = Math.min(o.desde, Number(v[i][3])); o.uso = Math.max(o.uso, Number(v[i][5]) || 0);
+  }
+  var f = function (ms) { return ms && isFinite(ms) ? Utilities.formatDate(new Date(ms), TZ, 'dd/MM HH:mm') : '—'; };
+  var txt = Object.keys(por).map(function (n) { return n + ': ' + por[n].n + ' sesión(es) abierta(s) · la más antigua desde ' + f(por[n].desde) + ' · último uso ' + f(por[n].uso); }).join('\n') || 'No hay sesiones abiertas.';
+  var ui = SpreadsheetApp.getUi();
+  ui.alert('Sesiones abiertas', txt + '\n\nSi alguien tiene más sesiones de las que usa (por ejemplo otra persona con su usuario), restablezca su clave: «Restablecer la clave de un directivo» cierra todas sus sesiones.', ui.ButtonSet.OK);
 }

@@ -300,3 +300,6 @@ Consulta.html: `pintarQuien()` (sin recordar nombres ni tomar el primero de la l
 
 ### 2026.11.09-g · Turnos de la ronda
 Hoja `Turnos_Ronda` (dia, bloque, titular, alterno) creada por `turnosRonda_()` con `TURNOS_DEFECTO` (Codigo.gs): L y X Rector abre y cierra (alterno Harold), M y J Harold, bloque 2 Verónica, bloque 3 Francisco (viernes Rector/alterno Harold), viernes bloques 1 y 4 Francisco. `consultarSesion` devuelve `turno`; Consulta.html `pintaNotaTurno()`; `rondasInterno_` agrega `correspondia`; Dashboard muestra «(le correspondía a …)». Solo avisa.
+
+### 2026.11.09-h · Registrador = quien abrió la sesión; cambiar la clave cierra las otras sesiones
+Reunion.html/Novedad.html muestran «Registra: <sesionDe>» (`listarReuniones` y `datosNovedades` devuelven `sesionDe`; el servidor ya registraba a nombre de la sesión). `cambiarClave` cierra las demás sesiones de la persona (`TOKEN_ACTUAL_`); `validarToken_` actualiza `ultimo_uso` cada 10 min; menú `verSesionesAbiertas`. Hallazgo: antes, cambiar la clave NO cerraba sesiones abiertas (14 días).

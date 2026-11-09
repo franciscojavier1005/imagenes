@@ -43,6 +43,7 @@ function datosNovedades() {
   var motivos = datos_('Motivos').map(function (m) { return { motivo: m.motivo, categoria: m.categoria, justificada: m.justificada }; });
   var l = function (n) { return datos_('Listas').filter(function (x) { return x.lista === n; }).map(function (x) { return x.valor; }); };
   return {
+    sesionDe: (function () { try { var i = identidad_(); return i.rol === 'directivo' ? (i.nombre || '') : ''; } catch (e) { return ''; } })(),   // quien abrió la sesión: a su nombre queda lo que se registre
     hoy: hoy,
     docentes: datos_('Docentes').filter(function (d) { return String(d.tiene_horario) === 'SI'; }).map(function (d) { return { nombre: d.nombre_completo, nivel: d.nivel }; })
       .sort(function (a, b) { return a.nombre < b.nombre ? -1 : 1; }),

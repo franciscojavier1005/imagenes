@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.10-a';
-var FECHA_VERSION = '2026-11-10';
+var VERSION_SISTEMA = '2026.11.12-a';
+var FECHA_VERSION = '2026-11-12';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.12-a', fecha: '2026-11-12', cambios: [
+    'Reuniones y actividades: nuevo botón «🔒 Dar por terminada» (en la tarjeta, en la asistencia y en el resumen al guardar) para cerrarlas aunque no haya llegado su hora de fin: dejan de salir en el aviso del día y liberan el horario de la ronda desde la hora de cierre. «🔓 Reabrir» las vuelve a activar. Solo se cierran las de hoy o anteriores; queda en la bitácora. Nuevas columnas en la hoja Reuniones: cerrada, cierre_hora.',
+    'Aviso del día: ahora aparece compacto (una línea, arriba) para no tapar el bloque ni los botones de la ronda; al tocarlo se abre el detalle completo con barra de desplazamiento y ya no se cierra solo (se cierra con la ✕). Antes el aviso grande tapaba el recuadro del bloque y no dejaba cambiarlo.'] },
   { version: '2026.11.10-a', fecha: '2026-11-10', cambios: [
     'El escudo del colegio, en el encabezado de cualquier pantalla (ronda, novedades, reuniones, horarios y panel), lleva al menú principal. El panel además muestra siempre el botón «« Menú» (antes solo aparecía si cargaba el enlace).',
     'Novedades: la lista «Últimas novedades registradas» ahora tiene barra de desplazamiento y carga las anteriores por páginas (25 cada vez, al llegar al final o con «⬇ Ver anteriores») hasta la primera registrada.',

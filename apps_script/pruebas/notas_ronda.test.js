@@ -730,4 +730,16 @@ EMAIL=''; ok(/Debe iniciar sesión/.test(falla("consultaHorarios({modo:'catalogo
   const hoyU=run("ymd_(new Date())");
   ok(Array.isArray(u1.items)&&u1.items.every(r=>r.fecha<hoyU)&&u1.items.every((r,i,a)=>i===0||a[i-1].fecha>=r.fecha)&&u2.items.length===0&&u2.hayMas===false,'historialReuniones: «últimas» = anteriores a hoy, de la más reciente a la más antigua; al final no hay más');
   ok(Array.isArray(p1.items)&&p1.items.every(r=>r.fecha>=hoyU)&&p1.items.every((r,i,a)=>i===0||a[i-1].fecha<=r.fecha),'historialReuniones: «próximas» = de hoy en adelante, de la más cercana a la más lejana'); }
+// ---- dar por terminada (cerrar) una reunión o actividad: deja de avisar y libera el horario de la ronda; se puede reabrir
+{ g.RCERR={tipo:'Reunión pedagógica',nombre:'Reunión para cerrar',inicio:'07:00',fin:'13:30',sinEstudiantes:true,convocados:'TODOS',directivo:'P'}; const idj=run('crearReunion(RCERR)').id, aviso=()=>run('avisosHoy()').reuniones.some(x=>x.id===idj), bloqueada=()=>run("consultarSesion('VIERNES',3,'bloque')").sinEstudiantes===true;
+  const a0=aviso(), b0=bloqueada(); ok(a0===true&&b0===true,'antes de cerrar: avisa y bloquea la ronda (sin clases)');
+  const b7=()=>run("consultarSesion('VIERNES',7,'bloque')").sinEstudiantes===true, b7antes=b7();
+  const cr=run(`cerrarReunion({id:'${idj}',cerrar:true})`);
+  ok(cr.ok&&cr.cerrada&&aviso()===false,'una reunión cerrada deja de salir en el aviso del día');
+  ok(b7antes===true&&b7()===false,'cerrada, deja libre el horario de la ronda desde la hora de cierre (el bloque 4 ya no se bloquea)');
+  const lj2=run('listarReuniones({})').reuniones.find(x=>x.id===idj); ok(lj2&&lj2.cerrada===true&&!!lj2.cierreHora,'la reunión queda marcada como cerrada, con su hora de cierre');
+  const re=run(`cerrarReunion({id:'${idj}',cerrar:false})`);
+  ok(re.ok&&re.cerrada===false&&aviso()===true&&run('listarReuniones({})').reuniones.find(x=>x.id===idj).cerrada===false,'se puede reabrir y vuelve a avisar');
+  let err=''; try{ run(`cerrarReunion({id:'${idj}',cerrar:true})`); run(`cerrarReunion({id:'no-existe',cerrar:true})`); }catch(e){ err=String(e.message||e); } ok(/No se encontró/.test(err),'cerrar una reunión que no existe da un error claro');
+  run(`cerrarReunion({id:'${idj}',cerrar:false})`); }
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

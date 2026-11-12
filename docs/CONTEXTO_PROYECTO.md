@@ -309,3 +309,6 @@ Reunion.html/Novedad.html muestran «Registra: <sesionDe>» (`listarReuniones` y
 
 ### 2026.11.10-a · Escudo como menú, botón Menú en el panel, listas paginadas
 aviso_dia.html (fuente única): el escudo (`header img, .marca img`) llama a `irAlMenu()`; Dashboard: «« Menú» siempre visible. `historialNovedades` y `historialReuniones` (API) devuelven páginas; `ultimasNovedades_` lee solo el final de la hoja; `asistenciaPorReunion_` lee Asistencia_Reunion una vez. Novedad.html (`#ultimas`, `masUlt`) y Reunion.html (`iniciaMasReu`, `masReunion`) con scroll infinito.
+
+### 2026.11.12-a · Cerrar reuniones/actividades y aviso compacto
+`cerrarReunion({id,cerrar})` (Reuniones.gs; columnas `cerrada`, `cierre_hora`): `reunionDeFila_` recorta `fin` a la hora de cierre (`finOriginal` conserva la original; el formulario de edición usa `finOriginal`), `avisosHoy` omite las cerradas y la ronda queda libre desde el cierre. Reunion.html: `cerrarReu` (tarjeta, asistencia, resumen). aviso_dia.html: compacto (`av-comp`) → detalle al tocar (`av-abierto`), la ✕ cierra; causa del «no me deja» (el aviso grande tapaba el recuadro del bloque).

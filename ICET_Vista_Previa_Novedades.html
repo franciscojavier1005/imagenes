@@ -49,6 +49,7 @@
   .tp{display:grid;gap:6px;margin-top:6px} .tp button{text-align:left;border:2px solid var(--borde);background:#fff;border-radius:10px;padding:10px;font-weight:700;font-size:14px;color:#2b3a4f;min-height:46px}
   .tp button.on{background:var(--azul);border-color:var(--azul);color:#fff}
   .reg{padding:8px 4px;border-bottom:1px solid #eef1f5;font-size:13.5px} .reg small{display:block;color:#567}
+  .lista-scroll{max-height:460px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:4px}.lista-scroll::-webkit-scrollbar{width:8px}.lista-scroll::-webkit-scrollbar-thumb{background:#9fb3cf;border-radius:4px}
   .ok{color:#1b5e20;font-weight:600} .mal{color:#a31515;font-weight:600}
   .link{background:none;border:0;color:#a31515;text-decoration:underline;font-size:13px;padding:4px}
   @media print{header,.tabs,.ctrl,.dias,.btn,.autoria{display:none!important} body{background:#fff} .card{box-shadow:none;border:0} table.hor{min-width:0}}
@@ -67,6 +68,8 @@
 <main>
   <div class="card"><h2>Nueva novedad</h2>
     <div class="sub">Registre aquí lo que le avisaron (WhatsApp, llamada, permiso del rector...) para que quien haga la ronda ya lo vea. Puede ser para hoy, para días anteriores o para fechas futuras.</div>
+    <div id="regPor" style="font-size:13px;color:#345;margin-bottom:6px"></div>
+    <div id="okTop" style="display:none;background:#e6f6ea;border:2px solid #2e8b57;color:#14532d;border-radius:12px;padding:10px 12px;margin-bottom:8px;font-weight:700"></div>
     <label>¿Quién o quiénes? <input type="text" id="fil" placeholder="Escriba para buscar docentes" oninput="pintaDocentes()"></label>
     <div id="lista"></div><div class="sub" id="selN" style="margin-top:4px">Ninguno elegido</div>
     <label>¿Qué pasó?</label><div class="tp" id="tp"></div>
@@ -79,9 +82,9 @@
     <button class="btn prim" style="width:100%;margin-top:12px" id="btnGuardar" onclick="guardar()">Guardar novedad</button>
     <div id="msg" class="sub" style="margin-top:8px"></div>
   </div>
-  <div class="card"><h2>Últimas novedades registradas</h2><div class="sub" style="margin-bottom:6px">Las más recientes, hechas en la ronda o con este formulario.</div><div id="ultimas"><div class="aviso">Cargando…</div></div></div>
+  <div class="card"><h2>Últimas novedades registradas</h2><div class="sub" style="margin-bottom:6px">Las más recientes, hechas en la ronda o con este formulario. Desplácese hacia abajo para ver las anteriores.</div><div id="ultimas" class="lista-scroll"><div class="aviso">Cargando…</div></div></div>
   <div class="card"><h2>Registradas desde aquí (últimos 7 días y próximas)</h2><div id="recientes"><div class="aviso">Cargando…</div></div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.10.25-f</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.10-a</div>
 </main>
 <script>
 /* Vista previa de Registrar novedades: nada se guarda fuera de esta página. */
@@ -154,7 +157,7 @@ function pintaTipos(){
   el('horas').innerHTML=h; if(def&&def.pide==='rango_o_dia') rangoExt(); pintaMotivos();
 }
 function rangoExt(){ el('rg').innerHTML=el('todo').checked?'':'<div class="fila2"><label>De<input type="time" id="hIni"></label><label>Hasta<input type="time" id="hFin"></label></div>'; }
-function eligeTipo(t){ tipo=t; pintaTipos(); }
+function eligeTipo(t){ var ot=el('okTop'); if(ot) ot.style.display='none'; tipo=t; pintaTipos(); }
 function pintaMotivos(){
   var ext=tipo==='EXTERNA', cats={}, ord=[];
   D.motivos.forEach(function(m){ var es=D.motivosExterna.indexOf(m.motivo)>=0; if(ext!==es) return; if(!cats[m.categoria]){cats[m.categoria]=[];ord.push(m.categoria);} cats[m.categoria].push(m.motivo); });
@@ -175,17 +178,35 @@ function guardar(){
     el('btnGuardar').disabled=false; var extra=[];
     if(r.sinClases.length) extra.push('Sin clases ese día (no se registró): '+r.sinClases.join(', '));
     if(r.yaAusente.length) extra.push('Ya estaban ausentes todo el día: '+r.yaAusente.join(', '));
-    msg('Listo: '+r.filas+' registro(s) en '+r.dias+' día(s).'+(extra.length?' '+extra.join(' · '):''),true);
-    sel={}; el('selN').textContent='Ninguno elegido'; el('detalle').value=''; pintaDocentes(); recargar();
+    msg('',true); var tt='✔ Guardado: '+r.filas+' registro(s) en '+r.dias+' día(s).'+(extra.length?' '+extra.join(' · '):''); var ot=el('okTop'); ot.innerHTML=esc(tt)+'<div style="font-weight:400;font-size:13px">El formulario quedó en blanco para otra novedad. Cuando termine, use «« Menú».</div>'; ot.style.display='block';
+    /* formulario en blanco y de vuelta arriba, con el aviso de guardado, para registrar otra novedad sin salir del módulo */
+    sel={}; tipo=''; el('selN').textContent='Ninguno elegido'; el('fil').value=''; el('detalle').value=''; el('desde').value=D.hoy; el('hasta').value='';
+    if(el('atiende')) el('atiende').value=''; if(el('actividad')) el('actividad').value='N/A';
+    el('medio').innerHTML=D.medios.map(function(x){return opt(x,x,x==='WhatsApp directo');}).join(''); el('fuente').innerHTML=D.fuentes.map(function(x){return opt(x,x,x==='Docente ausente');}).join('');
+    pintaDocentes(); pintaTipos(); recargar(); window.scrollTo(0,0);
   }).withFailureHandler(function(e){ el('btnGuardar').disabled=false; msg(String(e&&e.message||e).replace(/^Error: /,'')); }).registrarNovedad(p);
 }
 function fmt(f){ var a=f.split('-'); return a[2]+'/'+a[1]+'/'+a[0]; }
-function pintaUltimas(){
-  var u=D.ultimas||[];
-  el('ultimas').innerHTML=u.length?u.map(function(r){
+var ultCargando=false, ultHayMas=true;
+/* una novedad de la lista «Últimas novedades registradas» */
+function htmlUlt(r){
+
     var inc=/incumplimiento/i.test(r.tipo), cl=r.fecha===D.hoy?'nv-hoy':(r.fecha>D.hoy?'nv-prox':'nv-pas'), ins=r.fecha===D.hoy?'<span class="pri pri-alta">🔥 HOY</span>':(r.fecha>D.hoy?'<span class="pri pri-norm">📅 Próxima</span>':'<span class="pri pri-pas">Pasada</span>');
-    return '<div class="reg '+cl+'">'+ins+(inc?' <span class="pri pri-inc">⚠ Incumplimiento</span>':'')+(r.atiende?' <span class="pri pri-rep">👥 grupo cubierto</span>':'')+'<br><b>'+esc(r.docente)+'</b> · '+esc(r.tipo)+(r.atiende?' · '+esc(r.atiende):'')+'<small>'+esc(r.motivo||'Sin motivo')+' · '+fmt(r.fecha)+(r.minutos?' · '+r.minutos+' min':'')+(r.sesiones>1?' · '+r.sesiones+' sesiones':'')+' · '+esc(r.origen)+' · lo registró '+esc(r.por||'—')+(r.registrado?' ('+esc(r.registrado)+')':'')+'</small></div>';}).join(''):'<div class="aviso">Todavía no hay novedades registradas.</div>';
+    return '<div class="reg '+cl+'">'+ins+(inc?' <span class="pri pri-inc">⚠ Incumplimiento</span>':'')+(r.atiende?' <span class="pri pri-rep">👥 grupo cubierto</span>':'')+'<br><b>'+esc(r.docente)+'</b> · '+esc(r.tipo)+(r.atiende?' · '+esc(r.atiende):'')+'<small>'+esc(r.motivo||'Sin motivo')+' · '+fmt(r.fecha)+(r.minutos?' · '+r.minutos+' min':'')+(r.sesiones>1?' · '+r.sesiones+' sesiones':'')+' · '+esc(r.origen)+' · lo registró '+esc(r.por||'—')+(r.registrado?' ('+esc(r.registrado)+')':'')+'</small></div>';}
+function pintaUltimas(){
+  var u=D.ultimas||[]; ultHayMas=u.length>=25;
+  el('ultimas').innerHTML=u.length?u.map(htmlUlt).join('')+'<div id="ultMas" class="aviso"></div>':'<div class="aviso">Todavía no hay novedades registradas.</div>';
+  pintaUltMas();
 }
+function pintaUltMas(){ var m=el('ultMas'); if(!m) return; m.innerHTML=ultHayMas?'<button class="link" onclick="masUlt()">⬇ Ver anteriores</button> <small>(también se cargan al llegar al final de la lista)</small>':'<small>Esas son todas las novedades registradas.</small>'; }
+function masUlt(){
+  if(ultCargando||!ultHayMas) return; ultCargando=true; var m=el('ultMas'); if(m) m.textContent='Cargando…';
+  srv().withSuccessHandler(function(r){
+    ultCargando=false; var mm=el('ultMas'); if(mm) mm.remove(); D.ultimas=(D.ultimas||[]).concat(r.items); ultHayMas=!!r.hayMas;
+    el('ultimas').insertAdjacentHTML('beforeend',r.items.map(htmlUlt).join('')+'<div id="ultMas" class="aviso"></div>'); pintaUltMas();
+  }).withFailureHandler(function(e){ ultCargando=false; var mm=el('ultMas'); if(mm) mm.innerHTML='<span style="color:#a31515">No se pudo cargar. </span><button class="link" onclick="masUlt()">Reintentar</button>'; }).historialNovedades({offset:(D.ultimas||[]).length,limite:25});
+}
+try{ el('ultimas').addEventListener('scroll',function(){ if(this.scrollTop+this.clientHeight>=this.scrollHeight-60) masUlt(); }); }catch(e){}
 function pintaRecientes(){
   el('recientes').innerHTML=D.registros.length?D.registros.map(function(r){
     return '<div class="reg"><b>'+esc(r.docente)+'</b> · '+esc(r.tipo)+'<small>'+esc(r.motivo)+' · '+(r.desde===r.hasta?fmt(r.desde):fmt(r.desde)+' al '+fmt(r.hasta)+' ('+r.dias+' días)')+(r.descripcion?' · '+esc(r.descripcion):'')+' · lo registró '+esc(r.por)+'</small>'+
@@ -223,7 +244,7 @@ function recargar(){ srv().withSuccessHandler(function(d){ D.registros=d.registr
 try{ srv().withSuccessHandler(function(u){ if(u){var m=el('irMenu'); m.href=u; m.style.display='inline';} }).urlBase(); }catch(e){}
 if(exigirSesion()){
   srv().withSuccessHandler(function(d){
-    D=d; el('desde').value=d.hoy;
+    D=d; el('desde').value=d.hoy; el('regPor').innerHTML=d.sesionDe?'<b>Registra:</b> '+esc(d.sesionDe)+' <small style="color:#789">(quien abrió la sesión)</small>':'';
     el('medio').innerHTML=d.medios.map(function(x){return opt(x,x,x==='WhatsApp directo');}).join('');
     el('fuente').innerHTML=d.fuentes.map(function(x){return opt(x,x,x==='Docente ausente');}).join('');
     pintaDocentes(); pintaTipos(); pintaRecientes(); pintaUltimas();
@@ -250,7 +271,7 @@ function avisoVigilar(){
 function avisoYa(clave){ try{ var k='icet_av_'+clave; if(sessionStorage.getItem(k)) return true; sessionStorage.setItem(k,'1'); }catch(e){} return false; }
 function avisoDiaPintar(r,soloUrgentes){
   if(!r) return;
-  var items=[], parp=false;
+  var items=[], parp=false, resum=[];
   (r.reuniones||[]).forEach(function(x){
     if(x.estado==='pasada'&&x.registrados) return;                      // ya terminó y tiene asistencia: no estorba
     if(soloUrgentes){ if(!x.urgente||avisoYa(x.id+'|'+r.hoy+'|'+x.estado)) return; }
@@ -259,14 +280,15 @@ function avisoDiaPintar(r,soloUrgentes){
     var cl=x.estado==='pasada'?'falta':((x.estado==='ahora'||urg)?'ahora':'hoy');
     var ic=cl==='falta'?'⚠️':(cl==='ahora'?'🔥':'🔥');
     var et=x.estado==='pasada'?'FALTA REGISTRAR ASISTENCIA':(x.estado==='ahora'?'AHORA':(urg?'EN '+Math.max(0,x.minutosHasta)+' MIN':'HOY · PRIORIDAD ALTA'));
-    items.push({c:cl,p:urg,h:avFila(ic,x.inicio+' – '+x.fin,et,cl,x.nombre,x)});
+    items.push({c:cl,p:urg,h:avFila(ic,x.inicio+' – '+x.fin,et,cl,x.nombre,x)}); resum.push({p:urg,t:x.inicio+' '+x.nombre+(x.estado==='pasada'?' (falta registrar asistencia)':'')});
   });
   if(!soloUrgentes&&(r.ausentes||[]).length){
     var fm=function(f){ try{ return new Date(f+'T12:00:00').toLocaleDateString('es-CO',{weekday:'short',day:'numeric',month:'short'}); }catch(e){ return f; } };
-    var lin=r.ausentes.slice(0,8).map(function(a){
+    var lin=r.ausentes.map(function(a){
       var tx=a.jornada?'No asiste (toda la jornada)':(a.tipo==='Ausente temporal'?'Permiso por horas':(a.tipo==='Llegada tarde informada'?'Llega tarde':'Sale temprano'));
       return '<div style="margin-top:3px"><b>'+avEsc(a.corto||a.docente)+'</b> · '+avEsc(a.motivo||'sin motivo')+'<br><small>'+tx+(a.dias>1?' · del '+fm(a.desde)+' al '+fm(a.hasta)+' ('+a.dias+' días)':'')+(a.atiende?' · a cargo: '+avEsc(a.atiende):'')+(/^(Sí|No)$/.test(a.actividad||'')?' · actividad: '+avEsc(a.actividad):'')+'</small></div>';
-    }).join('')+(r.ausentes.length>8?'<div style="margin-top:3px"><small>y '+(r.ausentes.length-8)+' más</small></div>':'');
+    }).join('');
+    resum.push({p:false,t:r.ausentes.length+(r.ausentes.length===1?' docente ausente':' docentes ausentes')});
     items.push({c:'aus',h:'<span class="av-ic">🧑‍🏫</span><div><b>Docentes ausentes hoy ('+r.ausentes.length+')</b>'+lin+'</div>'});
   }
   if(!soloUrgentes){
@@ -284,12 +306,17 @@ function avisoDiaPintar(r,soloUrgentes){
   var viejo=document.getElementById('avisoDia'); if(viejo) viejo.remove();
   var v=document.createElement('div'); v.id='avisoDia'; v.setAttribute('role','status'); v.setAttribute('aria-live','polite');
   var seg=Math.min(parp?32:28,(parp?14:10)+items.length*4);   // 10 segundos y 4 más por cada aviso (14 si hay algo urgente; máximo 28 o 32)
-  v.innerHTML='<div class="av-caja'+(parp?' av-parp':'')+'"><div class="av-tit"><span>'+(parp?'🔔 Recordatorio':'📌 Hoy en el colegio')+'</span><button type="button" class="av-x" aria-label="Cerrar">✕</button></div>'+
-    items.slice(0,6).map(function(i){return '<div class="av-it av-'+i.c+(i.p?' av-parpi':'')+'">'+i.h+'</div>';}).join('')+(items.length>6?'<div class="av-mas">y '+(items.length-6)+' más en Reuniones</div>':'')+
-    '<div class="av-barra"><div class="av-prog" style="animation-duration:'+seg+'s"></div></div><div class="av-pie">Toque para cerrar · se cierra solo en unos segundos</div></div>';
+  resum.sort(function(a,b){ return (b.p?1:0)-(a.p?1:0); });   // lo urgente primero
+  var resTxt=resum.slice(0,2).map(function(x){return avEsc(x.t);}).join(' · ')+(items.length>Math.min(2,resum.length)?' · +'+(items.length-Math.min(2,resum.length))+' más':'');
+  v.innerHTML='<div class="av-caja av-comp'+(parp?' av-parp':'')+'"><div class="av-tit"><span>'+(parp?'🔔 Recordatorio':'📌 Hoy en el colegio')+' <small class="av-hint">· toque para ver</small></span><button type="button" class="av-x" aria-label="Cerrar">✕</button></div>'+
+    '<div class="av-res">'+resTxt+'</div><div class="av-lista">'+items.map(function(i){return '<div class="av-it av-'+i.c+(i.p?' av-parpi':'')+'">'+i.h+'</div>';}).join('')+'</div>'+
+    '<div class="av-barra"><div class="av-prog" style="animation-duration:'+seg+'s"></div></div><div class="av-pie">Se cierra solo en unos segundos</div></div>';
   var st=document.createElement('style'); st.textContent=
-   '#avisoDia{position:fixed;left:0;right:0;top:12px;z-index:9999;display:flex;justify-content:center;padding:0 10px;pointer-events:none}'+
-   '#avisoDia .av-caja{pointer-events:auto;background:#fff;border:2px solid #0f2a5c;border-radius:14px;box-shadow:0 8px 28px rgba(10,20,40,.45);max-width:460px;width:100%;padding:10px 12px;animation:avEntra .25s ease-out}'+
+   '#avisoDia{position:fixed;left:0;right:0;top:5px;z-index:9999;display:flex;justify-content:center;padding:0 10px;pointer-events:none}'+
+   '#avisoDia .av-caja{pointer-events:auto;background:#fff;border:2px solid #0f2a5c;border-radius:14px;box-shadow:0 8px 28px rgba(10,20,40,.45);max-width:460px;width:100%;padding:10px 12px;animation:avEntra .25s ease-out;display:flex;flex-direction:column;max-height:calc(100vh - 24px)}'+
+   '#avisoDia .av-comp .av-lista{display:none}#avisoDia .av-res{font-size:12.5px;color:#234;line-height:1.25;margin:0;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#avisoDia .av-abierto .av-res,#avisoDia .av-abierto .av-hint{display:none}#avisoDia .av-abierto .av-lista{display:block}'+
+   '#avisoDia .av-comp{padding:5px 10px 6px}#avisoDia .av-comp .av-tit{font-size:14px;margin-bottom:1px}#avisoDia .av-comp .av-x{width:26px;height:26px}#avisoDia .av-comp .av-pie{display:none}#avisoDia .av-comp .av-barra{margin-top:4px;height:3px}#avisoDia .av-hint{font-weight:400;color:#567;font-size:11px}'+
+   '#avisoDia .av-lista{overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1 1 auto;min-height:0;overscroll-behavior:contain;padding-right:2px}#avisoDia .av-lista::-webkit-scrollbar{width:7px}#avisoDia .av-lista::-webkit-scrollbar-thumb{background:#9fb3cf;border-radius:4px}'+
    '@keyframes avEntra{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}@keyframes avProg{from{width:100%}to{width:0}}'+
    '@keyframes avParp{0%,100%{background:#fff1e0;box-shadow:0 0 0 0 rgba(239,108,0,.0)}50%{background:#ffd54f;box-shadow:0 0 0 5px rgba(239,108,0,.55)}}'+
    '@keyframes avBorde{0%,100%{border-color:#0f2a5c}50%{border-color:#ef6c00}}'+
@@ -316,7 +343,14 @@ function avisoDiaPintar(r,soloUrgentes){
   v.appendChild(st); document.body.appendChild(v);
   if(parp){ try{ if(navigator.vibrate) navigator.vibrate([200,100,200]); }catch(e){} }
   var cierra=function(){ if(v.parentNode) v.parentNode.removeChild(v); }, timer=setTimeout(cierra,seg*1000);
-  v.querySelector('.av-caja').addEventListener('click',function(){ clearTimeout(timer); cierra(); });
+  /* Compacto por defecto (no tapa el encabezado de la ronda): al tocarlo se abre el detalle completo y deja de cerrarse solo; se cierra con la ✕. */
+  var caja=v.querySelector('.av-caja');
+  caja.addEventListener('click',function(e){
+    if(e.target.closest&&e.target.closest('.av-x')){ clearTimeout(timer); cierra(); return; }
+    if(caja.classList.contains('av-comp')){ clearTimeout(timer); caja.classList.remove('av-comp'); caja.classList.add('av-abierto'); var b=v.querySelector('.av-barra'); if(b) b.style.display='none'; var pie=v.querySelector('.av-pie'); if(pie) pie.textContent='Toque ✕ para cerrar'; }
+  });
+  var pausa=function(){ clearTimeout(timer); var b=v.querySelector('.av-barra'); if(b) b.style.display='none'; var pie=v.querySelector('.av-pie'); if(pie) pie.textContent='Toque para cerrar'; };   // quien se desplaza para leer no debe perder el aviso
+  var lst=v.querySelector('.av-lista'); if(lst){ lst.addEventListener('scroll',pausa); lst.addEventListener('touchmove',pausa); lst.addEventListener('wheel',pausa); }
 }
 /* una fila del aviso: icono de prioridad, hora destacada (con color), nombre en negrita y un poco más grande, y el detalle */
 function avFila(ic,hora,etiqueta,cl,nombre,x){
@@ -334,6 +368,16 @@ function avExtra(x){
 function avEsc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 if(!window.AVISO_MANUAL) setTimeout(function(){ avisoDia(false); },1200);
 setInterval(avisoVigilar,180000);   // recordatorios durante la jornada
+/* El escudo del colegio lleva al menú principal desde cualquier pantalla (en el menú mismo no hace nada). */
+(function(){
+  try{
+    if(typeof irAlMenu!=='function') return;
+    [].slice.call(document.querySelectorAll('header img, .marca img')).forEach(function(i){
+      if(i.getAttribute('data-menu')) return; i.setAttribute('data-menu','1'); i.style.cursor='pointer'; i.setAttribute('title','Ir al menú principal'); i.setAttribute('role','link'); i.setAttribute('tabindex','0');
+      var ir=function(){ irAlMenu(); }; i.addEventListener('click',ir); i.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); ir(); } });
+    });
+  }catch(e){}
+})();
 </script>
 <!--AVISO_DIA_FIN-->
 </body>

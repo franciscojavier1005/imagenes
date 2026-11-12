@@ -6,7 +6,7 @@
  * Hojas: Reuniones (una fila por reunión) y Asistencia_Reunion (una fila por persona y reunión; se reemplaza al volver a guardar).
  * Fechas y horas se guardan como TEXTO (con apóstrofo) para que Sheets no las convierta.
  */
-var COL_REUNIONES = ['id', 'fecha', 'tipo', 'nombre', 'inicio', 'fin', 'sin_estudiantes', 'convocados', 'creado_por', 'fecha_creacion', 'avisar_dias', 'avisar_min', 'avisar_ronda', 'lugar', 'fin_tipo', 'convoca_tipo', 'convoca_detalle', 'solicita_por', 'responsables', 'convocados_grupos', 'invitados', 'invitado_nombre', 'observaciones', 'salida_est', 'min_antes_salida', 'llevar_comedor', 'informar_padres', 'excepcional'];
+var COL_REUNIONES = ['id', 'fecha', 'tipo', 'nombre', 'inicio', 'fin', 'sin_estudiantes', 'convocados', 'creado_por', 'fecha_creacion', 'avisar_dias', 'avisar_min', 'avisar_ronda', 'lugar', 'fin_tipo', 'convoca_tipo', 'convoca_detalle', 'solicita_por', 'responsables', 'convocados_grupos', 'invitados', 'invitado_nombre', 'observaciones', 'salida_est', 'min_antes_salida', 'llevar_comedor', 'informar_padres', 'excepcional', 'cerrada', 'cierre_hora'];
 /** A quiénes se convoca. Personal (genera lista de asistencia) y organismos e invitados (solo se anuncian). */
 var GRUPOS_PERSONAL = [
   ['TODOS', 'Todo el personal de la institución', 'Docentes, orientadoras, tutora PTAFI y directivos'],
@@ -193,6 +193,10 @@ function reunionDeFila_(r) {
   x.llevarComedor = String(r.llevar_comedor || '').toUpperCase() === 'SI';
   x.informarPadres = String(r.informar_padres || '').toUpperCase() === 'SI';
   x.excepcional = String(r.excepcional || '').toUpperCase() === 'SI';
+  /* reunión o actividad dada por terminada (cerrada) antes de su hora de fin: deja de avisar y de ocupar el horario desde la hora de cierre */
+  x.cerrada = String(r.cerrada || '').toUpperCase() === 'SI';
+  x.cierreHora = hora_(String(r.cierre_hora || '').replace(/^'/, ''));
+  if (x.cerrada && x.cierreHora) { x.finOriginal = x.fin; var cf = x.cierreHora < x.inicio ? x.inicio : (x.cierreHora < x.fin ? x.cierreHora : x.fin); x.fin = cf; }
   x.finClases = x.salidaEst ? restaMin_(x.salidaEst, x.minAntesSalida) : '';
   x.inicioClases = x.finClases && x.finClases < x.inicio ? x.finClases : x.inicio;
   x.convocadosResumen = resumenConvocados_(x);
@@ -361,7 +365,7 @@ function avisosHoy() {
   var ahoraMin = aMinutos(hh);
   function resumida(r) { var a = asistenciaDe_(r.id), conv = convocadosDe_(r), reg = 0; conv.forEach(function (n) { if (a[n]) reg++; }); return { conv: conv.length, reg: reg }; }
   var todas = reunionesDatos_().map(reunionDeFila_).filter(function (r) { return r.fecha; });
-  var reuniones = todas.filter(function (r) { return r.fecha === hoy; }).sort(function (a, b) { return a.inicio < b.inicio ? -1 : (a.inicio > b.inicio ? 1 : 0); }).map(function (r) {
+  var reuniones = todas.filter(function (r) { return r.fecha === hoy && !r.cerrada; }).sort(function (a, b) { return a.inicio < b.inicio ? -1 : (a.inicio > b.inicio ? 1 : 0); }).map(function (r) {
     var x = resumida(r), estado = hh < r.inicio ? 'proxima' : (hh <= r.fin ? 'ahora' : 'pasada'), faltan = aMinutos(r.inicio) - ahoraMin;
     return { id: r.id, nombre: r.nombre, tipo: r.tipo, inicio: r.inicio, fin: r.fin, sinEstudiantes: r.sinEstudiantes, convocadosN: x.conv, registrados: x.reg, estado: estado,
              lugar: r.lugar, observaciones: r.observaciones, salidaEst: r.salidaEst, finClases: r.finClases, llevarComedor: r.llevarComedor, informarPadres: r.informarPadres, finTipo: r.finTipo, convocadosResumen: r.convocadosResumen, minutosHasta: faltan, avisarRonda: r.avisarRonda, avisarMin: r.avisarMin,
@@ -458,6 +462,29 @@ function editarReunion(p) {
     bitacora_('Editó reunión', antes.nombre + ' (' + antes.fecha + ' ' + antes.inicio + '-' + antes.fin + ') → ' + nueva[c.nombre] + ' (' + p.fecha + ' ' + ini + '-' + fin + ')' + (antes.sinEstudiantes !== !!p.sinEstudiantes ? ' · clases ' + (p.sinEstudiantes ? 'suspendidas' : 'no suspendidas') : '') + ' · por ' + por);
   } finally { lock.releaseLock(); }
   return { ok: true, id: p.id, ausentes: ausentesConvocados_(p.id) };
+}
+
+/**
+ * Da por terminada (cierra) una reunión o actividad de hoy o anterior, aunque no haya llegado su hora de fin: deja de salir en el aviso del día y deja
+ * libre el horario para la ronda desde ese momento. También se puede reabrir. p = {id, cerrar: true|false}
+ */
+function cerrarReunion(p) {
+  p = p || {};
+  var por = nombreRegistrador_(p), cerrar = p.cerrar !== false;
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var sh = reunionesHoja_(), v = sh.getDataRange().getValues(), cab = v[0], c = {}, fila = -1;
+    cab.forEach(function (k, i) { c[k] = i; });
+    for (var i = 1; i < v.length; i++) if (String(v[i][c.id]) === String(p.id)) { fila = i; break; }
+    if (fila < 0) throw new Error('No se encontró la reunión.');
+    var r = reunionDeFila_((function () { var o = {}; cab.forEach(function (k, j) { o[k] = v[fila][j]; }); return o; })()), hoy = ymd_(new Date());
+    if (cerrar && r.fecha > hoy) throw new Error('Solo se puede dar por terminada una reunión de hoy o de un día anterior.');
+    var ahora = Utilities.formatDate(new Date(), TZ, 'HH:mm'), cierre = r.fecha < hoy ? (r.finOriginal || r.fin) : ahora;
+    sh.getRange(fila + 1, c.cerrada + 1).setValue(cerrar ? 'SI' : '');
+    sh.getRange(fila + 1, c.cierre_hora + 1).setValue(cerrar ? txtForzado_(cierre) : '');
+    bitacora_(cerrar ? 'Cerró reunión' : 'Reabrió reunión', r.nombre + ' (' + r.fecha + ' ' + r.inicio + '-' + (r.finOriginal || r.fin) + ')' + (cerrar ? ' a las ' + cierre : ''));
+    return { ok: true, cerrada: cerrar, cierre: cerrar ? cierre : '' };
+  } finally { lock.releaseLock(); }
 }
 
 /** Datos para registrar la asistencia de una reunión: convocados y lo ya registrado. */

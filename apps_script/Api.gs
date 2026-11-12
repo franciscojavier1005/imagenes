@@ -29,6 +29,7 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   guardarAsistenciaReunion: ['directivo'],
   agregarPersonaReunion: ['directivo'],
   historialReuniones: ['directivo'],
+  cerrarReunion: ['directivo'],
   historialNovedades: ['directivo'],
   cambiarClave: ['directivo'],
   listarIncumplimientos: ['directivo'],
@@ -74,7 +75,7 @@ function apiFunciones_() {
     enviarInformeAMi: enviarInformeAMi,
     levantarMarcasEstudiante: levantarMarcasEstudiante,
     informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
-    editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas
+    editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, cerrarReunion: cerrarReunion, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas
   };
 }
 

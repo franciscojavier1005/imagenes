@@ -1,0 +1,12 @@
+{
+  "name": "rumbo-icet",
+  "version": "1.0.0",
+  "description": "Rumbo ICET · Orientación socioocupacional (Apps Script). Autoría: Francisco Javier Cortés Cabezas.",
+  "private": true,
+  "scripts": {
+    "probar": "node pruebas/receptor.test.js",
+    "subir": "clasp push",
+    "publicar": "clasp deploy --description \"Rumbo ICET\""
+  },
+  "devDependencies": { "@google/clasp": "^2.4.2" }
+}

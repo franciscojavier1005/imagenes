@@ -1,0 +1,962 @@
+<!-- Rumbo ICET · Autoría del sistema: Francisco Javier Cortés Cabezas · I.E. Ciudadela Educativa Tumac (ICET), Tumaco. -->
+<title>Rumbo vocacional</title>
+<script>window.RUMBO_PANEL = <?= panel ? 'true' : 'false' ?>;</script>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Concepto: carta de navegación del Pacífico. Fondo marino claro, tinta profunda, un acento turquesa y un ámbar de marimba para lo que pide atención. */
+:root{
+  --bg:#FBF6EE;--surface:#FFFFFF;--ink:#12262B;--muted:#4F6569;--line:#E7DCCB;
+  --accent:#0B7A85;--accent-ink:#FFFFFF;--accent-soft:#D6EEF0;
+  --warm:#9A6A06;--warm-soft:#F8EBC8;--sun:#E4572E;--sun-soft:#FFE3D3;--band:#0B5F68;--band-ink:#FFFFFF;
+  --ok:#1B7F48;--ok-soft:#D8F0E1;--warn:#A4470A;--warn-soft:#FDE4C8;--mute-soft:#E6EEED;
+  --f-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;--f-body:'Inter','Segoe UI',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0C1A1E;--surface:#132429;--ink:#E6F0EF;--muted:#9DB4B7;--line:#26414A;
+  --accent:#3CC0CC;--accent-ink:#06262A;--accent-soft:#123D43;
+  --warm:#E2B13C;--warm-soft:#3A2F10;--sun:#FF8A5B;--sun-soft:#3A2218;--band:#0B5F68;
+  --ok:#55C48A;--ok-soft:#12331F;--warn:#F0A35E;--warn-soft:#3A2410;--mute-soft:#1B3037;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C1A1E;--surface:#132429;--ink:#E6F0EF;--muted:#9DB4B7;--line:#26414A;
+  --accent:#3CC0CC;--accent-ink:#06262A;--accent-soft:#123D43;
+  --warm:#E2B13C;--warm-soft:#3A2F10;--sun:#FF8A5B;--sun-soft:#3A2218;--band:#0B5F68;
+  --ok:#55C48A;--ok-soft:#12331F;--warn:#F0A35E;--warn-soft:#3A2410;--mute-soft:#1B3037;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:720px;margin:0 auto}.wrap.wide{max-width:1040px}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:2rem}h2{font-size:1.4rem}h3{font-size:1.05rem}
+p{margin:.4rem 0}
+.muted{color:var(--muted)}.small{font-size:.875rem}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.brand b{font-family:var(--f-display);font-size:1.25rem;letter-spacing:.01em}
+.brand span{color:var(--muted);font-size:.85rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
+.card.soft{background:var(--accent-soft);border-color:transparent}
+.progress{height:6px;background:var(--mute-soft);border-radius:99px;overflow:hidden;margin:6px 0 18px}
+.progress i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.q{padding:14px 0;border-top:1px solid var(--line)}.q:first-of-type{border-top:0}
+.q.missing{outline:2px solid var(--warn);outline-offset:4px;border-radius:8px}
+.q-t{font-weight:500;margin-bottom:8px}
+.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:6px}
+.seg.col{grid-template-columns:1fr}
+.opt{font:inherit;font-size:.9rem;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:10px 8px;min-height:44px;cursor:pointer;text-align:center}
+.seg.col .opt{text-align:left;padding:10px 12px}
+.opt:hover{border-color:var(--accent)}
+.opt.sel{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.opt:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--warm);outline-offset:2px}
+.btn{font:inherit;font-weight:600;border-radius:10px;border:1.5px solid var(--accent);background:var(--surface);color:var(--accent);padding:11px 18px;min-height:44px;cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{border-color:var(--line);color:var(--ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row.between{justify-content:space-between}
+input[type=text],select,textarea{font:inherit;width:100%;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px}
+textarea{min-height:90px;resize:vertical}
+label.chk{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+label.chk input{margin-top:5px;width:18px;height:18px;flex:none}
+.err{color:var(--warn);font-weight:600;margin-top:10px}
+.letters{display:flex;gap:10px;margin:10px 0}
+.letter{width:64px;height:64px;border-radius:16px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--f-display);font-size:2rem;font-weight:700}
+.letter:nth-child(2){opacity:.92}.letter:nth-child(3){opacity:.8}
+.letter:nth-child(3){background:var(--mute-soft);color:var(--ink)}
+.bars{display:grid;gap:8px;margin:10px 0}
+.bar{display:grid;grid-template-columns:minmax(96px,34%) 1fr 48px;gap:10px;align-items:center;font-size:.9rem}
+.bar .lb{min-width:0;overflow-wrap:anywhere}
+.bar .tr{height:12px;background:var(--mute-soft);border-radius:99px;overflow:hidden}
+.bar .tr i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.bar .tr i.w{background:var(--warm)}
+.bar .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.pill{display:inline-block;font-size:.78rem;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--mute-soft);color:var(--ink);margin:2px 4px 2px 0}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}.pill.pc{background:var(--warn-soft);color:var(--warn)}.pill.pi{background:var(--mute-soft);color:var(--muted)}
+.ruta{border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0;background:var(--surface)}
+.ruta h3{margin-bottom:4px}
+.ruta .fit{font-size:.8rem;font-weight:600;color:var(--accent)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+.kpi b{display:block;font-family:var(--f-display);font-size:1.7rem;font-variant-numeric:tabular-nums}
+.kpi span{font-size:.82rem;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px}
+.grid2>.card{margin:0;min-width:0}
+.banner{background:var(--warm-soft);color:var(--ink);border:1px solid var(--warm);border-radius:12px;padding:10px 14px;margin:12px 0;font-size:.9rem}
+code,.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.78rem}
+.codebox{width:100%;word-break:break-all;background:var(--mute-soft);border-radius:10px;padding:10px;max-height:110px;overflow:auto}
+details summary{cursor:pointer;font-weight:600}
+a{color:var(--accent)}
+
+.hero{border-radius:18px;overflow:hidden;margin:4px 0 16px;background:#FF9B66;box-shadow:0 6px 18px rgba(11,95,104,.18)}
+.hero .art{display:block;line-height:0}.hero svg{display:block;width:100%;height:auto}
+.hero .band{background:var(--band);color:var(--band-ink);padding:14px 18px 16px}
+.hero .band h1{font-size:1.75rem;color:var(--band-ink)}.hero .band p{color:#D7F0F2;margin:.35rem 0 0}
+.mood .opt{font-size:1rem}.mood .opt.sel{background:var(--sun);border-color:var(--sun);color:#1A0A04}
+.reply{background:var(--sun-soft);color:var(--ink);border-radius:12px;padding:10px 14px;margin:10px 0 0;font-size:.95rem}
+.ficha{margin:10px 0 2px;border-top:1px dashed var(--line);padding-top:8px}
+.ficha summary{cursor:pointer;font-weight:600;color:var(--accent);padding:6px 0;min-height:36px}
+.ficha dt{font-weight:700;margin-top:8px}.ficha dd{margin:2px 0 0}
+.snd{position:fixed;z-index:20;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.snd .tog{font:inherit;font-weight:600;font-size:.9rem;border-radius:99px;border:1.5px solid var(--accent);background:var(--surface);color:var(--accent);padding:9px 14px;min-height:44px;cursor:pointer;box-shadow:0 4px 14px rgba(11,95,104,.22)}
+.snd .tog.on{background:var(--accent);color:var(--accent-ink)}
+.snd .pan{max-height:70vh;overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;width:min(320px,calc(100vw - 32px));box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.snd .pan label.chk{margin:8px 0}.snd .pan input[type=range]{width:100%;min-height:32px}
+body{padding-bottom:84px}
+.chart{display:flex;flex-direction:column;align-items:center;gap:8px}.chart svg{max-width:340px;width:100%;height:auto}.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.82rem;justify-content:center}.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.kpi{border-top:4px solid var(--kc,var(--accent))}
+.bar .tr i{background:var(--bc,var(--accent))}
+.apoyo{border-left:4px solid var(--sun);background:var(--sun-soft);color:var(--ink);border-radius:0 10px 10px 0;padding:10px 12px;margin:8px 0}
+.apoyo a{color:var(--accent)}
+.foot{margin-top:28px;font-size:.82rem;color:var(--muted)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.progress i{transition:none}}
+@keyframes rpulse{0%{transform:scale(1)}35%{transform:scale(var(--ps,.96))}100%{transform:scale(1)}}
+.rpulse{animation:rpulse .22s ease-out}
+@media (prefers-reduced-motion:reduce){.rpulse{animation:none}}
+
+.photo{border-radius:16px;overflow:hidden;margin:6px 0 14px;line-height:0;box-shadow:0 4px 14px rgba(11,95,104,.16);position:relative}
+.photo svg,.photo img{display:block;width:100%;height:auto}
+.photo .cap{position:absolute;left:0;right:0;bottom:0;padding:18px 14px 8px;line-height:1.2;font-size:.82rem;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.55))}
+.strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 14px}
+.strip .photo{margin:0;border-radius:12px}
+.sendst{border-radius:12px;padding:10px 12px;margin:8px 0 14px;font-size:.92rem;background:var(--warm-soft);color:var(--fg)}
+.sendst.ok{background:#DDF3E4;color:#14502B}.sendst.err{background:var(--sun-soft)}
+@media (prefers-color-scheme:dark){.sendst.ok{background:#173A26;color:#BFEBCB}}
+</style>
+<div class="wrap" id="app"></div>
+<script>
+(function(){
+"use strict";
+var ORDER='RIASEC';
+var HOL={R:['Realista','Te gusta lo práctico: armar, reparar, instalar, trabajar con equipos, el campo, el mar o el cuerpo.'],
+ I:['Investigador','Te atrae entender cómo funcionan las cosas, resolver problemas y probar ideas.'],
+ A:['Artístico','Te mueve crear: música, imagen, diseño, escritura, presentarte en público.'],
+ S:['Social','Disfrutas ayudar, enseñar, cuidar y trabajar con personas.'],
+ E:['Emprendedor','Te gusta liderar, convencer, organizar y montar proyectos o negocios.'],
+ C:['Convencional','Te sientes cómodo con el orden: datos, registros, procesos y tareas precisas.']};
+var ITEMS={
+ R:['Armar, arreglar o instalar equipos (computadores, celulares, redes, motores)','Trabajar con herramientas, cables o electricidad','Cultivar, cuidar animales o trabajar al aire libre, en el campo o en el mar','Dar mantenimiento a motos, lanchas o máquinas','Practicar o entrenar un deporte con disciplina física'],
+ I:['Averiguar por qué algo funciona o por qué falla','Hacer experimentos, mediciones o pruebas','Resolver problemas de matemáticas o de lógica','Ver o leer sobre ciencia, tecnología o naturaleza por gusto propio','Programar o probar cómo funciona un sistema'],
+ A:['Tocar un instrumento o cantar','Componer, producir o mezclar música','Dibujar, diseñar, fotografiar o editar video','Escribir historias, letras o poemas','Bailar, actuar o presentarme frente a un público'],
+ S:['Explicar o enseñarle algo a otras personas','Escuchar y aconsejar a alguien que tiene un problema','Ayudar a mi barrio o a mi comunidad en una causa','Cuidar la salud o el bienestar de otras personas','Trabajar con niños o con adultos mayores'],
+ E:['Montar un negocio propio','Convencer a otros de una idea o vender un producto','Liderar un grupo o un proyecto','Organizar eventos, torneos o actividades','Tomar decisiones difíciles y asumir riesgos'],
+ C:['Llevar cuentas, inventarios o registros ordenados','Organizar datos en hojas de cálculo','Seguir procedimientos paso a paso con precisión','Revisar documentos para encontrar errores','Planear horarios, presupuestos o calendarios']};
+var RI=[];for(var k=0;k<5;k++)for(var j=0;j<6;j++)RI.push([ORDER[j],ITEMS[ORDER[j]][k]]);
+var LIKI=['No me gusta','Me da igual','Me gusta','Me encanta'];
+var SK=['Matemáticas','Leer y comprender textos','Inglés','Explicar mis ideas','Trabajar en equipo','Aprender por mi cuenta, sin que me estén guiando','Organizar mi tiempo','Usar computador y tecnología','Resolver problemas prácticos'];
+var SKS=['Matemáticas','Lectura','Inglés','Expresión','Equipo','Autonomía','Tiempo','Tecnología','Práctica'];
+var LIKS=['Me cuesta mucho','Me cuesta','Me defiendo','Se me da bien'];
+var BI=['Tengo claro qué quiero estudiar o hacer después del colegio','Siento presión por decidir rápido','Me preocupa cómo pagar mis estudios','Confío en que puedo terminar lo que empiece','Tengo alguien con quien hablar de mi futuro'];
+var BIS=['Claridad','Presión','Preocupación económica','Confianza','Apoyo'];
+var LIKB=['Nada','Un poco','Bastante','Totalmente'];
+var PVL=['Sí, tengo claro lo que quiero hacer con mi vida','Lo estoy construyendo: tengo ideas, pero no está definido','Todavía no lo he pensado mucho'];
+var MAL=['No, todavía no estoy estudiando nada después del colegio','Sí, estoy en un programa técnico profesional','Sí, estoy en un programa tecnológico (incluye SENA tecnólogo)','Sí, estoy en un programa universitario','Estoy haciendo un curso corto o complementario'];
+var INL=['Ya me inscribí y estoy en proceso de matrícula','Quiero inscribirme para 2027-1 (primer semestre)','Quiero inscribirme para 2027-2 (segundo semestre)','Más adelante, primero quiero trabajar o ahorrar','Todavía no sé','No pienso estudiar por ahora'];
+var BAL2=[['din','No tengo cómo pagar'],['cup','Me preocupa no pasar el examen o no conseguir cupo'],['lej','El programa que quiero queda lejos de Tumaco'],['inf','No sé cómo inscribirme ni qué trámites hacer'],['fam','Mi familia no me puede apoyar o no está de acuerdo'],['tra','Tengo que trabajar o cuidar a alguien'],['con','No tengo computador o internet para estudiar'],['otr','Otra razón']];
+var L={
+ es:['Busco ayuda (profe, compañeros, videos, inteligencia artificial)','Insisto yo solo hasta lograrlo','Prefiero dejarlo y pasar a otra cosa'],
+ tr:['Ya trabajo','Quiero trabajar mientras estudio','Por ahora no'],
+ hr:['Menos de 5 horas','De 5 a 10 horas','De 10 a 20 horas','Más de 20 horas'],
+ nt:['Computador e internet estable','Solo celular con datos','Internet inestable','No tengo internet en casa'],
+ mv:['Sí, puedo irme a otra ciudad','Tal vez, si hay apoyo','No, debo quedarme en Tumaco'],
+ co:['Necesito estudio gratuito','Puedo pagar algo pequeño','Mi familia puede pagar matrícula privada'],
+ md:['Presencial en Tumaco','Presencial en otra ciudad','Virtual','A distancia con encuentros','Me da igual'],
+ ini:['En 2027-1','En 2027-2','Primero quiero trabajar un tiempo']};
+var AREAS=[['tec','Tecnología y sistemas'],['ele','Electrónica y robótica'],['mus','Música y producción de audio'],['sal','Salud'],['edu','Educación y pedagogía'],['agr','Mar, agro y ambiente'],['neg','Negocios, contabilidad y logística'],['der','Derecho, humanidades y ciencias sociales'],['dep','Deporte y actividad física'],['dis','Diseño, arte y audiovisual'],['con','Construcción e infraestructura']];
+var AN={};AREAS.forEach(function(a){AN[a[0]]=a[1]});
+var U={
+ senaIV:'https://www.portafolio.co/tendencias/sociales/pilas-sena-abrio-60-000-cupos-para-estudiar-15-programas-642807',
+ senaRedes:'https://bogota.gov.co/en/node/298205',
+ betowa:'https://betowa.sena.edu.co',
+ ipo:'http://www.orientacionvocacional.sena.edu.co/',
+ unadADSI:'https://sgeneral.unad.edu.co/images/documentos/consejoAcademico/acuerdos/2020/COAC_ACUE_005_20200317.pdf',
+ unadRedes:'https://estudios.unad.edu.co/images/2025/Acuerdo%20TGRI%20-%20IT%20Aprobado%20ConEsc.pdf',
+ unadGrat:'https://noticias.unad.edu.co/images/CIRCULAR_INFORMATIVA_PG_2026-I_16-01.docx_proyeccion.pdf',
+ udenar:'https://narino.gov.co/wp-content/uploads/2026/07/Boletin-de-Prensa-0293-CESU-aprobo-la-creacion-de-la-Seccional-Pacifico-de-la-Universidad-de-Narino-24-07-2026-.pdf',
+ udenarMen:'https://www.mineducacion.gov.co/portal/salaprensa/Comunicados/430122:Gobierno-Petro-fortalece-la-educacion-superior-publica-con-una-nueva-seccional-Pacifico-de-la-Universidad-de-Narino-en-el-municipio-de-Tumaco',
+ unal:'https://tumaco-pacifico.unal.edu.co/',
+ unalAdm:'https://tumaco-pacifico.unal.edu.co/?page_id=403',
+ unalInf:'https://tumaco-pacifico.unal.edu.co/wp-content/uploads/2025/06/INFORME-DE-GESTION-2024_SPN-TUMACO-UNAL.pdf',
+ udenarTum:'https://www.udenar.edu.co/regionalizacion/tumaco/',
+ tdeaReg:'https://www.elcolombiano.com/antioquia/tecnologico-de-antioquia-abrio-inscripciones-48-municipios-como-aplicar-CJ27487674',
+ tdeaProg:'https://tdea.edu.co/programas-profesionales/',
+ mineduNar:'https://www.mineducacion.gov.co/portal/salaprensa/Comunicados/427547:Ministerio-de-Educacion-consolida-educacion-superior-gratuita-en-Narino-con-inversion-historica-y-presencia-en-nueve-municipios',
+ tdea:'https://tdea.edu.co/index.php/informate/medios-tdea/noticias/noticias-2024/4742-el-tdea-primera-institucion-universitaria-en-el-pais-en-ofrecer-la-tecnologia-en-implementacion-de-servicios-iot-o-internet-de-las-cosas',
+ cero:'https://www.eltiempo.com/vida/educacion/el-presidente-petro-sanciono-la-ley-de-matricula-cero-en-educacion-superior-791963'};
+var MDL={virtual:'Virtual',tumaco:'Presencial en Tumaco',otra:'Presencial en otra ciudad',por:'Modalidad por definir'};
+var COL={gratis:'Gratuito (SENA)',pub:'Pública, con política de gratuidad (verificar requisitos)',pc:'Costo por definir'};
+var ESL={ok:'Confirmado con fuente',pc:'Programas por confirmar',pi:'Por investigar con el orientador'};
+var RUTAS=[
+ {id:'sena-ads',n:'Tecnólogo en Análisis y Desarrollo de Software',i:'SENA',lv:'Tecnólogo',md:'virtual',co:'gratis',h:'ICR',ar:['tec'],m:2,es:'ok',
+  nt:'Está en las ofertas virtuales del SENA; cupos y fechas cambian en cada convocatoria. La UNAD tiene un acuerdo de homologación para egresados del tecnólogo SENA en Análisis y Desarrollo de Sistemas de Información hacia Ingeniería de Sistemas (confirmar con la UNAD si aplica al programa actual).',
+  f:[['Oferta virtual SENA',U.senaIV],['Acuerdo de homologación UNAD',U.unadADSI]]},
+ {id:'sena-redes',n:'Técnico o tecnólogo en redes de datos',i:'SENA',lv:'Técnico / Tecnólogo',md:'virtual',co:'gratis',h:'RIC',ar:['tec','ele'],m:2,es:'ok',
+  nt:'Aparece entre los programas de la segunda oferta virtual de 2026. Revisar el nombre exacto y el nivel en Betowa.',f:[['Segunda oferta virtual 2026',U.senaRedes]]},
+ {id:'sena-3d',n:'Tecnólogo en Animación 3D',i:'SENA',lv:'Tecnólogo',md:'virtual',co:'gratis',h:'AIR',ar:['dis','tec'],m:1,es:'ok',
+  nt:'Estuvo en la IV oferta virtual de 2025. Confirmar si se abre de nuevo.',f:[['IV oferta virtual 2025',U.senaIV]]},
+ {id:'sena-cont',n:'Tecnólogo en Gestión Contable y Financiera',i:'SENA',lv:'Tecnólogo',md:'virtual',co:'gratis',h:'CE',ar:['neg'],m:2,es:'ok',
+  nt:'Estuvo en la IV oferta virtual de 2025. Confirmar si se abre de nuevo.',f:[['IV oferta virtual 2025',U.senaIV]]},
+ {id:'sena-log',n:'Tecnólogo en Coordinación de Procesos Logísticos',i:'SENA',lv:'Tecnólogo',md:'virtual',co:'gratis',h:'ECR',ar:['neg'],m:2,es:'ok',
+  nt:'Estuvo en la IV oferta virtual de 2025. Confirmar si se abre de nuevo.',f:[['IV oferta virtual 2025',U.senaIV]]},
+ {id:'sena-tum',n:'Programas presenciales del SENA en Tumaco',i:'SENA',lv:'Técnico / Tecnólogo',md:'tumaco',co:'gratis',h:'RCE',ar:['agr','con','neg','ele'],m:1,es:'pc',
+  nt:'En Betowa se filtra por departamento y municipio. No verifiqué qué programas hay hoy en Tumaco.',f:[['Betowa (inscripción SENA)',U.betowa]]},
+ {id:'unad-sis',n:'Ingeniería de Sistemas',i:'UNAD',lv:'Profesional',md:'virtual',co:'pub',h:'ICR',ar:['tec'],m:3,es:'ok',
+  nt:'Se puede llegar con homologación desde tecnólogos. La UNAD publica una circular de política de gratuidad por periodo; los requisitos se confirman en cada circular. Exigencia matemática alta, con apoyo posible.',
+  f:[['Circular de gratuidad UNAD 2026-I',U.unadGrat],['Homologación desde SENA',U.unadADSI]]},
+ {id:'unad-redes',n:'Tecnología en Gestión de Redes Inalámbricas, con ruta a Ingeniería de Telecomunicaciones',i:'UNAD',lv:'Tecnólogo → Profesional',md:'virtual',co:'pub',h:'RIC',ar:['ele','tec'],m:3,es:'ok',
+  nt:'El Consejo de Escuela aprobó en septiembre de 2024 la homologación entre estos dos programas. Verificar que el programa siga abierto a nuevos estudiantes.',f:[['Acuerdo de homologación UNAD',U.unadRedes]]},
+ {id:'udenar',n:'Universidad de Nariño en Tumaco (siete programas)',i:'Universidad de Nariño',lv:'Profesional',md:'tumaco',co:'pub',h:'RIS',ar:['agr','tec','edu','neg','der'],m:2,es:'ok',
+  nt:'La página oficial de la sede de Tumaco lista siete programas: Ingeniería Agroforestal, Ingeniería de Sistemas, Licenciatura en Ciencias Naturales y Educación Ambiental, Licenciatura en Lengua Castellana y Literatura, Sociología, Contaduría Pública e Ingeniería en Producción Acuícola. Además, el CESU aprobó en julio de 2026 la Seccional Pacífico, que proyecta diez programas en sus primeros cuatro años (sin lista aún). Confirma cupos y fechas de admisión 2027 en cada programa; la Universidad de Nariño tiene política de gratuidad.',
+  f:[['Sede Tumaco, Universidad de Nariño',U.udenarTum],['Boletín de la Gobernación de Nariño',U.udenar],['Comunicado del Ministerio de Educación',U.udenarMen]]},
+ {id:'unal',n:'Universidad Nacional, sede Tumaco (PAET y PEAMA)',i:'Universidad Nacional',lv:'Profesional',md:'tumaco',co:'pub',h:'SEA',ar:['sal','der','neg','dis','edu'],m:2,es:'ok',
+  nt:'Según su informe de gestión 2024, la sede ofrece con ciclo completo en Tumaco (admisión PAET): Enfermería (70 cupos), Derecho (40), Administración de Empresas (35) y Gestión Cultural y Comunicativa (35). También da acceso a 76 carreras de otras sedes por el PEAMA. Para la convocatoria 2027-1S pedía haber cursado al menos los dos últimos años de bachillerato en un colegio de la zona de influencia de la sede; la inscripción es gratuita y el plazo cerró el 24 de agosto de 2026. Confirma la próxima convocatoria con la sede.',
+  f:[['Admisión, sede Tumaco',U.unalAdm],['Informe de gestión 2024',U.unalInf]]},
+ {id:'upac',n:'Universidad del Pacífico, presencia en Tumaco',i:'Universidad del Pacífico',lv:'Profesional',md:'tumaco',co:'pub',h:'RIE',ar:['agr','neg'],m:2,es:'pc',
+  nt:'La Universidad del Pacífico tiene sede en Buenaventura. Hubo noticias sobre una sede o presencia en Tumaco, pero no encontré en fuentes oficiales una lista vigente de programas aquí. Confirma con la universidad.',f:[]},
+ {id:'tdea-tum',n:'Tecnológico de Antioquia (TdeA) en Tumaco',i:'Tecnológico de Antioquia',lv:'Técnica, tecnología y profesional',md:'tumaco',co:'pc',h:'SEC',ar:['edu','der','neg','dep','tec'],m:1,es:'pc',
+  nt:'El TdeA (institución universitaria, no fundación) abrió inscripciones en 48 municipios, y Tumaco es uno de los dos de Nariño, en modalidades presencial y a distancia. Su oferta regional incluye licenciaturas (educación infantil; educación física, recreación y deportes; literatura y lengua castellana; educación campesina y rural), derecho, contaduría pública, negocios internacionales, ingeniería en software e ingeniería ambiental, entre otras. Según información de la comunidad educativa local, en Tumaco se dictan licenciaturas y derecho en convenio con instituciones educativas. Confirma con el TdeA cuáles programas están abiertos aquí y los costos.',
+  f:[['El Colombiano: inscripciones del TdeA en regiones',U.tdeaReg],['Programas del TdeA',U.tdeaProg]]},
+ {id:'tdea',n:'Tecnológico de Antioquia: tecnología en servicios IoT',i:'Tecnológico de Antioquia',lv:'Tecnólogo',md:'otra',co:'pc',h:'RIC',ar:['ele','tec'],m:2,es:'pc',
+  nt:'El TdeA anunció la Tecnología en Implementación de Servicios IoT y figura entre las tecnologías de su oferta regional. Falta confirmar si se ofrece en Tumaco, su modalidad y su costo.',f:[['Noticia del TdeA sobre IoT',U.tdea],['El Colombiano: oferta del TdeA en regiones',U.tdeaReg]]},
+ {id:'mus',n:'Música y producción de audio',i:'Por investigar',lv:'Técnico / Tecnólogo / Profesional',md:'por',co:'pc',h:'AEI',ar:['mus','dis'],m:1,es:'pi',
+  nt:'No tengo un programa verificado. Buscar en Betowa (SENA) y en licenciaturas o programas de música de universidades públicas.',f:[]},
+ {id:'sal',n:'Programas del área de la salud',i:'Por investigar',lv:'Técnico / Tecnólogo / Profesional',md:'por',co:'pc',h:'SIR',ar:['sal'],m:2,es:'pi',
+  nt:'La Universidad Nacional ofrece Enfermería con ciclo completo en Tumaco (ver su ruta). Para otros programas de salud, consulta con el orientador y con el SENA.',f:[['Informe de gestión 2024, sede Tumaco UNAL',U.unalInf]]},
+ {id:'edu',n:'Licenciaturas y programas de educación',i:'Por investigar',lv:'Profesional',md:'por',co:'pc',h:'SAE',ar:['edu','der'],m:1,es:'pi',
+  nt:'En Tumaco aparecen licenciaturas en la Universidad de Nariño (Ciencias Naturales y Educación Ambiental; Lengua Castellana y Literatura) y, según información local, en el TdeA. Mira esas rutas y confirma cupos.',f:[['Sede Tumaco, Universidad de Nariño',U.udenarTum]]},
+ {id:'dep',n:'Deporte y actividad física',i:'Por investigar',lv:'Técnico / Tecnólogo / Profesional',md:'por',co:'pc',h:'RSE',ar:['dep'],m:1,es:'pi',
+  nt:'No tengo programas verificados. Consultar al orientador y al SENA.',f:[]}];
+var $=function(s,r){return (r||document).querySelector(s)};
+function h(tag,attrs){var e=document.createElement(tag);if(attrs==null||typeof attrs!=='object'||attrs.nodeType||Array.isArray(attrs)){if(attrs!=null)add(e,attrs);attrs={}}for(var k in attrs){var v=attrs[k];if(k==='class')e.className=v;else if(k.slice(0,2)==='on')e.addEventListener(k.slice(2),v);else if(v===true)e.setAttribute(k,'');else if(v!==false&&v!=null)e.setAttribute(k,v)}
+ for(var i=2;i<arguments.length;i++)add(e,arguments[i]);return e}
+function add(e,c){if(c==null||c===false)return;if(Array.isArray(c)){c.forEach(function(x){add(e,x)});return}e.appendChild(c.nodeType?c:document.createTextNode(String(c)))}
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function blank(){return {sx:-1,ed:-1,ab:'',mo:-1,fs:-1,ap:[],g:'',gr:'',al:'',ok:false,ri:Array(30).fill(0),ef:Array(9).fill(0),es:-1,tr:-1,hr:-1,nt:-1,mv:-1,co:-1,md:-1,ini:-1,ar:[],bi:Array(5).fill(0),tx:'',pv:-1,pc:'',ma:-1,mi:'',ins:-1,ba:[]}}
+var S={step:0,miss:false,r:blank(),mode:''};
+try{var d=JSON.parse(lsGet('rumbo-draft')||'null');if(d&&d.ri&&d.ri.length===30)S.r=Object.assign(blank(),d)}catch(e){}
+function save(){lsSet('rumbo-draft',JSON.stringify(S.r))}
+if(S.r.g==='E')S.mode='ext';else if(S.r.g)S.mode='icet';
+if((location.hash||'')==='#egresados'&&!S.r.g){S.r.g='E';S.mode='ext'}
+/* ---------- análisis ---------- */
+function analyze(r){
+ var sc={};for(var j=0;j<6;j++){var s=0;for(var k=0;k<5;k++)s+=r.ri[k*6+j];sc[ORDER[j]]=Math.round((s-5)/15*100)}
+ var top=ORDER.split('').sort(function(a,b){return sc[b]-sc[a]||ORDER.indexOf(a)-ORDER.indexOf(b)}).slice(0,3);
+ var rutas=RUTAS.map(function(ru){return {ru:ru,s:scoreRuta(r,sc,ru)}}).sort(function(a,b){return b.s-a.s});
+ return {sc:sc,top:top,rutas:rutas};
+}
+function scoreRuta(r,sc,ru){
+ var s=0,w=[1,.6,.3];
+ ru.h.split('').forEach(function(L,i){s+=(sc[L]/100)*w[i]});
+ (r.ar||[]).forEach(function(a,i){if(ru.ar.indexOf(a)>=0)s+=i===0?.8:.5});
+ var md=r.md;
+ if(md===0&&ru.md==='tumaco')s+=.3;
+ if(md===1&&ru.md==='otra')s+=.3;
+ if((md===2||md===3)&&ru.md==='virtual')s+=.3;
+ if(r.mv===2&&ru.md==='otra')s-=.7;
+ if(r.mv===1&&ru.md==='otra')s-=.2;
+ if(r.nt>=2&&ru.md==='virtual')s-=.5;
+ if(r.co===0&&(ru.co==='gratis'||ru.co==='pub'))s+=.2;
+ if(ru.m===3&&r.ef[0]<=2)s-=.3;
+ if(r.tr<=1&&ru.md==='virtual')s+=.15;
+ if(ru.es==='ok')s+=.1;
+ return s;
+}
+function topNames(an,n){return an.rutas.slice(0,n).map(function(x){return x.ru.n})}
+/* ---------- códigos ---------- */
+function enc(o){var b=new TextEncoder().encode(JSON.stringify(o)),s='';b.forEach(function(x){s+=String.fromCharCode(x)});return 'RUMBO1:'+btoa(s)}
+function dec(s){var bin=atob(s),b=Uint8Array.from(bin,function(c){return c.charCodeAt(0)});return JSON.parse(new TextDecoder().decode(b))}
+function validR(r){return r&&Array.isArray(r.ri)&&r.ri.length===30&&Array.isArray(r.ef)&&r.ef.length===9&&Array.isArray(r.bi)&&r.bi.length===5&&r.ri.every(function(x){return x>=1&&x<=4})}
+/* ---------- componentes ---------- */
+function choice(opts,get,set,cls){
+ var box=h('div',{class:'seg '+(cls||''),role:'radiogroup'});
+ function paint(){Array.prototype.forEach.call(box.children,function(b,i){b.classList.toggle('sel',get()===i+1-(opts.base0?1:0));b.setAttribute('aria-checked',get()===i+1-(opts.base0?1:0))})}
+ return {el:box,build:function(){opts.labels.forEach(function(t,i){var v=opts.base0?i:i+1;
+  box.appendChild(h('button',{type:'button',class:'opt',role:'radio','aria-checked':'false',onclick:function(){set(v);Array.prototype.forEach.call(box.children,function(b,j){var vv=opts.base0?j:j+1;b.classList.toggle('sel',vv===v);b.setAttribute('aria-checked',vv===v)});save();var q=box.closest('.q');if(q)q.classList.remove('missing')}},t))});
+  Array.prototype.forEach.call(box.children,function(b,j){var vv=opts.base0?j:j+1;var on=get()===vv;b.classList.toggle('sel',on);b.setAttribute('aria-checked',on)});return box}};
+}
+function q(title,optsObj,get,set,cls,isMissing){
+ var c=choice(optsObj,get,set,cls);
+ return h('div',{class:'q'+(S.miss&&isMissing()?' missing':'')},h('div',{class:'q-t'},title),c.build());
+}
+var HC={R:'#2E9E5B',I:'#2B6CB0',A:'#8E44AD',S:'#E4572E',E:'#F2A900',C:'#4F7C8A'};
+var PAL=['#0B7A85','#E4572E','#F2A900','#2E9E5B','#8E44AD','#2B6CB0','#C2185B','#6D4C41','#4F7C8A','#7CB342','#00897B'];
+function svgBox(str,label){var d=h('div',{class:'chart'});d.innerHTML=str;var sv=d.firstChild;if(sv&&sv.setAttribute){sv.setAttribute('role','img');sv.setAttribute('aria-label',label)}return d}
+function radarEl(vals,max,label){
+ var cx=150,cy=135,R=92;function P(i,f){var a=-Math.PI/2+i*Math.PI/3;return [cx+Math.cos(a)*R*f,cy+Math.sin(a)*R*f]}
+ function pts(f){return [0,1,2,3,4,5].map(function(i){return P(i,f).map(function(n){return n.toFixed(1)}).join(',')}).join(' ')}
+ var g='';[.25,.5,.75,1].forEach(function(f){g+='<polygon points="'+pts(f)+'" fill="none" style="stroke:var(--line)" stroke-width="1"/>'});
+ for(var i=0;i<6;i++){var q=P(i,1);g+='<line x1="'+cx+'" y1="'+cy+'" x2="'+q[0].toFixed(1)+'" y2="'+q[1].toFixed(1)+'" style="stroke:var(--line)"/>'}
+ var poly=vals.map(function(v,i){return P(i,Math.max(0.04,Math.min(1,v/(max||1)))).map(function(n){return n.toFixed(1)}).join(',')}).join(' ');
+ g+='<polygon points="'+poly+'" fill="#0B7A85" fill-opacity=".32" stroke="#0B7A85" stroke-width="2.5"/>';
+ vals.forEach(function(v,i){var q=P(i,Math.max(0.04,Math.min(1,v/(max||1))));g+='<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="4.5" fill="'+HC[ORDER[i]]+'" stroke="#fff" stroke-width="1.5"/>'});
+ for(var j=0;j<6;j++){var t=P(j,1.22),L2=ORDER[j];g+='<text x="'+t[0].toFixed(1)+'" y="'+(t[1]+4).toFixed(1)+'" text-anchor="middle" font-size="11.5" font-weight="700" fill="'+HC[L2]+'">'+HOL[L2][0]+'</text>'}
+ return svgBox('<svg viewBox="0 0 300 275" xmlns="http://www.w3.org/2000/svg">'+g+'</svg>',label);
+}
+function donutEl(items,label){
+ var tot=items.reduce(function(a,b){return a+b[1]},0),C=2*Math.PI*42,acc=0,g='';
+ if(!tot)g='<circle cx="60" cy="60" r="42" fill="none" style="stroke:var(--line)" stroke-width="16"/>';
+ items.forEach(function(it){if(!it[1])return;var len=it[1]/tot*C;g+='<circle cx="60" cy="60" r="42" fill="none" stroke="'+it[2]+'" stroke-width="16" stroke-dasharray="'+len.toFixed(2)+' '+(C-len).toFixed(2)+'" stroke-dashoffset="'+(-acc).toFixed(2)+'" transform="rotate(-90 60 60)"/>';acc+=len});
+ g+='<text x="60" y="57" text-anchor="middle" font-size="22" font-weight="700" style="fill:var(--ink)">'+tot+'</text><text x="60" y="73" text-anchor="middle" font-size="9" style="fill:var(--muted)">personas</text>';
+ var d=svgBox('<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="max-width:190px">'+g+'</svg>',label);
+ d.appendChild(h('div',{class:'legend'},items.map(function(it){return h('span',null,h('i',{style:'background:'+it[2]}),it[0]+' · '+it[1]+(tot?' ('+Math.round(it[1]/tot*100)+'%)':''))})));
+ return d;
+}
+function columnsEl(items,label){
+ var mx=Math.max.apply(null,items.map(function(i){return i[1]}).concat([1])),W=300,H=150,bw=Math.floor((W-20)/items.length)-10,g='';
+ items.forEach(function(it,i){var x=14+i*(bw+10),hh=Math.round(it[1]/mx*100),y=120-hh;g+='<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+hh+'" rx="5" fill="'+it[2]+'"/><text x="'+(x+bw/2)+'" y="'+(y-4)+'" text-anchor="middle" font-size="11" font-weight="700" style="fill:var(--ink)">'+it[1]+'</text><text x="'+(x+bw/2)+'" y="136" text-anchor="middle" font-size="9.5" style="fill:var(--muted)">'+it[0]+'</text>'});
+ return svgBox('<svg viewBox="0 0 300 145" xmlns="http://www.w3.org/2000/svg">'+g+'</svg>',label);
+}
+var SXL=['Mujer','Hombre','Prefiero no decirlo'],EDL=['Menos de 15','15 a 16','17 a 18','19 a 24','25 o más'];
+function bars(items,max,warm){return h('div',{class:'bars'},items.map(function(it){var p=max>0?Math.max(0,Math.min(100,it[1]/max*100)):0;
+ return h('div',{class:'bar'},h('div',{class:'lb'},it[0]),h('div',{class:'tr'},h('i',{class:warm?'w':'',style:'width:'+p+'%'+(it[3]?';--bc:'+it[3]+';background:'+it[3]:'')})),h('div',{class:'v'},it[2]!=null?it[2]:String(it[1])))}))}
+function copy(text,btn,msg){
+ function done(){var o=btn.textContent;btn.textContent=msg||'Copiado';setTimeout(function(){btn.textContent=o},1600)}
+ function fb(){var ta=h('textarea',{style:'position:fixed;opacity:0'});ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done()}catch(e){}ta.remove()}
+ try{navigator.clipboard.writeText(text).then(done,fb)}catch(e){fb()}
+}
+function link(t,u){return h('a',{href:u,target:'_blank',rel:'noopener noreferrer'},t)}
+/* ---------- estudiante ---------- */
+
+var SCN={
+ palafitos:'<svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7CC6D8"/><stop offset="1" stop-color="#F7E3B0"/></linearGradient></defs><rect width="400" height="150" fill="url(#pg)"/><rect y="92" width="400" height="58" fill="#1B8E9B"/><path d="M0 104 Q50 98 100 104 T200 104 T300 104 T400 104" stroke="#8FE0E8" stroke-width="2" fill="none" opacity=".7"/><g fill="#6B4A2B"><rect x="52" y="74" width="4" height="34"/><rect x="92" y="74" width="4" height="34"/><rect x="152" y="68" width="4" height="40"/><rect x="204" y="68" width="4" height="40"/><rect x="270" y="72" width="4" height="36"/><rect x="326" y="72" width="4" height="36"/></g><rect x="44" y="52" width="60" height="26" fill="#F2A900"/><path d="M38 54 L74 32 L110 54Z" fill="#B5442A"/><rect x="144" y="44" width="68" height="28" fill="#2E9E5B"/><path d="M138 46 L178 22 L218 46Z" fill="#8A3A22"/><rect x="262" y="50" width="76" height="26" fill="#E4572E"/><path d="M256 52 L300 28 L344 52Z" fill="#2B4A6B"/><rect x="60" y="62" width="10" height="12" fill="#FFF3DC"/><rect x="164" y="54" width="12" height="12" fill="#FFF3DC"/><rect x="284" y="60" width="12" height="12" fill="#FFF3DC"/><path d="M110 122 Q140 134 182 122 L174 130 Q142 138 116 130Z" fill="#3B2A1E"/></svg>',
+ manglar:'<svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="mg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#BFE8D0"/><stop offset="1" stop-color="#6FBF9A"/></linearGradient></defs><rect width="400" height="150" fill="url(#mg)"/><rect y="96" width="400" height="54" fill="#2F7F6B"/><path d="M0 108 Q60 102 120 108 T240 108 T360 108 T480 108" stroke="#9FD9C2" stroke-width="2" fill="none" opacity=".6"/><g fill="#1F6B3A"><ellipse cx="50" cy="52" rx="52" ry="30"/><ellipse cx="150" cy="46" rx="60" ry="34"/><ellipse cx="262" cy="50" rx="56" ry="32"/><ellipse cx="360" cy="54" rx="50" ry="30"/></g><g stroke="#5B3B22" stroke-width="3" fill="none" stroke-linecap="round"><path d="M30 96 C26 78 36 66 40 56 M40 96 C42 80 44 70 40 56 M52 96 C58 80 50 68 44 58"/><path d="M130 96 C124 76 138 64 146 52 M146 96 C148 80 150 66 146 52 M162 96 C170 78 158 66 150 54"/><path d="M244 96 C240 78 252 66 258 56 M258 96 C260 80 260 68 258 56 M272 96 C280 80 268 68 262 58"/><path d="M342 96 C338 80 348 68 354 58 M356 96 C358 82 358 70 354 58 M370 96 C376 82 366 70 358 60"/></g><path d="M170 122 Q200 130 240 122 L232 128 Q202 134 176 128Z" fill="#3B2A1E"/><path d="M204 124 L210 108 L216 124Z" fill="#FFF3DC"/></svg>',
+ colegio:'<svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ED0F0"/><stop offset="1" stop-color="#E8F6FB"/></linearGradient></defs><rect width="400" height="150" fill="url(#cg)"/><rect y="124" width="400" height="26" fill="#6FAF55"/><rect x="70" y="62" width="260" height="62" fill="#F4EBD8"/><rect x="70" y="56" width="260" height="10" fill="#0B5F68"/><rect x="176" y="78" width="48" height="46" fill="#0B7A85"/><rect x="190" y="92" width="20" height="32" fill="#FFF3DC"/><g fill="#7CC6D8"><rect x="86" y="78" width="24" height="20"/><rect x="122" y="78" width="24" height="20"/><rect x="254" y="78" width="24" height="20"/><rect x="290" y="78" width="24" height="20"/></g><rect x="198" y="22" width="3" height="36" fill="#5B5B5B"/><rect x="201" y="22" width="26" height="6" fill="#F2C500"/><rect x="201" y="28" width="26" height="3" fill="#2B4A9B"/><rect x="201" y="31" width="26" height="3" fill="#D0302A"/><circle cx="48" cy="104" r="16" fill="#2E9E5B"/><rect x="46" y="110" width="4" height="16" fill="#6B4A2B"/><circle cx="352" cy="104" r="16" fill="#2E9E5B"/><rect x="350" y="110" width="4" height="16" fill="#6B4A2B"/></svg>'
+};
+function foto(file,scene,alt,cap){
+ var d=h('div',{class:'photo',role:'img','aria-label':alt});d.innerHTML=SCN[scene];
+ if(cap)d.appendChild(h('div',{class:'cap'},cap));
+ var im=new Image();im.alt=alt;im.onload=function(){d.textContent='';d.appendChild(im);if(cap)d.appendChild(h('div',{class:'cap'},cap))};im.src='img/'+file;
+ return d;
+}
+function tira(){return h('div',{class:'strip'},foto('colegio.jpg','colegio','Nuestro colegio'),foto('palafitos.jpg','palafitos','Casas sobre el mar en Tumaco'),foto('manglar.jpg','manglar','Manglar del Pacífico nariñense'))}
+
+var STEPS=8;
+var ENDPOINT='';/* Pega aquí la URL de la aplicación web de Apps Script (termina en /exec) */
+function render(){
+ var app=$('#app');app.textContent='';
+ if((location.hash||'')==='#panel'||window.RUMBO_PANEL){app.className='wrap wide';renderPanel(app);return}
+ app.className='wrap';
+ app.appendChild(h('div',{class:'brand'},h('b','Rumbo'),h('span',S.mode==='icet'?'Ciudadela Educativa Tumac · Tumaco':'Orientación vocacional · Tumaco')));
+ if(S.step<7)app.appendChild(h('div',{class:'progress',role:'progressbar','aria-valuemin':'0','aria-valuemax':'100','aria-valuenow':String(Math.round(S.step/7*100))},h('i',{style:'width:'+(S.step/7*100)+'%'})));
+ var body=[stepIntro,stepInt1,stepInt2,stepSkills,stepSit,stepVida,stepFut,stepResult][S.step]();
+ app.appendChild(body);
+ app.appendChild(h('div',{class:'foot'},'Rumbo · orientación vocacional · Institución Ciudadela Educativa Tumac, Tumaco'));
+ window.scrollTo(0,0);
+}
+function nav(ok,labelNext){
+ var r=h('div',{class:'row between',style:'margin-top:16px'},
+  S.step>0?h('button',{type:'button',class:'btn ghost',onclick:function(){S.step--;S.miss=false;render()}},'Atrás'):h('span'),
+  h('button',{type:'button',class:'btn primary',onclick:function(){if(!ok()){S.miss=true;render();return}S.miss=false;S.step++;render()}},labelNext||'Continuar'));
+ return r;
+}
+var HERO='<svg viewBox="0 0 400 150" role="img" aria-label="Atardecer sobre el mar del Pacífico con una palma y un cayuco" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFC27A"/><stop offset=".6" stop-color="#FF8A5B"/><stop offset="1" stop-color="#F0645A"/></linearGradient></defs><rect width="400" height="150" fill="url(#sk)"/><circle cx="290" cy="82" r="34" fill="#FFE29A"/><circle cx="290" cy="82" r="48" fill="#FFE29A" opacity=".25"/><path d="M0 98 Q50 90 100 98 T200 98 T300 98 T400 98 V150 H0Z" fill="#12929C"/><path d="M0 112 Q60 103 120 112 T240 112 T360 112 T480 112 V150 H0Z" fill="#0B7A85"/><path d="M0 128 Q70 120 140 128 T280 128 T420 128 V150 H0Z" fill="#0B5F68"/><path d="M64 128 C68 100 62 78 52 52" stroke="#3B2A1E" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M52 52 C36 40 22 44 10 56 M52 52 C42 36 56 26 72 30 M52 52 C66 40 84 44 94 58 M52 52 C46 62 34 68 26 82" stroke="#1F6B3A" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M200 106 Q222 116 252 106 L246 114 Q224 120 206 114Z" fill="#3B2A1E"/><path d="M228 108 V86 L244 106Z" fill="#FFF3DC"/></svg>';
+function stepIntro(){
+ var r=S.r;
+ var c=h('div');
+ var hero=h('div',{class:'hero'});var art=h('div',{class:'art'});art.innerHTML=HERO;hero.appendChild(art);
+ hero.appendChild(h('div',{class:'band'},h('h1','Tu rumbo después del colegio'),h('p','Para quienes están terminando el colegio y para egresados. No es un examen: nadie te califica. En unos 15 minutos vas a ver qué te gusta, en qué te sientes fuerte y qué rutas de estudio puedes explorar desde Tumaco, en modalidad presencial, virtual o a distancia.')));
+ c.appendChild(hero);
+ c.appendChild(tira());
+ var warm=h('div',{class:'card'});
+ warm.appendChild(h('h2','Primero, tú'));
+ var reply=h('p',{class:'reply',role:'status'});
+ var MOR=['Gracias por contarlo. Hay días pesados, y este espacio no te exige nada: sin nota y sin afán. Si algo te preocupa de verdad, cuéntaselo a una persona de confianza o al orientador.','Un día regular también cuenta. Vamos con calma, paso a paso.','Qué bueno. Aprovechemos esa energía para pensar en lo que viene.','¡Excelente! Con esa actitud el rumbo se ve más claro.'];
+ var FSR=['Descansar también es avanzar. Ojalá hayas recargado energía.','Ayudar en casa o trabajar dice mucho de tu responsabilidad. Eso es una fortaleza que vamos a tener en cuenta.','Compartir con los tuyos es de lo mejor. Ojalá haya sido un buen rato.','Música, deporte y juego también son parte de quién eres. Más adelante veremos cómo se conectan con tu futuro.','Lamento que haya sido difícil. Aquí no hay presión: puedes ir a tu ritmo.'];
+ function showReply(){var t=[];if(r.mo>=0)t.push(MOR[r.mo]);if(r.fs>=0)t.push(FSR[r.fs]);reply.textContent=t.join(' ');reply.hidden=!t.length}
+ warm.appendChild(h('div',{class:'q'},h('div',{class:'q-t'},'¿Cómo te sientes hoy?'),choice({labels:['😔 Pesado','😐 Regular','🙂 Bien','😄 ¡Muy bien!'],base0:true},function(){return r.mo},function(v){r.mo=v;showReply()},'mood').build()));
+ warm.appendChild(h('div',{class:'q'},h('div',{class:'q-t'},'¿Cómo te fue este fin de semana?'),choice({labels:['Descansé','Ayudé en casa o trabajé','Compartí con familia o amigos','Hice deporte o música','Fue difícil'],base0:true},function(){return r.fs},function(v){r.fs=v;showReply()},'col mood').build()));
+ warm.appendChild(reply);showReply();
+ warm.appendChild(h('p',{class:'small muted'},'Estas dos respuestas son solo para ti: se quedan en tu teléfono y no se envían a nadie.'));
+ c.appendChild(warm);
+ var card=h('div',{class:'card'});
+ card.appendChild(h('h2','Tus datos básicos'));
+ var ext=S.mode==='ext';
+ card.appendChild(h('div',{class:'q'+(S.miss&&!S.mode?' missing':'')},h('div',{class:'q-t'},'¿Cuál es tu caso?'),choice({labels:['Estudio en la Institución Ciudadela Educativa Tumac','Soy egresado/a o estudio en otro colegio'],base0:false},function(){return S.mode==='icet'?1:S.mode==='ext'?2:0},function(v){S.mode=v===1?'icet':'ext';if(v===2)r.g='E';else if(r.g==='E')r.g='';save();render()},'col').build()));
+ if(S.mode==='icet'){
+  card.appendChild(h('div',{class:'q'+(S.miss&&!r.g?' missing':'')},h('div',{class:'q-t'},'¿En qué grado estás?'),choice({labels:['Noveno','Décimo','Once'],base0:false},function(){return ['','9','10','11'].indexOf(r.g)>0?['','9','10','11'].indexOf(r.g):0},function(v){r.g=['','9','10','11'][v]}).build()));
+  card.appendChild(h('div',{class:'q'+(S.miss&&!r.gr.trim()?' missing':'')},h('label',{class:'q-t',for:'gr'},'Tu grupo (por ejemplo 11-2)'),h('input',{id:'gr',type:'text',maxlength:'8',value:r.gr,oninput:function(e){r.gr=e.target.value.trim();save();var qq=e.target.closest('.q');if(qq)qq.classList.remove('missing')}})));
+ }
+ if(ext)card.appendChild(h('div',{class:'q'},h('label',{class:'q-t',for:'gr'},'Año en que te graduaste, o grado que cursas, y tu colegio (opcional)'),h('input',{id:'gr',type:'text',maxlength:'40',placeholder:'2024, Colegio…',value:r.gr,oninput:function(e){r.gr=e.target.value.trim();save()}})));
+ card.appendChild(h('div',{class:'q'},h('label',{class:'q-t',for:'al'},'Un apodo o tu nombre de pila (opcional)'),h('input',{id:'al',type:'text',maxlength:'30',value:r.al,oninput:function(e){r.al=e.target.value.trim();save()}}),h('p',{class:'small muted'},'No pedimos apellidos, documento ni dirección. Escribe un apodo solo si quieres que el coordinador pueda reconocerte y conversar contigo. Tu código personal, al final, te permite volver a ver tu resultado.')));
+ card.appendChild(q('Sexo (opcional)',{labels:SXL,base0:true},function(){return r.sx},function(v){r.sx=v},'',function(){return false}));
+ card.appendChild(q('Edad (opcional)',{labels:EDL,base0:true},function(){return r.ed},function(v){r.ed=v},'',function(){return false}));
+ card.appendChild(h('div',{class:'q'+(S.miss&&!r.ok?' missing':'')},h('label',{class:'chk'},h('input',{type:'checkbox',checked:r.ok,onchange:function(e){r.ok=e.target.checked;save();var qq=e.target.closest('.q');if(qq)qq.classList.remove('missing')}}),h('span','Entiendo que mis respuestas se envían al equipo de orientación del colegio (sin mi apellido ni documento) para conversar conmigo y hacer un diagnóstico general del grupo, y que puedo no escribir mi nombre.'+(S.mode==='icet'?' Si soy menor de edad, mis acudientes están de acuerdo.':'')))));
+ c.appendChild(card);
+ if(S.miss)c.appendChild(h('div',{class:'err',role:'alert'},'Faltan datos por completar.'));
+ c.appendChild(nav(function(){return S.mode&&r.g&&(r.g==='E'||r.gr.trim())&&r.ok},'Empezar'));
+ var rec=h('details',{class:'foot'},h('summary','¿Ya hiciste el cuestionario? Recupera tu resultado con tu código'));
+ var ta=h('textarea',{id:'recov',placeholder:'RUMBO1:...',style:'margin-top:8px'});var rm=h('p',{class:'small',role:'status'});
+ rec.appendChild(ta);
+ rec.appendChild(h('div',{class:'row',style:'margin-top:8px'},h('button',{type:'button',class:'btn',onclick:function(){var m=(ta.value||'').match(/RUMBO1:[A-Za-z0-9+\/=]+/);if(!m){rm.textContent='No encontré un código en el texto.';return}try{var o=dec(m[0].slice(7));if(!validR(o)){rm.textContent='Ese código no se pudo leer.';return}S.r=Object.assign(blank(),o,{ok:true});save();S.step=7;render()}catch(e){rm.textContent='Ese código no se pudo leer.'}}},'Ver mi resultado')));
+ rec.appendChild(rm);c.appendChild(rec);
+ return c;
+}
+function stepInt(from,to,title,sub){
+ var r=S.r,c=h('div');c.appendChild(h('h2',title));c.appendChild(h('p',{class:'muted'},sub));
+ var card=h('div',{class:'card'});
+ for(var i=from;i<to;i++)(function(i){card.appendChild(q(RI[i][1],{labels:LIKI},function(){return r.ri[i]},function(v){r.ri[i]=v},'',function(){return !r.ri[i]}))})(i);
+ c.appendChild(card);
+ if(S.miss)c.appendChild(h('div',{class:'err',role:'alert'},'Te faltan respuestas. Están marcadas en naranja.'));
+ c.appendChild(nav(function(){for(var i=from;i<to;i++)if(!r.ri[i])return false;return true}));
+ return c;
+}
+function stepInt1(){return stepInt(0,15,'¿Qué te gusta hacer?','Piensa solo en si te gustaría hacerlo, sin importar si hoy sabes o no. Parte 1 de 2.')}
+function stepInt2(){return stepInt(15,30,'¿Qué te gusta hacer?','Parte 2 de 2. Sigue con la misma idea: lo que disfrutarías.')}
+function stepSkills(){
+ var r=S.r,c=h('div');c.appendChild(h('h2','¿Cómo te sientes en estas habilidades?'));
+ c.appendChild(h('p',{class:'muted'},'Responde con sinceridad. Todas las habilidades se pueden mejorar con práctica y ayuda; esto solo sirve para saber desde dónde partes.'));
+ var card=h('div',{class:'card'});
+ SK.forEach(function(t,i){card.appendChild(q(t,{labels:LIKS},function(){return r.ef[i]},function(v){r.ef[i]=v},'',function(){return !r.ef[i]}))});
+ card.appendChild(q('Cuando algo se me dificulta, normalmente...',{labels:L.es,base0:true},function(){return r.es},function(v){r.es=v},'col',function(){return r.es<0}));
+ c.appendChild(card);
+ if(S.miss)c.appendChild(h('div',{class:'err',role:'alert'},'Te faltan respuestas. Están marcadas en naranja.'));
+ c.appendChild(nav(function(){return r.ef.every(function(x){return x>0})&&r.es>=0}));
+ return c;
+}
+function stepSit(){
+ var r=S.r,c=h('div');c.appendChild(h('h2','Tu situación'));
+ c.appendChild(h('p',{class:'muted'},'Estas respuestas ayudan a que las rutas sean realistas para ti.'));
+ var card=h('div',{class:'card'});
+ [['tr','¿Trabajas o piensas trabajar mientras estudias?'],['hr','¿Cuántas horas a la semana podrías dedicar a estudiar?'],['nt','¿Qué conexión tienes en casa?'],['mv','¿Podrías irte a estudiar a otra ciudad?'],['co','¿Cuánto podría pagar tu familia por tus estudios?'],['md','¿Cómo preferirías estudiar?'],['ini','¿Cuándo quisieras empezar?']].forEach(function(p){
+  var k=p[0];card.appendChild(q(p[1],{labels:L[k],base0:true},function(){return r[k]},function(v){r[k]=v},'col',function(){return r[k]<0}))});
+ var qa=h('div',{class:'q'+(S.miss&&r.ar.length===0?' missing':'')},h('div',{class:'q-t'},'¿Qué áreas te llaman más la atención? Escoge hasta 3, la primera es tu favorita.'));
+ var chosen=h('p',{class:'small muted'});
+ function showChosen(){chosen.textContent=r.ar.length?'Tu orden: '+r.ar.map(function(a,i){return (i+1)+'. '+AN[a]}).join('  ·  '):'Aún no escoges ninguna.'}
+ var box=h('div',{class:'seg col'});
+ AREAS.forEach(function(a){var b=h('button',{type:'button',class:'opt'+(r.ar.indexOf(a[0])>=0?' sel':''),onclick:function(){var i=r.ar.indexOf(a[0]);if(i>=0)r.ar.splice(i,1);else if(r.ar.length<3)r.ar.push(a[0]);Array.prototype.forEach.call(box.children,function(bb,j){bb.classList.toggle('sel',r.ar.indexOf(AREAS[j][0])>=0)});showChosen();save();qa.classList.remove('missing')}},a[1]);box.appendChild(b)});
+ qa.appendChild(box);qa.appendChild(chosen);showChosen();card.appendChild(qa);
+ var ap=h('div',{class:'q'},h('div',{class:'q-t'},'Apoyos para estudiar (opcional)'),h('p',{class:'small muted'},'Algunas becas y créditos son para poblaciones específicas. Si quieres, marca lo que aplique: se usa solo para mostrarte opciones en tu pantalla y no se envía a nadie.'));
+ [['afro','Me reconozco como parte de una comunidad negra, afrocolombiana, raizal o palenquera'],['ind','Me reconozco como indígena'],['vic','Soy víctima del conflicto armado, o mi familia lo es'],['dis','Tengo una discapacidad']].forEach(function(o){ap.appendChild(h('label',{class:'chk',style:'margin:6px 0'},h('input',{type:'checkbox',checked:(r.ap||[]).indexOf(o[0])>=0,onchange:function(e){r.ap=r.ap||[];var i=r.ap.indexOf(o[0]);if(e.target.checked&&i<0)r.ap.push(o[0]);if(!e.target.checked&&i>=0)r.ap.splice(i,1);save()}}),h('span',o[1])))});
+ card.appendChild(ap);
+ c.appendChild(card);
+ if(S.miss)c.appendChild(h('div',{class:'err',role:'alert'},'Te faltan respuestas. Están marcadas en naranja.'));
+ c.appendChild(nav(function(){return ['tr','hr','nt','mv','co','md','ini'].every(function(k){return r[k]>=0})&&r.ar.length>0}));
+ return c;
+}
+
+function stepVida(){
+ var r=S.r,c=h('div');
+ c.appendChild(foto('manglar.jpg','manglar','Manglar del Pacífico nariñense','Tu rumbo también se construye desde Tumaco'));
+ c.appendChild(h('h2','Tu proyecto de vida y tu paso siguiente'));
+ c.appendChild(h('p',{class:'muted'},'Queremos saber en qué punto estás para acompañarte mejor. No hay respuestas buenas ni malas.'));
+ var card=h('div',{class:'card'});
+ card.appendChild(q('¿Ya tienes definido tu proyecto de vida?',{labels:PVL,base0:true},function(){return r.pv},function(v){r.pv=v},'col',function(){return r.pv<0}));
+ card.appendChild(h('div',{class:'q'},h('label',{class:'q-t',for:'pc'},'¿Qué carrera, técnico o tecnología quisieras estudiar? (opcional)'),h('input',{id:'pc',type:'text',maxlength:'80',placeholder:'Por ejemplo: Enfermería, Ingeniería de Sistemas, SENA en…',value:r.pc||'',oninput:function(e){r.pc=e.target.value.replace(/[\r\n\t]+/g,' ');save()}}),h('p',{class:'small muted'},'Escríbelo con tus palabras. Si aún no lo sabes, déjalo en blanco.')));
+ var mi=h('div',{class:'q'+(r.ma>0?'':' hide'),hidden:!(r.ma>0)},h('label',{class:'q-t',for:'mi'},'¿En qué institución? (opcional)'),h('input',{id:'mi',type:'text',maxlength:'60',placeholder:'Ejemplo: SENA, Universidad de Nariño, UNAD…',value:r.mi||'',oninput:function(e){r.mi=e.target.value.replace(/[\r\n\t]+/g,' ');save()}}));
+ card.appendChild(q('¿Ya estás estudiando algo de educación superior, técnica o tecnológica?',{labels:MAL,base0:true},function(){return r.ma},function(v){r.ma=v;mi.hidden=!(v>0)},'col',function(){return r.ma<0}));
+ card.appendChild(mi);
+ card.appendChild(q('¿Piensas inscribirte y matricularte pronto?',{labels:INL,base0:true},function(){return r.ins},function(v){r.ins=v},'col',function(){return r.ins<0}));
+ var qb=h('div',{class:'q'},h('div',{class:'q-t'},'¿Qué te preocupa o podría impedirte estudiar? Marca todo lo que aplique (opcional)'));
+ BAL2.forEach(function(o){qb.appendChild(h('label',{class:'chk',style:'margin:6px 0'},h('input',{type:'checkbox',checked:(r.ba||[]).indexOf(o[0])>=0,onchange:function(e){r.ba=r.ba||[];var i=r.ba.indexOf(o[0]);if(e.target.checked&&i<0)r.ba.push(o[0]);if(!e.target.checked&&i>=0)r.ba.splice(i,1);save()}}),h('span',o[1])))});
+ card.appendChild(qb);
+ c.appendChild(card);
+ if(S.miss)c.appendChild(h('div',{class:'err',role:'alert'},'Te faltan respuestas. Están marcadas en naranja.'));
+ c.appendChild(nav(function(){return r.pv>=0&&r.ma>=0&&r.ins>=0}));
+ return c;
+}
+
+function stepFut(){
+ var r=S.r,c=h('div');c.appendChild(h('h2','Mirando hacia adelante'));
+ c.appendChild(h('p',{class:'muted'},'No hay respuestas buenas ni malas. Esto no es una prueba psicológica; solo ayuda a conversar mejor contigo.'));
+ var card=h('div',{class:'card'});
+ BI.forEach(function(t,i){card.appendChild(q(t,{labels:LIKB},function(){return r.bi[i]},function(v){r.bi[i]=v},'',function(){return !r.bi[i]}))});
+ card.appendChild(h('div',{class:'q'},h('label',{class:'q-t',for:'ab'},'¿Qué sueño o proyecto tienes? ¿Hay un área o carrera que no vimos y te interesa? (opcional)'),h('textarea',{id:'ab',maxlength:'100',oninput:function(e){r.ab=e.target.value.replace(/[\r\n\t]+/g,' ');save()}},r.ab||''),h('p',{class:'small muted'},'Escríbelo con tus palabras. Máximo 100 caracteres.')));
+ card.appendChild(h('div',{class:'q'},h('label',{class:'q-t',for:'tx'},'¿En qué te gustaría que te ayudemos? (opcional)'),h('textarea',{id:'tx',maxlength:'140',oninput:function(e){r.tx=e.target.value.replace(/[\r\n\t]+/g,' ');save()}},r.tx),h('p',{class:'small muted'},'Máximo 140 caracteres.')));
+ c.appendChild(card);
+ if(S.miss)c.appendChild(h('div',{class:'err',role:'alert'},'Te faltan respuestas. Están marcadas en naranja.'));
+ c.appendChild(nav(function(){return r.bi.every(function(x){return x>0})},'Ver mis resultados'));
+ return c;
+}
+function mensajes(r){
+ var m=[];
+ if(r.bi[0]<=2)m.push('Es normal no tener claro todavía qué estudiar. Las rutas cortas (técnico o tecnólogo) permiten probar un área sin quedar atrapado, y muchas se pueden homologar después en una universidad.');
+ if(r.bi[2]>=3||r.co===0)m.push('Prioriza rutas gratuitas: el SENA y las universidades públicas con política de gratuidad. Pregunta por los requisitos vigentes antes de inscribirte.');
+ if(r.nt>=2)m.push('Tu conexión limita lo virtual. Busca opciones presenciales en Tumaco o un lugar con internet estable (biblioteca, colegio) para tus horas de estudio.');
+ if(r.tr<=1)m.push('Si vas a trabajar y estudiar, las rutas virtuales o a distancia con horarios flexibles son las más compatibles.');
+ if(r.ef[0]<=2)m.push('Las matemáticas no cierran puertas. Las rutas con exigencia matemática alta aparecen señaladas, no descartadas, y se pueden afrontar con práctica guiada, grupos de estudio y ayuda temprana.');
+ if(r.es===2)m.push('Cuando algo se te dificulta, pedir ayuda a tiempo cambia mucho el resultado. Es una habilidad que se entrena.');
+ if(r.bi[4]<=2)m.push('Busca a una persona de confianza (docente orientador, coordinador, familiar) para conversar de tu futuro.');
+ return m;
+}
+
+var SEND={st:'idle'};
+function sendRemote(r,code,box){
+ if((!ENDPOINT&&!(window.google&&google.script&&google.script.run))||!r.ok){return}
+ if(lsGet('rumbo-sent')===code){SEND.st='ok';return}
+ SEND.st='sending';
+ var done=false;
+ var ctl=(typeof AbortController!=='undefined')?new AbortController():null;
+ var to=setTimeout(function(){if(ctl)ctl.abort()},20000);
+ var pay={v:2,row:rowCells(r,code),extra:extraCells(r)};
+ if(window.google&&google.script&&google.script.run){
+  google.script.run.withSuccessHandler(function(j){clearTimeout(to);if(j&&j.ok){lsSet('rumbo-sent',code);SEND.st='ok'}else SEND.st='err';paintSend(box)}).withFailureHandler(function(){clearTimeout(to);SEND.st='err';paintSend(box)}).guardar(JSON.stringify(pay));
+  paintSend(box);return;
+ }
+ fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(pay),signal:ctl?ctl.signal:undefined,redirect:'follow'})
+  .then(function(x){return x.json()})
+  .then(function(j){if(j&&j.ok){lsSet('rumbo-sent',code);SEND.st='ok'}else SEND.st='err'})
+  .catch(function(){SEND.st='err'})
+  .then(function(){clearTimeout(to);paintSend(box)});
+ paintSend(box);
+}
+function paintSend(box){
+ if(!box||!box.isConnected)return;box.textContent='';
+ box.className='sendst'+(SEND.st==='ok'?' ok':SEND.st==='err'?' err':'');
+ if(SEND.st==='sending')box.appendChild(h('span','Enviando tus respuestas al equipo de orientación…'));
+ else if(SEND.st==='ok')box.appendChild(h('span','✓ Tus respuestas llegaron al equipo de orientación. Gracias por contarnos.'));
+ else if(SEND.st==='err'){box.appendChild(h('span','No pudimos enviar tus respuestas ahora (puede ser la conexión). No pasa nada: abajo tienes tu código; mándalo por WhatsApp al coordinador, o '));box.appendChild(h('button',{type:'button',class:'btn',style:'min-height:34px;padding:4px 10px',onclick:function(){lsSet('rumbo-sent','');SEND.st='idle';sendRemote(S.r,buildCode(S.r,analyze(S.r)),box)}},'intenta de nuevo'))}
+ else box.hidden=true;
+}
+
+function stepResult(){
+ var r=S.r,an=analyze(r),c=h('div');
+ c.appendChild(foto('colegio.jpg','colegio','Nuestro colegio','Institución Ciudadela Educativa Tumac'));
+ c.appendChild(h('h1','Tus resultados'));
+ var sbox=h('div',{class:'sendst',role:'status'});c.appendChild(sbox);
+ sendRemote(r,buildCode(r,an),sbox);
+ c.appendChild(h('p',{class:'muted'},(S.r.al?S.r.al+', e':'E')+'sto es una orientación para explorar, no un veredicto. Hablarlo con tu orientador lo hace más útil.'));
+ var card=h('div',{class:'card'});
+ card.appendChild(h('h2','Tu perfil de intereses'));
+ card.appendChild(h('div',{class:'letters','aria-label':'Código '+an.top.join(' ')},an.top.map(function(L,i){return h('div',{class:'letter',style:'background:'+HC[L]+';color:'+(L==='E'?'#1A1200':'#fff')},L)})));
+ card.appendChild(radarEl(ORDER.split('').map(function(L){return an.sc[L]}),100,'Gráfico de tu perfil de intereses en seis tipos'));
+ an.top.forEach(function(L){card.appendChild(h('p',null,h('b',HOL[L][0]+': '),HOL[L][1]))});
+ card.appendChild(bars(ORDER.split('').map(function(L){return [HOL[L][0],an.sc[L],an.sc[L]+'%',HC[L]]}),100));
+ c.appendChild(card);
+ var st=[],wk=[];r.ef.forEach(function(v,i){if(v>=4)st.push(SKS[i]);else if(v<=2)wk.push(SKS[i])});
+ var c2=h('div',{class:'card'});c2.appendChild(h('h2','Tus fortalezas y lo que puedes reforzar'));
+ c2.appendChild(h('p',null,h('b','Fortalezas: '),st.length?st.join(', '):'Se ven parejas; con práctica puedes destacar en cualquiera.'));
+ c2.appendChild(h('p',null,h('b','Para reforzar: '),wk.length?wk.join(', ')+'. Con práctica constante, videos, grupos de estudio y ayuda de un tutor se mejora.':'Nada urgente por ahora.'));
+ c.appendChild(c2);
+ var c3=h('div',{class:'card'});c3.appendChild(h('h2','Rutas para explorar'));
+ c3.appendChild(h('p',{class:'muted small'},'Ordenadas según tus intereses, tu situación y tus preferencias. Las marcadas como «por confirmar» necesitan verificación antes de decidir.'));
+ an.rutas.slice(0,6).forEach(function(x,i){c3.appendChild(rutaCard(x.ru,i<2?'Muy cercana a tu perfil':i<4?'Cercana a tu perfil':'Para explorar',r))});
+ c3.appendChild(h('p',{class:'small'},'Prueba también el test de orientación vocacional gratuito del SENA: ',link('orientacionvocacional.sena.edu.co',U.ipo),'. La ',link('ley de matrícula cero',U.cero),' fue sancionada; confirma con cada universidad cómo aplica.'));
+ c.appendChild(c3);
+ var ms=mensajes(r);if(ms.length){var c4=h('div',{class:'card soft'});c4.appendChild(h('h2','Para tener en cuenta'));ms.forEach(function(t){c4.appendChild(h('p',t))});c.appendChild(c4)}
+ if((r.ap||[]).length){var c6=h('div',{class:'card'});c6.appendChild(h('h2','Apoyos que podrías explorar'));c6.appendChild(h('p',{class:'small muted'},'Estas opciones aparecen según lo que marcaste y solo las ves tú. Los requisitos y las convocatorias cambian: confírmalos siempre en la fuente oficial.'));var AP={afro:['Fondo de comunidades negras (ICETEX)','Crédito condonable para estudiantes de comunidades negras, afrocolombianas, raizales y palenqueras.'],ind:['Fondo para comunidades indígenas (ICETEX)','Crédito condonable para estudiantes indígenas.'],vic:['Fondo de reparación para víctimas (ICETEX)','Apoyo para el acceso y la permanencia en educación superior de población víctima del conflicto.'],dis:['Ajustes razonables e inclusión','Pregunta en la oficina de inclusión o bienestar de la institución a la que apliques por apoyos y ajustes para tu caso.']};r.ap.forEach(function(k){if(AP[k])c6.appendChild(h('div',{class:'apoyo'},h('b',AP[k][0]+'. '),AP[k][1]))});c6.appendChild(h('p',{class:'small'},'Consulta líneas de crédito y becas vigentes en ',link('icetex.gov.co','https://www.icetex.gov.co'),' y pregunta a tu orientador en el colegio.'));c.appendChild(c6)}
+ var code=buildCode(r,an);
+ var c5=h('div',{class:'card'});c5.appendChild(h('h2','Tu código personal'));
+ c5.appendChild(h('p','Este código es tuyo: con él puedes volver a ver este resultado cuando quieras, pegándolo en la primera pantalla («Recupera tu resultado»). Guárdalo en tus notas, o haz una captura de pantalla de esta página. Si quieres, mándalo por WhatsApp al coordinador para conversar contigo.'));
+ c5.appendChild(h('div',{class:'codebox code'},code));
+ var b1=h('button',{type:'button',class:'btn primary'},'Copiar código');b1.addEventListener('click',function(){copy(code,b1)});
+ var wa=h('a',{class:'btn',href:'https://wa.me/?text='+encodeURIComponent('Mi resultado de Rumbo:\n'+code),target:'_blank',rel:'noopener noreferrer',style:'text-decoration:none;display:inline-flex;align-items:center'},'Enviar por WhatsApp');
+ c5.appendChild(h('div',{class:'row',style:'margin-top:10px'},b1,wa));
+ c.appendChild(c5);
+ c.appendChild(h('div',{class:'row',style:'margin-top:12px'},h('button',{type:'button',class:'btn ghost',onclick:function(){S.step=1;render()}},'Revisar mis respuestas'),h('button',{type:'button',class:'btn ghost',onclick:function(){S.r=blank();save();S.step=0;render()}},'Empezar de nuevo')));
+ c.appendChild(h('details',{class:'foot'},h('summary','Bases del cuestionario'),
+  h('p','Los ítems de intereses son originales y siguen el modelo de seis tipos de Holland. No son la prueba SDS ni el O*NET Interest Profiler, y no reemplazan una evaluación psicométrica validada en Colombia. Las preguntas de habilidades se apoyan en la noción de autoeficacia.'),
+  h('p','Bandura, A. (1997). ',h('i','Self-efficacy: The exercise of control'),'. W. H. Freeman.'),
+  h('p','Holland, J. L. (1997). ',h('i','Making vocational choices: A theory of vocational personalities and work environments'),' (3.ª ed.). Psychological Assessment Resources.'),
+  h('p','Rounds, J., Su, R., Lewis, P., & Rivkin, D. (2010). ',h('i','O*NET Interest Profiler Short Form psychometric characteristics: Summary and supporting evidence'),'. National Center for O*NET Development.')));
+ return c;
+}
+var GUIA={
+ 'sena-ads':['Aprender a analizar necesidades, diseñar, programar, probar y mantener software: aplicaciones web y móviles, y bases de datos.','Lógica y razonamiento, programación, bases de datos, trabajo en equipo e inglés técnico básico. Las matemáticas son de nivel básico a intermedio.','Empresas de desarrollo de software, áreas de tecnología de empresas e instituciones, emprendimiento propio y trabajo remoto para clientes de otras ciudades.'],
+ 'sena-redes':['Instalar, configurar y mantener redes de computadores, cableado, Wi-Fi y seguridad básica.','Gusto por lo técnico y práctico, lectura de manuales, atención al detalle, electrónica básica e inglés técnico.','Proveedores de internet, empresas e instituciones con red propia, soporte técnico, instalación y mantenimiento de redes.'],
+ 'sena-3d':['Crear modelos, personajes y animaciones en tres dimensiones para videojuegos, publicidad y producción audiovisual.','Creatividad y dibujo, sentido del espacio, manejo de programas de modelado, paciencia para el trabajo detallado y trabajo en equipo.','Estudios de animación y videojuegos, agencias de publicidad, productoras audiovisuales y trabajo independiente.'],
+ 'sena-cont':['Registrar, organizar y analizar la información contable y financiera de una organización, cumpliendo las normas.','Orden, atención al detalle, matemáticas básicas, hojas de cálculo y ética en el manejo del dinero ajeno.','Empresas y pequeños negocios, oficinas contables, entidades públicas y emprendimiento propio.'],
+ 'sena-log':['Planear y coordinar compras, inventarios, almacenamiento y transporte de mercancías.','Organización, cálculo básico, manejo de datos, comunicación y rapidez para resolver problemas.','Empresas de transporte y comercio, bodegas y centros de distribución, agroindustria; en Tumaco puede ser relevante por el puerto y la exportación.'],
+ 'sena-tum':['Formación técnica y tecnológica presencial. El área depende de la convocatoria vigente en el municipio.','Depende del programa: pide la ficha oficial en Betowa antes de decidir.','Depende del programa (agropecuario, pesca, construcción, comercio, servicios). Verifica la oferta actual.'],
+ 'unad-sis':['Diseñar, desarrollar y gestionar sistemas de información y software; incluye algoritmos, bases de datos, redes e ingeniería de software.','Matemáticas (álgebra, cálculo, lógica), programación, constancia y autonomía, porque se estudia a distancia o virtual.','Desarrollo de software, análisis de datos, ciberseguridad, gestión de tecnología, consultoría y emprendimiento tecnológico.'],
+ 'unad-redes':['Gestionar redes inalámbricas y de telecomunicaciones; sirve como ruta para continuar hacia Ingeniería de Telecomunicaciones.','Electrónica y física básicas, matemáticas, práctica con equipos e inglés técnico.','Operadores de telecomunicaciones, proveedores de internet, empresas con infraestructura inalámbrica y soporte técnico.'],
+ 'udenar':['Programas universitarios públicos presenciales en Tumaco: ingenierías (agroforestal, sistemas, producción acuícola), licenciaturas (ciencias naturales y educación ambiental; lengua castellana y literatura), sociología y contaduría pública.','Depende del programa: matemáticas y lógica para las ingenierías, lectura y escritura para licenciaturas y sociología, orden y cálculo para contaduría, interés por el territorio y el ambiente.','Sector agropecuario y acuícola, empresas de tecnología, colegios y programas educativos, entidades públicas, organizaciones sociales y firmas contables.'],
+ 'unal':['Programas con ciclo completo en Tumaco: Enfermería (cuidado de la salud de personas y comunidades), Derecho, Administración de Empresas y Gestión Cultural y Comunicativa (proyectos culturales y comunicación para el territorio).','Enfermería: biología, empatía y responsabilidad. Derecho: lectura, argumentación y oratoria. Administración: organización y cálculo. Gestión cultural: creatividad, comunicación y trabajo con comunidades.','Hospitales y puestos de salud; juzgados, firmas y entidades públicas; empresas y emprendimientos; casas de la cultura, medios y organizaciones sociales.'],
+ 'upac':['Presencia de la Universidad del Pacífico en Tumaco. No pude verificar su oferta de programas.','Por confirmar según el programa.','Por confirmar según el programa.'],
+ 'tdea-tum':['Programas del TdeA que llegan a las regiones: licenciaturas, derecho, contaduría y negocios internacionales, entre otros. El detalle de lo que se abre en Tumaco debe confirmarse con la institución.','Depende del programa: pedagogía y comunicación en licenciaturas, lectura y argumentación en derecho, orden y cálculo en contaduría y negocios.','Colegios y programas educativos, entidades públicas y privadas, empresas, comercio exterior y emprendimiento.'],
+ 'tdea':['Tecnologías en electrónica e Internet de las cosas (IoT): sensores, microcontroladores, comunicación de datos y automatización.','Electrónica básica, programación de microcontroladores, matemáticas aplicadas y gusto por armar, probar y corregir.','Automatización, domótica, agrotecnología, mantenimiento industrial y desarrollo de dispositivos conectados.'],
+ 'mus':['Producción musical: grabación, mezcla, composición y gestión de proyectos sonoros.','Oído y práctica con un instrumento, creatividad, manejo de programas de audio y disciplina.','Estudios de grabación, radio y televisión, eventos, docencia musical, producción independiente y publicidad.'],
+ 'sal':['Programas de atención a la salud (por ejemplo auxiliares, enfermería o regencia de farmacia, según la institución).','Empatía, ciencias naturales (biología y química), responsabilidad y manejo de la presión.','Hospitales, clínicas, puestos de salud y programas comunitarios.'],
+ 'edu':['Formar para enseñar: licenciaturas y programas de pedagogía, incluida la etnoeducación.','Comunicación, paciencia, dominio de un área del saber, vocación social y liderazgo.','Colegios públicos y privados, programas comunitarios y formación para el trabajo.'],
+ 'dep':['Entrenamiento, recreación, gestión deportiva o ciencias del deporte.','Condición física, trabajo en equipo, liderazgo y conocimientos de anatomía y entrenamiento.','Clubes y ligas, colegios, instituciones deportivas, entrenamiento personal y recreación.']
+};
+function ficha(ru){
+ var g=GUIA[ru.id];if(!g)return null;
+ var d=h('details',{class:'ficha'},h('summary','¿De qué trata, qué necesitas y dónde trabajarías?'));
+ d.appendChild(h('dl',null,h('dt','De qué trata'),h('dd',g[0]),h('dt','Habilidades y conocimientos que ayudan'),h('dd',g[1]),h('dt','Dónde podrías desempeñarte'),h('dd',g[2])));
+ d.appendChild(h('p',{class:'small muted'},'Descripción general elaborada para orientarte; manda la ficha oficial del programa (plan de estudios y perfil de egreso). Para ver empleo y salarios reales de graduados, consulta el ',link('Observatorio Laboral para la Educación','https://www.mineducacion.gov.co/sistemasdeinformacion/1735/article-212301.html'),'.'));
+ return d;
+}
+function rutaCard(ru,fit,r){
+ var c=h('div',{class:'ruta'});
+ c.appendChild(h('div',{class:'fit'},fit));
+ c.appendChild(h('h3',ru.n));
+ c.appendChild(h('div',null,h('span',{class:'pill'},ru.i),h('span',{class:'pill'},ru.lv),h('span',{class:'pill'},MDL[ru.md]),h('span',{class:'pill'},COL[ru.co]),h('span',{class:'pill '+ru.es},ESL[ru.es])));
+ c.appendChild(h('p',{class:'small'},ru.nt));
+ if(r){var fl=[];if(ru.m===3&&r.ef[0]<=2)fl.push('Exigencia matemática alta: se puede afrontar con apoyo, pero conviene prepararse.');if(r.nt>=2&&ru.md==='virtual')fl.push('Requiere buena conexión; revisa dónde podrías conectarte.');if(r.mv===2&&ru.md==='otra')fl.push('Implica salir de Tumaco.');fl.forEach(function(t){c.appendChild(h('p',{class:'small',style:'color:var(--warn)'},t))})}
+ var fi=ficha(ru);if(fi)c.appendChild(fi);
+ if(ru.f&&ru.f.length)c.appendChild(h('p',{class:'small'},'Fuentes: ',ru.f.map(function(x,i){return [i?' · ':'',link(x[0],x[1])]})));
+ return c;
+}
+function buildCode(r,an){
+ var o={v:2,pv:r.pv,pc:(r.pc||'').slice(0,80),ma:r.ma,mi:(r.mi||'').slice(0,60),ins:r.ins,ba:r.ba||[],t:new Date().toISOString().slice(0,10),g:r.g,gr:r.gr,al:r.al,ri:r.ri,ef:r.ef,es:r.es,tr:r.tr,hr:r.hr,nt:r.nt,mv:r.mv,co:r.co,md:r.md,ini:r.ini,ar:r.ar,bi:r.bi,tx:(r.tx||'').slice(0,140),sx:r.sx,ed:r.ed,ab:(r.ab||'').slice(0,100)};
+ return enc(o);
+}
+/* ---------- panel ---------- */
+var PS={codes:[],useSample:null,filt:'all',msg:''};
+try{PS.codes=JSON.parse(lsGet('rumbo-codes')||'[]')}catch(e){PS.codes=[]}
+function saveCodes(){lsSet('rumbo-codes',JSON.stringify(PS.codes))}
+function parseCodes(text){
+ var found=(text.match(/RUMBO1:[A-Za-z0-9+\/=]+/g)||[]),ok=0,dup=0,bad=0;
+ found.forEach(function(c){if(PS.codes.indexOf(c)>=0){dup++;return}try{var r=dec(c.slice(7));if(validR(r)){PS.codes.push(c);ok++}else bad++}catch(e){bad++}});
+ saveCodes();return {ok:ok,dup:dup,bad:bad,total:found.length};
+}
+function sampleData(){
+ var seed=20261115;function rnd(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}
+ function pick(a){return a[Math.floor(rnd()*a.length)]}
+ var out=[];
+ for(var n=0;n<30;n++){
+  var bias=pick(['R','I','A','S','E','C','R','I','A']);
+  var r=blank();r.g=['9','10','11','11','E'][n%5];r.gr=r.g==='E'?String(2021+n%4):r.g+'-'+(1+n%3);r.ok=true;r.al='';
+  r.ri=r.ri.map(function(_,i){var L=ORDER[i%6];var b=L===bias?1.2:0;return Math.max(1,Math.min(4,Math.round(2+b+(rnd()-.4)*1.8)))});
+  r.ef=r.ef.map(function(){return 1+Math.floor(rnd()*4)});
+  r.sx=pick([0,0,1,1,2]);r.ed=pick([1,1,2,2,2,3,4]);r.es=Math.floor(rnd()*3);r.tr=Math.floor(rnd()*3);r.hr=Math.floor(rnd()*4);r.nt=pick([0,1,1,2,2,3]);r.mv=pick([0,1,2,2]);r.co=pick([0,0,0,1,2]);r.md=Math.floor(rnd()*5);r.ini=Math.floor(rnd()*3);
+  var as=AREAS.map(function(a){return a[0]}),a1=pick(as),a2=pick(as);r.ar=a1===a2?[a1]:[a1,a2];
+  r.bi=r.bi.map(function(){return 1+Math.floor(rnd()*4)});
+  out.push(r);
+ }
+ return out;
+}
+function currentRecords(){
+ var real=[];PS.codes.forEach(function(c){try{var r=dec(c.slice(7));if(validR(r))real.push(r)}catch(e){}});
+ var useS=PS.useSample===null?real.length===0:PS.useSample;
+ return {recs:useS?sampleData():real,sample:useS,real:real.length};
+}
+function pct(a,b){return b?Math.round(a/b*100):0}
+function tally(recs,fn,labels){var c=labels.map(function(){return 0});recs.forEach(function(r){var v=fn(r);if(Array.isArray(v))v.forEach(function(x){if(x>=0)c[x]++});else if(v>=0)c[v]++});return c}
+function aggregate(recs){
+ var ans=recs.map(analyze),n=recs.length,A={n:n};
+ A.sx=SXL.map(function(_,i){return recs.filter(function(r){return r.sx===i}).length});A.ed=EDL.map(function(_,i){return recs.filter(function(r){return r.ed===i}).length});A.g9=recs.filter(function(r){return r.g==='9'}).length;A.g10=recs.filter(function(r){return r.g==='10'}).length;A.g11=recs.filter(function(r){return r.g==='11'}).length;A.gE=recs.filter(function(r){return r.g==='E'}).length;
+ A.free=pct(recs.filter(function(r){return r.co===0}).length,n);
+ A.net=pct(recs.filter(function(r){return r.nt>=2}).length,n);
+ A.work=pct(recs.filter(function(r){return r.tr<=1}).length,n);
+ A.stay=pct(recs.filter(function(r){return r.mv===2}).length,n);
+ A.first=ORDER.split('').map(function(L){return ans.filter(function(a){return a.top[0]===L}).length});
+ A.inTop=ORDER.split('').map(function(L){return ans.filter(function(a){return a.top.indexOf(L)>=0}).length});
+ A.areas=AREAS.map(function(a){return recs.filter(function(r){return r.ar.indexOf(a[0])>=0}).length});
+ A.area1=AREAS.map(function(a){return recs.filter(function(r){return r.ar[0]===a[0]}).length});
+ A.md=tally(recs,function(r){return r.md},L.md);A.co=tally(recs,function(r){return r.co},L.co);A.mv=tally(recs,function(r){return r.mv},L.mv);A.ini=tally(recs,function(r){return r.ini},L.ini);
+ A.ef=SKS.map(function(_,i){return n?recs.reduce(function(s,r){return s+r.ef[i]},0)/n:0});
+ A.bi=BIS.map(function(_,i){return n?recs.reduce(function(s,r){return s+r.bi[i]},0)/n:0});
+ var rc={};ans.forEach(function(a){a.rutas.slice(0,3).forEach(function(x){rc[x.ru.id]=(rc[x.ru.id]||0)+1})});
+ A.rutas=RUTAS.map(function(ru){return [ru,rc[ru.id]||0]}).sort(function(a,b){return b[1]-a[1]});
+ A.ans=ans;return A;
+}
+function inFilt(r,f){f=f||PS.filt;return f==='all'||(f==='icet'?r.g!=='E':r.g===f)}
+function filtered(recs){return recs.filter(function(r){return inFilt(r)})}
+function gl(g){return g==='E'?'Egresado':g}
+function informe(A,sample){
+ if(!A.n)return 'Aún no hay respuestas para elaborar el informe.';
+ var tl=A.first.map(function(v,i){return [ORDER[i],v]}).sort(function(a,b){return b[1]-a[1]});
+ var ar=AREAS.map(function(a,i){return [a[1],A.areas[i]]}).sort(function(a,b){return b[1]-a[1]}).slice(0,3);
+ var mdI=A.md.map(function(v,i){return [L.md[i],v]}).sort(function(a,b){return b[1]-a[1]})[0];
+ var rt=A.rutas.slice(0,3).map(function(x){return x[0].n});
+ var wk=A.ef.map(function(v,i){return [SKS[i],v]}).sort(function(a,b){return a[1]-b[1]})[0];
+ var p=[];
+ if(sample)p.push('(Informe generado con datos de ejemplo; no corresponde a estudiantes reales.)');
+ var gp=[];if(A.g9)gp.push(A.g9+' de noveno');if(A.g10)gp.push(A.g10+' de décimo');if(A.g11)gp.push(A.g11+' de once');if(A.gE)gp.push(A.gE+(A.gE===1?' egresado/a':' egresados/as'));
+ var pers=A.gE===A.n?(A.n===1?'Participó 1 egresado/a':'Participaron '+A.n+' egresados/as'):(A.n===1?'Participó 1 estudiante':'Participaron '+A.n+' personas');
+ p.push(pers+(A.gE===A.n?'':' de la Institución Ciudadela Educativa Tumac')+' ('+gp.join(', ')+'). El tipo de interés dominante fue '+HOL[tl[0][0]][0].toLowerCase()+' ('+pct(tl[0][1],A.n)+'%), seguido de '+HOL[tl[1][0]][0].toLowerCase()+' ('+pct(tl[1][1],A.n)+'%).');
+ p.push('Las áreas más elegidas fueron '+ar.map(function(a){return a[0].toLowerCase()+' ('+pct(a[1],A.n)+'%)'}).join(', ')+'. La modalidad más mencionada fue «'+mdI[0].charAt(0).toLowerCase()+mdI[0].slice(1).replace('tumaco','Tumaco')+'» ('+pct(mdI[1],A.n)+'%).');
+ p.push('En cuanto a las condiciones para estudiar, el '+A.free+'% necesita estudio gratuito, el '+A.net+'% reporta conectividad limitada (solo celular, inestable o ninguna), el '+A.work+'% trabaja o quiere trabajar mientras estudia y el '+A.stay+'% solo podría estudiar sin salir de Tumaco.');
+ var sxT=A.sx[0]+A.sx[1];if(sxT)p.push('Entre quienes informaron su sexo, el '+pct(A.sx[0],sxT)+'% se identificó como mujer y el '+pct(A.sx[1],sxT)+'% como hombre.');
+ p.push('La habilidad con menor autopercepción promedio fue '+wk[0].toLowerCase()+' ('+wk[1].toFixed(1)+' de 4). La claridad vocacional promedio fue '+A.bi[0].toFixed(1)+' de 4.');
+ p.push('Las rutas que con mayor frecuencia aparecieron entre las tres más cercanas al perfil fueron: '+rt.join('; ')+'.');
+ return p.join('\n\n');
+}
+function extraCells(r){var ba=(r.ba||[]).map(function(k){var f=BAL2.filter(function(x){return x[0]===k})[0];return f?f[1]:''}).filter(Boolean).join(' | ');
+ return [PVL[r.pv]||'',r.pc||'',MAL[r.ma]||'',(r.ma>0&&r.mi)?r.mi:'',INL[r.ins]||'',ba].map(function(x){return String(x==null?'':x).replace(/[\t\r\n]+/g,' ')})}
+function rowCells(r,code){var an=analyze(r);
+ return [r.t||new Date().toISOString().slice(0,10),gl(r.g),r.gr,r.al,SXL[r.sx]||'',EDL[r.ed]||'',an.top.join('')].concat(ORDER.split('').map(function(L){return an.sc[L]})).concat(r.ef).concat([L.es[r.es],L.tr[r.tr],L.hr[r.hr],L.nt[r.nt],L.mv[r.mv],L.co[r.co],L.md[r.md],L.ini[r.ini],AN[r.ar[0]]||'',AN[r.ar[1]]||'',AN[r.ar[2]]||'']).concat(r.bi).concat(topNames(an,3)).concat([r.tx||'',r.ab||'',code||'']).map(function(x){return String(x==null?'':x).replace(/[\t\r\n]+/g,' ')})}
+var HEAD=['Fecha','Grado','Grupo','Alias','Sexo','Rango de edad','Código Holland','R %','I %','A %','S %','E %','C %'].concat(SKS.map(function(s){return 'Hab. '+s})).concat(['Estrategia ante la dificultad','Trabajo','Horas de estudio','Conexión','Movilidad','Costo','Modalidad','Inicio','Área 1','Área 2','Área 3'],BIS,['Ruta 1','Ruta 2','Ruta 3','Mensaje','Sueño u otra área (respuesta abierta)','Código']);
+var HEAD2=['Proyecto de vida','Carrera o programa que quiere','Matrícula en educación superior','Institución','Intención de inscripción','Barreras'];
+function tsv(recs,codes){
+ function cl(x){return String(x==null?'':x).replace(/[\t\r\n]+/g,' ')}
+ return recs.map(function(r,i){var an=analyze(r);
+  var cells=[r.t||'',gl(r.g),r.gr,r.al,SXL[r.sx]||'',EDL[r.ed]||'',an.top.join('')].concat(ORDER.split('').map(function(L){return an.sc[L]})).concat(r.ef).concat([L.es[r.es],L.tr[r.tr],L.hr[r.hr],L.nt[r.nt],L.mv[r.mv],L.co[r.co],L.md[r.md],L.ini[r.ini],AN[r.ar[0]]||'',AN[r.ar[1]]||'',AN[r.ar[2]]||'']).concat(r.bi).concat(topNames(an,3)).concat([r.tx||'',r.ab||'',codes?codes[i]:'']);
+  return cells.map(cl).join('\t')}).join('\n');
+}
+function renderPanel(app){
+ var cur=currentRecords(),recs=filtered(cur.recs),A=aggregate(recs);
+ app.appendChild(h('div',{class:'brand'},h('b','Rumbo · Panel del coordinador'),h('a',{href:'#',onclick:function(){S.step=0;window.RUMBO_PANEL=false;setTimeout(render,0)}},'Ir al cuestionario')));
+ if(cur.sample)app.appendChild(h('div',{class:'banner',role:'status'},h('b','Datos de ejemplo. '),'Estas '+cur.recs.length+' respuestas son inventadas para que veas cómo se verá el panel. Al pegar códigos reales dejan de mostrarse.'));
+ var card=h('div',{class:'card'});card.appendChild(h('h2','Agregar respuestas'));
+ card.appendChild(h('p',{class:'muted small'},'Pega aquí los códigos que te envíen los estudiantes (uno o varios, incluso copiados de un chat de WhatsApp completo). Este panel guarda los datos solo en este navegador.'));
+ var ta=h('textarea',{id:'paste',placeholder:'RUMBO1:...'});
+ var msg=h('p',{class:'small',role:'status'},PS.msg);
+ card.appendChild(ta);
+ card.appendChild(h('div',{class:'row',style:'margin-top:10px'},
+  h('button',{type:'button',class:'btn primary',onclick:function(){var r=parseCodes(ta.value);PS.msg=r.total?('Se agregaron '+r.ok+' respuestas'+(r.dup?'; '+r.dup+' ya estaban':'')+(r.bad?'; '+r.bad+' no se pudieron leer':'')+'.'):'No encontré códigos en el texto.';if(r.ok)PS.useSample=false;render()}},'Agregar al panel'),
+  h('button',{type:'button',class:'btn ghost',onclick:function(){PS.useSample=!cur.sample;render()}},cur.sample?'Ocultar ejemplo':'Ver datos de ejemplo'),
+  PS.codes.length?h('button',{type:'button',class:'btn ghost',onclick:function(){if(PS.confirmDel){PS.codes=[];saveCodes();PS.confirmDel=false;PS.msg='Se borraron todas las respuestas guardadas en este navegador.';render()}else{PS.confirmDel=true;render()}}},PS.confirmDel?'Confirmar: borrar todo':'Borrar respuestas reales'):null));
+ card.appendChild(msg);app.appendChild(card);
+ var fl=h('div',{class:'row',style:'margin:10px 0'},h('label',{for:'filt',class:'small muted'},'Mostrar'),h('select',{id:'filt',style:'max-width:220px',onchange:function(e){PS.filt=e.target.value;render()}},[['all','Todos'],['icet','Estudiantes ICET (9°, 10° y 11°)'],['E','Egresados'],['9','Solo noveno'],['10','Solo décimo'],['11','Solo once']].map(function(o){return h('option',{value:o[0],selected:PS.filt===o[0]},o[1])})));
+ app.appendChild(fl);
+ if(!A.n){app.appendChild(h('div',{class:'card'},'No hay respuestas para este grado todavía.'));return}
+ var k=h('div',{class:'kpis'});
+ [[A.n,'respuestas'],[A.g9+' · '+A.g10+' · '+A.g11+' · '+A.gE,'noveno · décimo · once · egresados'],[A.free+'%','necesita estudio gratuito'],[A.net+'%','conectividad limitada'],[A.work+'%','trabaja o quiere trabajar'],[A.stay+'%','solo puede estudiar en Tumaco']].forEach(function(x,i){k.appendChild(h('div',{class:'kpi',style:'--kc:'+PAL[i%PAL.length]},h('b',String(x[0])),h('span',x[1])))});
+ app.appendChild(k);
+ var g=h('div',{class:'grid2',style:'margin-top:14px'});
+ function sec(t,sub,body){var c=h('div',{class:'card'});c.appendChild(h('h3',t));if(sub)c.appendChild(h('p',{class:'small muted'},sub));c.appendChild(body);g.appendChild(c)}
+ var mx=Math.max.apply(null,A.first.concat([1]));
+ sec('Tipo de interés dominante','Cuántas personas tienen cada tipo como primera opción. El hexágono muestra la forma del grupo.',h('div',null,radarEl(A.first,mx,'Radar de tipos de interés del grupo'),bars(ORDER.split('').map(function(Lt,i){return [HOL[Lt][0],A.first[i],A.first[i]+' · '+pct(A.first[i],A.n)+'%',HC[Lt]]}),mx)));
+ var am=Math.max.apply(null,A.areas.concat([1]));
+ sec('Áreas que más atraen','Estudiantes que las incluyeron entre sus tres elegidas.',bars(AREAS.map(function(a,i){return [a[1],A.areas[i],A.areas[i]+' · '+pct(A.areas[i],A.n)+'%',PAL[i%PAL.length]]}).sort(function(a,b){return b[1]-a[1]}),am));
+ var mm=Math.max.apply(null,A.md.concat([1]));
+ sec('Modalidad preferida','Cómo les gustaría estudiar.',donutEl(L.md.map(function(t,i){return [t,A.md[i],PAL[i%PAL.length]]}),'Modalidad preferida'));
+ var cm=Math.max.apply(null,A.co.concat([1]));
+ sec('Capacidad de pago','Cuánto podría pagar la familia por los estudios.',donutEl(L.co.map(function(t,i){return [t,A.co[i],['#E4572E','#F2A900','#2E9E5B','#2B6CB0'][i%4]]}),'Capacidad de pago'));
+ sec('Habilidades: autopercepción promedio','De 1 (me cuesta mucho) a 4 (se me da bien).',bars(SKS.map(function(t,i){return [t,A.ef[i],A.ef[i].toFixed(1),PAL[i%PAL.length]]}),4));
+ sec('Mirando adelante: promedio','De 1 a 4. Claridad y apoyo altos son favorables; presión y preocupación económica altas piden atención.',bars(BIS.map(function(t,i){return [t,A.bi[i],A.bi[i].toFixed(1)]}),4,true));
+ var rm=Math.max(A.rutas[0][1],1);
+ var rb=h('div',null,bars(A.rutas.slice(0,8).map(function(x){return [x[0].n,x[1],x[1]+' · '+pct(x[1],A.n)+'%']}),rm));
+ sec('Rutas que más aparecen entre las 3 más cercanas','Cálculo por estudiante según intereses, situación y preferencias.',rb);
+ var mv=Math.max.apply(null,A.mv.concat([1]));
+ sec('Movilidad','¿Podrían irse a estudiar a otra ciudad?',bars(L.mv.map(function(t,i){return [t,A.mv[i],A.mv[i]+' · '+pct(A.mv[i],A.n)+'%',PAL[(i+2)%PAL.length]]}),mv));
+ sec('Sexo (opcional)','Quienes prefirieron no responder aparecen como «sin dato».',donutEl(SXL.map(function(t,i){return [t,A.sx[i],['#E4572E','#2B6CB0','#9AA5A8'][i]]}),'Distribución por sexo'));
+ sec('Rango de edad (opcional)',null,columnsEl(EDL.map(function(t,i){return [t,A.ed[i],PAL[i%PAL.length]]}),'Distribución por rango de edad'));
+ app.appendChild(g);
+ var groups=PS.filt==='all'?[['Informe de estudiantes ICET',cur.recs.filter(function(r){return r.g!=='E'})],['Informe de egresados',cur.recs.filter(function(r){return r.g==='E'})]]:[[PS.filt==='E'?'Informe de egresados':PS.filt==='icet'?'Informe de estudiantes ICET':'Informe de preferencias',recs]];
+ groups.forEach(function(gp){
+  var rc=h('div',{class:'card'});rc.appendChild(h('h2',gp[0]));
+  if(!gp[1].length){rc.appendChild(h('p',{class:'muted'},'Aún no hay respuestas de este grupo.'));app.appendChild(rc);return}
+  var rep=informe(aggregate(gp[1]),cur.sample);
+  rep.split('\n\n').forEach(function(t){rc.appendChild(h('p',t))});
+  var bi=h('button',{type:'button',class:'btn'},'Copiar informe');bi.addEventListener('click',function(){copy(rep,bi)});
+  rc.appendChild(h('div',{class:'row',style:'margin-top:10px'},bi));app.appendChild(rc);
+ });
+ var tc=h('div',{class:'card'});tc.appendChild(h('h2','Pasar a Google Sheets'));
+ tc.appendChild(h('p',{class:'muted small'},'Copia las filas y pégalas en la hoja «Respuestas» del libro, a partir de la celda A2. Las columnas coinciden con los encabezados de la hoja.'));
+ var rows=tsv(recs,cur.sample?null:PS.codes.filter(function(c){try{var r=dec(c.slice(7));return inFilt(r)}catch(e){return false}}));
+ var b2=h('button',{type:'button',class:'btn'},'Copiar filas ('+recs.length+')');b2.addEventListener('click',function(){copy(rows,b2)});
+ var b3=h('button',{type:'button',class:'btn ghost'},'Copiar encabezados');b3.addEventListener('click',function(){copy(HEAD.join('\t'),b3)});
+ var ex=recs.map(function(r){return extraCells(r).join('\t')}).join('\n');
+ var b4=h('button',{type:'button',class:'btn'},'Copiar columnas de proyecto de vida (para AT2)');b4.addEventListener('click',function(){copy(ex,b4)});
+ var b5=h('button',{type:'button',class:'btn ghost'},'Copiar sus encabezados');b5.addEventListener('click',function(){copy(HEAD2.join('\t'),b5)});
+ tc.appendChild(h('div',{class:'row'},b2,b3));
+ tc.appendChild(h('div',{class:'row',style:'margin-top:8px'},b4,b5));
+ tc.appendChild(h('p',{class:'small muted',style:'margin-top:10px'},'Datos de menores: confirma que la institución cuenta con la autorización de los acudientes y con su política de tratamiento de datos antes de recopilar respuestas con nombre.'));
+ app.appendChild(tc);
+ var cat=h('div',{class:'card'});cat.appendChild(h('h2','Oferta que usa el cuestionario'));
+ cat.appendChild(h('p',{class:'muted small'},'Estado de verificación de cada ruta. Las que dicen «por confirmar» o «por investigar» no deben presentarse a los estudiantes como oferta segura.'));
+ RUTAS.forEach(function(ru){cat.appendChild(h('div',{class:'ruta'},h('h3',ru.n),h('div',null,h('span',{class:'pill'},ru.i),h('span',{class:'pill'},MDL[ru.md]),h('span',{class:'pill '+ru.es},ESL[ru.es])),h('p',{class:'small'},ru.nt),ru.f&&ru.f.length?h('p',{class:'small'},'Fuentes: ',ru.f.map(function(x,i){return [i?' · ':'',link(x[0],x[1])]})):null))});
+ app.appendChild(cat);
+ colorNote(app);
+}
+function colorNote(app){
+ var d=h('details',{class:'card'},h('summary',{style:'cursor:pointer;font-weight:600'},'Por qué estos colores'));
+ [['Turquesa y azul','Evocan el mar y se asocian con calma y confianza. Es el color base de la página.'],['Coral y naranja','Calidez y energía. Se usan en lo que invita a actuar y en las respuestas de acompañamiento.'],['Amarillo','Optimismo y atención; se reserva para destacar.'],['Verde','Crecimiento y esperanza; en el hexágono marca el tipo realista, ligado a lo práctico y a la naturaleza.'],['Morado','Creatividad, para el tipo artístico.'],['Rojo','Se evita como color principal para no transmitir alarma ni evaluación.']].forEach(function(x){d.appendChild(h('p',{class:'small'},h('b',x[0]+': '),x[1]))});
+ d.appendChild(h('p',{class:'small muted'},'Las asociaciones del color dependen del contexto y de la cultura, y sus efectos medidos son modestos. Aquí el color sirve sobre todo para distinguir categorías con claridad y dar un tono amable, no para inducir decisiones. Ver Elliot, A. J., y Maier, M. A. (2014). Color psychology: Effects of perceiving color on psychological functioning in humans. ',h('i','Annual Review of Psychology, 65'),', 95-120.'));
+ app.appendChild(d);
+}
+window.addEventListener('hashchange',function(){PS.confirmDel=false;render()});
+/* ---------- sonido (generado en el dispositivo, sin archivos externos) ---------- */
+var AU={ctx:null,master:null,rev:null,dly:null,bus:null,timer:null,next:0,ci:0,mus:false,clk:true,vib:true,vl:2,vm:0,vol:.5,open:false,style:'synth',nb:null,bar:0};
+try{var sp=JSON.parse(lsGet('rumbo-snd')||'null');if(sp){AU.mus=!!sp.mus;AU.clk=!!sp.clk;AU.vib=!!sp.vib;if(typeof sp.vm==='number')AU.vm=Math.max(0,Math.min(2,Math.round(sp.vm)));if(typeof sp.vl==='number')AU.vl=Math.max(0,Math.min(4,Math.round(sp.vl)));if(typeof sp.vol==='number')AU.vol=Math.max(0,Math.min(1,sp.vol));if(['oceano','lofi','synth','balada','newwave'].indexOf(sp.style)>=0)AU.style=sp.style}}catch(e){}
+function auSave(){lsSet('rumbo-snd',JSON.stringify({mus:AU.mus,clk:AU.clk,vib:AU.vib,vl:AU.vl,vm:AU.vm,vol:AU.vol,style:AU.style}))}
+function mf(m){return 440*Math.pow(2,(m-69)/12)}
+function auInit(){
+ if(AU.ctx){if(AU.ctx.state==='suspended'){try{AU.ctx.resume()}catch(e){}}return true}
+ try{
+  var C=window.AudioContext||window.webkitAudioContext;if(!C)return false;
+  var c=new C();AU.ctx=c;
+  AU.master=c.createGain();AU.master.gain.value=AU.vol*.7;
+  var comp=c.createDynamicsCompressor();AU.master.connect(comp);comp.connect(c.destination);
+  var len=Math.floor(c.sampleRate*3.2),buf=c.createBuffer(2,len,c.sampleRate);
+  for(var ch=0;ch<2;ch++){var d=buf.getChannelData(ch);for(var i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6)}
+  var cv=c.createConvolver();cv.buffer=buf;var rg=c.createGain();rg.gain.value=.55;cv.connect(rg);rg.connect(AU.master);AU.rev=cv;
+  var dl=c.createDelay(1.2);dl.delayTime.value=.46;var fb=c.createGain();fb.gain.value=.34;var lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2200;
+  dl.connect(lp);lp.connect(fb);fb.connect(dl);lp.connect(AU.master);lp.connect(cv);AU.dly=dl;
+  if(c.state==='suspended'){try{c.resume()}catch(e){}}
+  return true;
+ }catch(e){AU.ctx=null;return false}
+}
+function auVol(){if(AU.master)AU.master.gain.value=AU.vol*.7}
+var PROG=[[45,52,55,59,60,64],[41,48,52,57,60,64],[48,55,59,64,67],[43,50,52,57,59,62]];
+var PENT=[69,72,74,76,79,81,84];
+function note(c,bus,m,t,dur,peak,type,sendDly){
+ var o=c.createOscillator(),o2=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();
+ o.type=type;o2.type='sine';o.frequency.value=mf(m);o2.frequency.value=mf(m)*2.003;
+ var g2=c.createGain();g2.gain.value=.18;o2.connect(g2);g2.connect(g);o.connect(g);
+ f.type='lowpass';f.frequency.value=type==='triangle'?1100:2600;g.connect(f);f.connect(bus);
+ g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(peak,t+(type==='triangle'?2.4:.015));g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+ if(sendDly){var sg=c.createGain();sg.gain.value=.45;f.connect(sg);sg.connect(AU.dly)}
+ o.start(t);o2.start(t);o.stop(t+dur+.1);o2.stop(t+dur+.1);
+}
+function waves(c,bus){
+ var n=c.sampleRate*4,b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0),last=0;
+ for(var i=0;i<n;i++){var w=Math.random()*2-1;last=(last+.02*w)/1.02;d[i]=last*3.2}
+ var src=c.createBufferSource();src.buffer=b;src.loop=true;
+ var f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=650;
+ var g=c.createGain();g.gain.value=.05;
+ var lfo=c.createOscillator();lfo.frequency.value=.085;var lg=c.createGain();lg.gain.value=.035;lfo.connect(lg);lg.connect(g.gain);
+ src.connect(f);f.connect(g);g.connect(bus);src.start();lfo.start();
+ return function(){try{src.stop();lfo.stop()}catch(e){}};
+}
+function noiseBuf(c){if(AU.nb&&AU.nb.sampleRate===c.sampleRate)return AU.nb;var n=c.sampleRate,b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0);for(var i=0;i<n;i++)d[i]=Math.random()*2-1;AU.nb=b;return b}
+function voice(c,bus,m,t,dur,pk,type,cut,att,send){
+ var o=c.createOscillator(),o2=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();
+ o.type=type;o2.type=type;o.frequency.value=mf(m);o2.frequency.value=mf(m)*1.004;
+ var h2=c.createGain();h2.gain.value=.6;o2.connect(h2);h2.connect(g);o.connect(g);
+ f.type='lowpass';f.frequency.value=cut;g.connect(f);f.connect(bus);
+ g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(pk,t+att);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+ if(send){var sg=c.createGain();sg.gain.value=send;f.connect(sg);sg.connect(AU.dly)}
+ o.start(t);o2.start(t);o.stop(t+dur+.1);o2.stop(t+dur+.1);
+}
+function kick(c,bus,t,pk){var o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(125,t);o.frequency.exponentialRampToValueAtTime(42,t+.14);g.gain.setValueAtTime(pk,t);g.gain.exponentialRampToValueAtTime(0.0001,t+.38);o.connect(g);g.connect(bus);o.start(t);o.stop(t+.42)}
+function nz(c,bus,t,pk,dur,ft,fr,send){var s=c.createBufferSource();s.buffer=noiseBuf(c);var f=c.createBiquadFilter();f.type=ft;f.frequency.value=fr;var g=c.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(pk,t+.004);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);s.connect(f);f.connect(g);g.connect(bus);if(send){var sg=c.createGain();sg.gain.value=send;g.connect(sg);sg.connect(AU.rev)}s.start(t);s.stop(t+dur+.05)}
+var LOFI={bpm:74,ch:[[50,53,57,60,64],[55,59,64,65],[48,55,59,62,64],[45,52,55,59,60]],bass:[38,43,36,33]};
+var SYN={bpm:96,ch:[[48,51,55,60],[44,48,51,56],[51,55,58,63],[46,50,53,58]],bass:[36,32,39,34]};
+function barLofi(c,bus,t,i){
+ var P=LOFI,ch=P.ch[Math.floor(i/2)%4],bt=60/P.bpm,sw=.16*bt;
+ [0,1.5].forEach(function(b,k){ch.forEach(function(m,j){voice(c,bus,m,t+b*bt+j*.025+(b?sw:0),2.6,k?.035:.05,'triangle',1500,.012,.18)})});
+ voice(c,bus,P.bass[Math.floor(i/2)%4],t,1.6*bt,.12,'sine',500,.02,0);voice(c,bus,P.bass[Math.floor(i/2)%4]+7,t+2*bt,1.2*bt,.09,'sine',500,.02,0);
+ kick(c,bus,t,.2);kick(c,bus,t+2.5*bt+sw,.12);
+ nz(c,bus,t+1*bt,.07,.22,'bandpass',1800,.3);nz(c,bus,t+3*bt,.07,.22,'bandpass',1800,.3);
+ for(var e=0;e<8;e++){var tt=t+e*.5*bt+(e%2?sw:0);nz(c,bus,tt,e%2?.022:.035,.06,'highpass',7000,0)}
+ if(Math.random()<.7){var mm=PENT[Math.floor(Math.random()*PENT.length)]-12;voice(c,bus,mm,t+(1+Math.floor(Math.random()*5)*.5)*bt,2.2,.05,'sine',2400,.01,.4)}
+}
+function barSyn(c,bus,t,i){
+ var P=SYN,ci=Math.floor(i/2)%4,ch=P.ch[ci],bt=60/P.bpm;
+ if(i%2===0)ch.forEach(function(m){voice(c,bus,m,t,4.9,.03,'sawtooth',900,.5,0)});
+ var pat=[0,2,1,3,2,3,1,2,0,2,1,3,2,1,3,2];
+ for(var k=0;k<16;k++){var m=ch[pat[k]%ch.length]+12;voice(c,bus,m,t+k*.25*bt,.55,k%4===0?.045:.028,'triangle',2000,.005,.35)}
+ voice(c,bus,P.bass[ci],t,1.8*bt,.14,'sine',420,.02,0);voice(c,bus,P.bass[ci],t+2*bt,1.8*bt,.12,'sine',420,.02,0);
+ kick(c,bus,t,.24);kick(c,bus,t+2*bt,.2);
+ nz(c,bus,t+1*bt,.09,.26,'bandpass',1500,.5);nz(c,bus,t+3*bt,.09,.26,'bandpass',1500,.5);
+ for(var e=0;e<8;e++)nz(c,bus,t+e*.5*bt,e%2?.016:.026,.05,'highpass',8000,0);
+}
+var BAL={bpm:72,ch:[[50,57,62,66],[45,57,61,64],[47,54,59,62],[43,55,59,62]],bass:[38,33,35,31]};
+var NWV={bpm:112,ch:[[52,55,59,64],[48,52,55,60],[55,59,62,67],[50,54,57,62]],bass:[28,24,31,26]};
+function barBal(c,bus,t,i){
+ var P=BAL,ci=Math.floor(i/2)%4,ch=P.ch[ci],bt=60/P.bpm;
+ if(i%2===0)ch.forEach(function(m){voice(c,bus,m-12,t,5.2,.022,'sawtooth',700,.9,0)});
+ for(var k=0;k<8;k++){var m=ch[[0,1,2,3,2,1,2,1][k]]+12;voice(c,bus,m,t+k*.5*bt,1.4,k%4===0?.06:.04,'triangle',2200,.008,.3)}
+ voice(c,bus,P.bass[ci],t,1.9*bt,.15,'triangle',500,.02,0);voice(c,bus,P.bass[ci],t+2*bt,1.9*bt,.13,'triangle',500,.02,0);
+ kick(c,bus,t,.22);kick(c,bus,t+2*bt,.16);
+ nz(c,bus,t+bt,.11,.5,'bandpass',1700,.9);nz(c,bus,t+3*bt,.11,.5,'bandpass',1700,.9);
+ for(var e=0;e<8;e++)nz(c,bus,t+e*.5*bt,.014,.04,'highpass',8000,0);
+}
+function barNwv(c,bus,t,i){
+ var P=NWV,ci=Math.floor(i/2)%4,ch=P.ch[ci],bt=60/P.bpm;
+ if(i%2===0)ch.forEach(function(m){voice(c,bus,m,t,4.3,.026,'sawtooth',1100,.25,.2)});
+ for(var k=0;k<8;k++)voice(c,bus,P.bass[ci]+(k%4===3?12:0),t+k*.5*bt,.4*bt,.1,'sawtooth',320,.01,0);
+ var pat=[0,1,2,3,2,1,3,2,0,1,2,3,1,2,3,2];
+ for(var q=0;q<16;q++)voice(c,bus,ch[pat[q]%ch.length]+12,t+q*.25*bt,.32,q%4===0?.04:.024,'square',1800,.004,.3);
+ for(var b=0;b<4;b++)kick(c,bus,t+b*bt,.2);
+ nz(c,bus,t+bt,.09,.3,'bandpass',1500,.5);nz(c,bus,t+3*bt,.09,.3,'bandpass',1500,.5);
+ for(var e=0;e<4;e++)nz(c,bus,t+(e+.5)*bt,.03,.07,'highpass',8000,0);
+}
+function schedule(){
+ if(!AU.mus||!AU.ctx||!AU.bus)return;
+ var c=AU.ctx,bus=AU.bus;
+ while(AU.next<c.currentTime+9){
+  if(AU.style==='oceano'){
+   var ch=PROG[AU.ci%PROG.length],t=AU.next,dur=9;
+   ch.forEach(function(m,i){note(c,bus,m,t+i*.12,dur+2.5,.05,'triangle',false)});
+   var hits=3+Math.floor(Math.random()*3);
+   for(var k=0;k<hits;k++){var tt=t+1+Math.random()*(dur-2.5),mm=PENT[Math.floor(Math.random()*PENT.length)];note(c,bus,mm,tt,3.4,.07,'sine',true)}
+   AU.next+=dur;AU.ci++;
+  }else{
+   var T={lofi:[LOFI,barLofi],synth:[SYN,barSyn],balada:[BAL,barBal],newwave:[NWV,barNwv]}[AU.style],bl=4*60/T[0].bpm;
+   T[1](c,bus,AU.next,AU.ci);AU.next+=bl;AU.ci++;
+  }
+ }
+ AU.timer=setTimeout(schedule,1500);
+}
+function musicOn(){
+ if(!auInit())return false;
+ if(AU.bus)return true;
+ var c=AU.ctx;AU.bus=c.createGain();AU.bus.gain.setValueAtTime(0.0001,c.currentTime);AU.bus.gain.linearRampToValueAtTime(.5,c.currentTime+4);
+ AU.bus.connect(AU.master);AU.bus.connect(AU.rev);
+ AU.stopWaves=AU.style==='oceano'?waves(c,AU.bus):null;AU.ci=0;AU.next=c.currentTime+.2;schedule();return true;
+}
+function musicOff(){
+ clearTimeout(AU.timer);var b=AU.bus,sw=AU.stopWaves;AU.bus=null;AU.stopWaves=null;
+ if(!b||!AU.ctx)return;
+ try{b.gain.cancelScheduledValues(AU.ctx.currentTime);b.gain.setValueAtTime(b.gain.value,AU.ctx.currentTime);b.gain.linearRampToValueAtTime(0.0001,AU.ctx.currentTime+.9)}catch(e){}
+ setTimeout(function(){try{if(sw)sw();b.disconnect()}catch(e){}},1100);
+}
+function canVib(){try{return typeof navigator.vibrate==='function'}catch(e){return false}}
+var HSW=null;
+function swHaptic(){try{if(!HSW){HSW=document.createElement('label');HSW.setAttribute('aria-hidden','true');HSW.style.cssText='position:fixed;left:-200px;top:-200px;width:1px;height:1px;opacity:0;overflow:hidden';var i=document.createElement('input');i.type='checkbox';i.setAttribute('switch','');i.tabIndex=-1;HSW.appendChild(i);document.body.appendChild(HSW)}HSW.click();return true}catch(e){return false}}
+function doBuzz(kind){
+ var VL=[[12,[20,40,20],10],[30,[40,60,40],20],[60,[80,60,80],40],[100,[120,70,120],70],[180,[220,80,220],120]][AU.vl],pat=kind==='go'?VL[1]:kind==='sel'?VL[0]:VL[2],ok=false;
+ if(canVib()){try{ok=navigator.vibrate(pat)!==false}catch(e){ok=false}}
+ if(!ok)swHaptic();
+ return ok;
+}
+function thump(kind){
+ if(!auInit())return;var c=AU.ctx,t=c.currentTime+.003,k=[.5,.7,.9,1,1.15][AU.vl]*(kind==='go'?1:kind==='sel'?.9:.6);
+ var g=c.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(Math.min(1,.95*k),t+.003);g.gain.exponentialRampToValueAtTime(0.0001,t+.16);
+ var sh=c.createWaveShaper(),cv=new Float32Array(257);for(var i=0;i<257;i++){var x=i/128-1;cv[i]=Math.tanh(2.6*x)}sh.curve=cv;
+ var lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1200;
+ g.connect(sh);sh.connect(lp);lp.connect(c.destination);
+ [[130,52,1],[260,104,.5],[390,156,.25]].forEach(function(p){var o=c.createOscillator(),og=c.createGain();o.type=p[2]===1?'sine':'triangle';o.frequency.setValueAtTime(p[0],t);o.frequency.exponentialRampToValueAtTime(p[1],t+.1);og.gain.value=p[2];o.connect(og);og.connect(g);o.start(t);o.stop(t+.2)});
+}
+function pulse(el,kind){try{el.style.setProperty('--ps',String([.99,.975,.955,.94,.92][AU.vl]));el.classList.remove('rpulse');void el.offsetWidth;el.classList.add('rpulse')}catch(e){}}
+function buzz(kind,el){if(!AU.vib)return;doBuzz(kind);if(el)pulse(el,kind)}
+function tap(kind){
+ if(!AU.clk||!auInit())return;
+ var c=AU.ctx,t=c.currentTime+.005;
+ function blip(fr,t0,pk,dur){var o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(fr,t0);o.frequency.exponentialRampToValueAtTime(fr*.92,t0+dur);g.gain.setValueAtTime(0.0001,t0);g.gain.linearRampToValueAtTime(pk,t0+.006);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);o.connect(g);g.connect(AU.master);o.start(t0);o.stop(t0+dur+.05)}
+ if(kind==='go'){blip(659.25,t,.035,.12);blip(987.77,t+.06,.03,.16)}
+ else if(kind==='sel'){blip(880,t,.03,.07)}
+ else blip(740,t,.022,.06);
+}
+function pressTarget(e){var el=e.target&&e.target.closest?e.target.closest('button,a.btn,label.chk'):null;if(!el||el.closest('.snd'))return null;return el}
+function kindOf(el){return el.classList.contains('primary')?'go':el.classList.contains('opt')?'sel':'tick'}
+var LASTDOWN=0;
+function holdBuzz(){var VH=[250,500,800,1200,1800][AU.vl];try{if(canVib())navigator.vibrate(VH)}catch(e){}}
+function stopBuzz(){try{if(canVib())navigator.vibrate(0)}catch(e){}}
+document.addEventListener('pointerdown',function(e){
+ var el=pressTarget(e);if(!el)return;LASTDOWN=Date.now();var kd=kindOf(el);
+ if(AU.vm===0){buzz(kd,el);tap(kd)}
+ else if(AU.vm===1){if(AU.vib){holdBuzz();pulse(el,kd)}tap(kd)}
+},true);
+['pointerup','pointercancel','pointerleave','contextmenu'].forEach(function(ev){document.addEventListener(ev,function(){if(AU.vm===1)stopBuzz()},true)});
+document.addEventListener('click',function(e){
+ var el=pressTarget(e);if(!el)return;var kd=kindOf(el);
+ if(AU.vm===2){buzz(kd,el);tap(kd);return}
+ if(Date.now()-LASTDOWN>700){buzz(kd,el);tap(kd)} /* teclado o lector de pantalla: sin pointerdown */
+},true);
+document.addEventListener('pointerdown',function first(){document.removeEventListener('pointerdown',first,true);if(AU.mus&&!AU.bus){musicOn();paintSnd()}},true);
+var sndRoot=null;
+function paintSnd(){
+ if(!sndRoot)return;sndRoot.textContent='';
+ if(AU.open){
+  var pan=h('div',{class:'pan',role:'group','aria-label':'Opciones de sonido'});
+  pan.appendChild(h('b','Sonido'));
+  pan.appendChild(h('label',{class:'chk'},h('input',{type:'checkbox',checked:AU.mus,onchange:function(e){AU.mus=e.target.checked;auSave();if(AU.mus){if(!musicOn()){AU.mus=false;e.target.checked=false}}else musicOff();paintSnd()}}),h('span','Música para estudiar (elige el estilo)')));
+  var sty=h('div',{class:'small',role:'radiogroup','aria-label':'Estilo de música'});
+  [['synth','Synth-pop nocturno, ritmo tranquilo (tipo Midnights)'],['oceano','Ambiente y olas del Pacífico'],['lofi','Lo-fi jazz suave, piano eléctrico'],['balada','Balada pop-rock de los 80 y 90'],['newwave','New wave italo, ritmo suave']].forEach(function(o){sty.appendChild(h('label',{class:'chk',style:'margin:4px 0 4px 26px'},h('input',{type:'radio',name:'sty',checked:AU.style===o[0],onchange:function(){AU.style=o[0];auSave();if(AU.mus){musicOff();musicOn()}paintSnd()}}),h('span',o[1])))});
+  pan.appendChild(sty);
+  pan.appendChild(h('label',{class:'chk'},h('input',{type:'checkbox',checked:AU.clk,onchange:function(e){AU.clk=e.target.checked;auSave();if(AU.clk)tap('go');paintSnd()}}),h('span','Sonido suave al tocar los botones')));
+  pan.appendChild(h('label',{class:'chk'},h('input',{type:'checkbox',checked:AU.vib,onchange:function(e){AU.vib=e.target.checked;auSave();if(AU.vib)doBuzz('go')}}),h('span','Vibración al tocar las opciones')));
+  pan.appendChild(h('div',{class:'row',style:'margin:2px 0 6px 26px'},h('button',{type:'button',class:'btn',style:'min-height:36px;padding:6px 12px',onclick:function(){var ok=doBuzz('go'),fr=false;try{fr=window.self!==window.top}catch(e){fr=true}
+   vmsg.textContent=(canVib()?'Tu navegador sí ofrece vibración':'Tu navegador NO ofrece vibración')+(fr?'; la página está dentro de otra ventana (eso suele bloquearla)':'; la página está abierta directamente')+'. '+(ok&&canVib()?'Si no sentiste nada, revisa en el teléfono: Ajustes > Sonido y vibración > intensidad de vibración / respuesta táctil, y que no esté en silencio total.':'Prueba abriendo el archivo directamente en Chrome.')}},'Probar vibración')));
+  var vmR=[['Al presionar (toque breve)',0],['Mientras mantengo pulsado (se detiene al soltar)',1],['Al soltar',2]];
+  var vmBox=h('div',{style:'margin:0 0 6px 26px'},h('div',{class:'small'},'¿Cuándo vibra?'));
+  vmR.forEach(function(o){vmBox.appendChild(h('label',{class:'chk',style:'margin:4px 0'},h('input',{type:'radio',name:'vmode',checked:AU.vm===o[1],onchange:function(){AU.vm=o[1];auSave();if(o[1]===1){holdBuzz();setTimeout(stopBuzz,350)}else doBuzz('sel')}}),h('span',o[0])))});
+  pan.appendChild(vmBox);
+  var lv=['Muy suave','Suave','Media','Fuerte','Máxima'];
+  var lvl=h('span',{class:'small'},lv[AU.vl]);
+  var rg=h('input',{type:'range',min:'0',max:'4',step:'1',value:String(AU.vl),'aria-label':'Intensidad de la vibración',style:'flex:1;min-width:120px',oninput:function(e){AU.vl=+e.target.value;lvl.textContent=lv[AU.vl];auSave();doBuzz('sel')}});
+  pan.appendChild(h('div',{class:'row',style:'margin:0 0 6px 26px;align-items:center;gap:8px'},h('span',{class:'small'},'Intensidad:'),rg,lvl));
+  var vmsg=h('p',{class:'small muted',style:'margin:0 0 6px 26px'});pan.appendChild(vmsg);
+  pan.appendChild(h('label',{class:'small muted',for:'vol'},'Volumen'));
+  pan.appendChild(h('input',{id:'vol',type:'range',min:'0',max:'100',value:String(Math.round(AU.vol*100)),oninput:function(e){AU.vol=e.target.value/100;auVol();auSave()}}));
+  var lk=h('details',{class:'small'},h('summary',{style:'cursor:pointer;font-weight:600'},'Escuchar a tus artistas en tu app'));
+  ['Nina Simone','Midnights','Eighth Wonder','Johnny Hates Jazz','Icehouse','Crowded House','Alphaville','Gazebo','Propaganda','Spandau Ballet','Madonna','Sandra','Tears for Fears','Roxette','Chicago','Phil Collins'].forEach(function(a){lk.appendChild(h('span',{style:'display:inline-block;margin:3px 8px 3px 0'},link(a,'https://www.youtube.com/results?search_query='+encodeURIComponent(a+' mix para estudiar'))))});
+  lk.appendChild(h('p',{class:'muted'},'Abre YouTube en otra pestaña. Esas canciones no suenan dentro de esta página.'));
+  pan.appendChild(lk);
+  pan.appendChild(h('p',{class:'small muted'},'Música original creada en tu dispositivo, sin derechos de autor, inspirada en esos ambientes. La música empieza apagada; el toque suave y la vibración empiezan activados y puedes apagarlos aquí.'));
+  sndRoot.appendChild(pan);
+ }
+ sndRoot.appendChild(h('button',{type:'button',class:'tog'+((AU.mus||AU.clk||AU.vib)?' on':''),'aria-expanded':String(AU.open),onclick:function(){AU.open=!AU.open;paintSnd()}},(AU.mus||AU.clk||AU.vib?'🔊':'🔈')+' Sonido'));
+}
+(function(){var C=window.AudioContext||window.webkitAudioContext;sndRoot=h('div',{class:'snd'});document.body.appendChild(sndRoot);paintSnd()})();
+
+render();
+})();
+</script>

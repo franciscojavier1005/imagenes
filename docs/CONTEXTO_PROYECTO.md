@@ -388,3 +388,11 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 ## Ampliación 20 (2026-11-21) — Corrección de 5° y carpetas de Drive
 - 5°-1/5°-2: Nemesia Cuéllar dicta Matemáticas, Educación Física y Religión; Claudia Patricia Centeno dicta Castellano, Inglés, Ética y Valores, Sociales, Naturales, Artística y Tecnología. REGLA (aclarada por el coordinador): en primaria (5°) la responsable de TODAS las áreas de un grupo es su directora de grupo, que registra su información aunque roten y se apoyen entre docentes; no se asigna por área como en bachillerato. La vista previa muestra «Directora de cada grupo (responsable)».
 - Drive del coordinador: «App Asistencia Docente» contiene COMISIONES 2026 (P1 y P2, con «ACTAS POR GRADO» en PDF, grados 00–11), carpetas DBA y EBC (incl. estándares de Religión) y archivos de docentes/estudiantes. Los archivos con cédulas/contraseñas son sensibles: no se copian ni se versionan.
+
+## Ampliación 21 (2026-11-21) — Vista previa v9 de comisiones
+- Acta del grado en **vista desplegable** (por defecto): asistencia abierta y los demás componentes se repliegan/despliegan; se conserva la vista «Por pasos».
+- **Celular**: las tablas se apilan como tarjetas con etiqueta (sin desplazamiento horizontal); pasos y botones se reacomodan.
+- **Datos faltantes**: sección de docentes para completar cédula y correo (queda «pendiente de validar por coordinación»; se guarda en hoja reservada, no en el libro general).
+- **Dashboard**: cifras centradas, paleta suave, un color por motivo de reprobación; el gráfico de decisiones de convivencia queda solo para coordinación.
+- **Reconocimientos**: la regla pasa a presentarse como «sugeridos (recomendados)», no obligatoria.
+- Imprimible: firman solo quienes asistieron; marca de agua del escudo. Pendiente: manual PDF del módulo (se hará con la implementación real), importar actas anteriores de Drive, DBA de Sociales/Inglés y EBC/Religión.

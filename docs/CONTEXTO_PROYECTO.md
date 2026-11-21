@@ -568,3 +568,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Imprimible: espacio entre el recuadro del encabezado y el título; **títulos de columna repetidos** al pasar una tabla a otra página (`thead`); cifras con coma decimal **alineadas a la derecha** (comas en la misma vertical, `postImp`); columna «Evidencias» en la tabla de PIAR.
 - **Evidencias opcionales** en cada estudiante de PIAR: imagen o PDF del PIAR y del **formato de DUA** aplicado (como los soportes de compromisos). Se guardan en Drive.
 - **Carpeta única de la aplicación (Drive) para el módulo real:** una sola carpeta «App Asistencia» con subcarpetas `Respaldos` (ya existe: Diario/Semanal/Mensual) y `Soportes/Comisiones/<año>/<grado>/<acta>/` para las imágenes y PDF que suban los docentes (compromisos, PIAR, DUA). El libro guarda solo el nombre y el enlace del archivo.
+
+### Ampliación 54 — Vista previa v41
+- Imprimible: separación entre el título (decreto) y la tabla del acta; firmas compactadas (todas en la última hoja del acta); el acta de muestra queda en 5 hojas (3 del acta + 2 del anexo del dashboard, que empieza en hoja nueva).

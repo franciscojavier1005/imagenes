@@ -488,3 +488,7 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - **Reconocimientos**: orden agregar estudiante → tabla → estadística por curso → confirmación; en celular la tabla se muestra como tarjetas por estudiante.
 - **Cierre compartido**: al finalizar, el responsable propone el cierre; a cada integrante conectado le aparece una ventana para **confirmar su parte** (o pedir que esperen); el acta queda bloqueada durante la confirmación; el responsable puede cancelar o excluir a quien no esté conectado; cuando todos confirman se cierra y **todos salen del acta del grado** (a Mis actas) con aviso. En la vista previa se simula con «Entré como».
 - **Auditoría**: recorrido automático de los 14 grados × (acta final y de periodo) sin errores ni textos «undefined/NaN». Hallazgo corregido: en **preescolar no se reprueba el grado** (Decreto 2247 de 1997, citado de memoria: verificar): no hay paso Promoción y el lenguaje habla de propósitos por consolidar.
+
+## Ampliación 38 (2026-11-21) — Preescolar (v28)
+- En transición **se mantienen las recomendaciones para primero** (por propósito, más dificultades, estrategias y conclusiones) y el registro de niños que **no asistieron o desertaron**: el paso se llama «Deserción e inasistencia» y se agregó el motivo «No asistió durante el año (matriculado que no se presentó)». Solo se omite el paso Promoción (no se reprueba el grado).
+- «Entré como» queda rotulado como solo de la vista previa; en el sistema real la identidad es automática (correo con el que entra cada docente).

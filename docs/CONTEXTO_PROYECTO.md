@@ -538,3 +538,9 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ### Ampliación 47 — Vista previa v37
 - Imprimible: sin espacio antes/después de párrafos en todo el documento, interlineado sencillo (1,1), celdas centradas verticalmente; pie con «Página X de Y» (contadores de página del margen); firmas sin línea superior, centradas y con más separación entre sí.
+
+### Ampliación 48 — Vista previa v38 (informe general con gráficos y informe por docente)
+- **Anexo gráfico del acta** (`rgAnexo`): KPI, promoción, no promovidos por grupo, reprobación por área (barras + radar + cuadro de calor área×grupo con semáforo), motivos, reconocimientos y convivencia; en preescolar: propósitos, imprescindibles y tabla de **experiencias** (incluye pensamiento computacional y tecnológico). Al final del acta imprimible, con numeración «Página X de Y».
+- **Informe general** (`pintaGen`/`imprimeGen`, clase de impresión `pg`) en la pestaña de informes: mismo contenido, para coordinación, rectoría, orientación y docentes de área. En el dashboard se agregó el bloque «Rendimiento por área» (`rgDash`).
+- **Informe del docente** (`docentesGrado`, `pintaRetro`): por **docente** (todas sus áreas en un solo imprimible); primaria: todas las áreas del grupo del director/a.
+- Marca de agua con logo ampliado ×4 (`LOGOHI`) para evitar pixelado; diseño editorial (Georgia, filetes, figuras numeradas).

@@ -401,3 +401,7 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Periodos del acta: **Primero, Segundo, Tercero y Final** (se elimina «Cuarto»: el último periodo se analiza en el acta final, no por separado).
 - El lenguaje cambia según el tipo: en **periodo** se habla de aprobación/reprobación *del periodo*, seguimiento al periodo anterior y recomendaciones para el *siguiente periodo*; en **final**, de promoción (no promovidos según el SIEE), seguimiento a los compromisos del año, rendimiento final, reconocimientos de fin de año y recomendaciones para el *siguiente grado*. Banda de contexto al inicio del acta; informe del docente e imprimible titulan «ACTA FINAL».
 - Implementación en la vista previa: diccionario de sustitución (`adaptaPeriodo`) sobre el texto mostrado; en la versión real conviene parametrizar los textos por tipo de acta.
+
+## Ampliación 23 (2026-11-21) — v11 y propuestas pendientes de decisión
+- v11: los «Datos generales del acta» se repliegan solos al pasar a los demás componentes y quedan en una línea-resumen (acta · periodo · grado · fecha · apertura); se despliegan al tocarlos.
+- Propuestas hechas al coordinador (pendientes de OK): (1) en el acta **final**, lista confirmada de **promovidos por curso** (excepciones registradas, no lista completa por defecto) y salida agrupada por curso en el imprimible; (2) recomendaciones: texto libre como base y banco de referentes (DBA/EBC/lineamientos) como ayuda opcional para etiquetar lo pendiente; (3) tras los ajustes, prueba de guardado en el libro de Google Sheets.

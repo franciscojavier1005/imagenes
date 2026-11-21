@@ -429,3 +429,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Las actas de P1 y P2 en «COMISIONES 2026» son **PDF escaneados de formatos diligenciados a mano**: el texto extraído (OCR) es poco confiable (nombres, cifras y firmas ilegibles), por lo que **no se importan como datos**. Sirven como archivo histórico y como referencia del formato (8 páginas; el formato viejo aún trae «Cuarto» periodo y «Docente Dinamizador de Grupo»).
 - Decisión propuesta: «Mis actas» lista las actas anteriores con **enlace al PDF en Drive** (grado, periodo), sin transcribirlas. Datos de estudiantes menores no se versionan.
 - Verificación útil: la firma del acta confirma la cédula de la docente de 5°-3 (coincide con la primera columna del archivo de docentes).
+
+## Ampliación 28 (2026-11-21) — Modo de prueba (v16)
+- Interruptor «Modo de prueba: saltar validaciones» en la barra de perfil: desactiva correo, cédula, matrícula, áreas, cupos y firmas para recorrer todo el acta durante las pruebas; muestra una banda de aviso. En la versión real debe quedar **apagado por defecto y solo habilitado para el administrador** (y registrar en la hoja de auditoría cuando se use).

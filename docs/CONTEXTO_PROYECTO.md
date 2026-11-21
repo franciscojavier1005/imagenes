@@ -532,3 +532,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Período académico del acta en texto («Primer período», «Informe final · cierre del año escolar»); casillas ☐ como opción (interruptor en la pestaña imprimible).
 - Pie de página fino (6,5 px) en **todas** las hojas mediante margen de página `@page @bottom-center` (texto fijado al imprimir con `prepPie`).
 - Firmas sin partirse entre hojas. La promoción por curso está en la hoja 2 del acta Final.
+
+### Ampliación 46 — Vista previa v36
+- Imprimible compacto: interlineado 1,1 y sin espacios antes/después en celdas y párrafos; títulos de sección centrados verticalmente; marca de agua +50 % (93 % del ancho) sin perder transparencia; pie en todas las hojas.

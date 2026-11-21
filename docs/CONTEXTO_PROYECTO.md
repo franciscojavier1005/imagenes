@@ -498,3 +498,11 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - **Correo personal obligatorio**: el correo que se pide a cada integrante debe ser **personal y válido, no el institucional (@icet.edu.co)**; la validación rechaza el institucional. Ya no se precarga el correo institucional del archivo de docentes (celular y cédula sí).
 - **Matrícula**: lo que el docente no sabe con certeza (¿retirado o desertado?) se anota en **«Por verificar»**, que no altera las sumas; la nota pide registrar lo que conoce a partir del listado; aparece en el imprimible y el JSON para que coordinación lo verifique con el listado oficial.
 - Corregido un error de bloqueo (los controles de un curso ajeno se rehabilitaban por filas internas).
+
+## Ampliación 40 (2026-11-21) — Vista previa v30
+- **Correo y celular de los docentes**: correo **personal válido y distinto del institucional** (aviso en pantalla si escriben uno @icet.edu.co); el **celular es siempre editable** con la sugerencia de **actualizarlo con el último número que funcione** si el cargado ya no es del docente.
+- **Ruta de atención** de convivencia con el mismo formato de ventana por tipo (dentro del colegio, ruta externa, salud, familia, seguimiento).
+- **Reprobación**: «Causas de reprobación» (por área) y «Motivos generales» se eligen en ventana agrupada («Seleccionar causas» / «Seleccionar un motivo»); en la tarjeta solo quedan las etiquetas elegidas.
+- **Tablas anchas**: aviso «Hay más columnas a la derecha: deslice ›» (clicable) y sombras laterales cuando hay contenido oculto.
+- **Matrícula**: la confirmación por curso pasó **debajo de la tabla**, con recordatorio de que **lo confirmado es definitivo**: al confirmar, las cifras del curso se bloquean; solo coordinación académica puede reabrir (con justificación y registro).
+- Pendiente de aclarar con el coordinador: se cortó la frase sobre lo que deben «tener» los reconocimientos.

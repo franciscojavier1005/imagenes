@@ -410,3 +410,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - **No perder datos**: borrador local automático (localStorage, con «Recuperar borrador»), cola de reintentos si falla el envío, estado visible «Guardado hh:mm / Pendiente», control de versión por sección (aviso si otro docente cambió lo mismo), LockService al escribir, servidor rechaza cambios en acta cerrada, copia JSON completa al cerrar.
 - **Rápido**: guardado incremental por sección (solo lo cambiado), una sola escritura `setValues` por tabla, catálogos en caché (CacheService), guardado en segundo plano sin bloquear la pantalla, imprimible y correos solo al cerrar.
 - Pruebas obligatorias con Node `vm`: caída de red, doble guardado concurrente, acta cerrada, recuperación de borrador.
+
+## Ampliación 24 (2026-11-21) — Copia sin firmar tras guardar (v12)
+- Al finalizar y guardar, a cada asistente se le envía por correo una **copia del acta sin firmar**; el sistema recomienda **imprimirla en el menor tiempo posible** para la firma física de los presentes y la entrega a coordinación. Textos actualizados en el paso 1, el paso 9 y el mensaje de cierre.

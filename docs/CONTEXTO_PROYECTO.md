@@ -526,3 +526,9 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Codirectores: `perm()` ya reconoce a los 2 directores de cada curso (dir y dir2) del grado.
 - Muestras PDF (acta Final 8.º e informe del docente) generadas con Playwright para revisar centrado.
 - Trabajo simultáneo y compartir: pendiente de implementar en el módulo real (hoja del acta en Sheets, guardado por sección con bloqueos cortos, refresco ~10–15 s, un responsable cierra tras confirmación de los conectados).
+
+### Ampliación 45 — Vista previa v35 (imprimible)
+- Fondo blanco en el PDF (sin tinte azul); encabezados `th` centrados vertical y horizontalmente en todo el sistema; escudo de marca de agua ~2,4× más grande en lado (≈5× en área), centrado y más tenue (opacidad .045), fondo transparente.
+- Período académico del acta en texto («Primer período», «Informe final · cierre del año escolar»); casillas ☐ como opción (interruptor en la pestaña imprimible).
+- Pie de página fino (6,5 px) en **todas** las hojas mediante margen de página `@page @bottom-center` (texto fijado al imprimir con `prepPie`).
+- Firmas sin partirse entre hojas. La promoción por curso está en la hoja 2 del acta Final.

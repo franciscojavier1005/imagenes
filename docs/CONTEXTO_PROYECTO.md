@@ -535,3 +535,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ### Ampliación 46 — Vista previa v36
 - Imprimible compacto: interlineado 1,1 y sin espacios antes/después en celdas y párrafos; títulos de sección centrados verticalmente; marca de agua +50 % (93 % del ancho) sin perder transparencia; pie en todas las hojas.
+
+### Ampliación 47 — Vista previa v37
+- Imprimible: sin espacio antes/después de párrafos en todo el documento, interlineado sencillo (1,1), celdas centradas verticalmente; pie con «Página X de Y» (contadores de página del margen); firmas sin línea superior, centradas y con más separación entre sí.

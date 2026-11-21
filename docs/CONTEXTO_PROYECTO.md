@@ -413,3 +413,8 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 24 (2026-11-21) — Copia sin firmar tras guardar (v12)
 - Al finalizar y guardar, a cada asistente se le envía por correo una **copia del acta sin firmar**; el sistema recomienda **imprimirla en el menor tiempo posible** para la firma física de los presentes y la entrega a coordinación del acta firmada **en físico** (solo archivo); la revisión de lo consignado la hace coordinación **en la aplicación**. Textos actualizados en el paso 1, el paso 9 y el mensaje de cierre.
+
+## Ampliación 25 (2026-11-21) — Rediseño minimalista v14 (por pasos)
+- Se descarta el modo desplegable por componente (el coordinador lo prefirió «por pasos»): botones superiores de los 9 pasos, ahora con **colores**, insignia numérica y ✓ al avanzar; pestañas principales también con color. Solo se conserva el repliegue de «Datos generales del acta».
+- Estilo minimalista: tarjetas sin bordes marcados, sombras suaves, tipografía limpia.
+- **Celular**: tablas como tarjetas por fila con el nombre arriba (a todo el ancho), etiqueta sobre el valor y campos al 100 %; tablas de cifras en dos columnas; menú superior no fijo en pantallas pequeñas; sin desplazamiento horizontal.

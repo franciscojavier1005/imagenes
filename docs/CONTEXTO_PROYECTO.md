@@ -474,3 +474,10 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - **Reapertura**: solo coordinación académica (perfil Desarrollador), con justificación obligatoria y registro (quién, cuándo, por qué); los demás solo pueden solicitarla.
 - **Acudiente**: el celular es requisito para continuar (en modo de prueba se puede omitir); si el acudiente no asistió, no se agrega.
 - Pendiente: manual integrado + PDF; implementación real con trabajo compartido (guardado por sección, actualización periódica y aviso de conflictos).
+
+## Ampliación 36 (2026-11-21) — Vista previa v26
+- **Recomendaciones por área**: la reprobación por curso pasó de etiquetas a una **tablita de dos filas** (curso | n · % con color de semáforo | total del grado), muy delgada.
+- **Compromisos**: nuevas opciones «Remitirlo al médico o servicio de salud», «Presentar certificación médica (enfermedad o condición de salud)» y «Presentar valoración o certificación por condición especial de aprendizaje».
+- **Convivencia (ruta)**: «Remitido a docente orientadora (ella gestiona psicología o psiquiatría)» y, para el comité, «Ya pasó por el comité escolar de convivencia» / «Se recomienda llevarlo al comité escolar de convivencia».
+- **Reconocimientos en celular**: columna de nombres más angosta y con letra menor para que se vean las demás columnas.
+- **Resumen por área**: la columna «Registra» (quién registra) se ensanchó; en celular se desplaza hacia la derecha.

@@ -396,3 +396,8 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - **Dashboard**: cifras centradas, paleta suave, un color por motivo de reprobación; el gráfico de decisiones de convivencia queda solo para coordinación.
 - **Reconocimientos**: la regla pasa a presentarse como «sugeridos (recomendados)», no obligatoria.
 - Imprimible: firman solo quienes asistieron; marca de agua del escudo. Pendiente: manual PDF del módulo (se hará con la implementación real), importar actas anteriores de Drive, DBA de Sociales/Inglés y EBC/Religión.
+
+## Ampliación 22 (2026-11-21) — Acta final vs. actas de periodo (vista previa v10)
+- Periodos del acta: **Primero, Segundo, Tercero y Final** (se elimina «Cuarto»: el último periodo se analiza en el acta final, no por separado).
+- El lenguaje cambia según el tipo: en **periodo** se habla de aprobación/reprobación *del periodo*, seguimiento al periodo anterior y recomendaciones para el *siguiente periodo*; en **final**, de promoción (no promovidos según el SIEE), seguimiento a los compromisos del año, rendimiento final, reconocimientos de fin de año y recomendaciones para el *siguiente grado*. Banda de contexto al inicio del acta; informe del docente e imprimible titulan «ACTA FINAL».
+- Implementación en la vista previa: diccionario de sustitución (`adaptaPeriodo`) sobre el texto mostrado; en la versión real conviene parametrizar los textos por tipo de acta.

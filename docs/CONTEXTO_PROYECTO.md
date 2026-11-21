@@ -519,3 +519,10 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 ## Ampliación 43 (2026-11-21) — Celular: tabla de reconocimientos y etiquetas por ventana (v33)
 - **Reconocimientos en celular**: vuelve el formato **tabla compacta** (nombre angosto y fijo a la izquierda, resto con desplazamiento y aviso «Hay más columnas a la derecha»), en lugar de tarjetas largas.
 - **Etiquetas por ventana** también en: **motivos de los compromisos** («Seleccionar motivos», agrupados en académico y convivencia / salud y condiciones especiales / familia y actividades), **ajustes del PIAR** («Seleccionar ajustes») y **datos faltantes del estudiante** («Seleccionar datos que faltan»: identificación, procedencia y salud, contacto y familia). En la tarjeta solo quedan las etiquetas elegidas.
+
+### Ampliación 44 — Vista previa v34 (confirmaciones con una sola corrección)
+- Botones de selección con signo «+» («+ Seleccionar causas / un motivo / motivos / ajustes / datos que faltan», «+ DBA», «+ Estándares y orientaciones», preescolar).
+- Matrícula y reconocimientos por curso: interruptor. **1.ª confirmación** bloquea las cifras/filas; el docente puede **apagarla una sola vez** para corregir (con advertencia); la **2.ª confirmación queda bloqueada** y solo coordinación académica (perfil x) reabre con justificación (queda en `reabLog`, y el contador vuelve a 1). La matrícula debe estar balanceada para confirmar; los reconocimientos exigen promedios válidos y sin mensajes de cupo/regla del curso. Un curso confirmado se excluye del selector de «agregar reconocimiento». JSON: `confirmaciones` (matrícula) y `reconocimientos_confirmaciones`.
+- Codirectores: `perm()` ya reconoce a los 2 directores de cada curso (dir y dir2) del grado.
+- Muestras PDF (acta Final 8.º e informe del docente) generadas con Playwright para revisar centrado.
+- Trabajo simultáneo y compartir: pendiente de implementar en el módulo real (hoja del acta en Sheets, guardado por sección con bloqueos cortos, refresco ~10–15 s, un responsable cierra tras confirmación de los conectados).

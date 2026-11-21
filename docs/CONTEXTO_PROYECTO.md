@@ -436,3 +436,14 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 ## Ampliación 29 (2026-11-21) — Cursos visibles en áreas y recomendaciones (v18)
 - Celular, paso «Áreas»: cada área es una tarjeta con celdas rotuladas por curso («8°-1 · Aprob.», «8°-1 · Reprob.»…); se retira el formato de tabla con columna fija, que tapaba los cursos.
 - Recomendaciones por área: el encabezado muestra la **reprobación por curso** (n.º y %), con el color del semáforo, además del total del grado.
+
+## Ampliación 30 (2026-11-21) — Vista previa v19
+- **Escudo** como PNG con fondo transparente (sin marco blanco) en encabezados y marca de agua.
+- **Perfil «Desarrollador (ensayos)»**: pestaña propia con «Cargar ejemplo COMPLETO» (todo lleno, confirmado y firmado), «ejemplo con faltantes» y «Reiniciar». El **modo de prueba** (saltar validaciones) existe solo en este perfil; en los demás todo es obligatorio.
+- **Datos reales de docentes** (cédula, celular, correo institucional) tomados del archivo de docentes del Drive, sin inventar: 46 de 60 personas de la plantilla; los demás aparecen como faltantes. Celulares repetidos en el archivo y dos cédulas dudosas quedan «pendiente de validar». Estos datos se incrustan solo en el archivo de vista previa entregado; **no se versionan**.
+- **Asistencia**: columna de celular; en modo normal son obligatorios correo y celular de cada asistente.
+- **Datos faltantes**: dos vistas (docentes y directivos / estudiantes) con contadores; sin completarlos **no se puede imprimir ni cerrar** el acta (modo normal).
+- **Pasos dinámicos**: en el acta **final** aparece el paso **Promoción** inmediatamente después de **Reprobación** (10 pasos); en periodos son 9. Promoción: todos los estudiantes del curso con sus **áreas pendientes** (vienen de Reprobación; se pueden agregar/quitar). Regla del SIEE indicada por coordinación: se promueve quien reprueba hasta dos áreas; con más de dos repite; las áreas pendientes se recuperan en el primer periodo del siguiente grado con valoración 3,0–5,0. Imprimible y JSON separan promovidos sin pendientes, con pendientes y no promovidos por curso.
+- **Matrícula/áreas**: cajas numéricas con **giradores dentro de la casilla**; áreas en **una tablita por curso** más un resumen del grado. **Recomendaciones** en tabla (área y reprobación por curso | aprendizajes | recomendación). **Mis actas** en tablita compacta con enlace a los PDF escaneados de P1 y P2.
+- **Cierre y borrador**: confirmación antes de cerrar (cerrar y guardar / guardar borrador y seguir / cancelar); **borrador automático en el equipo** (localStorage, sin internet) con «Recuperar borrador» al volver; aviso de conexión perdida; **descarga de copia** (datos .json y acta imprimible .html que se abre sin internet).
+- Pendiente de sugerir/implementar para coordinación: mapa de calor curso×área, inasistencia y riesgo recurrente, cobertura de actas por grado, comparación entre periodos cuando haya datos.

@@ -463,3 +463,14 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 34 (2026-11-21) — Datos generales del acta (v24)
 - «Datos generales del acta» **siempre abre desplegado** al iniciar (y al reiniciar o volver al paso de Asistencia) y **se repliega solo** al pasar a cualquier otro componente; queda la línea-resumen para reabrirlo si se necesita.
+
+## Ampliación 35 (2026-11-21) — Vista previa v25
+- **Convivencia**: etiquetas de tipo de situación (relaciones sexuales, acoso o abuso, SPA, tabaco/vapeadores, alcohol, bullying, ciberacoso, fotografías o videos íntimos, agresiones, armas, hurto, daños, fugas, etc.), con **etiquetas nuevas** que agrega el docente; **ruta de atención** (orientadora, ruta externa ICBF/Comisaría/Policía de Infancia/Fiscalía, servicio médico/EPS, comité de convivencia, citación a la familia, seguimiento). Ley 1620 de 2013 citada de memoria: verificar. Aparecen en imprimible y JSON.
+- **Observaciones y recomendaciones por curso o para todo el grado** (convivencia, salud sin diagnósticos, aprendizaje): opción «incluir como recomendación». Advertencia: datos sensibles de menores (Ley 1581), sin diagnósticos ni identificar sin necesidad.
+- **Reconocimientos**: cupos en una tabla compacta; **promedio numérico (1,0–5,0) con giradores y validación**; puestos centrados; **confirmación por curso** por el director de grupo (si algo cambia, vuelve a pedirla; obligatoria en modo normal). Recordatorio: antes de confirmar deben estar las planillas y calificaciones en la plataforma; tras confirmar y cerrar no se modifican.
+- **Promoción**: observaciones por curso y orientación «¿Cómo proceder?» (también en Reprobación).
+- **Menciones de honor de todos los grados**: en Integración, listado .csv de todos los grados y cursos con tipo y número de documento (del SIMAT en el sistema real), sexo y tratamiento. En la vista previa se acumula con cada acta cerrada y hay una demostración de todos los grados (perfil Desarrollador).
+- **Responsable del registro y del cierre**: todos los integrantes agregan sus novedades; solo el responsable finaliza y cierra (botón deshabilitado para los demás); tarjeta «Avance del equipo» con «Mi parte lista». El documento JSON/imprimible registra al responsable.
+- **Reapertura**: solo coordinación académica (perfil Desarrollador), con justificación obligatoria y registro (quién, cuándo, por qué); los demás solo pueden solicitarla.
+- **Acudiente**: el celular es requisito para continuar (en modo de prueba se puede omitir); si el acudiente no asistió, no se agrega.
+- Pendiente: manual integrado + PDF; implementación real con trabajo compartido (guardado por sección, actualización periódica y aviso de conflictos).

@@ -575,3 +575,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 ### Ampliación 55 — Vista previa v42 (hora de cierre y recordatorio de firmas)
 - Acta imprimible: se quitó «☐ AM ☐ PM»; la frase final usa la **hora en que se cierra y guarda el acta en la aplicación** (automática, 24 h). Aviso de **firma obligatoria para la validez** del acta al inicio (bajo el título) y antes de las firmas.
 - En la aplicación: recordatorio en el paso de asistencia, en la pantalla de cierre (firmas), en la ventana «¿Cerrar y guardar?» y en el aviso de acta cerrada: antes de guardar se imprime el acta y todos los docentes firman **al comienzo y al finalizar**.
+
+### Ampliación 56 — Vista previa v43 (efecto de no firmar)
+- Se agregó al aviso de firma (imprimible al inicio y antes de las firmas; paso de asistencia, pantalla de firmas, ventana de cierre): «Quien no firme se entenderá que no participó ni asistió; la firma puesta por otra persona se considerará suplantación.» Redacción propuesta; el usuario la ajusta con el SIEE o el reglamento interno.

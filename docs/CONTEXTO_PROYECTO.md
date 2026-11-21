@@ -412,4 +412,4 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Pruebas obligatorias con Node `vm`: caída de red, doble guardado concurrente, acta cerrada, recuperación de borrador.
 
 ## Ampliación 24 (2026-11-21) — Copia sin firmar tras guardar (v12)
-- Al finalizar y guardar, a cada asistente se le envía por correo una **copia del acta sin firmar**; el sistema recomienda **imprimirla en el menor tiempo posible** para la firma física de los presentes y la entrega a coordinación. Textos actualizados en el paso 1, el paso 9 y el mensaje de cierre.
+- Al finalizar y guardar, a cada asistente se le envía por correo una **copia del acta sin firmar**; el sistema recomienda **imprimirla en el menor tiempo posible** para la firma física de los presentes y la entrega a coordinación del acta firmada **en físico** (solo archivo); la revisión de lo consignado la hace coordinación **en la aplicación**. Textos actualizados en el paso 1, el paso 9 y el mensaje de cierre.

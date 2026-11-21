@@ -432,3 +432,7 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 28 (2026-11-21) — Modo de prueba (v16)
 - Interruptor «Modo de prueba: saltar validaciones» en la barra de perfil: desactiva correo, cédula, matrícula, áreas, cupos y firmas para recorrer todo el acta durante las pruebas; muestra una banda de aviso. En la versión real debe quedar **apagado por defecto y solo habilitado para el administrador** (y registrar en la hoja de auditoría cuando se use).
+
+## Ampliación 29 (2026-11-21) — Cursos visibles en áreas y recomendaciones (v18)
+- Celular, paso «Áreas»: cada área es una tarjeta con celdas rotuladas por curso («8°-1 · Aprob.», «8°-1 · Reprob.»…); se retira el formato de tabla con columna fija, que tapaba los cursos.
+- Recomendaciones por área: el encabezado muestra la **reprobación por curso** (n.º y %), con el color del semáforo, además del total del grado.

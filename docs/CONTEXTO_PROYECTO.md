@@ -405,3 +405,8 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 ## Ampliación 23 (2026-11-21) — v11 y propuestas pendientes de decisión
 - v11: los «Datos generales del acta» se repliegan solos al pasar a los demás componentes y quedan en una línea-resumen (acta · periodo · grado · fecha · apertura); se despliegan al tocarlos.
 - Propuestas hechas al coordinador (pendientes de OK): (1) en el acta **final**, lista confirmada de **promovidos por curso** (excepciones registradas, no lista completa por defecto) y salida agrupada por curso en el imprimible; (2) recomendaciones: texto libre como base y banco de referentes (DBA/EBC/lineamientos) como ayuda opcional para etiquetar lo pendiente; (3) tras los ajustes, prueba de guardado en el libro de Google Sheets.
+
+## Requisito de guardado (2026-11-21, módulo Comisiones real)
+- **No perder datos**: borrador local automático (localStorage, con «Recuperar borrador»), cola de reintentos si falla el envío, estado visible «Guardado hh:mm / Pendiente», control de versión por sección (aviso si otro docente cambió lo mismo), LockService al escribir, servidor rechaza cambios en acta cerrada, copia JSON completa al cerrar.
+- **Rápido**: guardado incremental por sección (solo lo cambiado), una sola escritura `setValues` por tabla, catálogos en caché (CacheService), guardado en segundo plano sin bloquear la pantalla, imprimible y correos solo al cerrar.
+- Pruebas obligatorias con Node `vm`: caída de red, doble guardado concurrente, acta cerrada, recuperación de borrador.

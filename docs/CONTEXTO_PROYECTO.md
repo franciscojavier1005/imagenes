@@ -544,3 +544,8 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - **Informe general** (`pintaGen`/`imprimeGen`, clase de impresión `pg`) en la pestaña de informes: mismo contenido, para coordinación, rectoría, orientación y docentes de área. En el dashboard se agregó el bloque «Rendimiento por área» (`rgDash`).
 - **Informe del docente** (`docentesGrado`, `pintaRetro`): por **docente** (todas sus áreas en un solo imprimible); primaria: todas las áreas del grupo del director/a.
 - Marca de agua con logo ampliado ×4 (`LOGOHI`) para evitar pixelado; diseño editorial (Georgia, filetes, figuras numeradas).
+
+### Ampliación 49 — Decisiones para el módulo real (campos en blanco y análisis)
+- Al implementar, los datos generales del acta empiezan **en blanco**: fecha, hora, grado y número de acta (no llevan valores de ejemplo).
+- **Número de acta** = consecutivo de las comisiones realizadas en el año por el grado (1.er período = 1, 2.º = 2; el 3.er período no se presentó, por lo que el acta Final de 2026 sería la 3). Se propone automáticamente y lo confirma el responsable.
+- **Análisis en el informe:** hoy no hay IA conectada; la vista previa solo tiene «Preparar datos para la IA» (JSON) y lecturas automáticas por reglas («Qué está pasando»). Pendiente de decidir: proveedor (Gemini o Claude vía API desde Apps Script, clave en propiedades del script), enviando solo cifras agregadas sin nombres de estudiantes, borrador editable por coordinación antes de imprimir.

@@ -455,3 +455,8 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 32 (2026-11-21) — Porcentaje en una sola línea (v21)
 - En «Rendimiento por área» (tablas por curso y resumen del grado) las casillas del porcentaje se ampliaron y no se parten: el signo % queda en la misma línea (probado en escritorio y celular).
+
+## Ampliación 33 (2026-11-21) — Franjas por curso y celular de acudientes (v22–v23)
+- **Franja por curso** (con el director o directora y el n.º de estudiantes) en la lista de reprobación, en el paso Promoción y en el imprimible: cada docente ve y responde por su curso. La lista de reprobación se ordena por curso y luego alfabéticamente.
+- **«No promovidos» solo en el acta final** (se decide en el paso Promoción). En el paso Reprobación el título es «reprobación en el periodo» (actas de periodo) o «áreas reprobadas en el año» (acta final).
+- **Acudientes que asisten**: celular obligatorio y válido del acudiente 1 (y del 2 si se escribe); se valida en modo normal y aparece en el imprimible.

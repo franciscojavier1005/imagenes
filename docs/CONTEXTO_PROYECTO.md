@@ -571,3 +571,7 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ### Ampliación 54 — Vista previa v41
 - Imprimible: separación entre el título (decreto) y la tabla del acta; firmas compactadas (todas en la última hoja del acta); el acta de muestra queda en 5 hojas (3 del acta + 2 del anexo del dashboard, que empieza en hoja nueva).
+
+### Ampliación 55 — Vista previa v42 (hora de cierre y recordatorio de firmas)
+- Acta imprimible: se quitó «☐ AM ☐ PM»; la frase final usa la **hora en que se cierra y guarda el acta en la aplicación** (automática, 24 h). Aviso de **firma obligatoria para la validez** del acta al inicio (bajo el título) y antes de las firmas.
+- En la aplicación: recordatorio en el paso de asistencia, en la pantalla de cierre (firmas), en la ventana «¿Cerrar y guardar?» y en el aviso de acta cerrada: antes de guardar se imprime el acta y todos los docentes firman **al comienzo y al finalizar**.

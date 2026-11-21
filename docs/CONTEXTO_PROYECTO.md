@@ -506,3 +506,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - **Tablas anchas**: aviso «Hay más columnas a la derecha: deslice ›» (clicable) y sombras laterales cuando hay contenido oculto.
 - **Matrícula**: la confirmación por curso pasó **debajo de la tabla**, con recordatorio de que **lo confirmado es definitivo**: al confirmar, las cifras del curso se bloquean; solo coordinación académica puede reabrir (con justificación y registro).
 - Pendiente de aclarar con el coordinador: se cortó la frase sobre lo que deben «tener» los reconocimientos.
+
+## Ampliación 41 (2026-11-21) — Interruptor de confirmación de matrícula (v31)
+- La confirmación de la matrícula por curso vuelve a ser un **interruptor** (debajo de la tabla), visible **igual para docente y coordinación**: encender confirma (con pregunta de seguridad y bloquea las cifras del curso); el docente no puede apagarlo una vez confirmado; solo coordinación académica puede apagarlo (reapertura con justificación obligatoria y registro).

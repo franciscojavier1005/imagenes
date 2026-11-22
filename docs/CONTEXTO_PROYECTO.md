@@ -686,3 +686,10 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Dirección de grupo reflejada en la vista previa: 7°-2 con Quintero y Puches; CS 1-2 con Prado y Vásquez.
 - Regla para la pantalla real y para el control de asistencia: el docente del grado (no solo el director de grupo) entra con su perfil y nunca ve opciones de directivos (IA, control de asistencia/ronda, administración).
 - Pendiente (después de la fase 2): pantalla de ingreso de docentes con contraseña temporal que el administrador pueda restablecer.
+
+### Ampliación 75 — Vista previa v57: acudientes apagado, «Mi acceso», listados reales (2026-11-22)
+- «Asistieron acudientes» arranca deshabilitado también en los ejemplos (antes los ejemplos lo encendían).
+- Datos faltantes se actualiza en vivo al cambiar cualquier componente.
+- Nueva pestaña «Mi acceso»: explica el ingreso y muestra, para quien entró, en qué grados es director/a de grupo y/o docente del grado (cursos y áreas), y qué ve cada rol; directivo aparte.
+- «Usar listados reales del libro»: el usuario pega en la vista previa las columnas A a E de la hoja Estudiantes; solo vive en el navegador (no se guarda en el archivo ni en el repositorio). La matrícula tentativa pasa a ser la cantidad real y la lista completa de cada curso (ROSTER_COMPLETO). Los datos de documento y sexo no están en la hoja Estudiantes, por eso salen como faltantes en quienes se usen.
+- Pendiente principal: fase 2 (pantalla real `?p=comisiones` conectada al libro con guardado por sección y trabajo simultáneo), juramento y revisión de listados en el servidor, y luego la pantalla de ingreso de docentes con contraseña temporal para control de asistencia.

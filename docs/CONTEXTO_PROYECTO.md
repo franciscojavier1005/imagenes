@@ -703,3 +703,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 ### Ampliación 77 — Vista previa v59 y versión 2026.11.22-h
 - Imprimible: la verificación de asistencia ya no tiene «Firma al comienzo»; queda solo la **firma al finalizar**, y las columnas iniciales llevan el **número de cédula** y el **celular · correo** de cada integrante. Textos, manual PDF y comentarios actualizados (sustituye lo dicho en la ampliación del imprimible con dos firmas).
 - Sin repetidos: en la vista previa no se puede agregar a un estudiante dos veces a la misma lista (aviso «ya está registrado»; el buscador marca «ya registrado») ni crear un estudiante con el mismo nombre en el curso ni con el mismo número de documento. Servidor: `comisionDuplicados_` rechaza listas con el mismo estudiante repetido (reprobación, convivencia, compromisos, PIAR, reconocimientos); `agregarEstudiante_` ya impedía el mismo nombre en un grupo.
+
+### Ampliación 78 — Auditoría del 2026-11-22 y vista previa v60
+- Auditoría completa en `docs/AUDITORIA_COMISIONES_2026-11-22.md` (14 grados × 2 periodos sin hallazgos; 19 archivos de pruebas en verde). Defecto corregido: convivencia, compromisos y PIAR ahora se ordenan por curso y apellidos.

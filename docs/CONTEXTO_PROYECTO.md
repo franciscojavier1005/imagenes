@@ -693,3 +693,9 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Nueva pestaña «Mi acceso»: explica el ingreso y muestra, para quien entró, en qué grados es director/a de grupo y/o docente del grado (cursos y áreas), y qué ve cada rol; directivo aparte.
 - «Usar listados reales del libro»: el usuario pega en la vista previa las columnas A a E de la hoja Estudiantes; solo vive en el navegador (no se guarda en el archivo ni en el repositorio). La matrícula tentativa pasa a ser la cantidad real y la lista completa de cada curso (ROSTER_COMPLETO). Los datos de documento y sexo no están en la hoja Estudiantes, por eso salen como faltantes en quienes se usen.
 - Pendiente principal: fase 2 (pantalla real `?p=comisiones` conectada al libro con guardado por sección y trabajo simultáneo), juramento y revisión de listados en el servidor, y luego la pantalla de ingreso de docentes con contraseña temporal para control de asistencia.
+
+### Ampliación 76 — Vista previa v58: barras apiladas e informe por área (2026-11-22)
+- El gráfico de radar se reemplazó por **barras apiladas**: una barra por área (el largo es la cantidad de reprobados) y los colores son los grupos, con total y porcentaje a la derecha; en preescolar, una barra por imprescindible con los niveles de desarrollo (100 % de los niños). Aplica al Dashboard, al informe del docente, al informe general y al imprimible del acta.
+- Informes de directivos con barras por grupo: coordinación académica (no promovidos por grupo y reprobados por área y grupo), rectoría (no promovidos por grupo), convivencia y orientación (casos por grupo).
+- Nuevo «Informe por área o docente» (Informe directivo y orientación): se elige un docente, un curso con su director/a, o un área, y muestra reprobados por grupo, causas, estudiantes y recomendación; en preescolar, los propósitos.
+- Reafirmado: los docentes entran y editan sus datos (director/a de grupo: su curso; docente del grado: su área).

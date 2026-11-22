@@ -65,6 +65,8 @@ yo('elena@x.com'); ok(run("comisionContexto()").actas.length===0,'una docente de
 const mat={ini:36,nu:0,re:0,de:0,m:18,f:18,ve:2,ec:0};
 yo('ana@x.com');
 g.A1=id1; g.M=mat;
+ok(run("hojaOCrea_('Comision_Actas',COL_CACTAS).getDataRange().getValues()[1][6]")==='Ana Director','la primera persona que abre el acta queda como responsable del registro y cierre');
+ok(run("nombreDirectivoCompleto_('Harold Angulo')")==='Angulo Merchancano Harold Wilson'&&run("nombreDirectivoCompleto_('Otro Nombre')")==='Otro Nombre','los directivos se muestran con nombre completo y apellidos primero');
 r=run("comisionGuardar({acta:A1,seccion:'matricula:0801',datos:M,version:0})"); ok(r.ok&&r.version===1,'la directora de grupo guarda la matrícula de su curso (versión 1)');
 yo('beto@x.com'); r=run("comisionGuardar({acta:A1,seccion:'matricula:0801',datos:M,version:0})");
 ok(r.conflicto===true&&r.version===1,'si otra persona ya la cambió, devuelve el conflicto y no pisa');

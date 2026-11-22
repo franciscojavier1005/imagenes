@@ -3863,11 +3863,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.22-f';
+var VERSION_SISTEMA = '2026.11.22-g';
 var FECHA_VERSION = '2026-11-22';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.22-g', fecha: '2026-11-22', cambios: [
+    'Ingreso: los directivos se muestran con nombre completo y apellidos primero, como los docentes (Cortés Cabezas Francisco Javier, Barreiro Caicedo Carmen Verónica, Angulo Merchancano Harold Wilson, Hernández Cortés Jorge Enrique). La clave interna no cambia; opcionalmente se puede escribir el nombre en una columna «nombre_completo» de la hoja Directivos.',
+    'Comisiones (servidor): la primera persona docente que abre el acta queda como responsable del registro y del cierre (se puede cambiar).'] },
   { version: '2026.11.22-f', fecha: '2026-11-22', cambios: [
     'Comisiones (servidor): el Horario del libro usa códigos de área (MAT, CAS, CNA, CSI, ETR, ART, ERD, TEI); ahora se traducen a las áreas del acta, de modo que cada docente de secundaria y media puede registrar las áreas que dicta (antes quedaban bloqueadas). Las áreas y los cursos se toman por el nombre del docente en el Horario y en Dirección de grupo, no por ser «Docente 1» o «Docente 2», así que los intercambios de horario (Arte y Educación Física) ya quedan reflejados.'] },
   { version: '2026.11.22-e', fecha: '2026-11-22', cambios: [
@@ -4415,7 +4418,15 @@ function filaDirectivo_(nombre) {
 /** Nombres que se muestran en la pantalla de ingreso (públicos). */
 function listarDirectivosPublicos() {
   hojaDirectivos_();
-  return datos_('Directivos').map(function (d) { return { nombre: d.nombre, rol: d.rol, tieneClave: !!String(d.pin_hash || '').trim() }; });
+  return datos_('Directivos').map(function (d) { return { nombre: d.nombre, etiqueta: nombreDirectivoCompleto_(d.nombre, d), rol: d.rol, tieneClave: !!String(d.pin_hash || '').trim() }; });
+}
+/** Nombre completo con apellidos primero (como los docentes). La clave interna de cada directivo no cambia: solo lo que se muestra.
+ *  Se toma de la columna opcional «nombre_completo» de la hoja Directivos; si no existe, de esta lista. */
+var DIRECTIVOS_COMPLETO = { 'Francisco Cortés': 'Cortés Cabezas Francisco Javier', 'Verónica Barreiro': 'Barreiro Caicedo Carmen Verónica', 'Harold Angulo': 'Angulo Merchancano Harold Wilson', 'Jorge Hernández': 'Hernández Cortés Jorge Enrique' };
+function nombreDirectivoCompleto_(nombre, fila) {
+  var n = String(nombre || '').trim();
+  if (fila && String(fila.nombre_completo || '').trim()) return String(fila.nombre_completo).trim();
+  return DIRECTIVOS_COMPLETO[n] || n;
 }
 
 function pinValido_(pin) { return /^\d{6}$/.test(String(pin)); }
@@ -4711,7 +4722,7 @@ function comisionEscribe_(id, seccion, datos, por) {
 /* ------------------------------ quién es y qué le corresponde ------------------------------ */
 function comisionQuien_() {
   var id = identidad_();
-  if (id.rol === 'directivo') return { rol: 'directivo', nombre: id.nombre || id.email, email: id.email, coord: puedeAdministrar_(id) };
+  if (id.rol === 'directivo') return { rol: 'directivo', nombre: nombreDirectivoCompleto_(id.nombre) || id.email, email: id.email, coord: puedeAdministrar_(id) };
   if (id.rol === 'docente') {
     if (!id.autorizado && !id.preregistro) { /* mismo criterio que el resto: el docente debe haber aceptado la autorización al registrarse */ }
     return { rol: 'docente', nombre: id.docente, email: id.email, coord: false };
@@ -4824,7 +4835,7 @@ function comisionAbrir(p) {
     var ex = comisionActas_().filter(function (a) { return String(a.anio) === String(anio) && a.periodo === p.periodo && String(a.grado) === grado; })[0];
     if (!ex) {
       var id = Utilities.getUuid(), no = comisionNumeroSugerido_(anio, grado);
-      hojaOCrea_('Comision_Actas', COL_CACTAS).appendRow([id, anio, p.periodo, grado, no, 'ABIERTA', '', quien.nombre, ahoraTxt_(), '', '', '', 0]);
+      hojaOCrea_('Comision_Actas', COL_CACTAS).appendRow([id, anio, p.periodo, grado, no, 'ABIERTA', (quien.rol === 'docente' ? quien.nombre : ''), quien.nombre, ahoraTxt_(), '', '', '', 0]);
       comisionLog_(id, quien.nombre, 'ABRIR', p.periodo + ' · grado ' + grado + ' · acta ' + no);
       ex = comisionActa_(id);
     }

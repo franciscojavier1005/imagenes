@@ -666,3 +666,12 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ### Ampliación 71 — Vista previa v54: ejemplo completo por nivel (2026-11-22)
 - Botones «Ejemplo completo por nivel» (Preescolar, 5.º Primaria, 8.º Secundaria, 11.º Media): cambian el grado, ponen periodo Final y cargan el ejemplo completo. Verificados: cero errores y cero pendientes en cada uno; preescolar sin Promoción ni áreas (propósitos), 5.º con cuatro grupos y 11.º con dos. En PC las tablas de áreas por curso ya no cortan la columna «%». Solo vista previa.
+
+### Ampliación 72 — Vista previa v55 y versión 2026.11.22-g
+- Responsable del registro y cierre: la primera persona que ingresa («Entré como») queda como responsable, con etiqueta en la lista de asistencia; se puede cambiar. Servidor: la primera persona docente que abre el acta queda como responsable.
+- Panel «Habilitar de nuevo» (solo coordinación académica y desarrollador, en el paso Cierre): reabre matrícula, reconocimientos, promoción, revisión de listados y declaración bajo juramento, con justificación de mínimo 10 caracteres y registro de quién y cuándo. El docente no lo ve. Los datos de ejemplo y sus botones siguen siendo del modo desarrollador.
+- Pendientes en vivo: se recalculan al cambiar reprobados, matrícula, áreas, casos, etc. (ya no hay que salir y volver).
+- Orden alfabético por curso y apellidos también en reconocimientos; Datos faltantes muestra solo estudiantes con faltantes, ordenados.
+- Reconocimientos para imprimir/combinar: apellidos y nombres en negrita.
+- Marca de agua uniforme en todos los informes e imprimibles (≈33 % del ancho de la hoja carta, opacidad 0,06), incluidos pendientes y listados. Botones del informe docente e informes alineados.
+- Directivos con apellidos primero y nombre completo (vista previa, ingreso y comisiones). Clave interna sin cambios; columna opcional `nombre_completo` en Directivos (Sesion.gs: `nombreDirectivoCompleto_`).

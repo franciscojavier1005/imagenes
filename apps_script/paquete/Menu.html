@@ -47,7 +47,7 @@
 <main>
   <div class="saludo" id="saludo"></div>
   <div id="botones"><div class="espera">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.22-f</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.22-g</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -90,7 +90,7 @@ function mostrarLogin(aviso){
   srv().withSuccessHandler(function(lista){
     NOMBRES=lista||[];
     var hayClaves=NOMBRES.some(function(d){return d.tieneClave;});
-    var h='<div class="caja"><label>¿Quién es?<select id="lNombre">'+NOMBRES.map(function(d){return '<option value="'+esc(d.nombre)+'">'+esc(d.nombre)+' — '+esc(d.rol)+'</option>';}).join('')+'</select></label>'+
+    var h='<div class="caja"><label>¿Quién es?<select id="lNombre">'+NOMBRES.map(function(d){return '<option value="'+esc(d.nombre)+'">'+esc(d.etiqueta||d.nombre)+' — '+esc(d.rol)+'</option>';}).join('')+'</select></label>'+
       '<label>Clave (6 números)<input class="pin" id="lPin" type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="6" placeholder="••••••"></label>'+
       '<button class="btn" id="lBtn" onclick="entrar()">Entrar</button><div class="msg" id="lMsg">'+esc(aviso||(hayClaves?'':'Aún no hay claves. Quien administra el libro debe crearlas (menú Asistencia ICET > Generar claves de ingreso).'))+'</div></div>'+
       '<div class="pie">Su clave es personal. Si la olvida, pídala a quien administra el libro.</div>'+boton('ayuda','❓','Ayuda y manual de uso','Cómo entrar y usar la aplicación.');

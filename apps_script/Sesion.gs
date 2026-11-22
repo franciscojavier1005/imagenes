@@ -36,7 +36,15 @@ function filaDirectivo_(nombre) {
 /** Nombres que se muestran en la pantalla de ingreso (públicos). */
 function listarDirectivosPublicos() {
   hojaDirectivos_();
-  return datos_('Directivos').map(function (d) { return { nombre: d.nombre, rol: d.rol, tieneClave: !!String(d.pin_hash || '').trim() }; });
+  return datos_('Directivos').map(function (d) { return { nombre: d.nombre, etiqueta: nombreDirectivoCompleto_(d.nombre, d), rol: d.rol, tieneClave: !!String(d.pin_hash || '').trim() }; });
+}
+/** Nombre completo con apellidos primero (como los docentes). La clave interna de cada directivo no cambia: solo lo que se muestra.
+ *  Se toma de la columna opcional «nombre_completo» de la hoja Directivos; si no existe, de esta lista. */
+var DIRECTIVOS_COMPLETO = { 'Francisco Cortés': 'Cortés Cabezas Francisco Javier', 'Verónica Barreiro': 'Barreiro Caicedo Carmen Verónica', 'Harold Angulo': 'Angulo Merchancano Harold Wilson', 'Jorge Hernández': 'Hernández Cortés Jorge Enrique' };
+function nombreDirectivoCompleto_(nombre, fila) {
+  var n = String(nombre || '').trim();
+  if (fila && String(fila.nombre_completo || '').trim()) return String(fila.nombre_completo).trim();
+  return DIRECTIVOS_COMPLETO[n] || n;
 }
 
 function pinValido_(pin) { return /^\d{6}$/.test(String(pin)); }

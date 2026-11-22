@@ -74,7 +74,7 @@ function comisionEscribe_(id, seccion, datos, por) {
 /* ------------------------------ quién es y qué le corresponde ------------------------------ */
 function comisionQuien_() {
   var id = identidad_();
-  if (id.rol === 'directivo') return { rol: 'directivo', nombre: id.nombre || id.email, email: id.email, coord: puedeAdministrar_(id) };
+  if (id.rol === 'directivo') return { rol: 'directivo', nombre: nombreDirectivoCompleto_(id.nombre) || id.email, email: id.email, coord: puedeAdministrar_(id) };
   if (id.rol === 'docente') {
     if (!id.autorizado && !id.preregistro) { /* mismo criterio que el resto: el docente debe haber aceptado la autorización al registrarse */ }
     return { rol: 'docente', nombre: id.docente, email: id.email, coord: false };
@@ -187,7 +187,7 @@ function comisionAbrir(p) {
     var ex = comisionActas_().filter(function (a) { return String(a.anio) === String(anio) && a.periodo === p.periodo && String(a.grado) === grado; })[0];
     if (!ex) {
       var id = Utilities.getUuid(), no = comisionNumeroSugerido_(anio, grado);
-      hojaOCrea_('Comision_Actas', COL_CACTAS).appendRow([id, anio, p.periodo, grado, no, 'ABIERTA', '', quien.nombre, ahoraTxt_(), '', '', '', 0]);
+      hojaOCrea_('Comision_Actas', COL_CACTAS).appendRow([id, anio, p.periodo, grado, no, 'ABIERTA', (quien.rol === 'docente' ? quien.nombre : ''), quien.nombre, ahoraTxt_(), '', '', '', 0]);
       comisionLog_(id, quien.nombre, 'ABRIR', p.periodo + ' · grado ' + grado + ' · acta ' + no);
       ex = comisionActa_(id);
     }

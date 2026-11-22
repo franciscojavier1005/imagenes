@@ -623,3 +623,7 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - **PDF siempre:** al cerrar, la pantalla descarga la copia (datos + acta) y abre la impresión; el servidor guarda la copia «cerrada» en `Borradores` aunque falle lo demás y ofrece `comisionGuardarPdf` (HTML→PDF) como respaldo.
 - Pruebas: auditoría de mutaciones (15 fallos inducidos, todos detectados) y 83 comprobaciones del servidor. Manual actualizado (nada vacío, preescolar, pendientes, PDF siempre).
 - Pendiente (fase 2): la pantalla real que conecte esto con el libro.
+
+### Ampliación 64 — Vista previa v48 (ejemplo precargado)
+- La vista previa abre **con el ejemplo completo ya cargado** (8° Secundaria, acta final) y trae en el encabezado los botones «Ejemplo COMPLETO», «Ejemplo con faltantes» y «Acta vacía». Antes había que pulsar «Cargar ejemplo» y, si el visor del usuario no ejecutaba el archivo, no se veía nada.
+- Se entrega además `Recorrido_de_pantallas_con_datos_de_ejemplo.pdf` (capturas de los 10 pasos, la revisión de pendientes, datos faltantes, imprimible, dashboard e informes) para revisar sin ejecutar nada.

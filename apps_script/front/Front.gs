@@ -84,3 +84,4 @@ function comisionConfirmar(p) { return llamar_('comisionConfirmar', [p]); }
 function comisionCierre(p) { return llamar_('comisionCierre', [p]); }
 function comisionReabrir(p) { return llamar_('comisionReabrir', [p]); }
 function comisionSubirSoporte(p) { return llamar_('comisionSubirSoporte', [p]); }
+function comisionBorrador(p) { return llamar_('comisionBorrador', [p]); }

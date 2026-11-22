@@ -41,6 +41,7 @@ function onOpen() {
     .addItem('Respaldar rondas ahora (libro de respaldo)', 'respaldarTodoAhora')
     .addItem('Respaldos: copiar libros a Drive ahora', 'respaldoLibrosAhora')
     .addItem('Respaldos: programar copia diaria (Drive)', 'instalarRespaldoDiario')
+    .addItem('Reunir todo en la carpeta «App Asistencia» (una vez)', 'reunirEnCarpetaApp')
     .addItem('Borrar audios de ronda antiguos', 'purgarAudios')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')
@@ -1806,7 +1807,7 @@ function misSoportes() {
 function carpetaRaiz_() {
   var id = parametro_('carpeta_soportes_id', '');
   if (id) { try { return DriveApp.getFolderById(id); } catch (e) { /* si se borró, se crea otra */ } }
-  var f = DriveApp.createFolder('ICET Soportes 2026 (privada)');
+  var f; try { f = carpetaHija_(carpetaApp_(), 'Soportes de ausencias (privada)'); } catch (e) { f = DriveApp.createFolder('ICET Soportes 2026 (privada)'); }
   guardarParametro_('carpeta_soportes_id', f.getId());
   return f;
 }
@@ -3858,11 +3859,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.22-a';
+var VERSION_SISTEMA = '2026.11.22-b';
 var FECHA_VERSION = '2026-11-22';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.22-b', fecha: '2026-11-22', cambios: [
+    'Todo en una sola carpeta de Drive, «App Asistencia»: respaldos (Respaldos), soportes de ausencias y audios (la carpeta de soportes ahora nace dentro de ella), y en las comisiones: Comisiones / año / Grado / Acta N periodo / Anexos (PIAR, formato de DUA, compromisos) y / Borradores (copia legible del acta). Cada noche, junto con la copia de los libros, se guarda una copia de todas las actas del año.',
+    'Nuevo menú «Reunir todo en la carpeta «App Asistencia» (una vez)»: MUEVE (no copia) a esa carpeta lo que haya quedado suelto en Drive: la carpeta de soportes y audios y los libros del sistema. No se pierde ningún enlace ni permiso.'] },
   { version: '2026.11.22-a', fecha: '2026-11-22', cambios: [
     'Comisiones de evaluación y promoción, SERVIDOR (fase 1; la pantalla llega en la fase 2): hojas Comision_Actas, Comision_Secciones y Comision_Log (se crean solas). Un acta por grado y periodo, con número consecutivo del año (si el tercer periodo no se presenta, el acta final es la número 3). Cada docente guarda solo su sección (su curso o su área, con codirectores) y, si dos personas tocan lo mismo, se avisa del conflicto sin pisar nada.',
     'Matrícula y reconocimientos se confirman por curso y quedan oficiales: el docente no los modifica; solo coordinación académica los reabre, con justificación escrita que queda en Comision_Log. La matrícula debe cuadrar; en el acta final, promovidos + no promovidos = matrícula actual. El cierre lo propone el responsable y lo confirman todos los integrantes (también desde el equipo de otro compañero); la hora de cierre la pone el sistema. Evidencias opcionales (PIAR, formato de DUA, compromisos) en Drive: App Asistencia / Soportes / Comisiones.'] },
@@ -4268,9 +4272,32 @@ function carpetaHija_(padre, nombre) {
   var it = padre.getFoldersByName(nombre);
   return it.hasNext() ? it.next() : padre.createFolder(nombre);
 }
+/** Carpeta única de la aplicación en el Drive del propietario. TODO lo que el sistema guarda en Drive (respaldos, borradores, soportes, audios, anexos de las comisiones) va dentro de ella. */
+function carpetaApp_() { return carpetaHija_(DriveApp.getRootFolder(), CARPETA_APP); }
 function carpetaRespaldos_() {
-  var raiz = carpetaHija_(DriveApp.getRootFolder(), CARPETA_APP);
-  return carpetaHija_(raiz, 'Respaldos');
+  return carpetaHija_(carpetaApp_(), 'Respaldos');
+}
+/**
+ * Reúne en «App Asistencia» lo que haya quedado suelto en Drive: la carpeta de soportes de ausencias (y los audios, que van dentro de ella)
+ * y los libros (principal y de respaldo de rondas). Los archivos se MUEVEN (no se copian): sus enlaces y permisos siguen igual. Devuelve un resumen.
+ */
+function reunirEnCarpetaApp_() {
+  var app = carpetaApp_(), res = [];
+  var sid = parametro_('carpeta_soportes_id', '');
+  if (sid) { try { DriveApp.getFolderById(sid).moveTo(app); res.push('✔ carpeta de soportes y audios'); } catch (e) { res.push('✖ carpeta de soportes: ' + e); } }
+  else res.push('· no hay carpeta de soportes todavía (se creará dentro de «' + CARPETA_APP + '»)');
+  var libros = carpetaHija_(app, 'Libros');
+  librosParaRespaldar_().forEach(function (l) {
+    try { DriveApp.getFileById(l.id).moveTo(libros); res.push('✔ ' + l.nombre); } catch (e) { res.push('✖ ' + l.nombre + ': ' + e); }
+  });
+  try { bitacora_('Reunir todo en App Asistencia', res.join(' · ')); } catch (e) { Logger.log(res.join(' · ')); }
+  return res.join('\n');
+}
+function reunirEnCarpetaApp() {
+  exigirEditor_();
+  var ui = SpreadsheetApp.getUi();
+  if (ui.alert('Reunir todo en «' + CARPETA_APP + '»', 'Se moverán a la carpeta «' + CARPETA_APP + '» de su Drive la carpeta de soportes y audios y los libros del sistema (principal y de respaldo). No se pierde ningún enlace ni permiso. ¿Continuar?', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
+  ui.alert('Listo', reunirEnCarpetaApp_(), ui.ButtonSet.OK);
 }
 function librosParaRespaldar_() {
   var libro = SpreadsheetApp.getActive(), lista = [{ id: libro.getId(), nombre: libro.getName() }];
@@ -4312,7 +4339,8 @@ function respaldoProgramado(hoy) {
   var dias = Number(parametro_('respaldo_dias', 3)) || 3, borr = conservarUltimas_(diario, dias);
   conservarUltimas_(semanal, Number(parametro_('respaldo_semanas', 0)) || 0);
   conservarUltimas_(mensual, Number(parametro_('respaldo_meses', 0)) || 0);
-  var txt = res.join(' · ') + ' · copias diarias viejas borradas: ' + borr;
+  var cx = ''; try { cx = comisionRespaldarActas_(); } catch (e) { cx = ''; }
+  var txt = res.join(' · ') + ' · copias diarias viejas borradas: ' + borr + (cx ? ' · ' + cx : '');
   try { bitacora_('Respaldo programado de libros', txt); } catch (e) { Logger.log(txt); }
   return txt;
 }
@@ -4604,7 +4632,8 @@ function verSesionesAbiertas() {
  *  - El cierre lo propone una persona y lo confirman todos los integrantes (o se excluyen los no conectados); la hora de cierre la pone el sistema.
  *  - Quien no firma se entiende que no asistió. Las firmas se registran al comienzo y al finalizar en el acta impresa.
  *  - Los informes que ven los docentes se calculan por reglas; la IA (si se activa) es solo para directivos y no vive aquí.
- * Evidencias opcionales (PIAR, formato de DUA, compromisos): Drive «App Asistencia / Soportes / Comisiones / año / grado / acta».
+ * TODO en Drive vive en una sola carpeta, «App Asistencia»: Comisiones / año / Grado / Acta N periodo / Anexos (PIAR, DUA, compromisos) y / Borradores (copia legible de lo que se lleva).
+ * Los respaldos de los libros van en «App Asistencia / Respaldos» (Respaldo.gs).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
 var COL_CACTAS = ['id', 'anio', 'periodo', 'grado', 'acta_no', 'estado', 'responsable', 'creada_por', 'fecha_creacion', 'cerrada_por', 'fecha_cierre', 'hora_cierre', 'reaperturas'];
@@ -4926,6 +4955,36 @@ function comisionReabrir(p) {
     return { ok: true };
   } finally { lock.releaseLock(); }
 }
+/** Carpeta de un acta dentro de «App Asistencia»: Comisiones / año / Grado / Acta N periodo [/ subcarpeta]. */
+function comisionCarpeta_(a, sub) {
+  var f = carpetaHija_(carpetaApp_(), 'Comisiones');
+  [String(a.anio), 'Grado ' + a.grado, 'Acta ' + a.acta_no + ' ' + a.periodo].forEach(function (n) { f = carpetaHija_(f, n); });
+  return sub ? carpetaHija_(f, sub) : f;
+}
+function comisionGuardaJson_(carpeta, nombre, obj) {
+  var it = carpeta.getFilesByName(nombre); while (it.hasNext()) it.next().setTrashed(true);
+  return carpeta.createFile(Utilities.newBlob(JSON.stringify(obj, null, 1), 'application/json', nombre));
+}
+/** Copia legible (JSON) del acta y todas sus secciones, en «Borradores» del acta. Si el acta ya está cerrada, además queda la copia «cerrada». */
+function comisionBorradorDrive_(a) {
+  var datos = { acta: a, secciones: comisionSecciones_(a.id), copiado: ahoraTxt_() }, c = comisionCarpeta_(a, 'Borradores');
+  comisionGuardaJson_(c, 'Acta ' + a.acta_no + ' ' + a.periodo + ' · borrador.json', datos);
+  if (a.estado === 'CERRADA') comisionGuardaJson_(c, 'Acta ' + a.acta_no + ' ' + a.periodo + ' · cerrada.json', datos);
+  return c;
+}
+/** Botón «Guardar borrador en Drive»: cualquier integrante del acta. */
+function comisionBorrador(p) {
+  var quien = comisionQuien_(), a = comisionActa_((p || {}).acta), al = comisionAlcance_(quien, String(a.grado));
+  if (!al.todo && !al.cursos.length && !al.areas.length && !al.multiareas) throw new Error('Usted no tiene cursos ni áreas en este grado.');
+  comisionBorradorDrive_(a); comisionLog_(a.id, quien.nombre, 'BORRADOR_DRIVE', '');
+  return { ok: true };
+}
+/** Cada noche (Respaldo.gs): copia legible de todas las actas del año, para que todo quede en la carpeta de la aplicación. */
+function comisionRespaldarActas_() {
+  var anio = Number(parametro_('anio_lectivo', String(new Date().getFullYear()))), n = 0;
+  comisionActas_().forEach(function (a) { if (Number(a.anio) === anio) { comisionBorradorDrive_(a); n++; } });
+  return n ? 'borradores de comisiones: ' + n : '';
+}
 /** Evidencia opcional (PIAR, formato de DUA, compromiso firmado): imagen o PDF a Drive «App Asistencia / Soportes / Comisiones / año / grado / acta». */
 function comisionSubirSoporte(p) {
   var quien = comisionQuien_(); p = p || {};
@@ -4935,8 +4994,7 @@ function comisionSubirSoporte(p) {
   if (['PIAR', 'DUA', 'COMPROMISO'].indexOf(p.tipo) < 0) throw new Error('Tipo de evidencia no válido.');
   var bytes = Utilities.base64Decode(String(p.base64 || '')); if (!bytes.length) throw new Error('El archivo está vacío.');
   if (bytes.length > MAX_BYTES_COM) throw new Error('El archivo supera ' + (MAX_BYTES_COM / 1048576) + ' MB.');
-  var raiz = carpetaHija_(DriveApp.getRootFolder(), CARPETA_APP), f = carpetaHija_(raiz, 'Soportes');
-  [ 'Comisiones', String(a.anio), 'Grado ' + a.grado, 'Acta ' + a.acta_no + ' ' + a.periodo ].forEach(function (n) { f = carpetaHija_(f, n); });
+  var f = comisionCarpeta_(a, 'Anexos');
   var nombre = p.tipo + '_' + String(p.curso || '').replace(/[^0-9A-Za-z]/g, '') + '_' + ahoraTxt_().replace(/[^0-9]/g, '') + '.' + ext;
   var archivo = f.createFile(Utilities.newBlob(bytes, p.mime, nombre));
   try { archivo.setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE); } catch (e) { /* ya es privado */ }
@@ -5010,7 +5068,8 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   comisionConfirmar: ['directivo', 'docente'],
   comisionCierre: ['directivo', 'docente'],
   comisionReabrir: ['directivo'],
-  comisionSubirSoporte: ['directivo', 'docente']
+  comisionSubirSoporte: ['directivo', 'docente'],
+  comisionBorrador: ['directivo', 'docente']
 };
 
 function apiFunciones_() {
@@ -5034,7 +5093,7 @@ function apiFunciones_() {
     informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
     editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, cerrarReunion: cerrarReunion, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas,
     comisionContexto: comisionContexto, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
-    comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte
+    comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte, comisionBorrador: comisionBorrador
   };
 }
 

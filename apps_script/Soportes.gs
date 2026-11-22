@@ -56,7 +56,7 @@ function misSoportes() {
 function carpetaRaiz_() {
   var id = parametro_('carpeta_soportes_id', '');
   if (id) { try { return DriveApp.getFolderById(id); } catch (e) { /* si se borró, se crea otra */ } }
-  var f = DriveApp.createFolder('ICET Soportes 2026 (privada)');
+  var f; try { f = carpetaHija_(carpetaApp_(), 'Soportes de ausencias (privada)'); } catch (e) { f = DriveApp.createFolder('ICET Soportes 2026 (privada)'); }
   guardarParametro_('carpeta_soportes_id', f.getId());
   return f;
 }

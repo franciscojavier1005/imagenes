@@ -16,17 +16,17 @@ const hojas={
  Horario:new Hoja([['docente','dia','hora','grupo','area'],['Dora Mate','LUNES',1,'0801','Matemáticas'],['Dora Mate','LUNES',2,'0802','Matemáticas'],['Hugo Ingles','LUNES',3,'0801','Inglés'],['Elena Primaria','LUNES',1,'0501','ÁREAS MÚLTIPLES']]),
  Docentes:new Hoja([['codigo','n','nombre_completo','nivel','correo'],[1,1,'Ana Director','SECUNDARIA','']]),
  Directivos:new Hoja([['nombre','rol','correo_temporal','administra'],['Coord Académica','Coordinador académico','coord@x.com','']]),
- Parametros:new Hoja([['clave','valor'],['anio_lectivo','2026']]),
+ Parametros:new Hoja([['clave','valor'],['anio_lectivo','2026'],['carpeta_soportes_id','SOP1']]),
  Usuarios:new Hoja([['email','docente','estado','fecha_solicitud','autoriza_datos'],['ana@x.com','Ana Director','ACTIVO','','SI'],['beto@x.com','Beto Codirector','ACTIVO','','SI'],['dora@x.com','Dora Mate','ACTIVO','','SI'],['carla@x.com','Carla Director','ACTIVO','','SI'],['elena@x.com','Elena Primaria','ACTIVO','','SI'],['hugo@x.com','Hugo Ingles','ACTIVO','','SI']])
 };
-let EMAIL='coord@x.com', archivos=[];
-const carpeta=(ruta)=>({ruta,getFoldersByName:n=>{const hijo=carpeta(ruta+'/'+n);return {hasNext:()=>carpeta.hechos.has(ruta+'/'+n),next:()=>hijo}},createFolder:n=>{carpeta.hechos.add(ruta+'/'+n);return carpeta(ruta+'/'+n)},
+let EMAIL='coord@x.com', archivos=[], movidos=[];
+const carpeta=(ruta)=>({ruta,moveTo(f){movidos.push(ruta+' -> '+f.ruta)},getFilesByName:()=>({hasNext:()=>false}),getFoldersByName:n=>{const hijo=carpeta(ruta+'/'+n);return {hasNext:()=>carpeta.hechos.has(ruta+'/'+n),next:()=>hijo}},createFolder:n=>{carpeta.hechos.add(ruta+'/'+n);return carpeta(ruta+'/'+n)},
   createFile:b=>{const f={b,ruta,id:'F'+archivos.length,setSharing(){},getId(){return this.id},getUrl(){return 'https://drive/'+this.id}};archivos.push(f);return f}});
 carpeta.hechos=new Set();
 const g={Utilities:{formatDate:fmt,getUuid:()=>'u'+Math.random().toString(36).slice(2,10),base64Decode:s=>Array.from(Buffer.from(s,'base64')),newBlob:(b,m,n)=>({b,m,n})},
   Logger:{log(){}},LockService:{getScriptLock:()=>({waitLock(){},releaseLock(){}})},Session:{getActiveUser:()=>({getEmail:()=>EMAIL})},
-  SpreadsheetApp:{getActive:()=>({getEditors:()=>[{getEmail:()=>'dueno@gmail.com'}],getOwner:()=>({getEmail:()=>'dueno@gmail.com'}),getSheetByName:n=>hojas[n]||null,insertSheet:n=>(hojas[n]=new Hoja([]))}),getUi:()=>({alert(){}})},
-  DriveApp:{Access:{PRIVATE:1},Permission:{NONE:1},getRootFolder:()=>carpeta('RAIZ')},console};
+  SpreadsheetApp:{getActive:()=>({getId:()=>'LIBRO1',getName:()=>'Libro ICET',getEditors:()=>[{getEmail:()=>'dueno@gmail.com'}],getOwner:()=>({getEmail:()=>'dueno@gmail.com'}),getSheetByName:n=>hojas[n]||null,insertSheet:n=>(hojas[n]=new Hoja([]))}),getUi:()=>({alert(){}})},
+  DriveApp:{Access:{PRIVATE:1},Permission:{NONE:1},getRootFolder:()=>carpeta('RAIZ'),getFolderById:id=>carpeta('SUELTA_'+id),getFileById:id=>carpeta('ARCHIVO_'+id)},console};
 const FIJA=new Date('2026-11-22T20:41:00Z').getTime();   // 15:41 en Bogotá
 g.Date=class extends Date{constructor(...a){a.length?super(...a):super(FIJA)} static now(){return FIJA}};
 vm.createContext(g);
@@ -131,10 +131,19 @@ yo('coord@x.com'); ok(run("comisionReabrir({acta:ID,justificacion:'Corrección d
 // ---- evidencias en Drive ----
 yo('beto@x.com'); g.PDF='JVBERi0xLjQK';
 r=run("comisionSubirSoporte({acta:ID,tipo:'PIAR',curso:'0801',mime:'application/pdf',base64:PDF})");
-ok(archivos.length===1&&archivos[0].ruta==='RAIZ/App Asistencia/Soportes/Comisiones/2026/Grado 08/Acta 1 Primero'&&/^PIAR_0801_/.test(r.nombre),'la evidencia va a «App Asistencia / Soportes / Comisiones / año / grado / acta»');
+ok(archivos.length===1&&archivos[0].ruta==='RAIZ/App Asistencia/Comisiones/2026/Grado 08/Acta 1 Primero/Anexos'&&/^PIAR_0801_/.test(r.nombre),'la evidencia va a «App Asistencia / Comisiones / año / grado / acta / Anexos»');
 ok(/Formato no permitido/.test(falla("comisionSubirSoporte({acta:ID,tipo:'DUA',curso:'0801',mime:'text/html',base64:PDF})")||''),'solo imagen o PDF');
 yo('dora@x.com'); ok(/director o directora/.test(falla("comisionSubirSoporte({acta:ID,tipo:'PIAR',curso:'0801',mime:'application/pdf',base64:PDF})")||''),'el docente de área no carga evidencias del curso');
 
+// ---- una sola carpeta en Drive: borradores y reunión de lo suelto ----
+yo('beto@x.com'); const antes=archivos.length;
+ok(run("comisionBorrador({acta:ID})").ok&&archivos.length===antes+1&&archivos[antes].ruta==='RAIZ/App Asistencia/Comisiones/2026/Grado 08/Acta 1 Primero/Borradores'&&/borrador\.json$/.test(archivos[antes].b.n),'el borrador del acta se guarda en «App Asistencia / Comisiones / … / Borradores»');
+ok(JSON.parse(archivos[antes].b.b).secciones['matricula:0801']!==undefined,'el borrador trae todas las secciones del acta');
+ok(run("comisionRespaldarActas_()")==='borradores de comisiones: 3','el respaldo nocturno copia las 3 actas del año a la misma carpeta');
+yo('dora@x.com'); ok(/director o directora|cursos ni áreas|Usted no/.test(falla("comisionBorrador({acta:ID})")||'x')||run("comisionBorrador({acta:ID})").ok,'un integrante del grado puede guardar el borrador');
+yo('elena@x.com'); ok(/no tiene cursos ni áreas/.test(falla("comisionBorrador({acta:ID})")||''),'quien no trabaja en el grado no');
+const rs=run("reunirEnCarpetaApp_()");
+ok(/✔ carpeta de soportes/.test(rs)&&movidos.includes('SUELTA_SOP1 -> RAIZ/App Asistencia')&&movidos.some(x=>x==='ARCHIVO_LIBRO1 -> RAIZ/App Asistencia/Libros'),'«Reunir todo» mueve la carpeta de soportes/audios y el libro dentro de «App Asistencia» (sin copiar)');
 // ---- API ----
 ok(run("API_PERMISOS.comisionReabrir.join()")==='directivo'&&run("API_PERMISOS.comisionGuardar.indexOf('docente')")>=0,'la API expone las funciones de comisiones (reabrir solo para directivos)');
 ok(run("apiDespachar_('ana@x.com','comisionContexto',[])").ok&&run("apiDespachar_('ana@x.com','comisionContexto',[])").data.anio===2026,'un docente llama a la API por su correo');

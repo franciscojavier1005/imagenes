@@ -105,9 +105,32 @@ function carpetaHija_(padre, nombre) {
   var it = padre.getFoldersByName(nombre);
   return it.hasNext() ? it.next() : padre.createFolder(nombre);
 }
+/** Carpeta única de la aplicación en el Drive del propietario. TODO lo que el sistema guarda en Drive (respaldos, borradores, soportes, audios, anexos de las comisiones) va dentro de ella. */
+function carpetaApp_() { return carpetaHija_(DriveApp.getRootFolder(), CARPETA_APP); }
 function carpetaRespaldos_() {
-  var raiz = carpetaHija_(DriveApp.getRootFolder(), CARPETA_APP);
-  return carpetaHija_(raiz, 'Respaldos');
+  return carpetaHija_(carpetaApp_(), 'Respaldos');
+}
+/**
+ * Reúne en «App Asistencia» lo que haya quedado suelto en Drive: la carpeta de soportes de ausencias (y los audios, que van dentro de ella)
+ * y los libros (principal y de respaldo de rondas). Los archivos se MUEVEN (no se copian): sus enlaces y permisos siguen igual. Devuelve un resumen.
+ */
+function reunirEnCarpetaApp_() {
+  var app = carpetaApp_(), res = [];
+  var sid = parametro_('carpeta_soportes_id', '');
+  if (sid) { try { DriveApp.getFolderById(sid).moveTo(app); res.push('✔ carpeta de soportes y audios'); } catch (e) { res.push('✖ carpeta de soportes: ' + e); } }
+  else res.push('· no hay carpeta de soportes todavía (se creará dentro de «' + CARPETA_APP + '»)');
+  var libros = carpetaHija_(app, 'Libros');
+  librosParaRespaldar_().forEach(function (l) {
+    try { DriveApp.getFileById(l.id).moveTo(libros); res.push('✔ ' + l.nombre); } catch (e) { res.push('✖ ' + l.nombre + ': ' + e); }
+  });
+  try { bitacora_('Reunir todo en App Asistencia', res.join(' · ')); } catch (e) { Logger.log(res.join(' · ')); }
+  return res.join('\n');
+}
+function reunirEnCarpetaApp() {
+  exigirEditor_();
+  var ui = SpreadsheetApp.getUi();
+  if (ui.alert('Reunir todo en «' + CARPETA_APP + '»', 'Se moverán a la carpeta «' + CARPETA_APP + '» de su Drive la carpeta de soportes y audios y los libros del sistema (principal y de respaldo). No se pierde ningún enlace ni permiso. ¿Continuar?', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
+  ui.alert('Listo', reunirEnCarpetaApp_(), ui.ButtonSet.OK);
 }
 function librosParaRespaldar_() {
   var libro = SpreadsheetApp.getActive(), lista = [{ id: libro.getId(), nombre: libro.getName() }];
@@ -149,7 +172,8 @@ function respaldoProgramado(hoy) {
   var dias = Number(parametro_('respaldo_dias', 3)) || 3, borr = conservarUltimas_(diario, dias);
   conservarUltimas_(semanal, Number(parametro_('respaldo_semanas', 0)) || 0);
   conservarUltimas_(mensual, Number(parametro_('respaldo_meses', 0)) || 0);
-  var txt = res.join(' · ') + ' · copias diarias viejas borradas: ' + borr;
+  var cx = ''; try { cx = comisionRespaldarActas_(); } catch (e) { cx = ''; }
+  var txt = res.join(' · ') + ' · copias diarias viejas borradas: ' + borr + (cx ? ' · ' + cx : '');
   try { bitacora_('Respaldo programado de libros', txt); } catch (e) { Logger.log(txt); }
   return txt;
 }

@@ -14,7 +14,8 @@
  *  - El cierre lo propone una persona y lo confirman todos los integrantes (o se excluyen los no conectados); la hora de cierre la pone el sistema.
  *  - Quien no firma se entiende que no asistió. Las firmas se registran al comienzo y al finalizar en el acta impresa.
  *  - Los informes que ven los docentes se calculan por reglas; la IA (si se activa) es solo para directivos y no vive aquí.
- * Evidencias opcionales (PIAR, formato de DUA, compromisos): Drive «App Asistencia / Soportes / Comisiones / año / grado / acta».
+ * TODO en Drive vive en una sola carpeta, «App Asistencia»: Comisiones / año / Grado / Acta N periodo / Anexos (PIAR, DUA, compromisos) y / Borradores (copia legible de lo que se lleva).
+ * Los respaldos de los libros van en «App Asistencia / Respaldos» (Respaldo.gs).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
 var COL_CACTAS = ['id', 'anio', 'periodo', 'grado', 'acta_no', 'estado', 'responsable', 'creada_por', 'fecha_creacion', 'cerrada_por', 'fecha_cierre', 'hora_cierre', 'reaperturas'];
@@ -336,6 +337,36 @@ function comisionReabrir(p) {
     return { ok: true };
   } finally { lock.releaseLock(); }
 }
+/** Carpeta de un acta dentro de «App Asistencia»: Comisiones / año / Grado / Acta N periodo [/ subcarpeta]. */
+function comisionCarpeta_(a, sub) {
+  var f = carpetaHija_(carpetaApp_(), 'Comisiones');
+  [String(a.anio), 'Grado ' + a.grado, 'Acta ' + a.acta_no + ' ' + a.periodo].forEach(function (n) { f = carpetaHija_(f, n); });
+  return sub ? carpetaHija_(f, sub) : f;
+}
+function comisionGuardaJson_(carpeta, nombre, obj) {
+  var it = carpeta.getFilesByName(nombre); while (it.hasNext()) it.next().setTrashed(true);
+  return carpeta.createFile(Utilities.newBlob(JSON.stringify(obj, null, 1), 'application/json', nombre));
+}
+/** Copia legible (JSON) del acta y todas sus secciones, en «Borradores» del acta. Si el acta ya está cerrada, además queda la copia «cerrada». */
+function comisionBorradorDrive_(a) {
+  var datos = { acta: a, secciones: comisionSecciones_(a.id), copiado: ahoraTxt_() }, c = comisionCarpeta_(a, 'Borradores');
+  comisionGuardaJson_(c, 'Acta ' + a.acta_no + ' ' + a.periodo + ' · borrador.json', datos);
+  if (a.estado === 'CERRADA') comisionGuardaJson_(c, 'Acta ' + a.acta_no + ' ' + a.periodo + ' · cerrada.json', datos);
+  return c;
+}
+/** Botón «Guardar borrador en Drive»: cualquier integrante del acta. */
+function comisionBorrador(p) {
+  var quien = comisionQuien_(), a = comisionActa_((p || {}).acta), al = comisionAlcance_(quien, String(a.grado));
+  if (!al.todo && !al.cursos.length && !al.areas.length && !al.multiareas) throw new Error('Usted no tiene cursos ni áreas en este grado.');
+  comisionBorradorDrive_(a); comisionLog_(a.id, quien.nombre, 'BORRADOR_DRIVE', '');
+  return { ok: true };
+}
+/** Cada noche (Respaldo.gs): copia legible de todas las actas del año, para que todo quede en la carpeta de la aplicación. */
+function comisionRespaldarActas_() {
+  var anio = Number(parametro_('anio_lectivo', String(new Date().getFullYear()))), n = 0;
+  comisionActas_().forEach(function (a) { if (Number(a.anio) === anio) { comisionBorradorDrive_(a); n++; } });
+  return n ? 'borradores de comisiones: ' + n : '';
+}
 /** Evidencia opcional (PIAR, formato de DUA, compromiso firmado): imagen o PDF a Drive «App Asistencia / Soportes / Comisiones / año / grado / acta». */
 function comisionSubirSoporte(p) {
   var quien = comisionQuien_(); p = p || {};
@@ -345,8 +376,7 @@ function comisionSubirSoporte(p) {
   if (['PIAR', 'DUA', 'COMPROMISO'].indexOf(p.tipo) < 0) throw new Error('Tipo de evidencia no válido.');
   var bytes = Utilities.base64Decode(String(p.base64 || '')); if (!bytes.length) throw new Error('El archivo está vacío.');
   if (bytes.length > MAX_BYTES_COM) throw new Error('El archivo supera ' + (MAX_BYTES_COM / 1048576) + ' MB.');
-  var raiz = carpetaHija_(DriveApp.getRootFolder(), CARPETA_APP), f = carpetaHija_(raiz, 'Soportes');
-  [ 'Comisiones', String(a.anio), 'Grado ' + a.grado, 'Acta ' + a.acta_no + ' ' + a.periodo ].forEach(function (n) { f = carpetaHija_(f, n); });
+  var f = comisionCarpeta_(a, 'Anexos');
   var nombre = p.tipo + '_' + String(p.curso || '').replace(/[^0-9A-Za-z]/g, '') + '_' + ahoraTxt_().replace(/[^0-9]/g, '') + '.' + ext;
   var archivo = f.createFile(Utilities.newBlob(bytes, p.mime, nombre));
   try { archivo.setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE); } catch (e) { /* ya es privado */ }

@@ -40,6 +40,7 @@ function onOpen() {
     .addItem('Respaldar rondas ahora (libro de respaldo)', 'respaldarTodoAhora')
     .addItem('Respaldos: copiar libros a Drive ahora', 'respaldoLibrosAhora')
     .addItem('Respaldos: programar copia diaria (Drive)', 'instalarRespaldoDiario')
+    .addItem('Reunir todo en la carpeta «App Asistencia» (una vez)', 'reunirEnCarpetaApp')
     .addItem('Borrar audios de ronda antiguos', 'purgarAudios')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')

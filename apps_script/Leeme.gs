@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.22-a';
+var VERSION_SISTEMA = '2026.11.22-b';
 var FECHA_VERSION = '2026-11-22';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.22-b', fecha: '2026-11-22', cambios: [
+    'Todo en una sola carpeta de Drive, «App Asistencia»: respaldos (Respaldos), soportes de ausencias y audios (la carpeta de soportes ahora nace dentro de ella), y en las comisiones: Comisiones / año / Grado / Acta N periodo / Anexos (PIAR, formato de DUA, compromisos) y / Borradores (copia legible del acta). Cada noche, junto con la copia de los libros, se guarda una copia de todas las actas del año.',
+    'Nuevo menú «Reunir todo en la carpeta «App Asistencia» (una vez)»: MUEVE (no copia) a esa carpeta lo que haya quedado suelto en Drive: la carpeta de soportes y audios y los libros del sistema. No se pierde ningún enlace ni permiso.'] },
   { version: '2026.11.22-a', fecha: '2026-11-22', cambios: [
     'Comisiones de evaluación y promoción, SERVIDOR (fase 1; la pantalla llega en la fase 2): hojas Comision_Actas, Comision_Secciones y Comision_Log (se crean solas). Un acta por grado y periodo, con número consecutivo del año (si el tercer periodo no se presenta, el acta final es la número 3). Cada docente guarda solo su sección (su curso o su área, con codirectores) y, si dos personas tocan lo mismo, se avisa del conflicto sin pisar nada.',
     'Matrícula y reconocimientos se confirman por curso y quedan oficiales: el docente no los modifica; solo coordinación académica los reabre, con justificación escrita que queda en Comision_Log. La matrícula debe cuadrar; en el acta final, promovidos + no promovidos = matrícula actual. El cierre lo propone el responsable y lo confirman todos los integrantes (también desde el equipo de otro compañero); la hora de cierre la pone el sistema. Evidencias opcionales (PIAR, formato de DUA, compromisos) en Drive: App Asistencia / Soportes / Comisiones.'] },

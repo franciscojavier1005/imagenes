@@ -64,7 +64,9 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   comisionCierre: ['directivo', 'docente'],
   comisionReabrir: ['directivo'],
   comisionSubirSoporte: ['directivo', 'docente'],
-  comisionBorrador: ['directivo', 'docente']
+  comisionBorrador: ['directivo', 'docente'],
+  comisionPendientes: ['directivo', 'docente'],
+  comisionGuardarPdf: ['directivo', 'docente']
 };
 
 function apiFunciones_() {
@@ -88,7 +90,7 @@ function apiFunciones_() {
     informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
     editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, cerrarReunion: cerrarReunion, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas,
     comisionContexto: comisionContexto, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
-    comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte, comisionBorrador: comisionBorrador
+    comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte, comisionBorrador: comisionBorrador, comisionPendientes: comisionPendientes, comisionGuardarPdf: comisionGuardarPdf
   };
 }
 

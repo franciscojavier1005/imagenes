@@ -3859,11 +3859,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.22-c';
+var VERSION_SISTEMA = '2026.11.22-d';
 var FECHA_VERSION = '2026-11-22';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.22-d', fecha: '2026-11-22', cambios: [
+    'Comisiones (servidor): validación de TODOS los componentes y informe de pendientes. Cada componente (reprobación o deserción e inasistencia, reconocimientos, convivencia, compromisos, PIAR, áreas o propósitos) debe tener registros o la declaración «no hubo casos»; cada área o propósito, su recomendación; matrícula, reconocimientos y promoción confirmados; datos de docentes y estudiantes completos; firmas. Si falta algo no se puede cerrar y el informe dice qué falta, de quién y dónde pedirlo (rectoría, archivo o coordinador). Preescolar con reglas propias (sin promoción ni reprobación; propósitos, experiencias y deserción e inasistencia).',
+    'El PDF siempre queda: al cerrar el acta se guarda una copia legible en la carpeta del acta en Drive aunque falle lo demás, y hay una función para guardar el PDF del acta desde el servidor como respaldo (el principal sale de la impresión del navegador).'] },
   { version: '2026.11.22-c', fecha: '2026-11-22', cambios: [
     'La carpeta única de la aplicación es ahora la que ya existe en el Drive del propietario, «APP ASISTENCIA DOCENTE» (se conserva su mismo enlace; el sistema la busca por nombre o por el id fijado en Parametros: carpeta_app_id). Ya no se crea una carpeta nueva llamada «App Asistencia». Dentro: Respaldos, Libros, soportes de ausencias y audios, y las comisiones en COMISIONES año / Comisiones Evaluación P1 ICET año / Grado X (Anexos y Borradores), junto a las actas anteriores que ya están allí.'] },
   { version: '2026.11.22-b', fecha: '2026-11-22', cambios: [
@@ -4651,7 +4654,7 @@ var LIM_RECONOC = [1, 2, 2];                  // cupos por curso: excelencia, re
 var MAX_JSON_SECCION = 45000;                  // una celda de Sheets admite 50.000 caracteres
 var MAX_BYTES_COM = 8 * 1024 * 1024;
 var MIME_COM = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'application/pdf': 'pdf' };
-var SECCIONES_COM = /^(general|integrantes|requisitos|firmas|(matricula|estudiantes|reconocimientos|promocion|obs):[0-9A-Za-z]+|(areas|recomendaciones):.{1,80})$/;
+var SECCIONES_COM = /^(general|integrantes|requisitos|firmas|faltantes|listos|(matricula|estudiantes|reconocimientos|promocion|obs):[0-9A-Za-z]+|(areas|recomendaciones):.{1,80})$/;
 
 /* ------------------------------ hojas y registro ------------------------------ */
 function comisionPrepararHojas() {
@@ -4727,7 +4730,7 @@ function comisionAlcance_(quien, grado) {
 function comisionPermisoSeccion_(quien, alcance, seccion, secciones) {
   if (!SECCIONES_COM.test(seccion)) return 'Sección no válida.';
   var p = seccion.split(':'), tipo = p[0], clave = p.slice(1).join(':');
-  if (tipo === 'general' || tipo === 'integrantes' || tipo === 'requisitos' || tipo === 'firmas') return null;
+  if (tipo === 'general' || tipo === 'integrantes' || tipo === 'requisitos' || tipo === 'firmas' || tipo === 'faltantes' || tipo === 'listos') return null;
   if (alcance.todo) { /* coordinación y rectoría pueden corregir */ } else if (['matricula', 'estudiantes', 'reconocimientos', 'promocion', 'obs'].indexOf(tipo) >= 0) {
     if (alcance.cursos.indexOf(clave) < 0) return 'Solo el director o directora del curso puede editar esta sección.';
   } else if (alcance.areas.indexOf(clave) < 0 && !alcance.multiareas) {
@@ -4894,21 +4897,85 @@ function comisionConfirmar(p) {
     return { ok: true };
   } finally { lock.releaseLock(); }
 }
-/** Lo que falta para poder cerrar (lista de mensajes; vacía = se puede cerrar). */
-function comisionPendientesCierre_(a, secs) {
-  var m = [], req = secs.requisitos && secs.requisitos.datos || {}, ints = secs.integrantes && secs.integrantes.datos || [];
-  ['notas', 'planillas', 'resumenes', 'cuadernos', 'observ', 'faltantes'].forEach(function (k) { if (!req[k]) m.push('Falta verificar el requisito previo «' + k + '».'); });
-  if (!a.responsable) m.push('Falta elegir al docente responsable del cierre.');
-  if (!ints.some(function (x) { return x.p; })) m.push('Faltan los integrantes que asistieron.');
-  var cursos = {};
-  datos_('Grupos').forEach(function (g) { if (partesGrupo_(g.grupo).grado === String(a.grado)) cursos[String(g.grupo)] = 1; });
-  Object.keys(cursos).forEach(function (c) {
-    var cf = function (t) { return secs['confirm:' + t + ':' + c] && secs['confirm:' + t + ':' + c].datos && secs['confirm:' + t + ':' + c].datos.ok; };
-    if (!secs['matricula:' + c]) m.push('Curso ' + c + ': falta la matrícula.'); else if (!cf('matricula')) m.push('Curso ' + c + ': falta confirmar la matrícula.');
-    if (!cf('reconocimientos')) m.push('Curso ' + c + ': falta confirmar los reconocimientos.');
-    if (a.periodo === 'Final' && !cf('promocion')) m.push('Curso ' + c + ': falta confirmar la promoción.');
+var COM_AREAS = ['Matemáticas', 'Humanidades y Lengua Castellana', 'Ciencias Naturales y Educación Ambiental', 'Ciencias Sociales', 'Inglés', 'Educación Ética y Valores Humanos', 'Educación Religiosa Escolar', 'Educación Artística (Arte y Cultura Afro)', 'Educación Física, Recreación y Deportes', 'Tecnología e Informática'];
+var COM_PRE_CLAVES = ['Propósito 1. Construcción de identidad y relaciones sociales', 'Propósito 2. Comunicación activa, expresión y representación', 'Propósito 3. Exploración del medio y aprendizaje significativo', 'Experiencias y pensamiento computacional'];
+/** '00' preescolar · '01'..'05' primaria · el resto, secundaria y media. */
+function comisionNivel_(grado) { grado = String(grado); return grado === '00' ? 'pre' : /^0[1-5]$/.test(grado) ? 'pri' : 'sec'; }
+function comisionOkMail_(e) { e = String(e || '').trim(); return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e) && !/@icet\.edu\.co$/i.test(e); }
+function comisionOkTel_(t) { return /^\d{7,12}$/.test(String(t || '').replace(/\D/g, '')); }
+/**
+ * Lista de pendientes del acta (la MISMA regla que la pantalla). Cada ítem: {paso, comp, curso, persona, msg, donde, adv}.
+ * adv = advertencia (no impide cerrar). Todo lo demás impide cerrar y hay que regresar a corregirlo.
+ * Cada componente debe tener registros o la declaración «sin casos»; así no llegan actas con componentes vacíos.
+ */
+function comisionPendientes_(a, secs) {
+  var L = [], nivel = comisionNivel_(a.grado), pre = nivel === 'pre', fin = a.periodo === 'Final';
+  var d = function (k) { return secs[k] && secs[k].datos; };
+  var add = function (paso, comp, curso, persona, msg, donde, adv) { L.push({ paso: paso, comp: comp, curso: curso || '', persona: persona || '', msg: msg, donde: donde || '', adv: !!adv }); };
+  var req = d('requisitos') || {}, ints = d('integrantes') || [], P = ints.filter(function (x) { return x.p; });
+  ['notas', 'planillas', 'resumenes', 'cuadernos', 'observ', 'faltantes'].forEach(function (k) { if (!req[k]) add('s0', 'Requisitos previos', '', '', 'Falta verificar el requisito «' + k + '».', 'Cada docente'); });
+  if (!a.responsable) add('s0', 'Asistencia', '', '', 'Falta elegir al docente responsable del cierre.', 'El equipo');
+  if (!P.length) add('s0', 'Asistencia', '', '', 'Faltan los integrantes que asistieron.', 'El equipo');
+  P.forEach(function (x) {
+    if (!comisionOkMail_(x.correo)) add('s0', 'Docentes', '', x.n, 'Falta el correo PERSONAL válido (no el institucional).', 'El propio docente');
+    if (!comisionOkTel_(x.tel)) add('s0', 'Docentes', '', x.n, 'Falta un celular válido.', 'El propio docente');
+    if (!/^\d{5,12}$/.test(String(x.ced || '').replace(/\D/g, ''))) add('p2', 'Docentes', '', x.n, 'Falta el número de cédula.', 'Rectoría, archivo o coordinador');
+    if (x.cierre !== false && !(d('firmas') || {})[x.n]) add('s8', 'Firmas', '', x.n, 'Falta su firma de cierre.', 'El propio docente');
   });
-  return m;
+  var cursos = [];
+  datos_('Grupos').forEach(function (g) { if (partesGrupo_(g.grupo).grado === String(a.grado)) cursos.push(String(g.grupo)); });
+  var cf = function (t, c) { var x = d('confirm:' + t + ':' + c); return !!(x && x.ok); };
+  var areasReg = pre ? [] : COM_AREAS;
+  cursos.forEach(function (c) {
+    var mat = d('matricula:' + c), est = d('estudiantes:' + c) || {}, sc = est.sc || {}, rec = d('reconocimientos:' + c) || {};
+    if (!mat) add('s1', 'Matrícula', c, '', 'Falta registrar la matrícula del curso.', 'Director/a de grupo');
+    else { comisionBalanceMatricula_(mat).forEach(function (m) { add('s1', 'Matrícula', c, '', m, 'Director/a de grupo'); }); if (!cf('matricula', c)) add('s1', 'Matrícula', c, '', 'Falta confirmar la matrícula del curso.', 'Director/a de grupo'); }
+    // áreas / propósitos: cifras o «ningún área con reprobados»
+    var hay = pre ? COM_PRE_CLAVES.length && (d('areas:propositos') || {}).por_consolidar > 0 : areasReg.some(function (ar) { var x = d('areas:' + ar); return x && x.por_curso && Number(x.por_curso[c]) > 0; });
+    if (!hay && !sc.areas) add('s2', pre ? 'Propósitos' : 'Áreas', c, '', 'Registre ' + (pre ? 'los propósitos por consolidar' : 'los reprobados por área') + ' o declare que no hubo.', 'Docentes del área y director/a de grupo');
+    // reprobación (o deserción e inasistencia en preescolar): estudiantes o «sin casos»
+    var rep = est.rep || [];
+    if (!rep.length && !sc.rep) add('s3', pre ? 'Deserción e inasistencia' : 'Reprobación', c, '', 'Agregue los estudiantes o declare que no hubo casos.', 'Director/a de grupo');
+    if (!pre) areasReg.forEach(function (ar) {
+      var x = d('areas:' + ar), cifra = x && x.por_curso ? Number(x.por_curso[c]) || 0 : 0, n = rep.filter(function (r) { return (r.areas || []).indexOf(ar) >= 0; }).length;
+      if (cifra !== n) add('s3', 'Reprobación', c, '', ar + ': la cifra dice ' + cifra + ' y hay ' + n + ' estudiantes registrados con esa área.', 'Director/a de grupo y docente del área');
+    });
+    if (fin && !pre) {
+      var pr = d('promocion:' + c);
+      if (mat) comisionPromocionCuadra_(mat, pr).forEach(function (m) { add('sP', 'Promoción', c, '', m, 'Director/a de grupo'); });
+      else add('sP', 'Promoción', c, '', 'Falta la matrícula para verificar la promoción.', 'Director/a de grupo');
+      if (!cf('promocion', c)) add('sP', 'Promoción', c, '', 'Falta confirmar la promoción del curso.', 'Director/a de grupo');
+    }
+    // reconocimientos
+    if ((rec.filas || []).length) {
+      comisionValidaReconocimientos_(rec.filas).forEach(function (m) { add('s4', 'Reconocimientos', c, '', m, 'Director/a de grupo'); });
+      if (!cf('reconocimientos', c)) add('s4', 'Reconocimientos', c, '', 'Falta confirmar los reconocimientos del curso.', 'Director/a de grupo');
+    } else if (!rec.sc) add('s4', 'Reconocimientos', c, '', 'Agregue los reconocimientos o declare que no hubo.', 'Director/a de grupo');
+    [['con', 'Convivencia', 's5'], ['com', 'Compromisos con acudientes', 's6'], ['piar', 'PIAR y dificultades', 's7']].forEach(function (t) {
+      if (!(est[t[0]] || []).length && !sc[t[0]]) add(t[2], t[1], c, '', 'Agregue los casos o declare que no hubo.', 'Director/a de grupo');
+    });
+    (est.con || []).forEach(function (r) { if (r.rc === 'No' || r.ro === 'No' || r.rp === 'No') add('s5', 'Convivencia', c, r.nombre || '', 'Falta reportar o notificar.', 'Director/a de grupo', true); });
+  });
+  (pre ? COM_PRE_CLAVES : COM_AREAS).forEach(function (k) {
+    var x = d('recomendaciones:' + k);
+    if (!x || (!String(x.texto || '').trim() && !(x.etiquetas || []).length)) add('s7', 'Recomendaciones', '', '', k + ': falta escribir una recomendación o marcar etiquetas.', 'Docente del ' + (pre ? 'propósito' : 'área'));
+  });
+  var fa = d('faltantes') || {};
+  (fa.docentes || []).forEach(function (x) { if ((x.falta || []).length) add('p2', 'Datos de docentes', '', x.n, 'Falta: ' + x.falta.join(', ') + '.', 'Rectoría, archivo o coordinador'); });
+  (fa.estudiantes || []).forEach(function (x) { if ((x.falta || []).length) add('p2', 'Datos de estudiantes', x.g || '', x.n, 'Falta: ' + x.falta.join(', ') + '.', 'Llamar a la familia; si no, rectoría, archivo o coordinador'); });
+  P.forEach(function (x) { if (!(d('listos') || {})[x.n]) add('s8', 'Mi parte lista', '', x.n, 'No ha marcado «Mi parte lista».', 'El propio docente', true); });
+  var orden = ['s0', 's1', 's2', 's3', 'sP', 's4', 's5', 's6', 's7', 's8', 'p2'];
+  L.forEach(function (x) { x.o = orden.indexOf(x.paso); });
+  return L.sort(function (p, q) { return p.o - q.o; });
+}
+/** Lo que impide cerrar (mensajes). Vacía = se puede cerrar. */
+function comisionPendientesCierre_(a, secs) {
+  return comisionPendientes_(a, secs).filter(function (x) { return !x.adv; }).map(function (x) { return (x.curso ? x.curso + ': ' : '') + (x.persona ? x.persona + ': ' : '') + x.comp + ' · ' + x.msg; });
+}
+/** Informe de pendientes para la pantalla y para el PDF del responsable. */
+function comisionPendientes(p) {
+  comisionQuien_(); var a = comisionActa_((p || {}).acta), L = comisionPendientes_(a, comisionSecciones_(a.id));
+  return { acta: a.id, por_resolver: L.filter(function (x) { return !x.adv; }).length, advertencias: L.filter(function (x) { return x.adv; }).length, lista: L };
 }
 /** Cierre compartido. accion: 'proponer' | 'confirmar' (p.en_nombre = integrante que confirma desde este equipo) | 'objetar' | 'excluir' | 'cancelar'. */
 function comisionCierre(p) {
@@ -4945,7 +5012,9 @@ function comisionCerrarActa_(a, c, quien) {
   sh.getRange(fila, 6, 1, 1).setValue('CERRADA');
   sh.getRange(fila, 10, 1, 3).setValues([[c.por || quien.nombre, ymd_(new Date()), hora]]);
   comisionLog_(a.id, quien.nombre, 'CERRAR', 'hora ' + hora);
-  return { ok: true, cerrada: true, hora_cierre: hora };
+  var copia = false;
+  try { comisionBorradorDrive_(comisionActa_(a.id)); copia = true; } catch (e) { comisionLog_(a.id, quien.nombre, 'COPIA_FALLO', String(e.message || e)); }
+  return { ok: true, cerrada: true, hora_cierre: hora, copia_en_drive: copia };
 }
 /** Reabre un acta cerrada: solo coordinación académica, con justificación. */
 function comisionReabrir(p) {
@@ -4993,6 +5062,23 @@ function comisionRespaldarActas_() {
   var anio = Number(parametro_('anio_lectivo', String(new Date().getFullYear()))), n = 0;
   comisionActas_().forEach(function (a) { if (Number(a.anio) === anio) { comisionBorradorDrive_(a); n++; } });
   return n ? 'borradores de comisiones: ' + n : '';
+}
+/**
+ * PDF del acta cerrada (respaldo): la pantalla envía el HTML del imprimible y aquí se convierte a PDF y se guarda en «Borradores» de la carpeta del acta.
+ * El PDF principal sale siempre de la impresión del navegador; este es la copia de seguridad por si algo falla.
+ */
+function comisionGuardarPdf(p) {
+  var quien = comisionQuien_(); p = p || {};
+  var a = comisionActa_(p.acta), al = comisionAlcance_(quien, String(a.grado));
+  if (!al.todo && !al.cursos.length && !al.areas.length && !al.multiareas) throw new Error('Usted no tiene cursos ni áreas en este grado.');
+  var html = String(p.html || ''); if (html.length < 200) throw new Error('El acta está vacía.'); if (html.length > 3000000) throw new Error('El acta es demasiado grande para convertirla.');
+  var nombre = 'Acta ' + a.acta_no + ' ' + a.periodo + (a.estado === 'CERRADA' ? ' · cerrada' : ' · borrador') + '.pdf';
+  var pdf = Utilities.newBlob('<html><head><meta charset="utf-8"></head><body>' + html + '</body></html>', 'text/html', nombre).getAs('application/pdf');
+  pdf.setName(nombre);
+  var c = comisionCarpeta_(a, 'Borradores'), it = c.getFilesByName(nombre); while (it.hasNext()) it.next().setTrashed(true);
+  var f = c.createFile(pdf);
+  comisionLog_(a.id, quien.nombre, 'PDF_DRIVE', nombre);
+  return { ok: true, nombre: nombre, url: f.getUrl() };
 }
 /** Evidencia opcional (PIAR, formato de DUA, compromiso firmado): imagen o PDF a Drive «App Asistencia / Soportes / Comisiones / año / grado / acta». */
 function comisionSubirSoporte(p) {
@@ -5078,7 +5164,9 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   comisionCierre: ['directivo', 'docente'],
   comisionReabrir: ['directivo'],
   comisionSubirSoporte: ['directivo', 'docente'],
-  comisionBorrador: ['directivo', 'docente']
+  comisionBorrador: ['directivo', 'docente'],
+  comisionPendientes: ['directivo', 'docente'],
+  comisionGuardarPdf: ['directivo', 'docente']
 };
 
 function apiFunciones_() {
@@ -5102,7 +5190,7 @@ function apiFunciones_() {
     informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
     editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, cerrarReunion: cerrarReunion, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas,
     comisionContexto: comisionContexto, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
-    comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte, comisionBorrador: comisionBorrador
+    comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte, comisionBorrador: comisionBorrador, comisionPendientes: comisionPendientes, comisionGuardarPdf: comisionGuardarPdf
   };
 }
 

@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.22-c';
+var VERSION_SISTEMA = '2026.11.22-d';
 var FECHA_VERSION = '2026-11-22';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.22-d', fecha: '2026-11-22', cambios: [
+    'Comisiones (servidor): validación de TODOS los componentes y informe de pendientes. Cada componente (reprobación o deserción e inasistencia, reconocimientos, convivencia, compromisos, PIAR, áreas o propósitos) debe tener registros o la declaración «no hubo casos»; cada área o propósito, su recomendación; matrícula, reconocimientos y promoción confirmados; datos de docentes y estudiantes completos; firmas. Si falta algo no se puede cerrar y el informe dice qué falta, de quién y dónde pedirlo (rectoría, archivo o coordinador). Preescolar con reglas propias (sin promoción ni reprobación; propósitos, experiencias y deserción e inasistencia).',
+    'El PDF siempre queda: al cerrar el acta se guarda una copia legible en la carpeta del acta en Drive aunque falle lo demás, y hay una función para guardar el PDF del acta desde el servidor como respaldo (el principal sale de la impresión del navegador).'] },
   { version: '2026.11.22-c', fecha: '2026-11-22', cambios: [
     'La carpeta única de la aplicación es ahora la que ya existe en el Drive del propietario, «APP ASISTENCIA DOCENTE» (se conserva su mismo enlace; el sistema la busca por nombre o por el id fijado en Parametros: carpeta_app_id). Ya no se crea una carpeta nueva llamada «App Asistencia». Dentro: Respaldos, Libros, soportes de ausencias y audios, y las comisiones en COMISIONES año / Comisiones Evaluación P1 ICET año / Grado X (Anexos y Borradores), junto a las actas anteriores que ya están allí.'] },
   { version: '2026.11.22-b', fecha: '2026-11-22', cambios: [

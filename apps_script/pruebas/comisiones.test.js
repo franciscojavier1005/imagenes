@@ -11,13 +11,13 @@ const fmt=(d,tz,p)=>{const o=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'
   const h=new Intl.DateTimeFormat('en-GB',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).format(d);
   if(p==='yyyy-MM-dd')return `${o.year}-${o.month}-${o.day}`; if(p==='HH:mm')return h; if(p==='yyyy-MM-dd HH:mm')return `${o.year}-${o.month}-${o.day} ${h}`; return String(d);};
 const hojas={
- Grupos:new Hoja([['grupo','tipo','grado','nombre','modalidad'],['0801','REGULAR','08','8°-1',''],['0802','REGULAR','08','8°-2',''],['0501','REGULAR','05','5°-1','']]),
- Direccion_Grupo:new Hoja([['grupo','nombre','tipo_direccion','docente_1','docente_2','modalidad','dinamizadores'],['0801','8°-1','DIRECTOR','Ana Director','Beto Codirector','',''],['0802','8°-2','DIRECTOR','Carla Director','','',''],['0501','5°-1','DIRECTOR','Elena Primaria','','','']]),
+ Grupos:new Hoja([['grupo','tipo','grado','nombre','modalidad'],['0801','REGULAR','08','8°-1',''],['0802','REGULAR','08','8°-2',''],['0501','REGULAR','05','5°-1',''],['0001','REGULAR','00','0°-1','']]),
+ Direccion_Grupo:new Hoja([['grupo','nombre','tipo_direccion','docente_1','docente_2','modalidad','dinamizadores'],['0801','8°-1','DIRECTOR','Ana Director','Beto Codirector','',''],['0802','8°-2','DIRECTOR','Carla Director','','',''],['0501','5°-1','DIRECTOR','Elena Primaria','','',''],['0001','0°-1','DIRECTOR','Paula Preescolar','','','']]),
  Horario:new Hoja([['docente','dia','hora','grupo','area'],['Dora Mate','LUNES',1,'0801','Matemáticas'],['Dora Mate','LUNES',2,'0802','Matemáticas'],['Hugo Ingles','LUNES',3,'0801','Inglés'],['Elena Primaria','LUNES',1,'0501','ÁREAS MÚLTIPLES']]),
  Docentes:new Hoja([['codigo','n','nombre_completo','nivel','correo'],[1,1,'Ana Director','SECUNDARIA','']]),
  Directivos:new Hoja([['nombre','rol','correo_temporal','administra'],['Coord Académica','Coordinador académico','coord@x.com','']]),
  Parametros:new Hoja([['clave','valor'],['anio_lectivo','2026'],['carpeta_soportes_id','SOP1']]),
- Usuarios:new Hoja([['email','docente','estado','fecha_solicitud','autoriza_datos'],['ana@x.com','Ana Director','ACTIVO','','SI'],['beto@x.com','Beto Codirector','ACTIVO','','SI'],['dora@x.com','Dora Mate','ACTIVO','','SI'],['carla@x.com','Carla Director','ACTIVO','','SI'],['elena@x.com','Elena Primaria','ACTIVO','','SI'],['hugo@x.com','Hugo Ingles','ACTIVO','','SI']])
+ Usuarios:new Hoja([['email','docente','estado','fecha_solicitud','autoriza_datos'],['ana@x.com','Ana Director','ACTIVO','','SI'],['beto@x.com','Beto Codirector','ACTIVO','','SI'],['dora@x.com','Dora Mate','ACTIVO','','SI'],['carla@x.com','Carla Director','ACTIVO','','SI'],['elena@x.com','Elena Primaria','ACTIVO','','SI'],['hugo@x.com','Hugo Ingles','ACTIVO','','SI'],['paula@x.com','Paula Preescolar','ACTIVO','','SI']])
 };
 let EMAIL='coord@x.com', archivos=[], movidos=[];
 const carpeta=(ruta)=>({ruta,moveTo(f){movidos.push(ruta+' -> '+f.ruta)},getFilesByName:()=>({hasNext:()=>false}),getFoldersByName:n=>{const hijo=carpeta(ruta+'/'+n);return {hasNext:()=>carpeta.hechos.has(ruta+'/'+n),next:()=>hijo}},createFolder:n=>{carpeta.hechos.add(ruta+'/'+n);return carpeta(ruta+'/'+n)},
@@ -106,32 +106,78 @@ ok(/faltan 30/.test(falla("comisionConfirmar({acta:AF,tipo:'promocion',curso:'08
 run("comisionGuardar({acta:AF,seccion:'promocion:0801',datos:{lista:36,no_promovidos:3},version:1})");
 ok(run("comisionConfirmar({acta:AF,tipo:'promocion',curso:'0801',on:true})").ok,'promoción que cuadra: se confirma');
 
-// ---- cierre compartido ----
+// ---- informe de pendientes: nada vacío, nada sin declarar ----
 yo('ana@x.com'); g.ID=id1;
-run("comisionGuardar({acta:ID,seccion:'integrantes',datos:[{n:'Ana Director',p:true},{n:'Dora Mate',p:true},{n:'Hugo Ingles',p:true}],version:0})");
-ok(/Falta/.test(falla("comisionCierre({acta:ID,accion:'proponer'})")||''),'no se propone el cierre si faltan requisitos, responsable o confirmaciones');
-run("comisionGuardar({acta:ID,seccion:'requisitos',datos:{notas:true,planillas:true,resumenes:true,cuadernos:true,observ:true,faltantes:true},version:0})");
+const pend=()=>run("comisionPendientes({acta:ID})");
+let pd=pend(); const comps=new Set(pd.lista.map(x=>x.comp));
+ok(pd.por_resolver>20&&['Requisitos previos','Matrícula','Áreas','Reprobación','Reconocimientos','Convivencia','Compromisos con acudientes','PIAR y dificultades','Recomendaciones','Asistencia'].every(c=>comps.has(c)),'un acta vacía lista pendientes de TODOS los componentes ('+pd.por_resolver+' por resolver)');
+ok(!comps.has('Promoción'),'en un periodo no se pide la promoción');
+ok(/No se puede cerrar todavía/.test(falla("comisionCierre({acta:ID,accion:'proponer'})")||'')||/Falta elegir/.test(falla("comisionCierre({acta:ID,accion:'proponer'})")||''),'con pendientes no se propone el cierre');
+// se llena todo salvo lo que se quiere probar
+g.CUR=['0801','0802'];
+run(`(function(){const I=ID;const w=(s,d)=>comisionEscribe_(I,s,d,'prueba');
+ w('requisitos',{notas:1,planillas:1,resumenes:1,cuadernos:1,observ:1,faltantes:1});
+ w('integrantes',[{n:'Ana Director',p:true,correo:'ana@gmail.com',tel:'3001112233',ced:'12345678'},{n:'Dora Mate',p:true,correo:'dora@gmail.com',tel:'3001112244',ced:'12345679'},{n:'Hugo Ingles',p:true,correo:'hugo@gmail.com',tel:'3001112255',ced:'12345680'}]);
+ w('firmas',{'Ana Director':'10:00','Dora Mate':'10:00','Hugo Ingles':'10:00'});
+ w('listos',{'Ana Director':true,'Dora Mate':true,'Hugo Ingles':true});
+ CUR.forEach(c=>{w('matricula:'+c,{ini:36,nu:0,re:0,de:0,m:18,f:18,ve:2,ec:0});w('confirm:matricula:'+c,{ok:true});w('estudiantes:'+c,{rep:[],con:[],com:[],piar:[],sc:{rep:1,con:1,com:1,piar:1,areas:1}});w('reconocimientos:'+c,{filas:[],sc:1})});
+ COM_AREAS.forEach(a=>w('recomendaciones:'+a,{texto:'Reforzar lo pendiente',etiquetas:[]}));})()`);
 run("comisionResponsable({acta:ID,nombre:'Ana Director'})");
-run("comisionConfirmar({acta:ID,tipo:'matricula',curso:'0801',on:true})");
-yo('carla@x.com');
-run("comisionGuardar({acta:ID,seccion:'reconocimientos:0802',datos:{filas:[]},version:0})");
-run("comisionConfirmar({acta:ID,tipo:'matricula',curso:'0802',on:true})"); run("comisionConfirmar({acta:ID,tipo:'reconocimientos',curso:'0802',on:true})");
+pd=pend(); ok(pd.por_resolver===0,'con todo registrado o declarado «sin casos», no queda nada por resolver');
+// cada regla detecta su ausencia
+const sinX=(sec,dato,texto)=>{run(`comisionEscribe_(ID,'${sec}',${dato},'prueba')`);const x=pend();return x.por_resolver>0&&x.lista.some(y=>!y.adv&&texto.test(y.comp+y.msg))};
+ok(sinX('estudiantes:0801',"{rep:[],con:[],com:[],piar:[],sc:{rep:1,com:1,piar:1,areas:1}}",/Convivencia/),'sin casos de convivencia ni declaración: pendiente');
+run("comisionEscribe_(ID,'estudiantes:0801',{rep:[],con:[],com:[],piar:[],sc:{rep:1,con:1,com:1,piar:1,areas:1}},'p')");
+ok(sinX('recomendaciones:Inglés',"{texto:'',etiquetas:[]}",/Inglés: falta escribir/),'recomendación vacía: pendiente');
+run("comisionEscribe_(ID,'recomendaciones:Inglés',{texto:'ok',etiquetas:[]},'p')");
+ok(sinX('faltantes',"{docentes:[{n:'Dora Mate',falta:['cédula']}],estudiantes:[{n:'Perez Ana',g:'0801',falta:['Sexo','Nacionalidad']}]}",/Datos de estudiantes/),'faltan datos de estudiantes o docentes: pendiente con quién y qué falta');
+ok(pend().lista.some(y=>y.comp==='Datos de estudiantes'&&y.persona==='Perez Ana'&&/Sexo/.test(y.msg)&&/rectoría/.test(y.donde)),'el informe dice quién, qué falta y dónde pedirlo');
+run("comisionEscribe_(ID,'faltantes',{},'p')");
+ok(sinX('firmas',"{'Ana Director':'10:00'}",/Firmas/),'faltan firmas: pendiente');
+run("comisionEscribe_(ID,'firmas',{'Ana Director':'10:00','Dora Mate':'10:00','Hugo Ingles':'10:00'},'p')");
+ok(sinX('areas:Matemáticas',"{por_curso:{'0801':6}}",/Matemáticas: la cifra dice 6 y hay 0/),'cifra de reprobados sin estudiantes registrados: pendiente');
+run("comisionEscribe_(ID,'areas:Matemáticas',{por_curso:{}},'p')");
+ok(sinX("confirm:matricula:0802","{ok:false}",/confirmar la matrícula/),'matrícula sin confirmar: pendiente');
+run("comisionEscribe_(ID,'confirm:matricula:0802',{ok:true},'p')");
+ok(sinX('integrantes',"[{n:'Ana Director',p:true,correo:'ana@icet.edu.co',tel:'3001112233',ced:'12345678'}]",/correo PERSONAL/),'correo institucional: no vale');
+run("comisionEscribe_(ID,'integrantes',[{n:'Ana Director',p:true,correo:'ana@gmail.com',tel:'3001112233',ced:'12345678'},{n:'Dora Mate',p:true,correo:'dora@gmail.com',tel:'3001112244',ced:'12345679'},{n:'Hugo Ingles',p:true,correo:'hugo@gmail.com',tel:'3001112255',ced:'12345680'}],'p')");
+ok(pend().por_resolver===0,'restablecido: nada por resolver');
+// ---- preescolar ----
+yo('paula@x.com'); const pre=run("comisionAbrir({periodo:'Final',grado:'00'})"); g.IP=pre.acta.id;
+const lp=run("comisionPendientes({acta:IP})"); const cp=new Set(lp.lista.map(x=>x.comp));
+ok(!cp.has('Promoción')&&!cp.has('Reprobación')&&cp.has('Propósitos')&&cp.has('Deserción e inasistencia'),'preescolar: sin promoción ni reprobación; con propósitos y deserción e inasistencia');
+ok(lp.lista.some(x=>x.comp==='Recomendaciones'&&/Experiencias y pensamiento computacional/.test(x.msg)),'preescolar: exige la recomendación de experiencias (pensamiento computacional y tecnológicas)');
+run(`(function(){const I=IP;const w=(s,d)=>comisionEscribe_(I,s,d,'prueba');
+ w('requisitos',{notas:1,planillas:1,resumenes:1,cuadernos:1,observ:1,faltantes:1});w('integrantes',[{n:'Paula Preescolar',p:true,correo:'paula@gmail.com',tel:'3001112266',ced:'12345681'}]);w('firmas',{'Paula Preescolar':'10:00'});
+ w('matricula:0001',{ini:24,nu:0,re:0,de:0,m:12,f:12,ve:0,ec:0});w('confirm:matricula:0001',{ok:true});w('estudiantes:0001',{rep:[],con:[],com:[],piar:[],sc:{rep:1,con:1,com:1,piar:1,areas:1}});w('reconocimientos:0001',{filas:[],sc:1});
+ COM_PRE_CLAVES.forEach(k=>w('recomendaciones:'+k,{texto:'ok',etiquetas:[]}));})()`);
+run("comisionResponsable({acta:IP,nombre:'Paula Preescolar'})");
+ok(run("comisionPendientes({acta:IP})").por_resolver===0,'preescolar completo: no queda nada por resolver (y la promoción no estorba)');
+// ---- cierre compartido ----
 yo('dora@x.com'); ok(/Solo Ana Director/.test(falla("comisionCierre({acta:ID,accion:'proponer'})")||''),'solo el responsable propone el cierre');
 yo('ana@x.com'); ok(run("comisionCierre({acta:ID,accion:'proponer'})").cerrada===false,'el responsable propone el cierre (queda confirmado por él)');
 yo('dora@x.com'); ok(run("comisionCierre({acta:ID,accion:'confirmar'})").cerrada===false,'otro integrante confirma su parte');
 ok(/no está entre los integrantes/.test(falla("comisionCierre({acta:ID,accion:'confirmar',en_nombre:'Pedro Perez'})")||''),'no se confirma en nombre de quien no asistió');
+const nArch=archivos.length;
 r=run("comisionCierre({acta:ID,accion:'confirmar',en_nombre:'Hugo Ingles'})");
-ok(r.cerrada===true&&r.hora_cierre==='15:41','confirmar desde el equipo de otro compañero completa el cierre y el sistema pone la hora (15:41)');
+ok(r.cerrada===true&&r.hora_cierre==='15:41'&&r.copia_en_drive===true,'confirmar desde el equipo de otro compañero completa el cierre; hora automática 15:41 y copia en Drive');
+ok(archivos.length>nArch&&archivos.slice(nArch).some(f=>/cerrada\.json$/.test(f.b.n)),'al cerrar se guarda siempre la copia legible «cerrada» en la carpeta (aunque falle el libro)');
 ok(run("comisionCargar({acta:ID})").secciones.cierre.datos.via['Hugo Ingles']==='Dora Mate','queda registrado desde qué equipo se confirmó');
 ok(run("comisionActa_(ID)").estado==='CERRADA'&&run("comisionActa_(ID)").hora_cierre==='15:41','el acta queda CERRADA con la hora de guardado');
 yo('ana@x.com'); ok(/cerrada/.test(falla("comisionGuardar({acta:ID,seccion:'areas:Matemáticas',datos:{},version:0})")||''),'cerrada: solo lectura');
 ok(/Solo coordinación/.test(falla("comisionReabrir({acta:ID,justificacion:'necesito corregir una cifra'})")||''),'un docente no reabre el acta cerrada');
+// PDF de respaldo desde el servidor
+g.HTMLACTA='<div>'+'Acta de prueba '.repeat(40)+'</div>';
+g.Utilities.newBlob=(b,m,n)=>({b,m,n,getAs:(t)=>({b,m:t,n:n.replace(/\.html$/,'.pdf'),setName(x){this.n=x}})});
+const n2=archivos.length; r=run("comisionGuardarPdf({acta:ID,html:HTMLACTA})");
+ok(r.ok&&/Acta 1 Primero · cerrada\.pdf/.test(r.nombre)&&archivos.length===n2+1&&archivos[n2].b.m==='application/pdf','la copia en PDF del acta se guarda en «Borradores» desde el servidor');
+ok(/vacía/.test(falla("comisionGuardarPdf({acta:ID,html:'x'})")||''),'un acta vacía no se convierte');
 yo('coord@x.com'); ok(run("comisionReabrir({acta:ID,justificacion:'Corrección de cifra autorizada por rectoría'})").ok&&run("comisionActa_(ID)").estado==='ABIERTA'&&Number(run("comisionActa_(ID)").reaperturas)===1,'coordinación reabre con justificación y cuenta la reapertura');
 
 // ---- evidencias en Drive ----
 yo('beto@x.com'); g.PDF='JVBERi0xLjQK';
 r=run("comisionSubirSoporte({acta:ID,tipo:'PIAR',curso:'0801',mime:'application/pdf',base64:PDF})");
-ok(archivos.length===1&&archivos[0].ruta==='RAIZ/APP ASISTENCIA DOCENTE/COMISIONES 2026/Comisiones Evaluación P1 ICET 2026/Grado 08/Anexos'&&/^PIAR_0801_/.test(r.nombre),'la evidencia va a «APP ASISTENCIA DOCENTE / COMISIONES año / periodo / Grado / Anexos»');
+ok(archivos[archivos.length-1].ruta==='RAIZ/APP ASISTENCIA DOCENTE/COMISIONES 2026/Comisiones Evaluación P1 ICET 2026/Grado 08/Anexos'&&/^PIAR_0801_/.test(r.nombre)&&archivos.length>=1,'la evidencia va a «APP ASISTENCIA DOCENTE / COMISIONES año / periodo / Grado / Anexos»');
 ok(/Formato no permitido/.test(falla("comisionSubirSoporte({acta:ID,tipo:'DUA',curso:'0801',mime:'text/html',base64:PDF})")||''),'solo imagen o PDF');
 yo('dora@x.com'); ok(/director o directora/.test(falla("comisionSubirSoporte({acta:ID,tipo:'PIAR',curso:'0801',mime:'application/pdf',base64:PDF})")||''),'el docente de área no carga evidencias del curso');
 
@@ -139,7 +185,7 @@ yo('dora@x.com'); ok(/director o directora/.test(falla("comisionSubirSoporte({ac
 yo('beto@x.com'); const antes=archivos.length;
 ok(run("comisionBorrador({acta:ID})").ok&&archivos.length===antes+1&&archivos[antes].ruta==='RAIZ/APP ASISTENCIA DOCENTE/COMISIONES 2026/Comisiones Evaluación P1 ICET 2026/Grado 08/Borradores'&&/borrador\.json$/.test(archivos[antes].b.n),'el borrador del acta se guarda en «APP ASISTENCIA DOCENTE / COMISIONES … / Borradores»');
 ok(JSON.parse(archivos[antes].b.b).secciones['matricula:0801']!==undefined,'el borrador trae todas las secciones del acta');
-ok(run("comisionRespaldarActas_()")==='borradores de comisiones: 3','el respaldo nocturno copia las 3 actas del año a la misma carpeta');
+ok(run("comisionRespaldarActas_()")==='borradores de comisiones: 4','el respaldo nocturno copia las 4 actas del año a la misma carpeta');
 yo('dora@x.com'); ok(/director o directora|cursos ni áreas|Usted no/.test(falla("comisionBorrador({acta:ID})")||'x')||run("comisionBorrador({acta:ID})").ok,'un integrante del grado puede guardar el borrador');
 yo('elena@x.com'); ok(/no tiene cursos ni áreas/.test(falla("comisionBorrador({acta:ID})")||''),'quien no trabaja en el grado no');
 const rs=run("reunirEnCarpetaApp_()");

@@ -74,3 +74,13 @@ function editarReunion(p) { return llamar_('editarReunion', [p]); }
 function anularReunion(p) { return llamar_('anularReunion', [p]); }
 function avisosHoy() { return llamar_('avisosHoy', []); }
 function quitarReunionesDuplicadas() { return llamar_('quitarReunionesDuplicadas', []); }
+function comisionContexto() { return llamar_('comisionContexto', []); }
+function comisionAbrir(p) { return llamar_('comisionAbrir', [p]); }
+function comisionCargar(p) { return llamar_('comisionCargar', [p]); }
+function comisionCambios(p) { return llamar_('comisionCambios', [p]); }
+function comisionGuardar(p) { return llamar_('comisionGuardar', [p]); }
+function comisionResponsable(p) { return llamar_('comisionResponsable', [p]); }
+function comisionConfirmar(p) { return llamar_('comisionConfirmar', [p]); }
+function comisionCierre(p) { return llamar_('comisionCierre', [p]); }
+function comisionReabrir(p) { return llamar_('comisionReabrir', [p]); }
+function comisionSubirSoporte(p) { return llamar_('comisionSubirSoporte', [p]); }

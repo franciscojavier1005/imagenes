@@ -20,7 +20,7 @@ const g={Utilities:{formatDate:fmt,getUuid:()=>crypto.randomUUID(),base64Decode:
   ScriptApp:{getService:()=>({getUrl:()=>'https://x/exec'}),getProjectTriggers:()=>[],newTrigger:()=>({timeBased:()=>({everyDays:()=>({atHour:()=>({nearMinute:()=>({inTimezone:()=>({create(){}})})})})})})},
   MailApp:{sendEmail(){}},DriveApp:{},console};
 vm.createContext(g);
-['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Reuniones.gs','Incumplimientos.gs','Horarios.gs','Novedades.gs','Estudiantes.gs','Sesion.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
+['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Reuniones.gs','Incumplimientos.gs','Horarios.gs','Novedades.gs','Estudiantes.gs','Sesion.gs','Comisiones.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
 // las rondas de fechas anteriores (datos de prueba fijos) solo las guarda quien administra, con motivo: las pruebas lo aportan
 vm.runInContext("var _guardarRondaOrig=guardarRonda; guardarRonda=function(p){ if(p&&p.fecha&&!p.correccion) p.correccion='prueba automática'; return _guardarRondaOrig(p); }",g);
 let fallos=0; const ok=(c,m)=>{console.log((c?'  ok   ':'  FALLA ')+m); if(!c)fallos++;};

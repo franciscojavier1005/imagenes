@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.12-a';
-var FECHA_VERSION = '2026-11-12';
+var VERSION_SISTEMA = '2026.11.22-a';
+var FECHA_VERSION = '2026-11-22';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.22-a', fecha: '2026-11-22', cambios: [
+    'Comisiones de evaluación y promoción, SERVIDOR (fase 1; la pantalla llega en la fase 2): hojas Comision_Actas, Comision_Secciones y Comision_Log (se crean solas). Un acta por grado y periodo, con número consecutivo del año (si el tercer periodo no se presenta, el acta final es la número 3). Cada docente guarda solo su sección (su curso o su área, con codirectores) y, si dos personas tocan lo mismo, se avisa del conflicto sin pisar nada.',
+    'Matrícula y reconocimientos se confirman por curso y quedan oficiales: el docente no los modifica; solo coordinación académica los reabre, con justificación escrita que queda en Comision_Log. La matrícula debe cuadrar; en el acta final, promovidos + no promovidos = matrícula actual. El cierre lo propone el responsable y lo confirman todos los integrantes (también desde el equipo de otro compañero); la hora de cierre la pone el sistema. Evidencias opcionales (PIAR, formato de DUA, compromisos) en Drive: App Asistencia / Soportes / Comisiones.'] },
   { version: '2026.11.12-a', fecha: '2026-11-12', cambios: [
     'Reuniones y actividades: nuevo botón «🔒 Dar por terminada» (en la tarjeta, en la asistencia y en el resumen al guardar) para cerrarlas aunque no haya llegado su hora de fin: dejan de salir en el aviso del día y liberan el horario de la ronda desde la hora de cierre. «🔓 Reabrir» las vuelve a activar. Solo se cierran las de hoy o anteriores; queda en la bitácora. Nuevas columnas en la hoja Reuniones: cerrada, cierre_hora.',
     'Aviso del día: ahora aparece compacto (una línea, arriba) para no tapar el bloque ni los botones de la ronda; al tocarlo se abre el detalle completo con barra de desplazamiento y ya no se cierra solo (se cierra con la ✕). Antes el aviso grande tapaba el recuadro del bloque y no dejaba cambiarlo.'] },
@@ -235,6 +238,7 @@ var LEEME_HOJAS = [
   'Motivos / Listas  Catálogos de motivos (salud, permisos, licencias, comisión de servicios, calamidad…) con su categoría y si son justificados.',
   'Novedades         Novedades de asistencia (una fila por docente, día y sesión); Novedades_Anuladas guarda las anuladas.',
   'Registro_Ronda    Cada marca de la ronda (presente, no asistió, tarde…) con el directivo que la hizo.',
+  'Comision_Actas / Comision_Secciones / Comision_Log   Comisiones de evaluación y promoción: una fila por acta del grado, las secciones que guarda cada docente (con su versión) y el registro de confirmaciones, reaperturas y cierres. No se editan a mano.',
   'Reuniones / Asistencia_Reunion / Reuniones_Anuladas   Reuniones y actividades sin estudiantes y su asistencia (se pueden editar; los cambios quedan en Bitacora_Cambios). Solo quien administra las anula y quedan en Reuniones_Anuladas. Datos de cada reunión: lugar, quién convoca, quién solicita, responsables, cómo termina (fija, tentativa o hasta finalizar la jornada) y recordatorios.',
   'Incumplimientos   Reportes con rigor (solo se agrega; seguimiento por estados).',
   'Estudiantes / Marcas_Estudiantes / Grupos_Proyectos   Listado por grupo y marcas de seguimiento (los levantados quedan en la hoja).',

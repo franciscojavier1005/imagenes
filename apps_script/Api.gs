@@ -53,7 +53,17 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   editarReunion: ['directivo'],
   anularReunion: ['directivo'],
   avisosHoy: ['directivo'],
-  quitarReunionesDuplicadas: ['directivo']
+  quitarReunionesDuplicadas: ['directivo'],
+  comisionContexto: ['directivo', 'docente'],
+  comisionAbrir: ['directivo', 'docente'],
+  comisionCargar: ['directivo', 'docente'],
+  comisionCambios: ['directivo', 'docente'],
+  comisionGuardar: ['directivo', 'docente'],
+  comisionResponsable: ['directivo', 'docente'],
+  comisionConfirmar: ['directivo', 'docente'],
+  comisionCierre: ['directivo', 'docente'],
+  comisionReabrir: ['directivo'],
+  comisionSubirSoporte: ['directivo', 'docente']
 };
 
 function apiFunciones_() {
@@ -75,7 +85,9 @@ function apiFunciones_() {
     enviarInformeAMi: enviarInformeAMi,
     levantarMarcasEstudiante: levantarMarcasEstudiante,
     informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
-    editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, cerrarReunion: cerrarReunion, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas
+    editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, cerrarReunion: cerrarReunion, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas,
+    comisionContexto: comisionContexto, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
+    comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte
   };
 }
 

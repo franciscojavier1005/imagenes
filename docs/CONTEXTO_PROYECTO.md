@@ -680,3 +680,9 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - El coordinador confirmó que Prado Quiñones Genís Maribel (#37) y Puches Ana Milena (#39) intercambiaron también la dirección de grupo: Prado pasa a CS 1-2 (docente 1, con Vásquez Valencia Segundo Leoncio) y Puches a 7°-2 (docente 2, con Quintero Ramírez María del Carmen). Arizala sigue en 7°-4 (docente 1) y Armero en 6°-2 (docente 2). Actualizados `data/direccion_grupo.csv`, `data/docentes.csv` y `scripts/direccion_grupo.py`.
 - Pendiente: corregir las celdas en las hojas Direccion_Grupo y Docentes del libro (no se escribe en Google desde aquí) y reflejarlo en la vista previa.
 - Comisiones está integrada en el mismo libro y el mismo script (hojas `Comision_*` se crean al abrir la primera acta); falta la pantalla real (fase 2).
+
+### Ampliación 74 — Vista previa v56: lo de directivos no lo ve el docente (2026-11-22)
+- Perfil «Docente (del grado o director de grupo)»: no ve la preparación de datos para IA (ni en Imprimible ni en Dashboard), ni el listado de combinación de correspondencia de reconocimientos, ni las pestañas Informe directivo, Integración y Desarrollador; coordinación y administración sí. Los textos de «Cómo funciona» tampoco mencionan IA ni informes por rol al docente.
+- Dirección de grupo reflejada en la vista previa: 7°-2 con Quintero y Puches; CS 1-2 con Prado y Vásquez.
+- Regla para la pantalla real y para el control de asistencia: el docente del grado (no solo el director de grupo) entra con su perfil y nunca ve opciones de directivos (IA, control de asistencia/ronda, administración).
+- Pendiente (después de la fase 2): pantalla de ingreso de docentes con contraseña temporal que el administrador pueda restablecer.

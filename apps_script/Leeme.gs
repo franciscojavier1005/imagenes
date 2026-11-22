@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.22-b';
+var VERSION_SISTEMA = '2026.11.22-c';
 var FECHA_VERSION = '2026-11-22';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.22-c', fecha: '2026-11-22', cambios: [
+    'La carpeta única de la aplicación es ahora la que ya existe en el Drive del propietario, «APP ASISTENCIA DOCENTE» (se conserva su mismo enlace; el sistema la busca por nombre o por el id fijado en Parametros: carpeta_app_id). Ya no se crea una carpeta nueva llamada «App Asistencia». Dentro: Respaldos, Libros, soportes de ausencias y audios, y las comisiones en COMISIONES año / Comisiones Evaluación P1 ICET año / Grado X (Anexos y Borradores), junto a las actas anteriores que ya están allí.'] },
   { version: '2026.11.22-b', fecha: '2026-11-22', cambios: [
     'Todo en una sola carpeta de Drive, «App Asistencia»: respaldos (Respaldos), soportes de ausencias y audios (la carpeta de soportes ahora nace dentro de ella), y en las comisiones: Comisiones / año / Grado / Acta N periodo / Anexos (PIAR, formato de DUA, compromisos) y / Borradores (copia legible del acta). Cada noche, junto con la copia de los libros, se guarda una copia de todas las actas del año.',
     'Nuevo menú «Reunir todo en la carpeta «App Asistencia» (una vez)»: MUEVE (no copia) a esa carpeta lo que haya quedado suelto en Drive: la carpeta de soportes y audios y los libros del sistema. No se pierde ningún enlace ni permiso.'] },

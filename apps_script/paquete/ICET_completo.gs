@@ -41,7 +41,7 @@ function onOpen() {
     .addItem('Respaldar rondas ahora (libro de respaldo)', 'respaldarTodoAhora')
     .addItem('Respaldos: copiar libros a Drive ahora', 'respaldoLibrosAhora')
     .addItem('Respaldos: programar copia diaria (Drive)', 'instalarRespaldoDiario')
-    .addItem('Reunir todo en la carpeta «App Asistencia» (una vez)', 'reunirEnCarpetaApp')
+    .addItem('Reunir todo en la carpeta «APP ASISTENCIA DOCENTE» (una vez)', 'reunirEnCarpetaApp')
     .addItem('Borrar audios de ronda antiguos', 'purgarAudios')
     .addItem('Compartir con directivos (correos reales)', 'compartirConDirectivos')
     .addItem('Ver instrucciones de la ronda', 'mostrarUrlConsulta')
@@ -3859,11 +3859,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.22-b';
+var VERSION_SISTEMA = '2026.11.22-c';
 var FECHA_VERSION = '2026-11-22';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.22-c', fecha: '2026-11-22', cambios: [
+    'La carpeta única de la aplicación es ahora la que ya existe en el Drive del propietario, «APP ASISTENCIA DOCENTE» (se conserva su mismo enlace; el sistema la busca por nombre o por el id fijado en Parametros: carpeta_app_id). Ya no se crea una carpeta nueva llamada «App Asistencia». Dentro: Respaldos, Libros, soportes de ausencias y audios, y las comisiones en COMISIONES año / Comisiones Evaluación P1 ICET año / Grado X (Anexos y Borradores), junto a las actas anteriores que ya están allí.'] },
   { version: '2026.11.22-b', fecha: '2026-11-22', cambios: [
     'Todo en una sola carpeta de Drive, «App Asistencia»: respaldos (Respaldos), soportes de ausencias y audios (la carpeta de soportes ahora nace dentro de ella), y en las comisiones: Comisiones / año / Grado / Acta N periodo / Anexos (PIAR, formato de DUA, compromisos) y / Borradores (copia legible del acta). Cada noche, junto con la copia de los libros, se guarda una copia de todas las actas del año.',
     'Nuevo menú «Reunir todo en la carpeta «App Asistencia» (una vez)»: MUEVE (no copia) a esa carpeta lo que haya quedado suelto en Drive: la carpeta de soportes y audios y los libros del sistema. No se pierde ningún enlace ni permiso.'] },
@@ -4267,13 +4269,18 @@ function recuperarRondasDesdeCopia() {
  * a «App Asistencia / Respaldos»: Diario (se reemplaza la copia del día y se conservan los últimos respaldo_dias, 3 por defecto), Semanal (una por semana,
  * la primera que se haga cada semana) y Mensual (una por mes). respaldo_semanas y respaldo_meses limitan cuántas se guardan (0 = todas).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco). */
-var CARPETA_APP = 'App Asistencia';
+var CARPETA_APP = 'APP ASISTENCIA DOCENTE';   // la carpeta que ya existe en el Drive del propietario (se conserva su enlace); se puede fijar por id en Parametros: carpeta_app_id
 function carpetaHija_(padre, nombre) {
   var it = padre.getFoldersByName(nombre);
   return it.hasNext() ? it.next() : padre.createFolder(nombre);
 }
 /** Carpeta única de la aplicación en el Drive del propietario. TODO lo que el sistema guarda en Drive (respaldos, borradores, soportes, audios, anexos de las comisiones) va dentro de ella. */
-function carpetaApp_() { return carpetaHija_(DriveApp.getRootFolder(), CARPETA_APP); }
+function carpetaApp_() {
+  var id = parametro_('carpeta_app_id', '');
+  if (id) { try { return DriveApp.getFolderById(id); } catch (e) { /* si no se puede abrir, se busca por nombre */ } }
+  try { var it = DriveApp.getFoldersByName(CARPETA_APP); if (it.hasNext()) return it.next(); } catch (e) { /* sin búsqueda global */ }
+  return carpetaHija_(DriveApp.getRootFolder(), CARPETA_APP);
+}
 function carpetaRespaldos_() {
   return carpetaHija_(carpetaApp_(), 'Respaldos');
 }
@@ -4632,7 +4639,7 @@ function verSesionesAbiertas() {
  *  - El cierre lo propone una persona y lo confirman todos los integrantes (o se excluyen los no conectados); la hora de cierre la pone el sistema.
  *  - Quien no firma se entiende que no asistió. Las firmas se registran al comienzo y al finalizar en el acta impresa.
  *  - Los informes que ven los docentes se calculan por reglas; la IA (si se activa) es solo para directivos y no vive aquí.
- * TODO en Drive vive en una sola carpeta, «App Asistencia»: Comisiones / año / Grado / Acta N periodo / Anexos (PIAR, DUA, compromisos) y / Borradores (copia legible de lo que se lleva).
+ * TODO en Drive vive en una sola carpeta, «APP ASISTENCIA DOCENTE»: COMISIONES año / Comisiones Evaluación P1 ICET año / Grado X / Anexos (PIAR, DUA, compromisos) y / Borradores (copia legible de lo que se lleva).
  * Los respaldos de los libros van en «App Asistencia / Respaldos» (Respaldo.gs).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
@@ -4955,10 +4962,12 @@ function comisionReabrir(p) {
     return { ok: true };
   } finally { lock.releaseLock(); }
 }
-/** Carpeta de un acta dentro de «App Asistencia»: Comisiones / año / Grado / Acta N periodo [/ subcarpeta]. */
+/** Carpeta del acta dentro de la carpeta de la aplicación: COMISIONES año / Comisiones Evaluación P1 ICET año (como las que ya existen) / Grado X [/ subcarpeta]. */
 function comisionCarpeta_(a, sub) {
-  var f = carpetaHija_(carpetaApp_(), 'Comisiones');
-  [String(a.anio), 'Grado ' + a.grado, 'Acta ' + a.acta_no + ' ' + a.periodo].forEach(function (n) { f = carpetaHija_(f, n); });
+  var pcorto = { Primero: 'P1', Segundo: 'P2', Tercero: 'P3', Final: 'Final' }[a.periodo] || String(a.periodo);
+  var f = carpetaHija_(carpetaApp_(), 'COMISIONES ' + a.anio);
+  f = carpetaHija_(f, 'Comisiones Evaluación ' + pcorto + ' ICET ' + a.anio);
+  f = carpetaHija_(f, 'Grado ' + a.grado);
   return sub ? carpetaHija_(f, sub) : f;
 }
 function comisionGuardaJson_(carpeta, nombre, obj) {

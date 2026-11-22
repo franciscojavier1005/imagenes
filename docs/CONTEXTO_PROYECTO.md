@@ -602,3 +602,9 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Esto **corrige** la ruta `Soportes/Comisiones/...` de la ampliación 53.
 - Menú nuevo **«Reunir todo en la carpeta «App Asistencia» (una vez)»** (`reunirEnCarpetaApp`): mueve (no copia) lo que esté suelto: carpeta de soportes/audios y libros. Los borradores de la vista previa (navegador) seguirán en el equipo hasta la fase 2, donde el borrador se guarda en el libro y se copia a Drive.
 - Pruebas: `comisiones.test.js` cubre anexos, borradores, respaldo nocturno y reunión (todas las pruebas en verde).
+
+### Ampliación 61 — La carpeta única es la que ya existe: «APP ASISTENCIA DOCENTE» (versión 2026.11.22-c)
+- Revisado (solo lectura) el Drive del usuario: ya existe **«APP ASISTENCIA DOCENTE»** (enlace `drive.google.com/drive/folders/1GAsWQu6B7gk26Uv5k5kJ8t0q94VvlYfC`) con EBC, DBA, «COMISIONES 2026» (con «Comisiones Evaluación P1 ICET 2026» y «P2…»), el listado de estudiantes y los datos de docentes. No existía «App Asistencia».
+- **Corrección:** el sistema usa esa carpeta (misma URL): la busca por nombre en todo el Drive o por el id fijado en `Parametros` (`carpeta_app_id`). Dentro: `Respaldos/`, `Libros/`, soportes de ausencias y audios, y `COMISIONES año / Comisiones Evaluación P1 ICET año / Grado X / Anexos y Borradores`. Reemplaza las rutas de las ampliaciones 53 y 60.
+- Nada se movió desde aquí (esta sesión solo lee Drive): lo que esté suelto lo mueve el menú «Reunir todo en la carpeta «APP ASISTENCIA DOCENTE» (una vez)» desde el libro.
+- URL de la aplicación web: se conserva actualizando la implementación existente (Implementar → Administrar implementaciones → Editar → Nueva versión), no creando una nueva.

@@ -14,7 +14,7 @@
  *  - El cierre lo propone una persona y lo confirman todos los integrantes (o se excluyen los no conectados); la hora de cierre la pone el sistema.
  *  - Quien no firma se entiende que no asistió. Las firmas se registran al comienzo y al finalizar en el acta impresa.
  *  - Los informes que ven los docentes se calculan por reglas; la IA (si se activa) es solo para directivos y no vive aquí.
- * TODO en Drive vive en una sola carpeta, «App Asistencia»: Comisiones / año / Grado / Acta N periodo / Anexos (PIAR, DUA, compromisos) y / Borradores (copia legible de lo que se lleva).
+ * TODO en Drive vive en una sola carpeta, «APP ASISTENCIA DOCENTE»: COMISIONES año / Comisiones Evaluación P1 ICET año / Grado X / Anexos (PIAR, DUA, compromisos) y / Borradores (copia legible de lo que se lleva).
  * Los respaldos de los libros van en «App Asistencia / Respaldos» (Respaldo.gs).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
@@ -337,10 +337,12 @@ function comisionReabrir(p) {
     return { ok: true };
   } finally { lock.releaseLock(); }
 }
-/** Carpeta de un acta dentro de «App Asistencia»: Comisiones / año / Grado / Acta N periodo [/ subcarpeta]. */
+/** Carpeta del acta dentro de la carpeta de la aplicación: COMISIONES año / Comisiones Evaluación P1 ICET año (como las que ya existen) / Grado X [/ subcarpeta]. */
 function comisionCarpeta_(a, sub) {
-  var f = carpetaHija_(carpetaApp_(), 'Comisiones');
-  [String(a.anio), 'Grado ' + a.grado, 'Acta ' + a.acta_no + ' ' + a.periodo].forEach(function (n) { f = carpetaHija_(f, n); });
+  var pcorto = { Primero: 'P1', Segundo: 'P2', Tercero: 'P3', Final: 'Final' }[a.periodo] || String(a.periodo);
+  var f = carpetaHija_(carpetaApp_(), 'COMISIONES ' + a.anio);
+  f = carpetaHija_(f, 'Comisiones Evaluación ' + pcorto + ' ICET ' + a.anio);
+  f = carpetaHija_(f, 'Grado ' + a.grado);
   return sub ? carpetaHija_(f, sub) : f;
 }
 function comisionGuardaJson_(carpeta, nombre, obj) {

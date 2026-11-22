@@ -100,13 +100,18 @@ function recuperarRondasDesdeCopia() {
  * a «App Asistencia / Respaldos»: Diario (se reemplaza la copia del día y se conservan los últimos respaldo_dias, 3 por defecto), Semanal (una por semana,
  * la primera que se haga cada semana) y Mensual (una por mes). respaldo_semanas y respaldo_meses limitan cuántas se guardan (0 = todas).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco). */
-var CARPETA_APP = 'App Asistencia';
+var CARPETA_APP = 'APP ASISTENCIA DOCENTE';   // la carpeta que ya existe en el Drive del propietario (se conserva su enlace); se puede fijar por id en Parametros: carpeta_app_id
 function carpetaHija_(padre, nombre) {
   var it = padre.getFoldersByName(nombre);
   return it.hasNext() ? it.next() : padre.createFolder(nombre);
 }
 /** Carpeta única de la aplicación en el Drive del propietario. TODO lo que el sistema guarda en Drive (respaldos, borradores, soportes, audios, anexos de las comisiones) va dentro de ella. */
-function carpetaApp_() { return carpetaHija_(DriveApp.getRootFolder(), CARPETA_APP); }
+function carpetaApp_() {
+  var id = parametro_('carpeta_app_id', '');
+  if (id) { try { return DriveApp.getFolderById(id); } catch (e) { /* si no se puede abrir, se busca por nombre */ } }
+  try { var it = DriveApp.getFoldersByName(CARPETA_APP); if (it.hasNext()) return it.next(); } catch (e) { /* sin búsqueda global */ }
+  return carpetaHija_(DriveApp.getRootFolder(), CARPETA_APP);
+}
 function carpetaRespaldos_() {
   return carpetaHija_(carpetaApp_(), 'Respaldos');
 }

@@ -131,19 +131,24 @@ yo('coord@x.com'); ok(run("comisionReabrir({acta:ID,justificacion:'Corrección d
 // ---- evidencias en Drive ----
 yo('beto@x.com'); g.PDF='JVBERi0xLjQK';
 r=run("comisionSubirSoporte({acta:ID,tipo:'PIAR',curso:'0801',mime:'application/pdf',base64:PDF})");
-ok(archivos.length===1&&archivos[0].ruta==='RAIZ/App Asistencia/Comisiones/2026/Grado 08/Acta 1 Primero/Anexos'&&/^PIAR_0801_/.test(r.nombre),'la evidencia va a «App Asistencia / Comisiones / año / grado / acta / Anexos»');
+ok(archivos.length===1&&archivos[0].ruta==='RAIZ/APP ASISTENCIA DOCENTE/COMISIONES 2026/Comisiones Evaluación P1 ICET 2026/Grado 08/Anexos'&&/^PIAR_0801_/.test(r.nombre),'la evidencia va a «APP ASISTENCIA DOCENTE / COMISIONES año / periodo / Grado / Anexos»');
 ok(/Formato no permitido/.test(falla("comisionSubirSoporte({acta:ID,tipo:'DUA',curso:'0801',mime:'text/html',base64:PDF})")||''),'solo imagen o PDF');
 yo('dora@x.com'); ok(/director o directora/.test(falla("comisionSubirSoporte({acta:ID,tipo:'PIAR',curso:'0801',mime:'application/pdf',base64:PDF})")||''),'el docente de área no carga evidencias del curso');
 
 // ---- una sola carpeta en Drive: borradores y reunión de lo suelto ----
 yo('beto@x.com'); const antes=archivos.length;
-ok(run("comisionBorrador({acta:ID})").ok&&archivos.length===antes+1&&archivos[antes].ruta==='RAIZ/App Asistencia/Comisiones/2026/Grado 08/Acta 1 Primero/Borradores'&&/borrador\.json$/.test(archivos[antes].b.n),'el borrador del acta se guarda en «App Asistencia / Comisiones / … / Borradores»');
+ok(run("comisionBorrador({acta:ID})").ok&&archivos.length===antes+1&&archivos[antes].ruta==='RAIZ/APP ASISTENCIA DOCENTE/COMISIONES 2026/Comisiones Evaluación P1 ICET 2026/Grado 08/Borradores'&&/borrador\.json$/.test(archivos[antes].b.n),'el borrador del acta se guarda en «APP ASISTENCIA DOCENTE / COMISIONES … / Borradores»');
 ok(JSON.parse(archivos[antes].b.b).secciones['matricula:0801']!==undefined,'el borrador trae todas las secciones del acta');
 ok(run("comisionRespaldarActas_()")==='borradores de comisiones: 3','el respaldo nocturno copia las 3 actas del año a la misma carpeta');
 yo('dora@x.com'); ok(/director o directora|cursos ni áreas|Usted no/.test(falla("comisionBorrador({acta:ID})")||'x')||run("comisionBorrador({acta:ID})").ok,'un integrante del grado puede guardar el borrador');
 yo('elena@x.com'); ok(/no tiene cursos ni áreas/.test(falla("comisionBorrador({acta:ID})")||''),'quien no trabaja en el grado no');
 const rs=run("reunirEnCarpetaApp_()");
-ok(/✔ carpeta de soportes/.test(rs)&&movidos.includes('SUELTA_SOP1 -> RAIZ/App Asistencia')&&movidos.some(x=>x==='ARCHIVO_LIBRO1 -> RAIZ/App Asistencia/Libros'),'«Reunir todo» mueve la carpeta de soportes/audios y el libro dentro de «App Asistencia» (sin copiar)');
+ok(/✔ carpeta de soportes/.test(rs)&&movidos.includes('SUELTA_SOP1 -> RAIZ/APP ASISTENCIA DOCENTE')&&movidos.some(x=>x==='ARCHIVO_LIBRO1 -> RAIZ/APP ASISTENCIA DOCENTE/Libros'),'«Reunir todo» mueve la carpeta de soportes/audios y el libro dentro de «APP ASISTENCIA DOCENTE» (sin copiar)');
+// la carpeta ya existente del propietario se reutiliza (mismo enlace de Drive), no se crea otra
+g.DriveApp.getFoldersByName=n=>n==='APP ASISTENCIA DOCENTE'?{hasNext:()=>true,next:()=>carpeta('CARPETA_EXISTENTE')}:{hasNext:()=>false};
+ok(run("carpetaApp_().ruta")==='CARPETA_EXISTENTE','usa la carpeta «APP ASISTENCIA DOCENTE» que ya existe (se busca por nombre en todo el Drive)');
+hojas.Parametros.v.push(['carpeta_app_id','ID_FIJO']);
+ok(run("carpetaApp_().ruta")==='SUELTA_ID_FIJO','o la que se fije por id en Parametros (carpeta_app_id)');
 // ---- API ----
 ok(run("API_PERMISOS.comisionReabrir.join()")==='directivo'&&run("API_PERMISOS.comisionGuardar.indexOf('docente')")>=0,'la API expone las funciones de comisiones (reabrir solo para directivos)');
 ok(run("apiDespachar_('ana@x.com','comisionContexto',[])").ok&&run("apiDespachar_('ana@x.com','comisionContexto',[])").data.anio===2026,'un docente llama a la API por su correo');

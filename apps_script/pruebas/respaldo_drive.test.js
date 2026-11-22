@@ -15,7 +15,7 @@ vm.createContext(g);
 ['Codigo.gs','Soportes.gs','Acceso.gs','Respaldo.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
 g.bitacora_=(a,d)=>bit.push(a);
 let fallos=0; const ok=(c,m)=>{console.log((c?'  ok   ':'  FALLA ')+m); if(!c)fallos++;}; const run=c=>vm.runInContext(c,g);
-const app=()=>raiz.hijos['App Asistencia'].hijos.Respaldos.hijos; const act=n=>app()[n].arch.filter(f=>!f.papelera).map(f=>f.nombre);
+const app=()=>raiz.hijos['APP ASISTENCIA DOCENTE'].hijos.Respaldos.hijos; const act=n=>app()[n].arch.filter(f=>!f.papelera).map(f=>f.nombre);
 g.hoy=d=>new Date(2026,9,d); // octubre 2026
 run('respaldoProgramado(hoy(19))');   // lunes 19
 ok(act('Diario').length===2&&act('Semanal').length===2&&act('Mensual').length===2,'primer día: copia diaria, semanal y mensual de los 2 libros');

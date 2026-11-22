@@ -651,3 +651,10 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ### Ampliación 68 — Vista previa v52: Listados por curso plegable (2026-11-22)
 - En el paso «Listados» cada curso vuelve a ser un bloque plegable (con conteo de agregados y retirados en el título) y dentro una tabla (N.º, nombre, documento, estado). Al agregar o retirar, los cursos que estaban abiertos siguen abiertos. Si se filtra un curso, se muestra abierto. Solo vista previa.
+
+### Ampliación 69 — Vista previa v53: «Hubo casos» al derecho, apellidos primero, reprobación en tarjetas (2026-11-22)
+- Interruptores por curso de Reprobación, Reconocimientos, Convivencia, Compromisos, PIAR y Áreas: ahora se ENCIENDEN cuando hubo casos (ya no están «al revés»). Apagarlo con registros pide confirmación y los quita de la lista (en áreas pone las cifras en cero; reconocimientos confirmados no se pueden apagar salvo coordinación). Si no hubo, se pulsa el botón «No hubo casos» (o «Ningún área con reprobados», «Todos los propósitos están en desarrollo esperado»): tres estados: sin declarar / hubo / no hubo. El interruptor ya no queda deshabilitado.
+- Nombres: apellidos y luego nombres en toda la aplicación (pantallas, pendientes, listados, cambios); solo el listado de combinación de correspondencia para el coordinador (reconocimientos) va nombres y luego apellidos.
+- Reprobación, Convivencia, Compromisos y PIAR vuelven a las tarjetas por estudiante (la tabla era demasiado ancha). Siguen en tabla: confirmaciones de matrícula/reconocimientos y los listados por curso.
+- Reconocimientos confirmados: se avisa explícitamente que las filas en gris/verde están bloqueadas (oficial).
+- Solo vista previa (el código del libro sigue en 2026.11.22-e).

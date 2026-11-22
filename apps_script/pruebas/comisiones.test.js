@@ -14,6 +14,8 @@ const hojas={
  Grupos:new Hoja([['grupo','tipo','grado','nombre','modalidad'],['0801','REGULAR','08','8°-1',''],['0802','REGULAR','08','8°-2',''],['0501','REGULAR','05','5°-1',''],['0001','REGULAR','00','0°-1','']]),
  Direccion_Grupo:new Hoja([['grupo','nombre','tipo_direccion','docente_1','docente_2','modalidad','dinamizadores'],['0801','8°-1','DIRECTOR','Ana Director','Beto Codirector','',''],['0802','8°-2','DIRECTOR','Carla Director','','',''],['0501','5°-1','DIRECTOR','Elena Primaria','','',''],['0001','0°-1','DIRECTOR','Paula Preescolar','','','']]),
  Horario:new Hoja([['docente','dia','hora','grupo','area'],['Dora Mate','LUNES',1,'0801','Matemáticas'],['Dora Mate','LUNES',2,'0802','Matemáticas'],['Hugo Ingles','LUNES',3,'0801','Inglés'],['Elena Primaria','LUNES',1,'0501','ÁREAS MÚLTIPLES']]),
+ Estudiantes:new Hoja([['grupo','curso','no','apellidos','nombres'],['0801','8°-1',1,'PEREZ GOMEZ','ANA'],['0801','8°-1',2,'ROJAS LOPEZ','LUIS']]),
+ Marcas_Estudiantes:new Hoja([['clave','grupo','curso','apellidos','nombres','tipo','nota','estado','fecha','registrado_por','fecha_levantada','levantada_por']]),
  Docentes:new Hoja([['codigo','n','nombre_completo','nivel','correo'],[1,1,'Ana Director','SECUNDARIA','']]),
  Directivos:new Hoja([['nombre','rol','correo_temporal','administra'],['Coord Académica','Coordinador académico','coord@x.com','']]),
  Parametros:new Hoja([['clave','valor'],['anio_lectivo','2026'],['carpeta_soportes_id','SOP1']]),
@@ -173,6 +175,23 @@ const n2=archivos.length; r=run("comisionGuardarPdf({acta:ID,html:HTMLACTA})");
 ok(r.ok&&/Acta 1 Primero · cerrada\.pdf/.test(r.nombre)&&archivos.length===n2+1&&archivos[n2].b.m==='application/pdf','la copia en PDF del acta se guarda en «Borradores» desde el servidor');
 ok(/vacía/.test(falla("comisionGuardarPdf({acta:ID,html:'x'})")||''),'un acta vacía no se convierte');
 yo('coord@x.com'); ok(run("comisionReabrir({acta:ID,justificacion:'Corrección de cifra autorizada por rectoría'})").ok&&run("comisionActa_(ID)").estado==='ABIERTA'&&Number(run("comisionActa_(ID)").reaperturas)===1,'coordinación reabre con justificación y cuenta la reapertura');
+
+// ---- el director agrega y retira estudiantes ----
+yo('ana@x.com'); run("comisionEscribe_(ID,'confirm:matricula:0801',{ok:false},'p')");
+r=run("comisionEstudiante({acta:ID,curso:'0801',accion:'AGREGAR',a:'Nueva Prueba',n:'Maria',motivo:'Llegó durante el año (traslado o nuevo ingreso)',falta:['Sexo','Cédula']})");
+ok(r.ok&&r.ajuste_matricula==='sumar 1 a Nuevos'&&hojas.Estudiantes.v.some(x=>/NUEVA PRUEBA/.test(x[3])),'la directora agrega un estudiante que falta (queda en el listado y se anota el ajuste de matrícula)');
+ok(/ya está en el grupo/.test(falla("comisionEstudiante({acta:ID,curso:'0801',accion:'AGREGAR',a:'Nueva Prueba',n:'Maria'})")||''),'no se duplica');
+r=run("comisionEstudiante({acta:ID,curso:'0801',accion:'RETIRAR',nombre:'ROJAS LOPEZ LUIS',motivo:'Nunca asistió (matriculado que no se presentó)'})");
+ok(r.ok&&r.cambios===2,'retira a quien nunca vino (queda registrado con motivo y autor)');
+ok(/Elija el motivo/.test(falla("comisionEstudiante({acta:ID,curso:'0801',accion:'RETIRAR',nombre:'X',motivo:'porque sí'})")||''),'el retiro exige un motivo válido');
+yo('carla@x.com'); ok(/director o directora del curso/.test(falla("comisionEstudiante({acta:ID,curso:'0801',accion:'AGREGAR',a:'Otra',n:'Persona'})")||''),'la directora de otro curso no puede');
+yo('dora@x.com'); ok(/director o directora del curso/.test(falla("comisionEstudiante({acta:ID,curso:'0801',accion:'AGREGAR',a:'Otra',n:'Persona'})")||''),'un docente de área tampoco');
+yo('ana@x.com'); run("comisionEscribe_(ID,'confirm:matricula:0801',{ok:true},'p')");
+ok(/matrícula del curso está confirmada/.test(falla("comisionEstudiante({acta:ID,curso:'0801',accion:'AGREGAR',a:'Tarde',n:'Mucho'})")||''),'con la matrícula confirmada no se puede (solo coordinación la reabre)');
+ok(run("comisionCargar({acta:ID})").secciones['cambios:0801'].datos.length===2,'los cambios quedan en la sección «cambios» del acta');
+run("comisionEscribe_(ID,'confirm:promocion:0801',{ok:true,veces:1},'p')"); yo('coord@x.com'); run("comisionEstudiante({acta:ID,curso:'0801',accion:'AGREGAR',a:'Coordinacion',n:'Agrega'})");
+ok(run("comisionCargar({acta:ID})").secciones['confirm:promocion:0801'].datos.ok===false,'al cambiar la lista, la promoción vuelve a pedir confirmación');
+run("comisionEscribe_(ID,'confirm:matricula:0801',{ok:true},'p')");
 
 // ---- evidencias en Drive ----
 yo('beto@x.com'); g.PDF='JVBERi0xLjQK';

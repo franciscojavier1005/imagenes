@@ -174,7 +174,11 @@ function ponMarcaEst_(sh, e, tipoId, nota, por) {
 
 /** Agrega a un estudiante que no aparece en el listado (llegó nuevo, o se omitió): al final del grupo, con la marca «nuevo» o «no aparecía en el listado». p = {g, a, n, nota?, motivo?: 'NUEVO'|'NO_LISTADO'} */
 function agregarEstudiante(p) {
-  var quien = exigirDirectivo_(), por = quien.nombre || quien.email;
+  var quien = exigirDirectivo_();
+  return agregarEstudiante_(p, quien.nombre || quien.email);
+}
+/** Agrega al listado (también lo usan los directores de grupo desde las comisiones, con sus propios permisos). */
+function agregarEstudiante_(p, por) {
   p = p || {};
   var g = codGrupoEst_(p.g), a = String(p.a || '').trim().replace(/\s+/g, ' ').toUpperCase(), n = String(p.n || '').trim().replace(/\s+/g, ' ').toUpperCase();
   if (!a || !n) throw new Error('Escriba apellidos y nombres.');

@@ -87,3 +87,4 @@ function comisionSubirSoporte(p) { return llamar_('comisionSubirSoporte', [p]); 
 function comisionBorrador(p) { return llamar_('comisionBorrador', [p]); }
 function comisionPendientes(p) { return llamar_('comisionPendientes', [p]); }
 function comisionGuardarPdf(p) { return llamar_('comisionGuardarPdf', [p]); }
+function comisionEstudiante(p) { return llamar_('comisionEstudiante', [p]); }

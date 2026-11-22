@@ -3783,7 +3783,11 @@ function ponMarcaEst_(sh, e, tipoId, nota, por) {
 
 /** Agrega a un estudiante que no aparece en el listado (llegó nuevo, o se omitió): al final del grupo, con la marca «nuevo» o «no aparecía en el listado». p = {g, a, n, nota?, motivo?: 'NUEVO'|'NO_LISTADO'} */
 function agregarEstudiante(p) {
-  var quien = exigirDirectivo_(), por = quien.nombre || quien.email;
+  var quien = exigirDirectivo_();
+  return agregarEstudiante_(p, quien.nombre || quien.email);
+}
+/** Agrega al listado (también lo usan los directores de grupo desde las comisiones, con sus propios permisos). */
+function agregarEstudiante_(p, por) {
   p = p || {};
   var g = codGrupoEst_(p.g), a = String(p.a || '').trim().replace(/\s+/g, ' ').toUpperCase(), n = String(p.n || '').trim().replace(/\s+/g, ' ').toUpperCase();
   if (!a || !n) throw new Error('Escriba apellidos y nombres.');
@@ -3859,11 +3863,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.22-d';
+var VERSION_SISTEMA = '2026.11.22-e';
 var FECHA_VERSION = '2026-11-22';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.22-e', fecha: '2026-11-22', cambios: [
+    'Comisiones (servidor): el director o directora de grupo puede AGREGAR a un estudiante que falta en la lista (con los datos esenciales, sin inventarlos: lo que no se tiene queda pendiente) y RETIRAR a quien ya no vino o nunca vino (retirado, desertado o nunca asistió). Queda registrado quién y por qué, se ajusta la matrícula del curso (nuevos, retirados o desertados) y la promoción vuelve a pedir confirmación. Con la matrícula confirmada solo coordinación académica puede reabrir para hacer estos cambios.',
+    'Agregar estudiantes ahora también puede hacerlo el director de grupo desde las comisiones (con sus propios permisos); el módulo de estudiantes de los directivos sigue igual.'] },
   { version: '2026.11.22-d', fecha: '2026-11-22', cambios: [
     'Comisiones (servidor): validación de TODOS los componentes y informe de pendientes. Cada componente (reprobación o deserción e inasistencia, reconocimientos, convivencia, compromisos, PIAR, áreas o propósitos) debe tener registros o la declaración «no hubo casos»; cada área o propósito, su recomendación; matrícula, reconocimientos y promoción confirmados; datos de docentes y estudiantes completos; firmas. Si falta algo no se puede cerrar y el informe dice qué falta, de quién y dónde pedirlo (rectoría, archivo o coordinador). Preescolar con reglas propias (sin promoción ni reprobación; propósitos, experiencias y deserción e inasistencia).',
     'El PDF siempre queda: al cerrar el acta se guarda una copia legible en la carpeta del acta en Drive aunque falle lo demás, y hay una función para guardar el PDF del acta desde el servidor como respaldo (el principal sale de la impresión del navegador).'] },
@@ -5080,6 +5087,41 @@ function comisionGuardarPdf(p) {
   comisionLog_(a.id, quien.nombre, 'PDF_DRIVE', nombre);
   return { ok: true, nombre: nombre, url: f.getUrl() };
 }
+/**
+ * El director o directora del curso agrega a un estudiante que falta (con los datos esenciales, sin inventarlos) o retira a quien ya no vino o nunca vino.
+ * p = {acta, curso, accion: 'AGREGAR'|'RETIRAR', a, n, motivo, falta: [datos que no se tienen], nombre (al retirar)}
+ * Con la matrícula del curso confirmada no se puede (solo coordinación la reabre). Se confirma de nuevo la promoción. Todo queda en «cambios:curso» y en el registro.
+ * Los números de documento no se guardan aquí: van a la hoja reservada de identidad (fase 2).
+ */
+var MOTIVOS_RETIRO_COM = ['Se retiró (traslado u otra razón)', 'Desertó: no volvió', 'Nunca asistió (matriculado que no se presentó)'];
+function comisionEstudiante(p) {
+  var quien = comisionQuien_(); p = p || {};
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var a = comisionActa_(p.acta); if (a.estado !== 'ABIERTA') throw new Error('El acta está cerrada.');
+    var curso = String(p.curso || ''), al = comisionAlcance_(quien, String(a.grado)), secs = comisionSecciones_(a.id);
+    if (!al.todo && al.cursos.indexOf(curso) < 0) throw new Error('Solo el director o directora del curso agrega o retira estudiantes.');
+    var conf = secs['confirm:matricula:' + curso] && secs['confirm:matricula:' + curso].datos;
+    if (conf && conf.ok && !quien.coord) throw new Error('La matrícula del curso está confirmada y es oficial: pida a coordinación académica que la reabra.');
+    var clave = 'cambios:' + curso, lista = (secs[clave] && secs[clave].datos) || [], reg;
+    if (p.accion === 'AGREGAR') {
+      var ap = String(p.a || '').trim(), nm = String(p.n || '').trim();
+      if (!ap || !nm) throw new Error('Escriba apellidos y nombres.');
+      agregarEstudiante_({ g: curso, a: ap, n: nm, motivo: /no aparec/i.test(String(p.motivo || '')) ? 'NO_LISTADO' : 'NUEVO', nota: String(p.motivo || '').slice(0, 120) }, quien.nombre);
+      reg = { tipo: 'AGREGAR', nombre: ap + ' ' + nm, motivo: String(p.motivo || ''), falta: (p.falta || []).slice(0, 8), por: quien.nombre, t: ahoraTxt_() };
+    } else if (p.accion === 'RETIRAR') {
+      if (MOTIVOS_RETIRO_COM.indexOf(p.motivo) < 0) throw new Error('Elija el motivo del retiro.');
+      if (!String(p.nombre || '').trim()) throw new Error('Falta el nombre del estudiante.');
+      reg = { tipo: 'RETIRAR', nombre: String(p.nombre).trim(), motivo: p.motivo, por: quien.nombre, t: ahoraTxt_() };
+    } else throw new Error('Acción no válida.');
+    lista.push(reg);
+    comisionEscribe_(a.id, clave, lista, quien.nombre);
+    var pr = secs['confirm:promocion:' + curso] && secs['confirm:promocion:' + curso].datos;
+    if (pr && pr.ok) comisionEscribe_(a.id, 'confirm:promocion:' + curso, { ok: false, por: quien.nombre, fecha: ahoraTxt_(), veces: pr.veces || 0 }, quien.nombre);
+    comisionLog_(a.id, quien.nombre, 'ESTUDIANTE_' + p.accion, curso + ' · ' + reg.nombre + ' · ' + (reg.motivo || ''));
+    return { ok: true, cambios: lista.length, ajuste_matricula: p.accion === 'AGREGAR' ? 'sumar 1 a Nuevos' : (/^Desertó/.test(p.motivo) ? 'sumar 1 a Desertados' : 'sumar 1 a Retirados') };
+  } finally { lock.releaseLock(); }
+}
 /** Evidencia opcional (PIAR, formato de DUA, compromiso firmado): imagen o PDF a Drive «App Asistencia / Soportes / Comisiones / año / grado / acta». */
 function comisionSubirSoporte(p) {
   var quien = comisionQuien_(); p = p || {};
@@ -5166,7 +5208,8 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   comisionSubirSoporte: ['directivo', 'docente'],
   comisionBorrador: ['directivo', 'docente'],
   comisionPendientes: ['directivo', 'docente'],
-  comisionGuardarPdf: ['directivo', 'docente']
+  comisionGuardarPdf: ['directivo', 'docente'],
+  comisionEstudiante: ['directivo', 'docente']
 };
 
 function apiFunciones_() {
@@ -5190,7 +5233,7 @@ function apiFunciones_() {
     informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
     editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, cerrarReunion: cerrarReunion, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas,
     comisionContexto: comisionContexto, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
-    comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte, comisionBorrador: comisionBorrador, comisionPendientes: comisionPendientes, comisionGuardarPdf: comisionGuardarPdf
+    comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte, comisionBorrador: comisionBorrador, comisionPendientes: comisionPendientes, comisionGuardarPdf: comisionGuardarPdf, comisionEstudiante: comisionEstudiante
   };
 }
 

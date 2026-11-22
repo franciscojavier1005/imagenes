@@ -452,6 +452,41 @@ function comisionGuardarPdf(p) {
   comisionLog_(a.id, quien.nombre, 'PDF_DRIVE', nombre);
   return { ok: true, nombre: nombre, url: f.getUrl() };
 }
+/**
+ * El director o directora del curso agrega a un estudiante que falta (con los datos esenciales, sin inventarlos) o retira a quien ya no vino o nunca vino.
+ * p = {acta, curso, accion: 'AGREGAR'|'RETIRAR', a, n, motivo, falta: [datos que no se tienen], nombre (al retirar)}
+ * Con la matrícula del curso confirmada no se puede (solo coordinación la reabre). Se confirma de nuevo la promoción. Todo queda en «cambios:curso» y en el registro.
+ * Los números de documento no se guardan aquí: van a la hoja reservada de identidad (fase 2).
+ */
+var MOTIVOS_RETIRO_COM = ['Se retiró (traslado u otra razón)', 'Desertó: no volvió', 'Nunca asistió (matriculado que no se presentó)'];
+function comisionEstudiante(p) {
+  var quien = comisionQuien_(); p = p || {};
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var a = comisionActa_(p.acta); if (a.estado !== 'ABIERTA') throw new Error('El acta está cerrada.');
+    var curso = String(p.curso || ''), al = comisionAlcance_(quien, String(a.grado)), secs = comisionSecciones_(a.id);
+    if (!al.todo && al.cursos.indexOf(curso) < 0) throw new Error('Solo el director o directora del curso agrega o retira estudiantes.');
+    var conf = secs['confirm:matricula:' + curso] && secs['confirm:matricula:' + curso].datos;
+    if (conf && conf.ok && !quien.coord) throw new Error('La matrícula del curso está confirmada y es oficial: pida a coordinación académica que la reabra.');
+    var clave = 'cambios:' + curso, lista = (secs[clave] && secs[clave].datos) || [], reg;
+    if (p.accion === 'AGREGAR') {
+      var ap = String(p.a || '').trim(), nm = String(p.n || '').trim();
+      if (!ap || !nm) throw new Error('Escriba apellidos y nombres.');
+      agregarEstudiante_({ g: curso, a: ap, n: nm, motivo: /no aparec/i.test(String(p.motivo || '')) ? 'NO_LISTADO' : 'NUEVO', nota: String(p.motivo || '').slice(0, 120) }, quien.nombre);
+      reg = { tipo: 'AGREGAR', nombre: ap + ' ' + nm, motivo: String(p.motivo || ''), falta: (p.falta || []).slice(0, 8), por: quien.nombre, t: ahoraTxt_() };
+    } else if (p.accion === 'RETIRAR') {
+      if (MOTIVOS_RETIRO_COM.indexOf(p.motivo) < 0) throw new Error('Elija el motivo del retiro.');
+      if (!String(p.nombre || '').trim()) throw new Error('Falta el nombre del estudiante.');
+      reg = { tipo: 'RETIRAR', nombre: String(p.nombre).trim(), motivo: p.motivo, por: quien.nombre, t: ahoraTxt_() };
+    } else throw new Error('Acción no válida.');
+    lista.push(reg);
+    comisionEscribe_(a.id, clave, lista, quien.nombre);
+    var pr = secs['confirm:promocion:' + curso] && secs['confirm:promocion:' + curso].datos;
+    if (pr && pr.ok) comisionEscribe_(a.id, 'confirm:promocion:' + curso, { ok: false, por: quien.nombre, fecha: ahoraTxt_(), veces: pr.veces || 0 }, quien.nombre);
+    comisionLog_(a.id, quien.nombre, 'ESTUDIANTE_' + p.accion, curso + ' · ' + reg.nombre + ' · ' + (reg.motivo || ''));
+    return { ok: true, cambios: lista.length, ajuste_matricula: p.accion === 'AGREGAR' ? 'sumar 1 a Nuevos' : (/^Desertó/.test(p.motivo) ? 'sumar 1 a Desertados' : 'sumar 1 a Retirados') };
+  } finally { lock.releaseLock(); }
+}
 /** Evidencia opcional (PIAR, formato de DUA, compromiso firmado): imagen o PDF a Drive «App Asistencia / Soportes / Comisiones / año / grado / acta». */
 function comisionSubirSoporte(p) {
   var quien = comisionQuien_(); p = p || {};

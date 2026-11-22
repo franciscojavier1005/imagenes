@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.22-d';
+var VERSION_SISTEMA = '2026.11.22-e';
 var FECHA_VERSION = '2026-11-22';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.22-e', fecha: '2026-11-22', cambios: [
+    'Comisiones (servidor): el director o directora de grupo puede AGREGAR a un estudiante que falta en la lista (con los datos esenciales, sin inventarlos: lo que no se tiene queda pendiente) y RETIRAR a quien ya no vino o nunca vino (retirado, desertado o nunca asistió). Queda registrado quién y por qué, se ajusta la matrícula del curso (nuevos, retirados o desertados) y la promoción vuelve a pedir confirmación. Con la matrícula confirmada solo coordinación académica puede reabrir para hacer estos cambios.',
+    'Agregar estudiantes ahora también puede hacerlo el director de grupo desde las comisiones (con sus propios permisos); el módulo de estudiantes de los directivos sigue igual.'] },
   { version: '2026.11.22-d', fecha: '2026-11-22', cambios: [
     'Comisiones (servidor): validación de TODOS los componentes y informe de pendientes. Cada componente (reprobación o deserción e inasistencia, reconocimientos, convivencia, compromisos, PIAR, áreas o propósitos) debe tener registros o la declaración «no hubo casos»; cada área o propósito, su recomendación; matrícula, reconocimientos y promoción confirmados; datos de docentes y estudiantes completos; firmas. Si falta algo no se puede cerrar y el informe dice qué falta, de quién y dónde pedirlo (rectoría, archivo o coordinador). Preescolar con reglas propias (sin promoción ni reprobación; propósitos, experiencias y deserción e inasistencia).',
     'El PDF siempre queda: al cerrar el acta se guarda una copia legible en la carpeta del acta en Drive aunque falle lo demás, y hay una función para guardar el PDF del acta desde el servidor como respaldo (el principal sale de la impresión del navegador).'] },

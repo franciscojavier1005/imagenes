@@ -642,3 +642,9 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Celular: las tablas de confirmación (`ctab`) pasan a tarjetas con el interruptor a la derecha; ya no se salen los botones.
 - Corregido: tras imprimir se perdía la clase `jsok` y reaparecía el aviso rojo de JavaScript.
 - Pendiente (fase 2, servidor): sección `listados` {docente: hora} con escritura solo del propio docente y pendiente en `comisionPendientes_`; igual que `juramento`. La vista previa lo hace solo en pantalla.
+
+### Ampliación 67 — Vista previa v51 de Comisiones: tablas compactas (2026-11-22)
+- Confirmación de matrícula y de reconocimientos: tabla compacta alineada (Curso · Total · Estado · interruptor), también en celular; se quitó la versión en tarjetas.
+- Listas de estudiantes de Reprobación, Convivencia, Compromisos y PIAR: una sola tabla continua por componente, con encabezado una vez (ya no un formulario por estudiante). En celular siguen siendo tabla, con desplazamiento lateral. Convivencia marca la fila «falta reportar».
+- Paso «Listados»: una única tabla continua (N.º por curso, curso, nombre, documento, estado), sin carpetas plegadas.
+- Solo vista previa; no cambia el código del libro (sigue 2026.11.22-e).

@@ -81,6 +81,8 @@ ok(run("comisionGuardar({acta:A1,seccion:'areas:Matemáticas',datos:{rep:[1]},ve
 ok(/docente de esta área/.test(falla("comisionGuardar({acta:A1,seccion:'areas:Inglés',datos:{rep:[1]},version:0})")||''),'…y un código no da más áreas de las que le tocan');
 yo('elena@x.com'); ok(/no tiene cursos ni áreas/.test(falla("comisionCargar({acta:A1})")||''),'quien no trabaja en el grado no abre su acta');
 yo('ana@x.com'); ok(/no válida/.test(falla("comisionGuardar({acta:A1,seccion:'confirm:matricula:0801',datos:{ok:true},version:0})")||''),'las confirmaciones no se escriben directamente');
+ok(/repetido/.test(falla("comisionGuardar({acta:A1,seccion:'estudiantes:0801',datos:{rep:[{id:1},{id:1}]},version:0})")||''),'un estudiante no puede repetirse en la misma lista');
+ok(run("comisionDuplicados_('estudiantes:0801',{rep:[{id:1},{id:2}],con:[{id:1}]})")==='','el mismo estudiante en listas distintas sí es válido');
 ok(/demasiado grande/.test(falla("comisionGuardar({acta:A1,seccion:'estudiantes:0801',datos:{x:'a'.repeat(46000)},version:0})")||''),'una sección no puede pasar del límite de la celda');
 
 // ---- confirmaciones oficiales ----

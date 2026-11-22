@@ -12,7 +12,7 @@
  *  - La matrícula debe cuadrar. En el acta final, promovidos + no promovidos = matrícula actual de cada curso.
  *  - Los requisitos previos (notas cargadas, planillas, resúmenes, cuadernos, observaciones, información faltante) se verifican antes de iniciar.
  *  - El cierre lo propone una persona y lo confirman todos los integrantes (o se excluyen los no conectados); la hora de cierre la pone el sistema.
- *  - Quien no firma se entiende que no asistió. Las firmas se registran al comienzo y al finalizar en el acta impresa.
+ *  - Quien no firma se entiende que no asistió. La firma se pone al finalizar en el acta impresa, junto a la cédula y el celular o correo del integrante.
  *  - Los informes que ven los docentes se calculan por reglas; la IA (si se activa) es solo para directivos y no vive aquí.
  * TODO en Drive vive en una sola carpeta, «APP ASISTENCIA DOCENTE»: COMISIONES año / Comisiones Evaluación P1 ICET año / Grado X / Anexos (PIAR, DUA, compromisos) y / Borradores (copia legible de lo que se lleva).
  * Los respaldos de los libros van en «App Asistencia / Respaldos» (Respaldo.gs).
@@ -216,12 +216,30 @@ function comisionGuardar(p) {
     var al = comisionAlcance_(quien, String(a.grado)), secs = comisionSecciones_(a.id);
     var no = comisionPermisoSeccion_(quien, al, String(p.seccion || ''), secs);
     if (no) throw new Error(no);
+    var dup = comisionDuplicados_(String(p.seccion || ''), p.datos); if (dup) throw new Error(dup);
     var actual = secs[p.seccion];
     if (actual && (Number(p.version) || 0) !== actual.version) return { conflicto: true, version: actual.version, datos: actual.datos, por: actual.por };
     if (!actual && Number(p.version)) return { conflicto: true, version: 0, datos: null, por: '' };
     var v = comisionEscribe_(a.id, p.seccion, p.datos, quien.nombre);
     return { ok: true, version: v };
   } finally { lock.releaseLock(); }
+}
+/** Un estudiante no puede estar dos veces en la misma lista (reprobación, convivencia, compromisos, PIAR, reconocimientos). Devuelve el mensaje o ''. */
+function comisionDuplicados_(seccion, datos) {
+  if (!/^(estudiantes|reconocimientos):/.test(seccion) || !datos || typeof datos !== 'object') return '';
+  var msg = '';
+  Object.keys(datos).forEach(function (k) {
+    var arr = datos[k]; if (!Array.isArray(arr) || msg) return;
+    var vistos = {};
+    arr.forEach(function (x) {
+      if (msg || !x || typeof x !== 'object') return;
+      var nom = x.estudiante || x.nombre, id = x.id != null ? 'i' + x.id : (nom ? 'n' + comisionSinTildes_(nom) : '');
+      if (!id) return;
+      if (vistos[id]) msg = 'Hay un estudiante repetido (' + (nom || x.id) + ') en «' + k + '». No se puede registrar dos veces: edite el que ya está.';
+      vistos[id] = 1;
+    });
+  });
+  return msg;
 }
 /** Elige al docente responsable del registro y del cierre (cualquier integrante puede proponerlo; queda en la fila del acta). */
 function comisionResponsable(p) {

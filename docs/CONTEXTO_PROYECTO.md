@@ -699,3 +699,7 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Informes de directivos con barras por grupo: coordinación académica (no promovidos por grupo y reprobados por área y grupo), rectoría (no promovidos por grupo), convivencia y orientación (casos por grupo).
 - Nuevo «Informe por área o docente» (Informe directivo y orientación): se elige un docente, un curso con su director/a, o un área, y muestra reprobados por grupo, causas, estudiantes y recomendación; en preescolar, los propósitos.
 - Reafirmado: los docentes entran y editan sus datos (director/a de grupo: su curso; docente del grado: su área).
+
+### Ampliación 77 — Vista previa v59 y versión 2026.11.22-h
+- Imprimible: la verificación de asistencia ya no tiene «Firma al comienzo»; queda solo la **firma al finalizar**, y las columnas iniciales llevan el **número de cédula** y el **celular · correo** de cada integrante. Textos, manual PDF y comentarios actualizados (sustituye lo dicho en la ampliación del imprimible con dos firmas).
+- Sin repetidos: en la vista previa no se puede agregar a un estudiante dos veces a la misma lista (aviso «ya está registrado»; el buscador marca «ya registrado») ni crear un estudiante con el mismo nombre en el curso ni con el mismo número de documento. Servidor: `comisionDuplicados_` rechaza listas con el mismo estudiante repetido (reprobación, convivencia, compromisos, PIAR, reconocimientos); `agregarEstudiante_` ya impedía el mismo nombre en un grupo.

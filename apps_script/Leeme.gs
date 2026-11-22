@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.22-g';
+var VERSION_SISTEMA = '2026.11.22-h';
 var FECHA_VERSION = '2026-11-22';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.22-h', fecha: '2026-11-22', cambios: [
+    'Comisiones (servidor): un estudiante no puede repetirse en la misma lista (reprobación, convivencia, compromisos, PIAR, reconocimientos); el servidor lo rechaza con un aviso. El acta impresa lleva solo la firma al finalizar, con la cédula y el celular o correo de cada integrante.'] },
   { version: '2026.11.22-g', fecha: '2026-11-22', cambios: [
     'Ingreso: los directivos se muestran con nombre completo y apellidos primero, como los docentes (Cortés Cabezas Francisco Javier, Barreiro Caicedo Carmen Verónica, Angulo Merchancano Harold Wilson, Hernández Cortés Jorge Enrique). La clave interna no cambia; opcionalmente se puede escribir el nombre en una columna «nombre_completo» de la hoja Directivos.',
     'Comisiones (servidor): la primera persona docente que abre el acta queda como responsable del registro y del cierre (se puede cambiar).'] },

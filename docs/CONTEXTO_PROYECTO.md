@@ -675,3 +675,8 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Reconocimientos para imprimir/combinar: apellidos y nombres en negrita.
 - Marca de agua uniforme en todos los informes e imprimibles (≈33 % del ancho de la hoja carta, opacidad 0,06), incluidos pendientes y listados. Botones del informe docente e informes alineados.
 - Directivos con apellidos primero y nombre completo (vista previa, ingreso y comisiones). Clave interna sin cambios; columna opcional `nombre_completo` en Directivos (Sesion.gs: `nombreDirectivoCompleto_`).
+
+### Ampliación 73 — Dirección de grupo: Prado y Puches (2026-11-22)
+- El coordinador confirmó que Prado Quiñones Genís Maribel (#37) y Puches Ana Milena (#39) intercambiaron también la dirección de grupo: Prado pasa a CS 1-2 (docente 1, con Vásquez Valencia Segundo Leoncio) y Puches a 7°-2 (docente 2, con Quintero Ramírez María del Carmen). Arizala sigue en 7°-4 (docente 1) y Armero en 6°-2 (docente 2). Actualizados `data/direccion_grupo.csv`, `data/docentes.csv` y `scripts/direccion_grupo.py`.
+- Pendiente: corregir las celdas en las hojas Direccion_Grupo y Docentes del libro (no se escribe en Google desde aquí) y reflejarlo en la vista previa.
+- Comisiones está integrada en el mismo libro y el mismo script (hojas `Comision_*` se crean al abrir la primera acta); falta la pantalla real (fase 2).

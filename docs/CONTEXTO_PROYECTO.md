@@ -648,3 +648,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Listas de estudiantes de Reprobación, Convivencia, Compromisos y PIAR: una sola tabla continua por componente, con encabezado una vez (ya no un formulario por estudiante). En celular siguen siendo tabla, con desplazamiento lateral. Convivencia marca la fila «falta reportar».
 - Paso «Listados»: una única tabla continua (N.º por curso, curso, nombre, documento, estado), sin carpetas plegadas.
 - Solo vista previa; no cambia el código del libro (sigue 2026.11.22-e).
+
+### Ampliación 68 — Vista previa v52: Listados por curso plegable (2026-11-22)
+- En el paso «Listados» cada curso vuelve a ser un bloque plegable (con conteo de agregados y retirados en el título) y dentro una tabla (N.º, nombre, documento, estado). Al agregar o retirar, los cursos que estaban abiertos siguen abiertos. Si se filtra un curso, se muestra abierto. Solo vista previa.

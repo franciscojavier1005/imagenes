@@ -658,3 +658,8 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Reprobación, Convivencia, Compromisos y PIAR vuelven a las tarjetas por estudiante (la tabla era demasiado ancha). Siguen en tabla: confirmaciones de matrícula/reconocimientos y los listados por curso.
 - Reconocimientos confirmados: se avisa explícitamente que las filas en gris/verde están bloqueadas (oficial).
 - Solo vista previa (el código del libro sigue en 2026.11.22-e).
+
+### Ampliación 70 — Auditoría de asignación y corrección del código de áreas (2026.11.22-f)
+- Verificado en el libro (solo lectura): Direccion_Grupo y Docentes coinciden con `data/`. Puches (CS 1-2, docente 1 de dirección), Prado (7°-2, docente 2), Arizala (7°-4, docente 1) y Armero (6°-2, docente 2) dirigen esos cursos; el horario ya tiene los intercambios de Arte y Educación Física (Puches/Prado y Arizala/Armero). Comisiones asigna por NOMBRE (cursos desde Direccion_Grupo en docente_1 o docente_2; áreas desde Horario), no por la etiqueta «docente 1/2».
+- Defecto hallado: el Horario real usa códigos de área (MAT, CAS, CNA, CSI, ETR, ART, ERD, TEI) y `comisionAlcance_` los comparaba con los nombres del acta, por lo que un docente de secundaria/media no podía guardar sus áreas. Corregido con `COM_COD_AREA` (CSI = Ciencias Sociales + Inglés; ETR = Ética + Religión) y pruebas (comisiones.test.js, 94 comprobaciones).
+- Nota: la hoja Docentes del libro conserva «OPS» en las notas de Terán/Armero (carga anterior); no se escribe en el código.

@@ -94,7 +94,8 @@ function comisionAlcance_(quien, grado) {
     if (comisionSinTildes_(h.docente) !== nom || !esDelGrado(h.grupo)) return;
     var a = String(h.area || '').trim();
     if (/MULTIPLES/i.test(comisionSinTildes_(a))) { multi = true; return; }
-    if (a && areas.indexOf(a) < 0) areas.push(a);
+    /* el Horario del libro usa códigos (MAT, CAS, CSI…): se traducen a las áreas del acta */
+    (COM_COD_AREA[comisionSinTildes_(a)] || [a]).forEach(function (x) { if (x && areas.indexOf(x) < 0) areas.push(x); });
   });
   return { todo: false, cursos: cursos, areas: areas, multiareas: multi || (cursos.length > 0 && /^0[0-5]$/.test(String(grado))) };
 }
@@ -269,6 +270,8 @@ function comisionConfirmar(p) {
     return { ok: true };
   } finally { lock.releaseLock(); }
 }
+/** Códigos de área del Horario → áreas del acta (CSI = Ciencias Sociales e Inglés; ETR = Ética y Religión). */
+var COM_COD_AREA = { MAT: ['Matemáticas'], CAS: ['Humanidades y Lengua Castellana'], CNA: ['Ciencias Naturales y Educación Ambiental'], CSI: ['Ciencias Sociales', 'Inglés'], ETR: ['Educación Ética y Valores Humanos', 'Educación Religiosa Escolar'], ART: ['Educación Artística (Arte y Cultura Afro)'], ERD: ['Educación Física, Recreación y Deportes'], TEI: ['Tecnología e Informática'] };
 var COM_AREAS = ['Matemáticas', 'Humanidades y Lengua Castellana', 'Ciencias Naturales y Educación Ambiental', 'Ciencias Sociales', 'Inglés', 'Educación Ética y Valores Humanos', 'Educación Religiosa Escolar', 'Educación Artística (Arte y Cultura Afro)', 'Educación Física, Recreación y Deportes', 'Tecnología e Informática'];
 var COM_PRE_CLAVES = ['Propósito 1. Construcción de identidad y relaciones sociales', 'Propósito 2. Comunicación activa, expresión y representación', 'Propósito 3. Exploración del medio y aprendizaje significativo', 'Experiencias y pensamiento computacional'];
 /** '00' preescolar · '01'..'05' primaria · el resto, secundaria y media. */

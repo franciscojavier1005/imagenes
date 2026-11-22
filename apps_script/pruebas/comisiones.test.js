@@ -13,7 +13,7 @@ const fmt=(d,tz,p)=>{const o=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'
 const hojas={
  Grupos:new Hoja([['grupo','tipo','grado','nombre','modalidad'],['0801','REGULAR','08','8°-1',''],['0802','REGULAR','08','8°-2',''],['0501','REGULAR','05','5°-1',''],['0001','REGULAR','00','0°-1','']]),
  Direccion_Grupo:new Hoja([['grupo','nombre','tipo_direccion','docente_1','docente_2','modalidad','dinamizadores'],['0801','8°-1','DIRECTOR','Ana Director','Beto Codirector','',''],['0802','8°-2','DIRECTOR','Carla Director','','',''],['0501','5°-1','DIRECTOR','Elena Primaria','','',''],['0001','0°-1','DIRECTOR','Paula Preescolar','','','']]),
- Horario:new Hoja([['docente','dia','hora','grupo','area'],['Dora Mate','LUNES',1,'0801','Matemáticas'],['Dora Mate','LUNES',2,'0802','Matemáticas'],['Hugo Ingles','LUNES',3,'0801','Inglés'],['Elena Primaria','LUNES',1,'0501','ÁREAS MÚLTIPLES']]),
+ Horario:new Hoja([['docente','dia','hora','grupo','area'],['Dora Mate','LUNES',1,'0801','Matemáticas'],['Dora Mate','LUNES',2,'0802','Matemáticas'],['Hugo Ingles','LUNES',3,'0801','Inglés'],['Elena Primaria','LUNES',1,'0501','ÁREAS MÚLTIPLES'],['Carla Director','MARTES',1,'0802','MAT'],['Carla Director','MARTES',2,'0802','ERD']]),
  Estudiantes:new Hoja([['grupo','curso','no','apellidos','nombres'],['0801','8°-1',1,'PEREZ GOMEZ','ANA'],['0801','8°-1',2,'ROJAS LOPEZ','LUIS']]),
  Marcas_Estudiantes:new Hoja([['clave','grupo','curso','apellidos','nombres','tipo','nota','estado','fecha','registrado_por','fecha_levantada','levantada_por']]),
  Docentes:new Hoja([['codigo','n','nombre_completo','nivel','correo'],[1,1,'Ana Director','SECUNDARIA','']]),
@@ -75,6 +75,8 @@ ok(run("comisionGuardar({acta:A1,seccion:'areas:Matemáticas',datos:{rep:[3,4]},
 ok(/docente de esta área/.test(falla("comisionGuardar({acta:A1,seccion:'areas:Inglés',datos:{rep:[1]},version:0})")||''),'…pero no la de Inglés');
 yo('carla@x.com'); ok(/director o directora del curso/.test(falla("comisionGuardar({acta:A1,seccion:'matricula:0801',datos:M,version:2})")||''),'la directora de 8°-2 no edita 8°-1');
 ok(run("comisionGuardar({acta:A1,seccion:'matricula:0802',datos:M,version:0})").ok,'…pero sí su propio curso');
+ok(run("comisionGuardar({acta:A1,seccion:'areas:Matemáticas',datos:{rep:[1]},version:1})").ok&&run("comisionGuardar({acta:A1,seccion:'areas:Educación Física, Recreación y Deportes',datos:{rep:[]},version:0})").ok,'el Horario del libro trae códigos (MAT, ERD): se traducen a las áreas del acta');
+ok(/docente de esta área/.test(falla("comisionGuardar({acta:A1,seccion:'areas:Inglés',datos:{rep:[1]},version:0})")||''),'…y un código no da más áreas de las que le tocan');
 yo('elena@x.com'); ok(/no tiene cursos ni áreas/.test(falla("comisionCargar({acta:A1})")||''),'quien no trabaja en el grado no abre su acta');
 yo('ana@x.com'); ok(/no válida/.test(falla("comisionGuardar({acta:A1,seccion:'confirm:matricula:0801',datos:{ok:true},version:0})")||''),'las confirmaciones no se escriben directamente');
 ok(/demasiado grande/.test(falla("comisionGuardar({acta:A1,seccion:'estudiantes:0801',datos:{x:'a'.repeat(46000)},version:0})")||''),'una sección no puede pasar del límite de la celda');

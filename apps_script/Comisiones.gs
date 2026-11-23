@@ -171,7 +171,7 @@ function comisionContexto() {
   var visibles = lista, gr = Object.keys(grados).sort();
   if (!quien.coord && quien.rol === 'docente') gr = gr.filter(function (c) { var al = comisionAlcance_(quien, c); return al.cursos.length || al.areas.length || al.multiareas || al.acompana; });
   if (!quien.coord && quien.rol === 'docente') visibles = lista.filter(function (a) { var al = comisionAlcance_(quien, String(a.grado)); return al.cursos.length || al.areas.length || al.multiareas || al.acompana; });
-  return { anio: anio, quien: { nombre: quien.nombre, rol: quien.rol, coord: quien.coord, dev: !!(quien.coord && quien.email && editoresLibro_().indexOf(String(quien.email).toLowerCase()) >= 0) }, periodos: PERIODOS_COM, grados: gr, actas: visibles };
+  return { version: (typeof VERSION_SISTEMA !== 'undefined' ? VERSION_SISTEMA : ''), anio: anio, quien: { nombre: quien.nombre, rol: quien.rol, coord: quien.coord, dev: !!(quien.coord && quien.email && editoresLibro_().indexOf(String(quien.email).toLowerCase()) >= 0) }, periodos: PERIODOS_COM, grados: gr, actas: visibles };
 }
 /** Abre el acta del grado y periodo (la crea si no existe; fecha, hora y grado empiezan en blanco: los llena el equipo). */
 function comisionAbrir(p) {

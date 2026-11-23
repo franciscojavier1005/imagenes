@@ -3866,11 +3866,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-e';
+var VERSION_SISTEMA = '2026.11.23-f';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-f', fecha: '2026-11-23', cambios: [
+    'Comisiones: la pantalla compara su versión con la del servidor y avisa si el código de Apps Script quedó desactualizado (por eso podían verse controles que no guardan); los errores al guardar se muestran en pantalla.'] },
   { version: '2026.11.23-e', fecha: '2026-11-23', cambios: [
     'Comisiones: acceso total para docentes, orientación, tutora PTAFI y directivos (una sola persona puede hacer todo el ejercicio); se confirman uno a uno los documentos previos; fecha y hora con calendario y reloj; botones «Volver al menú» y «Cerrar sesión»; documento de identidad y tipo tomados de la hoja Estudiantes (columnas documento, tipo_doc y sexo opcionales); modo ejemplo para el desarrollador (no guarda nada).'] },
   { version: '2026.11.23-d', fecha: '2026-11-23', cambios: [
@@ -5086,7 +5088,7 @@ function comisionContexto() {
   var visibles = lista, gr = Object.keys(grados).sort();
   if (!quien.coord && quien.rol === 'docente') gr = gr.filter(function (c) { var al = comisionAlcance_(quien, c); return al.cursos.length || al.areas.length || al.multiareas || al.acompana; });
   if (!quien.coord && quien.rol === 'docente') visibles = lista.filter(function (a) { var al = comisionAlcance_(quien, String(a.grado)); return al.cursos.length || al.areas.length || al.multiareas || al.acompana; });
-  return { anio: anio, quien: { nombre: quien.nombre, rol: quien.rol, coord: quien.coord, dev: !!(quien.coord && quien.email && editoresLibro_().indexOf(String(quien.email).toLowerCase()) >= 0) }, periodos: PERIODOS_COM, grados: gr, actas: visibles };
+  return { version: (typeof VERSION_SISTEMA !== 'undefined' ? VERSION_SISTEMA : ''), anio: anio, quien: { nombre: quien.nombre, rol: quien.rol, coord: quien.coord, dev: !!(quien.coord && quien.email && editoresLibro_().indexOf(String(quien.email).toLowerCase()) >= 0) }, periodos: PERIODOS_COM, grados: gr, actas: visibles };
 }
 /** Abre el acta del grado y periodo (la crea si no existe; fecha, hora y grado empiezan en blanco: los llena el equipo). */
 function comisionAbrir(p) {

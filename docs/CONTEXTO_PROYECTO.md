@@ -739,3 +739,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Documento: `comisionGradoDatos` lee columnas opcionales `documento`, `tipo_doc`, `sexo` de la hoja Estudiantes. Se cruzó el SIREC 2026 (Drive) con Estudiantes: 1025 de 1045 con documento (51 por coincidencia aproximada de nombre), 20 sin cruzar; el archivo con documentos es PRIVADO (menores) y no se versiona; el usuario lo pega en las columnas F:G de Estudiantes.
 - Modo ejemplo para el desarrollador (`modoEjemplo`, botón `#btnEj`): llena el acta con datos de prueba, sin sincronizar ni guardar; «Volver a los datos reales».
 - Defecto corregido en 2026.11.23-c: respuestas con Date devolvían null a la pantalla (`sanearSalida_`).
+
+## Ampliación 85 (2026-11-23, versión 2026.11.23-f)
+- Diagnóstico de versión: `comisionContexto` devuelve `version`; la pantalla (`__CLIENTVER__`, tomado de Leeme.gs en build_real.py) muestra un aviso rojo si el servidor tiene otra versión. Errores de guardado visibles en pantalla. Causa probable de controles que no guardan / documentos que siguen faltando: código de Apps Script sin actualizar o hoja Estudiantes sin columnas documento/tipo_doc.

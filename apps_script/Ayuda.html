@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.23-k</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.23-m</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -101,6 +101,7 @@
 <p>Desde el menú toque <b>«Comisiones de evaluación y promoción»</b>. Elija el <b>grado</b> y el <b>periodo</b>: se abre el acta de ese grado con la lista real de estudiantes y la asignación del libro. Todo el personal puede editar el acta, pero <b>solo una persona a la vez</b> tiene la <b>edición</b> (la primera que entra). Las demás ven el acta en solo lectura, pueden declarar bajo juramento, firmar y completar datos faltantes, y ven los cambios a los pocos segundos. Quien tiene la edición puede <b>soltarla</b> o <b>pasarla</b> a otra persona; si lleva 15 minutos sin actividad, otra puede <b>tomarla</b>. Coordinación y directivos editan siempre.</p>
 <ol>
 <li><b>Antes de empezar</b> la pantalla pide <b>dónde está</b> y <b>a qué hora empezó</b>; le llega a coordinación en el seguimiento.</li>
+<li>En «Listados», cada curso tiene su botón <b>+ Agregar estudiante</b> y cada estudiante sus botones <b>Modificar</b> y <b>Retirar</b>; se ven el tipo y el número de documento. Todos los docentes del grado confirman su revisión.</li>
 <li>En «Datos generales» elija la <b>fecha</b> con el calendario y la <b>hora</b> con el reloj.</li>
 <li>En el paso 1 confirme, uno por uno, los <b>documentos que deben estar listos</b> (notas cargadas, planillas, resúmenes, cuadernos, observaciones…) y haga su <b>declaración bajo juramento</b>.</li>
 <li>Quien tiene la edición cierra el acta cuando no queden pendientes. Después de cerrada, todos pueden consultarla y ver sus informes.</li>
@@ -266,7 +267,7 @@
 <p><b>ronda_horas_margen</b>: horas después de la jornada en que los demás directivos aún pueden registrar la ronda; <b>reunion_desde</b> / <b>reunion_hasta</b>: horario normal de reuniones; <b>reunion_personas_extra</b>: personas que siempre deben aparecer en las reuniones de todo el personal.</p></section>
 
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.23-k</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.23-m</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

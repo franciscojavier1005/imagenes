@@ -89,7 +89,7 @@ ok(/repetido/.test(falla("comisionGuardar({acta:A1,seccion:'estudiantes:0801',da
 ok(run("comisionDuplicados_('estudiantes:0801',{rep:[{id:1},{id:2}],con:[{id:1}]})")==='','el mismo estudiante en listas distintas sí es válido');
 ok(/demasiado grande/.test(falla("comisionGuardar({acta:A1,seccion:'estudiantes:0801',datos:{x:'a'.repeat(46000)},version:0})")||''),'una sección no puede pasar del límite de la celda');
 
-yo('ana@x.com'); { const gd=run("comisionGradoDatos({grado:'08'})"); ok(gd.estudiantes[0].ndoc==='1085957103'&&gd.estudiantes[0].tdoc==='RC'&&gd.estudiantes[1].ndoc==='','el documento y el tipo salen de la hoja Estudiantes aunque el encabezado sea «Documento» o «Tipo_Doc»'); }
+yo('ana@x.com'); { const gd=run("comisionGradoDatos({grado:'08'})"); ok(gd.diag.colDoc&&gd.diag.colTipo&&gd.diag.conDoc===1,'diagnóstico: informa si encontró las columnas de documento'); ok(gd.estudiantes[0].ndoc==='1085957103'&&gd.estudiantes[0].tdoc==='RC'&&gd.estudiantes[1].ndoc==='','el documento y el tipo salen de la hoja Estudiantes aunque el encabezado sea «Documento» o «Tipo_Doc»'); }
 // ---- lo que se completa en el acta queda también en las hojas ----
 yo('ana@x.com'); run("comisionResponsable({acta:A1,nombre:'Ana Director'})");
 run("comisionGuardar({acta:A1,seccion:'faltantes',datos:{datos:{1:{tel:'3151234567',gest:'Ya llamé al acudiente',falta:[]}},ing:[],cambios:[]},version:0})");

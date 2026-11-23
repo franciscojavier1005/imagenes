@@ -760,3 +760,7 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 90 (2026-11-23, versión 2026.11.23-k)
 - **Control total** por persona: parámetro `comisiones_controltotal` (lista de nombres), editado en «Permisos de las comisiones» (coordinación). `quien.total` equivale a directivo para el turno, el permiso de nivel y la reapertura de confirmaciones (`comisionControlTotal_`, `esTotal()` en el cliente). Los directivos nunca estuvieron bloqueados por rol: el bloqueo era el bucle de redibujado (ampliación 89).
+
+## Ampliación 91 (2026-11-23, versión 2026.11.23-m)
+- Listados con tipo y número de documento, Modificar/Retirar por estudiante, + Agregar por curso, revisión de todos los docentes, cierre reordenado, aviso `INTERNAL` tolerado, diagnóstico de columnas documento/tipo_doc (`diag` en `comisionGradoDatos`).
+- La plantilla fuente de la pantalla real (`comisiones_v53.tpl.html`) contiene datos reales de docentes y **no se versiona**; vive fuera del repo (/tmp/cartilla). `build_real.py` y `real_layer.js` están en `scripts/comisiones_build/` (sin datos); la plantilla debe conservarse en la carpeta privada del coordinador.

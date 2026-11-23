@@ -5,11 +5,15 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-k';
+var VERSION_SISTEMA = '2026.11.23-m';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-m', fecha: '2026-11-23', cambios: [
+    'Comisiones, listados: aviso de diagnóstico sobre las columnas documento y tipo_doc de la hoja Estudiantes (si las encontró y a cuántos estudiantes les leyó el número); los números guardados como número o como texto se leen igual.'] },
+  { version: '2026.11.23-l', fecha: '2026-11-23', cambios: [
+    'Comisiones, listados: tipo y número de documento por estudiante; botones Modificar y Retirar por estudiante y + Agregar en el encabezado de cada curso; todos los docentes del grado aparecen en la revisión de listados y se marcan uno a uno. Cierre: resumen de pendientes, luego Finalizar y guardar, y al final las firmas; quien firma ya no redacta más. Errores pasajeros de Google («INTERNAL») ya no muestran el aviso rojo hasta fallar tres veces seguidas. Documento, tipo, celular y datos modificados se escriben también en la hoja Estudiantes.'] },
   { version: '2026.11.23-k', fecha: '2026-11-23', cambios: [
     'Permisos de las comisiones: coordinación puede dar «control total» a personas concretas (editan siempre, sin esperar el turno ni depender de los permisos de su nivel).'] },
   { version: '2026.11.23-j', fecha: '2026-11-23', cambios: [

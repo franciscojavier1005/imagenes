@@ -3866,11 +3866,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-n';
+var VERSION_SISTEMA = '2026.11.23-o';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-o', fecha: '2026-11-23', cambios: [
+    'Comisiones: los directivos, la orientadora y la tutora que acompañan ya no figuran como participantes por defecto ni tienen que declarar, confirmar revisión ni firmar; declaran y confirman todos los docentes del grado (de grupo y de área), y cada casilla se desactiva al marcarse (solo coordinación la habilita de nuevo). Nacionalidad por defecto Colombiana (Venezolana/Ecuatoriana/Otra en lista desplegable, no obligatoria). En «Datos faltantes» y en «Listados» se pueden completar o modificar documento, tipo, lugar de expedición, sexo y nacionalidad, y quedan también en la hoja Estudiantes. El imprimible ya no se bloquea por datos faltantes y los datos de estudiantes pendientes son advertencia, no impiden cerrar.'] },
   { version: '2026.11.23-n', fecha: '2026-11-23', cambios: [
     'Comisiones: respaldo local en el navegador (si se pierde la conexión o se recarga, se recuperan los cambios que no habían llegado al libro y se vuelve al último paso); la declaración bajo juramento se marca docente por docente (grupo y área); la nacionalidad colombiana se deduce del tipo de documento (RC, TI, NUIP, CC) y el teléfono del acudiente se lee de la columna tel_acudiente de la hoja Estudiantes.'] },
   { version: '2026.11.23-m', fecha: '2026-11-23', cambios: [
@@ -5587,16 +5589,20 @@ function comisionAHojas_(seccion, datos) {
       if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail) && !/@icet\./i.test(mail)) sh.getRange(fila, cMail).setValue(mail);
     });
   } else if (seccion === 'faltantes') {
-    var d = datos.datos || {}, ids = Object.keys(d).filter(function (k) { return d[k] && (String(d[k].tel || '').replace(/\D/g, '').length >= 7 || (d[k].mod && d[k].ndoc)); }); if (!ids.length) return;
+    var d = datos.datos || {}, ids = Object.keys(d).filter(function (k) { var x = d[k]; return x && (String(x.tel || '').replace(/\D/g, '').length >= 7 || x.mod || x.gest); }); if (!ids.length) return;
     var he = hojaOCrea_('Estudiantes', ['grupo', 'curso', 'no', 'apellidos', 'nombres']), ve = he.getDataRange().getValues(), filas = [];
     for (var j = 1; j < ve.length; j++) if (ve[j][0] !== '') filas.push(j + 1);   // mismo orden que datos_('Estudiantes'): id = posición
-    var cTel = comisionColHoja_(he, 'tel_acudiente'), cGes = comisionColHoja_(he, 'gestion_acta');
-    var cDoc = 0, cTipo = 0; if (ids.some(function (k) { return d[k].mod && d[k].ndoc; })) { cDoc = comisionColHoja_(he, 'documento'); cTipo = comisionColHoja_(he, 'tipo_doc'); }
+    var col = {}; var c = function (n) { return col[n] || (col[n] = comisionColHoja_(he, n)); };
     ids.forEach(function (k) {
-      var f = filas[Number(k) - 1]; if (!f) return;
-      if (String(d[k].tel || '').replace(/\D/g, '').length >= 7) he.getRange(f, cTel).setValue(String(d[k].tel).replace(/\D/g, ''));
-      if (d[k].gest) he.getRange(f, cGes).setValue(String(d[k].gest));
-      if (d[k].mod && d[k].ndoc) { he.getRange(f, cDoc).setValue(String(d[k].ndoc)); if (d[k].tdoc) he.getRange(f, cTipo).setValue(String(d[k].tdoc)); }
+      var f = filas[Number(k) - 1], x = d[k]; if (!f) return;
+      if (String(x.tel || '').replace(/\D/g, '').length >= 7) he.getRange(f, c('tel_acudiente')).setValue(String(x.tel).replace(/\D/g, ''));
+      if (x.gest) he.getRange(f, c('gestion_acta')).setValue(String(x.gest));
+      if (x.mod) {
+        if (x.ndoc) { he.getRange(f, c('documento')).setValue(String(x.ndoc)); if (x.tdoc) he.getRange(f, c('tipo_doc')).setValue(String(x.tdoc)); }
+        if (x.lex) he.getRange(f, c('lugar_expedicion')).setValue(String(x.lex));
+        if (x.sx) he.getRange(f, c('sexo')).setValue(String(x.sx));
+        if (x.nac) he.getRange(f, c('nacionalidad')).setValue(String(x.nac));
+      }
     });
   }
 }
@@ -5633,14 +5639,14 @@ function comisionGradoDatos(p) {
   });
   Object.keys(nomAreas).forEach(function (a) { areas[a] = Object.keys(nomAreas[a]).sort().join(' / '); });
   var apoyo = [];
-  datos_('Directivos').forEach(function (d) { var n = nombreDirectivoCompleto_(d.nombre, d); apoyo.push({ n: n, rol: String(d.rol), p: /acad[eé]mico/i.test(String(d.rol)), correo: String(d.correo || d.correo_temporal || '') }); });
+  datos_('Directivos').forEach(function (d) { var n = nombreDirectivoCompleto_(d.nombre, d); apoyo.push({ n: n, rol: String(d.rol), p: false, correo: String(d.correo || d.correo_temporal || '') }); });
   datos_('Docentes').forEach(function (d) { if (/ORIENTACI/i.test(String(d.nivel))) apoyo.push({ n: d.nombre_completo, rol: 'Docente orientadora', p: false }); else if (/PTAFI/i.test(String(d.nivel))) apoyo.push({ n: d.nombre_completo, rol: 'Tutora PTAFI', p: false }); });
   var gnames = {}; dir.forEach(function (n) { if (n) gnames[n] = 1; }); dir2.forEach(function (d) { gnames[d.n] = 1; }); Object.keys(ap).forEach(function (n) { gnames[n] = 1; }); apoyo.forEach(function (a) { gnames[a.n] = 1; });
   var personas = {};
   Object.keys(gnames).forEach(function (n) { var ap0 = apoyo.filter(function (a) { return a.n === n; })[0]; var idn = comisionIdentidad_(n); personas[n] = { ced: (ap0 && /acad|rector|convivencia|redes/i.test(ap0.rol)) ? '' : cedulaDoc_(n), correo: (ap0 && ap0.correo) || comisionCorreoDe_(n) || idn.mail, tel: idn.cel }; });
   var setg = {}; codes.forEach(function (c) { setg[c] = gs[codes.indexOf(c)]; });
   var est = [];
-  datos_('Estudiantes').forEach(function (e, i) { var g = String(e.grupo); if (setg[g]) var sx = comisionCol_(e, ['sexo', 'genero']); est.push({ id: i + 1, g: setg[g], a: comisionTitulo_(e.apellidos), n: comisionTitulo_(e.nombres), ndoc: comisionCol_(e, ['documento', 'nodoc', 'numerodocumento', 'numdoc', 'ndoc', 'identificacion', 'cedula']).replace(/\D/g, ''), tdoc: comisionCol_(e, ['tipodoc', 'tipodedocumento', 'tipodocumento', 'tdoc', 'tipo']).replace(/[^A-Za-z]/g, '').toUpperCase(), tel: comisionCol_(e, ['telacudiente', 'telefonoacudiente', 'celularacudiente']).replace(/\D/g, ''), sx: /^(m|h|hombre|masculino)$/i.test(sx) ? 'M' : /^(f|mujer|femenino)$/i.test(sx) ? 'F' : '' }); });
+  datos_('Estudiantes').forEach(function (e, i) { var g = String(e.grupo); if (setg[g]) var sx = comisionCol_(e, ['sexo', 'genero']); est.push({ id: i + 1, g: setg[g], a: comisionTitulo_(e.apellidos), n: comisionTitulo_(e.nombres), ndoc: comisionCol_(e, ['documento', 'nodoc', 'numerodocumento', 'numdoc', 'ndoc', 'identificacion', 'cedula']).replace(/\D/g, ''), tdoc: comisionCol_(e, ['tipodoc', 'tipodedocumento', 'tipodocumento', 'tdoc', 'tipo']).replace(/[^A-Za-z]/g, '').toUpperCase(), tel: comisionCol_(e, ['telacudiente', 'telefonoacudiente', 'celularacudiente']).replace(/\D/g, ''), lex: comisionCol_(e, ['lugarexpedicion', 'lugardeexpedicion', 'expedicion']), nac: comisionCol_(e, ['nacionalidad']), sx: /^(m|h|hombre|masculino)$/i.test(sx) ? 'M' : /^(f|mujer|femenino)$/i.test(sx) ? 'F' : '' }); });
   var e0 = datos_('Estudiantes')[0] || {}, kn = function (s) { return comisionSinTildes_(String(s)).toLowerCase().replace(/[^a-z0-9]/g, ''); }, ks0 = Object.keys(e0).map(kn);
   var diag = { colDoc: ks0.indexOf('documento') >= 0 || ks0.indexOf('nodoc') >= 0 || ks0.indexOf('numerodocumento') >= 0, colTipo: ks0.indexOf('tipodoc') >= 0 || ks0.indexOf('tipodedocumento') >= 0 || ks0.indexOf('tipodocumento') >= 0, conDoc: est.filter(function (x) { return x.ndoc; }).length, total: est.length, version: (typeof VERSION_SISTEMA !== 'undefined' ? VERSION_SISTEMA : '') };
   return { diag: diag, codigo: cod, label: label, niv: niv, sig: COM_GRADO_SIG[cod], gs: gs, codes: codes, dir: dir, dir2: dir2, ap: Object.keys(ap).sort(), areas: areas, apoyo: apoyo, personas: personas, estudiantes: est };

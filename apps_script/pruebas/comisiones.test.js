@@ -96,6 +96,10 @@ run("comisionGuardar({acta:A1,seccion:'faltantes',datos:{datos:{1:{tel:'31512345
 run("comisionGuardar({acta:A1,seccion:'firmas',datos:{firm:{},pers:{'Ana Director':{tel:'3009998877',correo:'ana.d@gmail.com'}}},version:0})");
 ok(hojas.Estudiantes.v[1][7]==='3151234567'||hojas.Estudiantes.v[1].includes('3151234567'),'el teléfono del acudiente se escribe también en la hoja Estudiantes');
 ok(hojas.Identidad_Docentes&&hojas.Identidad_Docentes.v.some(r=>r.includes('3009998877')&&r.includes('ana.d@gmail.com')),'el celular y el correo del docente se escriben también en Identidad_Docentes');
+// ---- datos completados: lugar de expedición, sexo y nacionalidad también quedan en la hoja; acompañantes sin obligaciones ----
+yo('ana@x.com'); run("comisionAHojas_('faltantes',{datos:{2:{mod:1,ndoc:'123456789',tdoc:'TI',lex:'TUMACO',sx:'M',nac:'Venezolana',falta:[]}}})");
+{ const f=hojas.Estudiantes.v[2]; ok(f.includes('123456789')&&f.includes('TI')&&f.includes('TUMACO')&&f.includes('M')&&f.includes('Venezolana'),'documento, tipo, lugar de expedición, sexo y nacionalidad modificados en el acta se escriben en la hoja Estudiantes'); }
+{ const gd=run("comisionGradoDatos({grado:'08'})"); ok(gd.apoyo.every(x=>x.p===false),'los directivos acompañantes no figuran como participantes por defecto'); }
 // ---- turno de edición y permisos por nivel (2026-11-23) ----
 TURNO_AUTO=false;
 yo('ana@x.com'); run("comisionResponsable({acta:A1,nombre:'Ana Director'})");

@@ -27,10 +27,10 @@ var DIAGDOC=null;
 function construyeGrado(d){DIAGDOC=d.diag||null;
  var l=d.label;G={};G[l]={niv:d.niv,gs:d.gs.slice(),sig:d.sig,dir:d.dir.slice(),dir2:d.dir2.slice(),ap:d.ap.slice(),areas:d.areas||{}};
  CODES={};d.gs.forEach(function(g,i){CODES[g]=d.codes[i]});REALN={};
- var falta=['Tipo y número de documento','Lugar de expedición','Sexo','Nacionalidad o procedencia','Teléfono del acudiente'];
+ var falta=['Tipo y número de documento','Lugar de expedición','Sexo','Teléfono del acudiente'];
  EST=d.estudiantes.map(function(e){REALN[e.g]=(REALN[e.g]||0)+1;var fl=falta.slice();if(e.ndoc){fl=fl.filter(function(x){return x!=='Tipo y número de documento'})}
-  var nacI='';if(/^(RC|TI|NUIP|CC)$/.test(e.tdoc||'')){nacI='Colombiana';fl=fl.filter(function(x){return x!=='Nacionalidad o procedencia'})}
-  if(e.tel){fl=fl.filter(function(x){return x!=='Teléfono del acudiente'})}if(e.sx){fl=fl.filter(function(x){return x!=='Sexo'})}return {id:e.id,g:e.g,a:e.a,n:e.n,doc:e.ndoc&&!fl.length?'ok':'falta',sx:e.sx||'',ndoc:e.ndoc||'',tdoc:e.tdoc||'',nac:nacI,falta:fl,tel:e.tel||'',gest:'',real:1,base:1,f0:fl.length}});
+  var nacI=e.nac||(/^(PEP|PPT)$/.test(e.tdoc||'')?'Venezolana':/^(CE|PE)$/.test(e.tdoc||'')?'Otra':'Colombiana');if(e.lex){fl=fl.filter(function(x){return x!=='Lugar de expedición'})}
+  if(e.tel){fl=fl.filter(function(x){return x!=='Teléfono del acudiente'})}if(e.sx){fl=fl.filter(function(x){return x!=='Sexo'})}return {id:e.id,g:e.g,a:e.a,n:e.n,doc:e.ndoc&&!fl.length?'ok':'falta',sx:e.sx||'',ndoc:e.ndoc||'',tdoc:e.tdoc||'',nac:nacI,lex:e.lex||'',falta:fl,tel:e.tel||'',gest:'',real:1,base:1,f0:fl.length}});
  nid=1000000+Math.floor(Math.random()*8000000);ROSTER_COMPLETO=true;
  APOYO=d.apoyo.map(function(a){return [a.n,a.rol,!!a.p]});
  var nm={};d.dir.forEach(function(n){if(n)nm[n]=1});d.dir2.forEach(function(x){nm[x.n]=1});d.ap.forEach(function(n){nm[n]=1});Object.keys(d.areas||{}).forEach(function(a){String(d.areas[a]).split(' / ').forEach(function(n){if(n)nm[n]=1})});
@@ -272,21 +272,21 @@ function pintaTurno(){var el=$('#turno');if(!el||!S||!ACTA)return;var h;
 function aplicaLectura(){var on=!!(S&&ACTA&&!S.cerrada&&!turnoLibre());document.body.classList.toggle('lectura',on)}
 
 /* ---------- listados: todos los docentes del grado revisan; retirar y modificar por estudiante ---------- */
-revLista=function(){return S.int.filter(function(x){return x.p||(window.DOCGRADO&&DOCGRADO[x.n])})};
+revLista=function(){return S.int.filter(function(x){return (window.DOCGRADO&&DOCGRADO[x.n])||(x.p&&!esApoyoOb(x))})};
 function setRevDe(i,v){var x=revLista()[i];if(!x||S.cerrada)return;S.revL=S.revL||{};if(v)S.revL[x.n]=ahora();else delete S.revL[x.n];pintaLis();pintaPasos();pintaPendientes()}
 function retirarUno(id){var e=est(id);if(!e)return;var bl=ingBloq(e.g);if(bl){alert(bl);return}abrirIng(e.g,'r');setTimeout(function(){var q=$('#rm'+id);if(q){try{q.scrollIntoView({block:'center'})}catch(x){}q.focus()}},60)}
-function modEst(id){var e=est(id);if(!e||$('#mMod'))return;var bl=ingBloq(e.g);if(bl){alert(bl);return}
+function modEst(id){var e=est(id);if(!e||$('#mMod'))return;var bl=ingBloq(e.g);
  var o=document.createElement('div');o.id='mMod';o.style.cssText='position:fixed;inset:0;background:rgba(10,20,45,.55);z-index:10000;display:flex;align-items:flex-start;justify-content:center;padding:14px;overflow:auto';
  var sel=function(idn,lista,v){return '<select id="'+idn+'" style="width:100%;padding:8px"><option value="">(sin dato)</option>'+lista.map(function(x){return '<option'+(x===v?' selected':'')+'>'+x+'</option>'}).join('')+'</select>'};
  var inp=function(idn,l,v){return '<label>'+l+'<input type="text" id="'+idn+'" value="'+esc(v||'')+'" style="width:100%;padding:8px"></label>'};
- o.innerHTML='<div style="background:#fff;border-radius:14px;padding:16px;max-width:520px;width:100%;font:14px Arial,sans-serif"><h3 style="margin:0 0 8px">Modificar estudiante · '+esc(e.g)+'</h3><div class="ojo">Corrija solo con datos verdaderos. Queda registrado quién lo hizo.</div>'+inp('mA','Apellidos',e.a)+inp('mN','Nombres',e.n)+'<label>Tipo de documento'+sel('mT',['RC','TI','CC','CE','PEP','PPT','NUIP','Otro'],e.tdoc)+'</label>'+inp('mD','Número de documento',e.ndoc)+inp('mL','Lugar de expedición',e.lex)+'<label>Sexo<select id="mS" style="width:100%;padding:8px"><option value="">(sin dato)</option><option value="M"'+(e.sx==='M'?' selected':'')+'>Masculino</option><option value="F"'+(e.sx==='F'?' selected':'')+'>Femenino</option></select></label><label>Nacionalidad o procedencia'+sel('mNa',['Colombiana','Venezolana','Ecuatoriana','Otra'],e.nac)+'</label>'+inp('mAc','Nombre del acudiente',e.acu)+inp('mTe','Teléfono del acudiente',e.tel)+'<div id="mMsg" style="color:#a31515;min-height:18px;margin-top:6px"></div><div class="row"><button class="btn p" id="mOk">Guardar cambios</button><button class="btn" id="mNo">Cancelar</button></div></div>';
- document.body.appendChild(o);
+ o.innerHTML='<div style="background:#fff;border-radius:14px;padding:16px;max-width:520px;width:100%;font:14px Arial,sans-serif"><h3 style="margin:0 0 8px">Modificar estudiante · '+esc(e.g)+'</h3><div class="ojo">Corrija solo con datos verdaderos. Queda registrado quién lo hizo.</div>'+(bl?'<div class="nota">La matrícula de este curso es oficial: los nombres no se cambian aquí; sí puede completar los demás datos.</div>':'')+inp('mA','Apellidos',e.a)+inp('mN','Nombres',e.n)+'<label>Tipo de documento'+sel('mT',['RC','TI','CC','CE','PEP','PPT','NUIP','Otro'],e.tdoc)+'</label>'+inp('mD','Número de documento',e.ndoc)+inp('mL','Lugar de expedición',e.lex)+'<label>Sexo<select id="mS" style="width:100%;padding:8px"><option value="">(sin dato)</option><option value="M"'+(e.sx==='M'?' selected':'')+'>Masculino</option><option value="F"'+(e.sx==='F'?' selected':'')+'>Femenino</option></select></label><label>Nacionalidad o procedencia<select id="mNa" style="width:100%;padding:8px">'+['Colombiana','Venezolana','Ecuatoriana','Otra'].map(function(x){return '<option'+(x===(e.nac||'Colombiana')?' selected':'')+'>'+x+'</option>'}).join('')+'</select></label>'+inp('mAc','Nombre del acudiente',e.acu)+inp('mTe','Teléfono del acudiente',e.tel)+'<div id="mMsg" style="color:#a31515;min-height:18px;margin-top:6px"></div><div class="row"><button class="btn p" id="mOk">Guardar cambios</button><button class="btn" id="mNo">Cancelar</button></div></div>';
+ document.body.appendChild(o);if(bl){$('#mA').readOnly=true;$('#mN').readOnly=true}
  $('#mNo').onclick=function(){o.remove()};
- $('#mOk').onclick=function(){var a=$('#mA').value.trim(),n=$('#mN').value.trim();if(!a||!n){$('#mMsg').textContent='Escriba apellidos y nombres.';return}
+ $('#mOk').onclick=function(){var a=bl?e.a:$('#mA').value.trim(),n=bl?e.n:$('#mN').value.trim();if(!a||!n){$('#mMsg').textContent='Escriba apellidos y nombres.';return}
   var d=$('#mD').value.replace(/\D/g,'');if($('#mD').value.trim()&&d.length<5){$('#mMsg').textContent='El número de documento no parece válido.';return}
   var otro=EST.filter(function(y){return y.id!==e.id&&!y.baja&&d&&String(y.ndoc||'').replace(/\D/g,'')===d})[0];if(otro){$('#mMsg').textContent='Ese documento ya lo tiene '+nom(otro)+' ('+otro.g+').';return}
   e.a=a;e.n=n;e.tdoc=$('#mT').value;e.ndoc=d;e.lex=$('#mL').value.trim();e.sx=$('#mS').value;e.nac=$('#mNa').value;e.acu=$('#mAc').value.trim();e.tel=$('#mTe').value.trim();
-  var f=(e.falta||[]).filter(function(x){return !((x==='Tipo y número de documento'&&e.tdoc&&e.ndoc)||(x==='Lugar de expedición'&&e.lex)||(x==='Sexo'&&e.sx)||(x==='Nacionalidad o procedencia'&&e.nac)||(x==='Teléfono del acudiente'&&e.tel))});
+  var f=(e.falta||[]).filter(function(x){return !((x==='Tipo y número de documento'&&e.tdoc&&e.ndoc)||(x==='Lugar de expedición'&&e.lex)||(x==='Sexo'&&e.sx)||(x==='Teléfono del acudiente'&&e.tel))});
   e.falta=f;e.doc=(!f.length)?'ok':'falta';e.mod=1;
   S.cambiosEst=S.cambiosEst||[];S.cambiosEst.push({tipo:'MODIFICAR',id:e.id,g:e.g,nombre:nom(e),por:USR||'(sin elegir)',t:ahora()});
   o.remove();pintaLis();try{pintaFaltTodo()}catch(x){}pintaPasos();pintaPendientes()}}

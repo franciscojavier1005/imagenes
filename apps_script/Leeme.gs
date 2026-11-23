@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-h';
+var VERSION_SISTEMA = '2026.11.23-i';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-i', fecha: '2026-11-23', cambios: [
+    'Comisiones: turno de edición (todos pueden editar pero una sola persona a la vez; se suelta, se pasa o se toma tras 15 min sin actividad; coordinación y directivos siempre). Menú «Permisos de las comisiones»: coordinación elige por nivel quién puede ver y quién editar. Fecha y hora actuales por defecto. Celular y correo institucional de los docentes desde la hoja Identidad_Docentes (columnas celular y correo_institucional).'] },
   { version: '2026.11.23-h', fecha: '2026-11-23', cambios: [
     'Comisiones: la barra superior muestra la versión de la pantalla y la del servidor para comprobar que ambas quedaron actualizadas.'] },
   { version: '2026.11.23-g', fecha: '2026-11-23', cambios: [

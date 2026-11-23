@@ -60,6 +60,8 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   comisionContexto: ['directivo', 'docente'],
   comisionGradoDatos: ['directivo', 'docente'],
   comisionSeguimiento: ['directivo'],
+  comisionPermisosLeer: ['directivo'],
+  comisionPermisosGuardar: ['directivo'],
   comisionCierreSimple: ['directivo', 'docente'],
   comisionAbrir: ['directivo', 'docente'],
   comisionCargar: ['directivo', 'docente'],
@@ -99,7 +101,7 @@ function apiFunciones_() {
     levantarMarcasEstudiante: levantarMarcasEstudiante,
     informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
     editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, cerrarReunion: cerrarReunion, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas,
-    comisionContexto: comisionContexto, comisionGradoDatos: comisionGradoDatos, comisionSeguimiento: comisionSeguimiento, comisionCierreSimple: comisionCierreSimple, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
+    comisionContexto: comisionContexto, comisionGradoDatos: comisionGradoDatos, comisionSeguimiento: comisionSeguimiento, comisionPermisosLeer: comisionPermisosLeer, comisionPermisosGuardar: comisionPermisosGuardar, comisionCierreSimple: comisionCierreSimple, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
     comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte, comisionBorrador: comisionBorrador, comisionPendientes: comisionPendientes, comisionGuardarPdf: comisionGuardarPdf, comisionEstudiante: comisionEstudiante
   };
 }

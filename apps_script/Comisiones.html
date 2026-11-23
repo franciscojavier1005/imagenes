@@ -444,10 +444,10 @@ section.pan .card>.row>.btn{align-self:flex-end;min-height:40px}
 .stk .stkv{text-align:right;line-height:1.1}.stk .stkv b{font-size:15px;color:#0f2a5c;display:block}.stk .stkv small{font-size:11px;color:#6b7a99}
 .stk *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 @media (max-width:560px){.stk .stkr{grid-template-columns:1fr 64px}.stk .stkn{grid-column:1/-1}.stk .stkt{grid-column:1}}
-.vp{display:none!important}input[type=date],input[type=time]{width:100%;padding:8px;border:2px solid var(--borde);border-radius:9px;font:inherit;font-size:inherit;color:inherit;background:#fff;box-sizing:border-box;min-height:40px}.grow>label{display:block}</style><style id="pieSty"></style></head><body>
+body.lectura #p1 .paso:not(#s8) .card{pointer-events:none;opacity:.78}body.lectura #p1 .paso .jur,body.lectura #p1 .paso .jur *{pointer-events:auto;opacity:1}#turno{margin:6px 12px}.vp{display:none!important}input[type=date],input[type=time]{width:100%;padding:8px;border:2px solid var(--borde);border-radius:9px;font:inherit;font-size:inherit;color:inherit;background:#fff;box-sizing:border-box;min-height:40px}.grow>label{display:block}</style><style id="pieSty"></style></head><body>
 <header class="top"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-logo="1" alt="Escudo ICET"><div><h1>Comisiones de evaluación y promoción · 2026</h1><small>Institución Ciudadela Educativa Tumac · ICET · Tumaco · Sistema de control de asistencia docente</small></div></header>
 <div id="jsfail" style="background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;padding:10px 14px;font:14px Arial,sans-serif"><b>Esta vista previa necesita ejecutar JavaScript y no se ejecutó.</b> Si ve este mensaje, el archivo no se cargó completo o su visor bloquea los scripts: guárdelo en el Mac y ábralo con <b>Chrome</b> (clic derecho, Abrir con, Chrome). Mientras tanto puede revisar el PDF «Recorrido de pantallas».</div><div class="vp"><b>COMISIONES</b> · estudiantes inventados; docentes y directivos como en el libro. No guarda nada. <b>Los datos de ejemplo ya están cargados</b> (8° Secundaria, acta final). Cambie el <b>perfil</b>, el <b>grado</b> o el <b>periodo</b> y vuelva a cargar el ejemplo si quiere.<div class="row" style="margin-top:6px;gap:6px"><button class="btn s" onclick="init(GK);irTab('p1')">Acta vacía</button><button class="btn s" onclick="abreReales()">Usar listados reales del libro</button></div><div class="ejg"><b>Ejemplo completo por nivel:</b> <button class="btn s" onclick="ejGrado('0° Preescolar')">Preescolar</button><button class="btn s" onclick="ejGrado('5° Primaria')">5.º Primaria</button><button class="btn s" onclick="ejGrado('8° Secundaria')">8.º Secundaria</button><button class="btn s" onclick="ejGrado('11° Media')">11.º Media</button></div></div>
-<div class="row" id="barraSes" style="padding:6px 10px;justify-content:space-between;background:#fff;border-bottom:1px solid var(--borde)"><button class="btn s" onclick="volverMenu()">← Volver al menú</button><span><small class="g" id="quienSes"></small> <button class="btn s" onclick="salirSesion()">Cerrar sesión</button></span></div><div class="perf"><b>Ver como:</b><select id="perfil" onchange="setPerfil(this.value)"><option value="d">Docente (del grado o director de grupo)</option><option value="c">Coordinación, rectoría u orientación</option><option value="a">Administrador</option><option value="x">Desarrollador (ensayos)</option></select><small>Cada persona ve solo lo que le corresponde.</small><b style="margin-left:10px">Entré como <small style="font-weight:400">(solo vista previa: escoja su nombre)</small>:</b><select id="selUsr" style="width:auto" onchange="setUsr(this.value)" title="Solo vista previa: en el sistema real es la persona que entró con su correo"></select></div><div id="bandaPrueba"></div><div id="avisoBorr"></div><div id="avisoRed"></div><div id="permBanda"></div>
+<div class="row" id="barraSes" style="padding:6px 10px;justify-content:space-between;background:#fff;border-bottom:1px solid var(--borde)"><button class="btn s" onclick="volverMenu()">← Volver al menú</button><span><small class="g" id="quienSes"></small> <button class="btn s" onclick="salirSesion()">Cerrar sesión</button></span></div><div id="turno"></div><div class="perf"><b>Ver como:</b><select id="perfil" onchange="setPerfil(this.value)"><option value="d">Docente (del grado o director de grupo)</option><option value="c">Coordinación, rectoría u orientación</option><option value="a">Administrador</option><option value="x">Desarrollador (ensayos)</option></select><small>Cada persona ve solo lo que le corresponde.</small><b style="margin-left:10px">Entré como <small style="font-weight:400">(solo vista previa: escoja su nombre)</small>:</b><select id="selUsr" style="width:auto" onchange="setUsr(this.value)" title="Solo vista previa: en el sistema real es la persona que entró con su correo"></select></div><div id="bandaPrueba"></div><div id="avisoBorr"></div><div id="avisoRed"></div><div id="permBanda"></div>
 <nav class="tabs" id="tabs"></nav>
 <main>
 
@@ -1569,10 +1569,11 @@ function particiona(){
  return o}
 function esResp(){return !S.resp||S.resp===USR}
 function esEditor(){return S.int.some(function(x){return x.n===USR&&(x.roles||[]).indexOf('Editor del acta')>=0})}
-function puedeGeneral(){return true}
+function puedeGeneral(){return turnoLibre()}
 function puedeEscribir(sec){
  if(S&&S.cerrada)return false;
- return true;
+ if(SECG.indexOf(sec)>=0)return true;
+ return turnoLibre();
  if(PERFIL!=='d')return true;
  if(SECR.indexOf(sec)>=0)return puedeGeneral();
  if(esEditor())return true;
@@ -1685,7 +1686,7 @@ function abreActa(){
   ACTA=r.acta;init(GK=Object.keys(G)[0]);$('#grado').value=GK;$('#periodo').value=per;$('#acta').value=ACTA.acta_no;
   Object.keys(r.secciones).forEach(function(k){SYNC.ver[k]=r.secciones[k].version});
   aplicaSecciones(r.secciones);S.resp=ACTA.responsable||'';SYNC.resp=S.resp;
-  if(!S.resp&&PERFIL==='d'&&S.int.some(function(x){return x.n===USR})){var q=S.int.filter(function(x){return x.n===USR})[0];q.p=true;S.resp=USR}
+  if(!S.resp&&PERFIL==='d'){var q=S.int.filter(function(x){return x.n===USR})[0];if(q)q.p=true;S.resp=USR}
   if(ACTA.estado==='CERRADA'){S.cerrada=true;hCi=ACTA.hora_cierre||'';try{$('#hCi').value=hCi}catch(e){}}
   var parts=particiona();SYNC.last={};Object.keys(parts).forEach(function(k){SYNC.last[k]=js(parts[k])});
   vista(false);setPerfil(PERFIL);pintaTodo();pintaPasos();pintaPendientes();try{etiqueta()}catch(e){}
@@ -1707,7 +1708,7 @@ function REAL_BOOT(){
  document.body.classList.add('jsok');
  if(!tokenGuardado()){irAlMenu();return}
  API('comisionContexto').then(function(c){
-  CTXR=c;USR=c.quien.nombre;if((c.version||'')!=='2026.11.23-h'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión 2026.11.23-h y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.23-h · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
+  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='2026.11.23-i'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión 2026.11.23-i y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.23-i · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
   GRADOS_REAL=c.grados.map(function(code){return COM_LABEL[code]}).filter(Boolean);LABEL_DE={};c.grados.forEach(function(code){LABEL_DE[COM_LABEL[code]]=code});
   var be=$('#btnEj');if(be&&c.quien.dev)be.style.display='';var p=$('#perfil');if(p){p.value=PERFIL;if(!c.quien.dev){var pf=document.querySelector('.perf');if(pf)pf.style.display='none'}}
   $('#grado').onchange=abreActa;$('#periodo').onchange=abreActa;
@@ -1720,7 +1721,9 @@ var COM_LABEL={'00':'0° Preescolar','01':'1° Primaria','02':'2° Primaria','03
 REAL_BOOT();
 
 /* ---------- fecha y hora con control (calendario y reloj) ---------- */
-function syncPick(){var f=$('#fecha'),fp=$('#fechaP'),hp=$('#horaP'),ha=$('#hApP');if(!f||!fp)return;
+function syncPick(){var f=$('#fecha'),fp=$('#fechaP'),hp=$('#horaP'),ha=$('#hApP');if(!f||!fp)return;try{pintaTurno();aplicaLectura()}catch(e){}
+ if(!/^\d\d\/\d\d\/\d{4}$/.test(f.value||'')){var d=new Date();f.value=('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear()}
+ if(!/^\d\d:\d\d$/.test(hAp||'')){hAp=hhmmReal();try{$('#hora').value=hAp;$('#hAp').value=hAp}catch(e){}}
  var m=/^(\d\d)\/(\d\d)\/(\d{4})$/.exec(f.value||'');var iso=m?m[3]+'-'+m[2]+'-'+m[1]:'';
  if(document.activeElement!==fp&&fp.value!==iso)fp.value=iso;
  if(hp&&document.activeElement!==hp&&hp.value!==(hAp||''))hp.value=hAp||'';
@@ -1747,5 +1750,24 @@ function salirSesion(){if(!confirm('¿Cerrar la sesión? Lo que ya se guardó en
  SYNC.activo=false;clearInterval(SYNC.t1);clearInterval(SYNC.t2);clearInterval(SYNC.t3);
  var t=tokenGuardado();borrarToken();
  try{google.script.run.withSuccessHandler(irAlMenu).withFailureHandler(irAlMenu).cerrarSesion(t)}catch(e){irAlMenu()}}
+
+/* ---------- turno de edición: todos pueden editar, pero una sola persona a la vez ---------- */
+function sinEdicion(){return !!(CTXR&&CTXR.quien&&CTXR.quien.editar===false&&PERFIL==='d')}
+function turnoLibre(){return !sinEdicion()&&(!S||!S.resp||S.resp===USR||PERFIL!=='d')}
+function minDe(v){var a=/^(\d\d):(\d\d)$/.exec(v||'');return a?Number(a[1])*60+Number(a[2]):-9999}
+function editorActivo(){var x=PRES[S.resp];return !!(x&&x.dia===hoyTxt()&&minDe(hhmmReal())-minDe(x.visto)>=0&&minDe(hhmmReal())-minDe(x.visto)<=15)}
+function tomarTurno(){if(!S||S.cerrada||sinEdicion())return;S.resp=USR;pintaTurno();aplicaLectura();tick()}
+function soltarTurno(){if(!S)return;S.resp='';pintaTurno();aplicaLectura();tick()}
+function pasarTurno(n){if(!n)return;S.resp=n;pintaTurno();aplicaLectura();tick()}
+var TURNO_HTML='';
+function pintaTurno(){var el=$('#turno');if(!el||!S||!ACTA)return;var h;
+ if(S.cerrada){h='<div class="nota" style="margin:0"><b>Acta cerrada:</b> solo lectura.</div>'}
+ else if(sinEdicion()){h='<div class="mal" style="margin:0"><b>Solo lectura:</b> la coordinación no habilitó la edición de las actas para su nivel. Puede consultar, declarar, firmar y completar datos faltantes.</div>'}
+ else if(S.resp===USR){h='<div class="bien" style="margin:0"><b>Usted tiene la edición.</b> Solo usted modifica el acta ahora (las demás personas la ven y pueden firmar, declarar y completar datos faltantes). <button class="btn s" onclick="soltarTurno()">Soltar la edición</button> <select id="selPasar" onchange="pasarTurno(this.value)"><option value="">Pasar la edición a…</option>'+DOCS.filter(function(n){return n!==USR}).map(function(n){return '<option>'+esc(n)+'</option>'}).join('')+'</select></div>'}
+ else if(!S.resp){h='<div class="ojo" style="margin:0"><b>Nadie tiene la edición.</b> <button class="btn s p" onclick="tomarTurno()">Tomar la edición</button></div>'}
+ else if(PERFIL!=='d'){h='<div class="ojo" style="margin:0"><b>Usted tiene acceso total</b> (coordinación). La edición del registro la tiene '+esc(S.resp)+'; puede trabajar igualmente. <button class="btn s" onclick="tomarTurno()">Quedarme con la edición</button></div>'}
+ else{var act=editorActivo();h='<div class="mal" style="margin:0"><b>Solo lectura:</b> '+esc(S.resp)+' tiene la edición ahora (una sola persona a la vez). Usted puede declarar, firmar y completar datos faltantes. '+(act?'<button class="btn s" disabled title="Disponible si '+esc(S.resp)+' la suelta o lleva 15 minutos sin actividad">Tomar la edición</button><small class="g"> disponible cuando la suelte o pasen 15 min sin actividad</small>':'<button class="btn s p" onclick="tomarTurno()">Tomar la edición</button> <small class="g">(sin actividad reciente)</small>')+'</div>'}
+ if(h!==TURNO_HTML){TURNO_HTML=h;el.innerHTML=h}}
+function aplicaLectura(){var on=!!(S&&ACTA&&!S.cerrada&&!turnoLibre());document.body.classList.toggle('lectura',on)}
 
 </script></body></html>

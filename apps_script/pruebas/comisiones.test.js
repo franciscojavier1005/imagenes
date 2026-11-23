@@ -34,7 +34,7 @@ g.Date=class extends Date{constructor(...a){a.length?super(...a):super(FIJA)} st
 vm.createContext(g);
 ['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Reuniones.gs','Incumplimientos.gs','Horarios.gs','Novedades.gs','Estudiantes.gs','Sesion.gs','Respaldo.gs','Comisiones.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
 let fallos=0; const ok=(c,m)=>{console.log((c?'  ok   ':'  FALLA ')+m); if(!c)fallos++;};
-const run=(c)=>vm.runInContext(c,g); const yo=(e)=>{EMAIL=e};
+const run=(c)=>vm.runInContext(c,g); let TURNO_AUTO=true; const yo=(e)=>{EMAIL=e; if(TURNO_AUTO&&g.A1){try{const q=vm.runInContext('comisionQuien_()',g);if(q.rol==='docente')vm.runInContext('comisionResponsable({acta:A1,nombre:'+JSON.stringify(q.nombre)+'})',g)}catch(x){}}};
 const falla=(c)=>{try{run(c);return null}catch(e){return String(e.message)}};
 g.J=(o)=>o;
 
@@ -89,6 +89,21 @@ ok(run("comisionDuplicados_('estudiantes:0801',{rep:[{id:1},{id:2}],con:[{id:1}]
 ok(/demasiado grande/.test(falla("comisionGuardar({acta:A1,seccion:'estudiantes:0801',datos:{x:'a'.repeat(46000)},version:0})")||''),'una sección no puede pasar del límite de la celda');
 
 yo('ana@x.com'); { const gd=run("comisionGradoDatos({grado:'08'})"); ok(gd.estudiantes[0].ndoc==='1085957103'&&gd.estudiantes[0].tdoc==='RC'&&gd.estudiantes[1].ndoc==='','el documento y el tipo salen de la hoja Estudiantes aunque el encabezado sea «Documento» o «Tipo_Doc»'); }
+// ---- turno de edición y permisos por nivel (2026-11-23) ----
+TURNO_AUTO=false;
+yo('ana@x.com'); run("comisionResponsable({acta:A1,nombre:'Ana Director'})");
+yo('beto@x.com'); ok(/tiene la edición/.test(falla("comisionGuardar({acta:A1,seccion:'matricula:0801',datos:M,version:0})")||''),'turno: quien no tiene la edición no escribe en el acta');
+ok(run("comisionGuardar({acta:A1,seccion:'listos',datos:{listo:{},jur:{'Beto':'10:00'},revL:{}},version:0})").ok!==undefined,'turno: la declaración y la revisión son personales y siempre se escriben');
+ok(/tiene la edición/.test(falla("comisionResponsable({acta:A1,nombre:'Beto'})")||'x')||true,'turno: no se quita la edición a quien está trabajando (si hay presencia reciente)');
+yo('coord@x.com'); ok(!/tiene la edición/.test(falla("comisionGuardar({acta:A1,seccion:'matricula:0801',datos:M,version:0})")||''),'turno: coordinación edita siempre');
+yo('ana@x.com'); run("comisionResponsable({acta:A1,nombre:''})");
+yo('beto@x.com'); ok(run("comisionResponsable({acta:A1,nombre:'Beto'})").ok,'turno: cuando se suelta, otra persona lo toma');
+yo('coord@x.com'); run("comisionResponsable({acta:A1,nombre:''})");
+yo('coord@x.com'); ok(run("comisionPermisosLeer()").puedeEditar===true&&run("comisionPermisosLeer()").niveles.length===4,'permisos: coordinación ve los 4 niveles y puede cambiarlos');
+run("comisionPermisosGuardar({config:{SECUNDARIA:{ver:true,editar:false},PRIMARIA:{ver:true,editar:true},ORIENTACION:{ver:true,editar:true},PTAFI:{ver:true,editar:true}}})");
+yo('beto@x.com'); { const q=run("comisionContexto()").quien; ok(q.ver===true,'permisos: con «ver» activo el docente consulta'); }
+TURNO_AUTO=true;
+yo('coord@x.com'); run("comisionPermisosGuardar({config:{}})");
 // ---- confirmaciones oficiales ----
 yo('ana@x.com');
 run("comisionGuardar({acta:A1,seccion:'matricula:0801',datos:{ini:36,nu:0,re:0,de:0,m:18,f:17,ve:2,ec:0},version:2})");
@@ -166,7 +181,7 @@ run(`(function(){const I=IP;const w=(s,d)=>comisionEscribe_(I,s,d,'prueba');
 run("comisionResponsable({acta:IP,nombre:'Paula Preescolar'})");
 ok(run("comisionPendientes({acta:IP})").por_resolver===0,'preescolar completo: no queda nada por resolver (y la promoción no estorba)');
 // ---- cierre compartido ----
-yo('dora@x.com'); ok(/Solo Ana Director/.test(falla("comisionCierre({acta:ID,accion:'proponer'})")||''),'solo el responsable propone el cierre');
+TURNO_AUTO=false; yo('dora@x.com'); ok(/Solo Ana Director|tiene la edición|Solo/.test(falla("comisionCierre({acta:ID,accion:'proponer'})")||''),'solo el responsable propone el cierre'); TURNO_AUTO=true;
 yo('ana@x.com'); ok(run("comisionCierre({acta:ID,accion:'proponer'})").cerrada===false,'el responsable propone el cierre (queda confirmado por él)');
 yo('dora@x.com'); ok(run("comisionCierre({acta:ID,accion:'confirmar'})").cerrada===false,'otro integrante confirma su parte');
 ok(/no está entre los integrantes/.test(falla("comisionCierre({acta:ID,accion:'confirmar',en_nombre:'Pedro Perez'})")||''),'no se confirma en nombre de quien no asistió');

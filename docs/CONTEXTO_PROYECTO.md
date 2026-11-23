@@ -748,3 +748,8 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 87 (2026-11-23, versión 2026.11.23-h)
 - La barra superior de Comisiones muestra «pantalla X · servidor Y». Los controles bloqueados que reportó el usuario no se reproducen con el código actual (prueba integrada: docente no responsable activa verificaciones y juramento y se guardan en el libro); causa probable: archivo HTML `Comisiones` del proyecto sin actualizar.
+
+## Ampliación 88 (2026-11-23, versión 2026.11.23-i)
+- **Turno de edición** (reemplaza el «acceso total» sin límite de la ampliación 84): todos pueden editar pero solo la persona que tiene el turno (`Comision_Actas.responsable`) escribe en las secciones del acta; firmas, listos (juramento y revisión), faltantes y presencia son personales y siempre se escriben. Soltar/pasar: `comisionResponsable`; tomar: libre, o si el responsable lleva más de 15 min sin latido de presencia (`comisionEditorActivo_`). Directivos (coordinación, desarrollador, rectoría) editan siempre. Cliente: `turnoLibre()`, banner `#turno`, clase `body.lectura` (CSS bloquea el acta salvo `.jur` y cierre).
+- **Permisos por nivel** (`comisionPermisosLeer/Guardar`, parámetro `comisiones_permisos`; menú de coordinación «Permisos de las comisiones»): niveles PRIMARIA, SECUNDARIA, ORIENTACION, PTAFI con «ver» y «editar»; por defecto todos. Docentes con «ver» consultan el acta e informes, también cerrada.
+- Fecha y hora actuales por defecto (si faltan). Celular y correo institucional de docentes desde `Identidad_Docentes` (columnas `celular`, `correo_institucional`); archivo privado generado cruzando «ICET-2021-DATOS DOCENTES-GAE.xlsx» (44 de 57 con celular; 13 sin dato en el GAE) — no se versiona.

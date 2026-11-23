@@ -47,7 +47,7 @@
 <main>
   <div class="saludo" id="saludo"></div>
   <div id="botones"><div class="espera">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.23-h</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.23-i</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -167,6 +167,25 @@ function entrarDoc(){
    .withFailureHandler(function(e){ var b=el('dBtn'); if(b) b.disabled=false; el('dMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); el('dPin').value=''; }).ingresarDocente({nombre:n,pin:pin,correo:mail});
 }
 
+/* ---------- coordinación: permisos de las comisiones por nivel ---------- */
+var PERM_COM=null;
+function abrirPermisosCom(){
+  el('saludo').textContent='Permisos de las comisiones';
+  el('botones').innerHTML='<div class="espera">Cargando…</div>';
+  srv().withSuccessHandler(function(r){ PERM_COM=r; pintaPermisosCom(); })
+   .withFailureHandler(function(e){ el('botones').innerHTML='<div class="msg">'+esc(String(e&&e.message||e).replace(/^Error: /,''))+'</div><button class="btn" onclick="iniciar()">Volver</button>'; }).comisionPermisosLeer();
+}
+function pintaPermisosCom(){
+  var r=PERM_COM, ed=r.puedeEditar;
+  el('botones').innerHTML='<div class="caja"><b>¿Quién puede ver y quién puede editar las actas?</b><br><small>Los directivos siempre tienen acceso total. «Editar» permite modificar el acta, de a una persona por vez (turno de edición); «Ver» permite consultar el acta y sus informes, también cuando ya está cerrada.</small></div>'+
+   r.niveles.map(function(n){var c=r.config[n.clave]||{ver:true,editar:true};return '<div class="caja" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><b>'+esc(n.nombre)+'</b><span><label style="margin-right:12px"><input type="checkbox" '+(c.ver?'checked ':'')+(ed?'':'disabled ')+'onchange="cambiaPermCom(\''+n.clave+'\',\'ver\',this.checked)"> Ver</label><label><input type="checkbox" '+(c.editar?'checked ':'')+(ed?'':'disabled ')+'onchange="cambiaPermCom(\''+n.clave+'\',\'editar\',this.checked)"> Editar</label></span></div>';}).join('')+
+   (ed?'<div class="caja"><button class="btn p" onclick="guardaPermCom()">Guardar permisos</button> <span id="permMsg"></span></div>':'<div class="msg">Solo coordinación académica puede cambiarlos.</div>')+'<button class="btn" onclick="iniciar()">Volver</button>';
+}
+function cambiaPermCom(k,campo,v){var c=PERM_COM.config[k]=PERM_COM.config[k]||{ver:true,editar:true};c[campo]=v;if(campo==='ver'&&!v)c.editar=false;if(campo==='editar'&&v)c.ver=true;pintaPermisosCom();}
+function guardaPermCom(){
+  srv().withSuccessHandler(function(){ pintaPermisosCom(); var m=el('permMsg'); if(m)m.textContent='Guardado.'; })
+   .withFailureHandler(function(e){ var m=el('permMsg'); if(m)m.textContent=String(e&&e.message||e).replace(/^Error: /,''); }).comisionPermisosGuardar({config:PERM_COM.config});
+}
 /* ---------- coordinación: agregar o editar docentes ---------- */
 var DOCS_ADMIN=[];
 function abrirDocentes(){
@@ -251,6 +270,7 @@ function pintar(rol,nombre,c){
     h+=boton('comisiones','📋','Comisiones de evaluación y promoción','Actas por grado y periodo: matrícula, áreas, reconocimientos, promoción y cierre.');
     h+='<a class="boton" style="--c:#2c4a7c" href="#" onclick="abrirSeguimiento();return false"><span class="ic">📊</span><div><b>Seguimiento de las comisiones</b><span>Avance de cada comisión y avisos cuando alguien avanza.</span></div></a>';
     setTimeout(iniciaSeguimiento,1500);
+    if(CTX.administra) h+='<a class="boton" style="--c:'+COLORES.comisiones+'" href="#" onclick="abrirPermisosCom();return false"><span class="ic">🔐</span><div><b>Permisos de las comisiones</b><span>Quién puede ver y quién puede editar las actas, por nivel.</span></div></a>';
     if(CTX.administra) h+='<a class="boton" style="--c:'+COLORES.docentes+'" href="#" onclick="abrirDocentes();return false"><span class="ic">🧑‍🏫</span><div><b>Docentes: agregar o editar datos</b><span>Nuevos docentes, cédula y correo de contacto.</span></div></a>';
     h+=boton('ayuda','❓','Ayuda y manual de uso','Cómo se usa cada pantalla, paso a paso (se puede imprimir en PDF).');
     if(CTX.necesitaCorreo) h+='<div class="sub" style="margin:6px 4px 0;color:#456">✉ Aún no recibe informes por correo. Si lo desea, <button class="enlace" onclick="abrirCorreo()">registre su correo</button> (opcional, de cualquier proveedor).</div>';

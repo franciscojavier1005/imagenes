@@ -189,6 +189,7 @@ function abreActa(){
   if(ACTA.estado==='CERRADA'){S.cerrada=true;hCi=ACTA.hora_cierre||'';try{$('#hCi').value=hCi}catch(e){}}
   var parts=particiona();SYNC.last={};Object.keys(parts).forEach(function(k){SYNC.last[k]=js(parts[k])});
   try{restauraDrafts(r.secciones)}catch(e){}
+  try{ofreceBorrador()}catch(e){}
   vista(false);setPerfil(PERFIL);pintaTodo();pintaPasos();pintaPendientes();try{etiqueta()}catch(e){}
   try{vuelveAPos()}catch(e){}
   SYNC.activo=true;pidePresencia();SYNC.t3=setInterval(latido,120000);SYNC.t1=setInterval(tick,2000);SYNC.t2=setInterval(sondeo,5000);estadoSync('Acta abierta '+ahora(),'v');
@@ -344,7 +345,7 @@ function leeSnap(code,per){try{return JSON.parse(localStorage.getItem(snapKey(co
 /* el sondeo refresca la copia local con lo último del libro */
 var _sond_snap=sondeo;sondeo=function(){_sond_snap();try{if(ACTA&&S&&SYNC.activo&&!SYNC.busy){var code=LABEL_DE[$('#grado').value],per=$('#periodo').value,sn=leeSnap(code,per);if(sn&&Date.now()-sn.t>60000){API('comisionCargar',{acta:ACTA.id}).then(function(r){var s2=leeSnap(code,per);if(s2){s2.r=r;s2.t=Date.now();localStorage.setItem(snapKey(code,per),JSON.stringify(s2))}}).catch(function(){})}}}catch(e){}};
 /* ---------- borrador: guarda ya en el libro y en este equipo, y recuerda dónde estaba ---------- */
-guardaBorrador=function(manual){try{guardaPos();if(SYNC.activo&&S&&ACTA){var parts=particiona(),cola=[];Object.keys(parts).forEach(function(k){if(SYNC.last[k]!==undefined&&js(parts[k])!==SYNC.last[k]&&puedeEscribir(k))cola.push(k)});if(cola.length)guardaDrafts(cola,parts);try{tick()}catch(e){}}
+guardaBorrador=function(manual){try{guardaBorEsp();guardaPos();if(SYNC.activo&&S&&ACTA){var parts=particiona(),cola=[];Object.keys(parts).forEach(function(k){if(SYNC.last[k]!==undefined&&js(parts[k])!==SYNC.last[k]&&puedeEscribir(k))cola.push(k)});if(cola.length)guardaDrafts(cola,parts);try{tick()}catch(e){}}
   estadoGuard('Borrador guardado '+ahora(),'v');if(manual)$('#finMsg').innerHTML='<div class="bien">Borrador guardado a las '+ahora()+': ya está en el libro (si hay conexión) y en este equipo. Si se cierra la pantalla, se pierde la conexión o se actualiza la aplicación, al volver entrará <b>donde estaba</b>, con lo que escribió.</div>'}catch(e){estadoGuard('No se pudo guardar el borrador','f')}};
 avisoBorrador=function(){};
 /* ---------- matrícula: hombres + mujeres = total actual (si sube una casilla, baja la otra); por defecto todos hombres, o lo que traen las hojas ---------- */
@@ -358,3 +359,15 @@ function matSet(i,k,v){var r=S.mat[i];if(!r)return;v=Math.max(0,+v||0);r.ok=fals
  pintaMat()}
 numI=function(i,k,bad){return '<input type="number" min="0" class="'+(bad[k]?'bad':'')+'" value="'+S.mat[i][k]+'" '+(S.mat[i].ok?'disabled ':'')+'onchange="matSet('+i+',\''+k+'\',this.value)">'};
 var _pm_inv=pintaMat;pintaMat=function(){matInvariante();_pm_inv()};
+
+/* ---------- «Guardar borrador»: copia de TODO su avance; al volver se ofrece «Recuperar borrador» ---------- */
+function borKey(){return 'icet_com_bor:'+USR+':'+(ACTA&&ACTA.id)}
+function guardaBorEsp(){if(!ACTA||!S)return;var parts=particiona(),o={t:Date.now(),parts:{},base:{}};Object.keys(parts).forEach(function(k){if(puedeEscribir(k)){o.parts[k]=parts[k];o.base[k]=SYNC.last[k]||'null'}});try{localStorage.setItem(borKey(),JSON.stringify(o))}catch(e){}}
+function leeBor(){try{return JSON.parse(localStorage.getItem(borKey())||'null')}catch(e){return null}}
+function ofreceBorrador(){var b=leeBor();if(!b)return;var parts=particiona(),dif=Object.keys(b.parts).filter(function(k){return js(parts[k])!==js(b.parts[k])});if(!dif.length)return;
+ var h=new Date(b.t),hh=('0'+h.getHours()).slice(-2)+':'+('0'+h.getMinutes()).slice(-2);
+ var el=$('#avisoBorr');if(!el)return;el.innerHTML='<div class="ojo" style="margin:0;border-radius:0"><b>Hay un borrador guardado a las '+hh+'</b> con '+dif.length+' parte'+(dif.length===1?'':'s')+' distinta'+(dif.length===1?'':'s')+' de lo que hay ahora. <button class="btn s p" onclick="recuperaBor()">Recuperar borrador</button> <button class="btn s" onclick="descartaBor()">Descartar</button></div>'}
+function recuperaBor(){var b=leeBor();if(!b)return;var n=0;Object.keys(b.parts).forEach(function(k){if(!puedeEscribir(k))return;var act=particiona()[k],base=null;try{base=JSON.parse(b.base[k]||'null')}catch(e){}
+  var m;try{m=fusiona(act,b.parts[k],base)}catch(e){m=b.parts[k]}if(js(m)!==js(act)){aplicaUna(k,m);n++}});
+ pintaTodo();pintaPasos();pintaPendientes();try{etiqueta()}catch(e){}avisoSync(n?'<b>Borrador recuperado</b> ('+n+' parte'+(n===1?'':'s')+'). Se envía al libro en unos segundos.':'El borrador ya estaba al día.')}
+function descartaBor(){try{localStorage.removeItem(borKey())}catch(e){}avisoSync('')}

@@ -3866,11 +3866,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-r';
+var VERSION_SISTEMA = '2026.11.23-s';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-s', fecha: '2026-11-23', cambios: [
+    'Comisiones: «Guardar borrador» guarda una copia de todo el avance y, al volver o recargar, aparece «Recuperar borrador» (se mezcla con lo que haya en el libro). Datos faltantes de docentes y acompañantes: solo se piden los marcados como participantes en la asistencia.'] },
   { version: '2026.11.23-r', fecha: '2026-11-23', cambios: [
     'Comisiones, matrícula: hombres + mujeres siempre suman el total actual (si sube una casilla baja la otra); por defecto todos figuran como hombres, o lo que traigan las hojas si ya tienen sexo. Datos de directivos, orientadora y tutora (cédula, celular, correo) se traen de la hoja Identidad_Docentes. Sin conexión: si ya abrió el acta antes, se abre con la última copia guardada en este equipo y lo que escriba se envía al volver la conexión. «Guardar borrador» guarda en el libro y en el equipo y recuerda dónde estaba.'] },
   { version: '2026.11.23-q', fecha: '2026-11-23', cambios: [

@@ -475,8 +475,8 @@ section.pan .card>.row>.btn{align-self:flex-end;min-height:40px}
 <div class="grow"><label>Periodo</label><select id="periodo" onchange="showProm()"><option>Primero</option><option>Segundo</option><option>Tercero</option><option selected>Final</option></select></div>
 <div class="grow"><label>Grado</label><select id="grado" onchange="init(this.value)"></select></div>
 <div class="grow"><label>Acta No.</label><input type="text" id="acta" value="3"></div>
-<div class="grow"><label>Fecha</label><input type="text" id="fecha" readonly></div>
-<div class="grow"><label>Hora de apertura (fija)</label><input type="text" id="hora" readonly></div>
+<div class="grow"><label>Fecha</label><input type="hidden" id="fecha"><input type="date" id="fechaP"></div>
+<div class="grow"><label>Hora de apertura</label><input type="hidden" id="hora"><input type="time" id="horaP"></div>
 </div>
 <div class="row" style="margin-top:6px"><small class="g">Decreto 1290 de 2009 y Manual de Convivencia (encabezado del formato).</small></div></details>
 <div class="prog"><i id="barra"></i></div>
@@ -541,7 +541,7 @@ section.pan .card>.row>.btn{align-self:flex-end;min-height:40px}
 <label>Cómo se manejó y qué sugiere continuar</label><textarea id="difT" placeholder="Ajustes razonables, apoyos, seguimiento, remisiones"></textarea></div></div>
 
 <div class="paso" id="s8"><div class="card"><h3>Cierre y firmas</h3>
-<div class="row"><div class="grow"><label>Hora de apertura</label><input type="text" id="hAp" readonly></div><div class="grow"><label>Hora de cierre</label><input type="text" id="hCi" readonly placeholder="Se registra al finalizar"></div></div>
+<div class="row"><div class="grow"><label>Hora de apertura</label><input type="time" id="hApP"><input type="hidden" id="hAp"></div><div class="grow"><label>Hora de cierre</label><input type="text" id="hCi" readonly placeholder="Se registra al finalizar"></div></div>
 <div class="ojo"><b>Firma obligatoria:</b> el acta solo es válida si la firman todos los asistentes, <b>al finalizar</b>. Imprímala antes de guardar (pestaña «Imprimible») y no olvide recoger las firmas.</div><div class="nota"><b>Firman solo quienes asistieron y permanecen hasta el cierre.</b> Cada uno da su <b>número de cédula</b> ahora; el <b>correo</b> aparece solo porque ya lo dio al inicio. Al finalizar y guardar, cada integrante recibe en su correo una <b>copia del acta sin firmar</b>; se recomienda <b>imprimirla cuanto antes</b> para la firma de los presentes y la <b>entrega del acta firmada en físico a coordinación</b> (archivo). La revisión de lo consignado la hace coordinación en la aplicación. <b>El acta queda cerrada y en solo lectura</b>; para modificarla hay que pedir la reapertura al administrador.</div>
 <div id="habBox"></div><div id="pendBox"></div><div id="firmas"></div><div id="resumen" class="nota"></div>
 <div id="equipo"></div><div id="cierreProp"></div><div id="respMsg"></div><div class="row"><button class="btn p" id="btnFin" onclick="finalizar()">Finalizar comisión y guardar</button><button class="btn" onclick="guardaBorrador(true)">Guardar borrador</button><button class="btn" onclick="descargaCopia()">Descargar copia (datos y acta)</button></div><div id="finMsg"></div></div></div>
@@ -1504,7 +1504,7 @@ function adaptaPeriodo0(){var f=FIN(),per=$('#periodo').value,R=(S.niv==='pre'?R
 function steppers(){$$('main input[type=number]').forEach(function(i){if(i.parentNode.classList.contains('stp'))return;var w=document.createElement('span');w.className='stp';i.parentNode.insertBefore(w,i);var u=document.createElement('button'),d=document.createElement('button');u.type=d.type='button';u.className='up';d.className='dn';u.textContent='▲';d.textContent='▼';u.setAttribute('aria-label','subir');d.setAttribute('aria-label','bajar');w.appendChild(i);w.appendChild(u);w.appendChild(d);
  function ch(x){if(i.disabled||i.readOnly)return;var st=parseFloat(i.step)||1,v=parseFloat(i.value),mn=i.min!==''?+i.min:0;if(isNaN(v))v=mn;v=Math.round((v+x*st)*10)/10;v=Math.max(mn,v);if(i.max!=='')v=Math.min(+i.max,v);i.value=v;i.dispatchEvent(new Event('input',{bubbles:true}));i.dispatchEvent(new Event('change',{bubbles:true}))}
  u.onclick=function(){ch(1)};d.onclick=function(){ch(-1)}})}
-function etiqueta(){etiqueta0();adaptaPeriodo();steppers();aplicaPermisos();aplicaBloqueos();indicadores();pintaPre();var g=$('#genS');if(g)g.innerHTML='<b>Acta '+esc($('#acta').value)+' · '+esc($('#periodo').value)+' · '+esc(GK)+'</b> <small class="g">'+$('#fecha').value+' · apertura '+$('#hora').value+'</small>'}
+function etiqueta(){etiqueta0();try{syncPick()}catch(e){}adaptaPeriodo();steppers();aplicaPermisos();aplicaBloqueos();indicadores();pintaPre();var g=$('#genS');if(g)g.innerHTML='<b>Acta '+esc($('#acta').value)+' · '+esc($('#periodo').value)+' · '+esc(GK)+'</b> <small class="g">'+$('#fecha').value+' · apertura '+$('#hora').value+'</small>'}
 (function(){var tm;new MutationObserver(function(){clearTimeout(tm);tm=setTimeout(etiqueta,60)}).observe(document.querySelector('main'),{childList:true,subtree:true})})();
 try{$$('img[data-logo]').forEach(function(i){i.src=LOGO})}catch(e){}
 /* ===================== PANTALLA REAL: conexión con el libro (Apps Script) =====================
@@ -1717,5 +1717,17 @@ function REAL_BOOT(){
  }).catch(function(e){document.body.insertAdjacentHTML('afterbegin','<div style="background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;padding:12px;font:14px Arial">No se pudo abrir las comisiones: '+esc(msgE(e))+' <a href="javascript:irAlMenu()">Volver al menú</a></div>')})}
 var COM_LABEL={'00':'0° Preescolar','01':'1° Primaria','02':'2° Primaria','03':'3° Primaria','04':'4° Primaria','05':'5° Primaria','06':'6° Secundaria','CS1':'CS 1 (Caminar en Secundaria 1, 6°-7°)','07':'7° Secundaria','08':'8° Secundaria','09':'9° Secundaria','CS2':'CS 2 (Caminar en Secundaria 2, 8°-9°)','10':'10° Media','11':'11° Media'};
 REAL_BOOT();
+
+/* ---------- fecha y hora con control (calendario y reloj) ---------- */
+function syncPick(){var f=$('#fecha'),fp=$('#fechaP'),hp=$('#horaP'),ha=$('#hApP');if(!f||!fp)return;
+ var m=/^(\d\d)\/(\d\d)\/(\d{4})$/.exec(f.value||'');var iso=m?m[3]+'-'+m[2]+'-'+m[1]:'';
+ if(document.activeElement!==fp&&fp.value!==iso)fp.value=iso;
+ if(hp&&document.activeElement!==hp&&hp.value!==(hAp||''))hp.value=hAp||'';
+ if(ha&&document.activeElement!==ha&&ha.value!==(hAp||''))ha.value=hAp||'';
+ var ok=false;try{ok=puedeEscribir('general')}catch(e){}
+ [fp,hp,ha].forEach(function(x){if(x){x.disabled=!ok||!!S.cerrada}})}
+function eligeFecha(v){var m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(v||'');if(m)$('#fecha').value=m[3]+'/'+m[2]+'/'+m[1]}
+function eligeHora(v){if(!/^\d\d:\d\d$/.test(v||''))return;hAp=v;$('#hora').value=v;$('#hAp').value=v;var a=$('#hApP'),b=$('#horaP');if(a)a.value=v;if(b)b.value=v}
+document.addEventListener('change',function(e){var t=e.target||{};if(t.id==='fechaP')eligeFecha(t.value);else if(t.id==='horaP'||t.id==='hApP')eligeHora(t.value)});
 
 </script></body></html>

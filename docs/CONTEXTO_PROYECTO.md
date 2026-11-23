@@ -728,3 +728,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 82 (2026-11-23, versión 2026.11.23-c)
 - Defecto real: `comisionAbrir` devolvía null a la pantalla («reading 'acta'») porque las celdas de fecha de `Comision_Actas` llegan como Date y `google.script.run` descarta la respuesta. `llamarSeguro` ahora pasa por `sanearSalida_` (Date → texto). Regla: nunca devolver Date a la pantalla.
+
+## Ampliación 83 (2026-11-23, versión 2026.11.23-d)
+- Fecha y hora del acta con controles nativos (calendario/reloj); los campos ocultos `#fecha`/`#hora`/`#hAp` siguen guardando el texto dd/mm/aaaa y HH:MM. Solo editan responsable y coordinación.

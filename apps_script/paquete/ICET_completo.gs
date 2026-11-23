@@ -3866,11 +3866,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-c';
+var VERSION_SISTEMA = '2026.11.23-d';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-d', fecha: '2026-11-23', cambios: [
+    'Comisiones: la fecha y la hora del acta se eligen con calendario y reloj (las edita el responsable o coordinación).'] },
   { version: '2026.11.23-c', fecha: '2026-11-23', cambios: [
     'Corrección: al abrir el acta de comisiones salía «Cannot read properties of null» porque las fechas de las hojas llegaban como objeto Date y Apps Script devolvía vacío; ahora se convierten a texto.'] },
   { version: '2026.11.23-b', fecha: '2026-11-23', cambios: [

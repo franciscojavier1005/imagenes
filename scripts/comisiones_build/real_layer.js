@@ -208,7 +208,7 @@ function REAL_BOOT(){
  API('comisionContexto').then(function(c){
   CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='__CLIENTVER__'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión __CLIENTVER__ y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla __CLIENTVER__ · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
   GRADOS_REAL=c.grados.map(function(code){return COM_LABEL[code]}).filter(Boolean);LABEL_DE={};c.grados.forEach(function(code){LABEL_DE[COM_LABEL[code]]=code});
-  var be=$('#btnEj');if(be&&c.quien.dev)be.style.display='';var p=$('#perfil');if(p){p.value=PERFIL;if(!c.quien.dev){var pf=document.querySelector('.perf');if(pf)pf.style.display='none'}}
+  var bh=$('#btnHist');if(bh&&(c.quien.rol!=='docente'||c.quien.total))bh.style.display='';var be=$('#btnEj');if(be&&c.quien.dev)be.style.display='';var p=$('#perfil');if(p){p.value=PERFIL;if(!c.quien.dev){var pf=document.querySelector('.perf');if(pf)pf.style.display='none'}}
   $('#grado').onchange=abreActa;$('#periodo').onchange=abreActa;
   pintaGrados();try{setPerfil(PERFIL)}catch(e){}
   var pos0=leePos();if(pos0&&pos0.grado&&GRADOS_REAL.indexOf(pos0.grado)>=0&&pos0.periodo){$('#grado').value=pos0.grado;$('#periodo').value=pos0.periodo;POS_PEND=pos0;abreActa()}
@@ -289,7 +289,7 @@ function modEst(id){var e=est(id);if(!e||$('#mMod'))return;var bl=ingBloq(e.g);
   var f=(e.falta||[]).filter(function(x){return !((x==='Tipo y número de documento'&&e.tdoc&&e.ndoc)||(x==='Lugar de expedición'&&e.lex)||(x==='Sexo'&&e.sx)||(x==='Teléfono del acudiente'&&e.tel))});
   e.falta=f;e.doc=(!f.length)?'ok':'falta';e.mod=1;
   S.cambiosEst=S.cambiosEst||[];S.cambiosEst.push({tipo:'MODIFICAR',id:e.id,g:e.g,nombre:nom(e),por:USR||'(sin elegir)',t:ahora()});
-  o.remove();pintaLis();try{pintaFaltTodo()}catch(x){}pintaPasos();pintaPendientes()}}
+  o.remove();pintaLis();try{pintaFaltTodo()}catch(x){}try{pintaListas()}catch(x){}pintaPasos();pintaPendientes()}}
 /* quien firma (confirma su parte del cierre) declara que no redactará más: su edición se bloquea */
 var _tl_firma=turnoLibre;turnoLibre=function(){if(!esTotal()&&S&&S.cierreProp&&S.cierreProp.conf&&S.cierreProp.conf[USR])return false;return _tl_firma()};
 
@@ -320,3 +320,15 @@ function vuelveAPos(){var p=POS_PEND;POS_PEND=null;if(!p)return;if(p.tab&&p.tab!
 var _irTab_c=irTab;irTab=function(){var r=_irTab_c.apply(this,arguments);try{guardaPos()}catch(e){}return r};
 var _ir_c=ir;ir=function(){var r=_ir_c.apply(this,arguments);try{guardaPos()}catch(e){}return r};
 window.addEventListener('beforeunload',function(){try{guardaPos();if(SYNC.activo&&S&&ACTA){var parts=particiona(),cola=[];Object.keys(parts).forEach(function(k){if(SYNC.last[k]!==undefined&&js(parts[k])!==SYNC.last[k]&&puedeEscribir(k))cola.push(k)});if(cola.length)guardaDrafts(cola,parts)}}catch(e){}});
+
+/* ---------- historial: volver a una versión anterior del acta o deshacer un cambio en las hojas ---------- */
+function abrirHistorial(){if(!ACTA)return;API('comisionHistorial',{acta:ACTA.id}).then(pintaHistorial).catch(function(e){alert(msgE(e))})}
+function pintaHistorial(r){var o=$('#mHist');if(o)o.remove();o=document.createElement('div');o.id='mHist';o.style.cssText='position:fixed;inset:0;background:rgba(10,20,45,.55);z-index:10000;display:flex;align-items:flex-start;justify-content:center;padding:14px;overflow:auto';
+ var sec=(r.secciones||[]).map(function(x){return '<tr><td>'+esc(x.fecha)+'</td><td>'+esc(String(x.seccion).replace(':',' · '))+'</td><td>'+esc(x.por||'')+'</td><td><button class="btn s" onclick="restauraSec('+x.fila+',\''+esc(x.fecha)+'\')">Restaurar</button></td></tr>'}).join('')||'<tr><td colspan="4"><small class="g">Aún no hay versiones anteriores.</small></td></tr>';
+ var hoj=(r.hojas||[]).map(function(x){return '<tr><td>'+esc(x.fecha)+'</td><td>'+esc(x.hoja)+' · '+esc(x.columna)+'</td><td>'+esc(x.anterior||'(vacío)')+' → <b>'+esc(x.nuevo)+'</b></td><td>'+esc(x.por||'')+'</td><td>'+(r.puedeDeshacerHojas?'<button class="btn s" onclick="deshaceHoja(\''+esc(x.id)+'\')">Deshacer</button>':'')+'</td></tr>'}).join('')||'<tr><td colspan="5"><small class="g">Sin cambios en las hojas.</small></td></tr>';
+ o.innerHTML='<div style="background:#fff;border-radius:14px;padding:16px;max-width:900px;width:100%;font:14px Arial,sans-serif"><h3 style="margin:0 0 6px">Historial y recuperación</h3><div class="ojo">Se conservan <b>'+(r.dias||8)+' días</b>. Restaurar vuelve una parte del acta a como estaba en esa fecha (la versión actual pasa también al historial, así que se puede volver atrás). Las copias completas del libro se hacen cada noche.</div><h4>Versiones anteriores del acta</h4><div class="tw" style="max-height:34vh;overflow:auto"><table class="plain"><tr><th>Fecha</th><th>Parte del acta</th><th>Hecha por</th><th></th></tr>'+sec+'</table></div><h4>Cambios hechos en las hojas del libro</h4><div class="tw" style="max-height:30vh;overflow:auto"><table class="plain"><tr><th>Fecha</th><th>Dato</th><th>Cambio</th><th>Por</th><th></th></tr>'+hoj+'</table></div><div class="row" style="margin-top:8px"><button class="btn" id="hCierra">Cerrar</button></div></div>';
+ document.body.appendChild(o);$('#hCierra').onclick=function(){o.remove()}}
+function restauraSec(fila,fecha){if(!confirm('¿Volver esta parte del acta a como estaba el '+fecha+'? Los cambios posteriores de esa parte se reemplazan (quedan en el historial).'))return;
+ API('comisionRestaurar',{acta:ACTA.id,fila:fila,fecha:fecha}).then(function(){var o=$('#mHist');if(o)o.remove();alert('Restaurado. Se recarga el acta.');abreActa()}).catch(function(e){alert(msgE(e))})}
+function deshaceHoja(id){if(!confirm('¿Devolver ese dato de la hoja a su valor anterior?'))return;
+ API('comisionHojaDeshacer',{id:id}).then(function(){abrirHistorial()}).catch(function(e){alert(msgE(e))})}

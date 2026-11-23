@@ -174,10 +174,11 @@ function respaldoProgramado(hoy) {
       res.push('✔ ' + l.nombre);
     } catch (e) { res.push('✖ ' + l.nombre + ': ' + e); }
   });
-  var dias = Number(parametro_('respaldo_dias', 3)) || 3, borr = conservarUltimas_(diario, dias);
+  var dias = Number(parametro_('respaldo_dias', 8)) || 8, borr = conservarUltimas_(diario, dias);
   conservarUltimas_(semanal, Number(parametro_('respaldo_semanas', 0)) || 0);
   conservarUltimas_(mensual, Number(parametro_('respaldo_meses', 0)) || 0);
   var cx = ''; try { cx = comisionRespaldarActas_(); } catch (e) { cx = ''; }
+  try { var pg = comisionPurgaHistorial_(); if (pg) cx += (cx ? ' · ' : '') + 'historial de comisiones: ' + pg + ' registros viejos borrados'; } catch (e) { /* nada */ }
   var txt = res.join(' · ') + ' · copias diarias viejas borradas: ' + borr + (cx ? ' · ' + cx : '');
   try { bitacora_('Respaldo programado de libros', txt); } catch (e) { Logger.log(txt); }
   return txt;

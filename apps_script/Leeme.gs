@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-p';
+var VERSION_SISTEMA = '2026.11.23-q';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-q', fecha: '2026-11-23', cambios: [
+    'Comisiones: botón «Completar o modificar» en los pendientes y en reconocimientos (documento, tipo, lugar de expedición, sexo, nacionalidad…). Historial de una semana (hojas Comision_Historial y Comision_CambiosHojas): versiones anteriores de cada parte del acta y cada cambio hecho en las hojas con su valor anterior; coordinación, directivos y quienes tengan control total pueden restaurar (botón «Historial y recuperación»), y coordinación deshace cambios en las hojas. Copias diarias completas del libro: ahora 8 días por defecto. Corregido: el servidor enviaba a la pantalla los estudiantes de todos los grados (ahora solo los del grado abierto).'] },
   { version: '2026.11.23-p', fecha: '2026-11-23', cambios: [
     'Comisiones, datos faltantes: los directivos, la orientadora y la tutora aparecen de nuevo en la tabla de docentes para actualizar cédula, correo y celular (sin ser obligatorio); la cédula también se escribe en Identidad_Docentes si ese campo estaba vacío.'] },
   { version: '2026.11.23-o', fecha: '2026-11-23', cambios: [

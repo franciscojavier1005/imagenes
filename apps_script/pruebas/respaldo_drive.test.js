@@ -6,7 +6,7 @@ class Carpeta{constructor(n){this.n=n;this.hijos={};this.arch=[]}
   getFilesByName(n){const l=this.arch.filter(f=>f.nombre===n&&!f.papelera);let i=0;return {hasNext:()=>i<l.length,next:()=>l[i++]}}
   getFiles(){const l=this.arch.filter(f=>!f.papelera);let i=0;return {hasNext:()=>i<l.length,next:()=>l[i++]}}}
 const raiz=new Carpeta('raiz'); let triggers=[], bit=[];
-const hojas={Parametros:new Hoja([['clave','valor'],['respaldo_id','RESP1']])};
+const hojas={Parametros:new Hoja([['clave','valor'],['respaldo_id','RESP1'],['respaldo_dias',3]])};   // el valor por defecto es 8 (una semana); aquí se prueba con 3
 const g={Utilities:{formatDate:(d,tz,f)=>{const p=n=>String(n).padStart(2,'0');const y=d.getFullYear(),m=p(d.getMonth()+1),dd=p(d.getDate());if(f==='u')return String(d.getDay()||7);return f==='yyyy-MM-dd'?`${y}-${m}-${dd}`:`${y}-${m}-${dd} 08:00`}},Logger:{log(){}},console,
  SpreadsheetApp:{getActive:()=>({getId:()=>'PRINC',getName:()=>'ICET · Asistencia',getSheetByName:n=>hojas[n]||null})},
  DriveApp:{getRootFolder:()=>raiz,getFileById:id=>({makeCopy:(n,c)=>{c.arch.push({nombre:n,id,papelera:false,getName(){return this.nombre},setTrashed(v){this.papelera=v}})}})},

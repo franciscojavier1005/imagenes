@@ -21,6 +21,9 @@
 var COL_CACTAS = ['id', 'anio', 'periodo', 'grado', 'acta_no', 'estado', 'responsable', 'creada_por', 'fecha_creacion', 'cerrada_por', 'fecha_cierre', 'hora_cierre', 'reaperturas'];
 var COL_CSEC = ['acta_id', 'seccion', 'version', 'json', 'actualizado_por', 'fecha'];
 var COL_CLOG = ['fecha', 'acta_id', 'usuario', 'accion', 'detalle'];
+var COL_CHIST = ['fecha', 'acta_id', 'seccion', 'version', 'por', 'json'];
+var COL_CHOJA = ['id', 'fecha', 'por', 'hoja', 'fila', 'columna', 'anterior', 'nuevo', 'acta_id'];
+var COM_HIST_DIAS = 8;   // se conserva una semana (más un día) de versiones anteriores y de cambios en hojas
 var PERIODOS_COM = ['Primero', 'Segundo', 'Tercero', 'Final'];
 var LIM_RECONOC = [1, 2, 2];                  // cupos por curso: excelencia, rendimiento académico, convivencia escolar
 var MAX_JSON_SECCION = 45000;                  // una celda de Sheets admite 50.000 caracteres
@@ -63,12 +66,79 @@ function comisionEscribe_(id, seccion, datos, por) {
   for (var i = 1; i < v.length; i++) {
     if (String(v[i][0]) === String(id) && v[i][1] === seccion) {
       var nv = (Number(v[i][2]) || 0) + 1;
+      try { comisionHistoria_(id, seccion, v[i][2], v[i][3], v[i][4]); } catch (eh) { /* el historial nunca impide guardar */ }
       sh.getRange(i + 1, 3, 1, 4).setValues([[nv, json, por, ahoraTxt_()]]);
       return nv;
     }
   }
   sh.appendRow([id, seccion, 1, json, por, ahoraTxt_()]);
   return 1;
+}
+
+/** Guarda el estado ANTERIOR de la sección para poder retroceder; no más de una vez cada 10 minutos por sección. */
+function comisionHistoria_(id, seccion, version, json, porAnterior) {
+  if (!json || String(json).length < 3) return;
+  var clave = 'ch:' + String(id).slice(0, 8) + ':' + seccion, c = null;
+  try { c = CacheService.getScriptCache(); if (c.get(clave)) return; } catch (e) { c = null; }
+  hojaOCrea_('Comision_Historial', COL_CHIST).appendRow([ahoraTxt_(), id, seccion, version, porAnterior, String(json)]);
+  try { if (c) c.put(clave, '1', 600); } catch (e) { /* sin caché: se guarda cada vez */ }
+}
+/** Un cambio de una celda en las hojas del libro, con su valor anterior (para deshacerlo). */
+function comisionSetHoja_(sh, fila, col, nombreCol, valor, por, acta) {
+  var ant = sh.getRange(fila, col).getValue();
+  if (String(ant) === String(valor)) return;
+  sh.getRange(fila, col).setValue(valor);
+  hojaOCrea_('Comision_CambiosHojas', COL_CHOJA).appendRow([Utilities.getUuid(), ahoraTxt_(), por || '', sh.getName(), fila, nombreCol, String(ant), String(valor), acta || '']);
+}
+/** Versiones anteriores del acta y cambios hechos en las hojas (solo directivos o personas con control total). */
+function comisionHistorial(p) {
+  var quien = comisionQuien_(), a = comisionActa_((p || {}).acta);
+  if (quien.rol !== 'directivo' && !quien.total) throw new Error('Solo coordinación, directivos o quien tenga control total ve el historial.');
+  var hs = hojaOCrea_('Comision_Historial', COL_CHIST), v = hs.getDataRange().getValues(), sec = [];
+  for (var i = v.length - 1; i >= 1 && sec.length < 150; i--) if (String(v[i][1]) === String(a.id)) sec.push({ fila: i + 1, fecha: String(v[i][0]), seccion: String(v[i][2]), version: v[i][3], por: String(v[i][4]), bytes: String(v[i][5]).length });
+  var ch = hojaOCrea_('Comision_CambiosHojas', COL_CHOJA), w = ch.getDataRange().getValues(), hoj = [];
+  for (var j = w.length - 1; j >= 1 && hoj.length < 150; j--) if (String(w[j][8]) === String(a.id)) hoj.push({ id: String(w[j][0]), fecha: String(w[j][1]), por: String(w[j][2]), hoja: String(w[j][3]), columna: String(w[j][5]), anterior: String(w[j][6]), nuevo: String(w[j][7]) });
+  return { secciones: sec, hojas: hoj, dias: COM_HIST_DIAS, puedeDeshacerHojas: !!quien.coord };
+}
+/** Vuelve una sección del acta a una versión anterior (queda como versión nueva; la actual pasa al historial). */
+function comisionRestaurar(p) {
+  var quien = comisionQuien_(); p = p || {};
+  if (quien.rol !== 'directivo' && !quien.total) throw new Error('Solo coordinación, directivos o quien tenga control total puede restaurar.');
+  var lock = LockService.getScriptLock(); lock.waitLock(15000);
+  try {
+    var a = comisionActa_(p.acta); if (a.estado !== 'ABIERTA') throw new Error('El acta está cerrada.');
+    var hs = hojaOCrea_('Comision_Historial', COL_CHIST), f = Number(p.fila), fila = f >= 2 ? hs.getRange(f, 1, 1, 6).getValues()[0] : null;
+    if (!fila || String(fila[1]) !== String(a.id) || String(fila[0]) !== String(p.fecha)) throw new Error('Esa versión ya no está disponible.');
+    var seccion = String(fila[2]); if (!SECCIONES_COM.test(seccion)) throw new Error('Sección no válida.');
+    var datos = JSON.parse(String(fila[5])), c = null; try { c = CacheService.getScriptCache(); c.remove('ch:' + String(a.id).slice(0, 8) + ':' + seccion); } catch (e) { c = null; }
+    var v = comisionEscribe_(a.id, seccion, datos, quien.nombre);
+    comisionLog_(a.id, quien.nombre, 'RESTAURAR', seccion + ' ← versión del ' + fila[0]);
+    return { ok: true, version: v, seccion: seccion };
+  } finally { lock.releaseLock(); }
+}
+/** Devuelve una celda de las hojas a su valor anterior (solo coordinación académica). */
+function comisionHojaDeshacer(p) {
+  var quien = comisionQuien_(); p = p || {};
+  if (!quien.coord) throw new Error('Solo coordinación académica deshace cambios en las hojas.');
+  var ch = hojaOCrea_('Comision_CambiosHojas', COL_CHOJA), w = ch.getDataRange().getValues(), reg = null;
+  for (var j = 1; j < w.length; j++) if (String(w[j][0]) === String(p.id)) { reg = w[j]; break; }
+  if (!reg) throw new Error('Ese cambio ya no está disponible.');
+  var sh = SpreadsheetApp.getActive().getSheetByName(String(reg[3])); if (!sh) throw new Error('La hoja ya no existe.');
+  var col = 0, h = sh.getRange(1, 1, 1, Math.max(1, sh.getLastColumn())).getValues()[0];
+  for (var k = 0; k < h.length; k++) if (String(h[k]) === String(reg[5])) col = k + 1;
+  if (!col) throw new Error('La columna ya no existe.');
+  comisionSetHoja_(sh, Number(reg[4]), col, String(reg[5]), String(reg[6]), quien.nombre, String(reg[8]));
+  comisionLog_(String(reg[8]), quien.nombre, 'DESHACER_HOJA', reg[3] + ' fila ' + reg[4] + ' · ' + reg[5]);
+  return { ok: true };
+}
+/** Cada noche (Respaldo.gs): borra del historial lo que tiene más de COM_HIST_DIAS días. */
+function comisionPurgaHistorial_() {
+  var corte = Utilities.formatDate(new Date(Date.now() - COM_HIST_DIAS * 86400000), TZ, 'yyyy-MM-dd HH:mm'), n = 0;
+  [['Comision_Historial', COL_CHIST, 0], ['Comision_CambiosHojas', COL_CHOJA, 1]].forEach(function (x) {
+    var sh = hojaOCrea_(x[0], x[1]), v = sh.getDataRange().getValues();
+    for (var i = v.length - 1; i >= 1; i--) if (String(v[i][x[2]]) < corte) { sh.deleteRow(i + 1); n++; }
+  });
+  return n;
 }
 
 /* ------------------------------ quién es y qué le corresponde ------------------------------ */
@@ -271,7 +341,7 @@ function comisionGuardar(p) {
     if (actual && (Number(p.version) || 0) !== actual.version) return { conflicto: true, version: actual.version, datos: actual.datos, por: actual.por };
     if (!actual && Number(p.version)) return { conflicto: true, version: 0, datos: null, por: '' };
     var v = comisionEscribe_(a.id, p.seccion, p.datos, quien.nombre);
-    try { comisionAHojas_(String(p.seccion), p.datos); } catch (eh) { comisionLog_(a.id, quien.nombre, 'HOJA_ERROR', String(eh && eh.message || eh).slice(0, 120)); }
+    try { comisionAHojas_(String(p.seccion), p.datos, quien.nombre, a.id); } catch (eh) { comisionLog_(a.id, quien.nombre, 'HOJA_ERROR', String(eh && eh.message || eh).slice(0, 120)); }
     return { ok: true, version: v };
   } finally { lock.releaseLock(); }
 }
@@ -640,7 +710,7 @@ function comisionColHoja_(sh, nombre) {
   sh.getRange(1, h.length + 1).setValue(nombre); return h.length + 1;
 }
 /** Lo que se completa en el acta también queda en las hojas del libro: celular y correo de los docentes (Identidad_Docentes) y teléfono del acudiente (Estudiantes). */
-function comisionAHojas_(seccion, datos) {
+function comisionAHojas_(seccion, datos, por, acta) {
   if (!datos || typeof datos !== 'object') return;
   if (seccion === 'firmas') {
     var pers = datos.pers || {}, nombres = Object.keys(pers); if (!nombres.length) return;
@@ -650,9 +720,9 @@ function comisionAHojas_(seccion, datos) {
       if (!cel && !mail && !String(x.ced || '').trim()) return;
       var fila = 0; for (var i = 1; i < v.length; i++) if (comisionSinTildes_(v[i][0]) === comisionSinTildes_(n)) { fila = i + 1; break; }
       if (!fila) { sh.appendRow([n, '']); v.push([n, '']); fila = v.length; }
-      if (/^3\d{9}$/.test(cel)) sh.getRange(fila, cCel).setValue(cel);
-      var ced = String(x.ced || '').replace(/\D/g, ''); if (/^\d{5,12}$/.test(ced) && !String(v[fila - 1] && v[fila - 1][1] || '').trim()) sh.getRange(fila, 2).setValue(ced);
-      if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail) && !/@icet\./i.test(mail)) sh.getRange(fila, cMail).setValue(mail);
+      if (/^3\d{9}$/.test(cel)) comisionSetHoja_(sh, fila, cCel, 'celular', cel, por, acta);
+      var ced = String(x.ced || '').replace(/\D/g, ''); if (/^\d{5,12}$/.test(ced) && !String(v[fila - 1] && v[fila - 1][1] || '').trim()) comisionSetHoja_(sh, fila, 2, 'cedula', ced, por, acta);
+      if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail) && !/@icet\./i.test(mail)) comisionSetHoja_(sh, fila, cMail, 'correo_personal', mail, por, acta);
     });
   } else if (seccion === 'faltantes') {
     var d = datos.datos || {}, ids = Object.keys(d).filter(function (k) { var x = d[k]; return x && (String(x.tel || '').replace(/\D/g, '').length >= 7 || x.mod || x.gest); }); if (!ids.length) return;
@@ -661,13 +731,13 @@ function comisionAHojas_(seccion, datos) {
     var col = {}; var c = function (n) { return col[n] || (col[n] = comisionColHoja_(he, n)); };
     ids.forEach(function (k) {
       var f = filas[Number(k) - 1], x = d[k]; if (!f) return;
-      if (String(x.tel || '').replace(/\D/g, '').length >= 7) he.getRange(f, c('tel_acudiente')).setValue(String(x.tel).replace(/\D/g, ''));
-      if (x.gest) he.getRange(f, c('gestion_acta')).setValue(String(x.gest));
+      if (String(x.tel || '').replace(/\D/g, '').length >= 7) comisionSetHoja_(he, f, c('tel_acudiente'), 'tel_acudiente', String(x.tel).replace(/\D/g, ''), por, acta);
+      if (x.gest) comisionSetHoja_(he, f, c('gestion_acta'), 'gestion_acta', String(x.gest), por, acta);
       if (x.mod) {
-        if (x.ndoc) { he.getRange(f, c('documento')).setValue(String(x.ndoc)); if (x.tdoc) he.getRange(f, c('tipo_doc')).setValue(String(x.tdoc)); }
-        if (x.lex) he.getRange(f, c('lugar_expedicion')).setValue(String(x.lex));
-        if (x.sx) he.getRange(f, c('sexo')).setValue(String(x.sx));
-        if (x.nac) he.getRange(f, c('nacionalidad')).setValue(String(x.nac));
+        if (x.ndoc) { comisionSetHoja_(he, f, c('documento'), 'documento', String(x.ndoc), por, acta); if (x.tdoc) comisionSetHoja_(he, f, c('tipo_doc'), 'tipo_doc', String(x.tdoc), por, acta); }
+        if (x.lex) comisionSetHoja_(he, f, c('lugar_expedicion'), 'lugar_expedicion', String(x.lex), por, acta);
+        if (x.sx) comisionSetHoja_(he, f, c('sexo'), 'sexo', String(x.sx), por, acta);
+        if (x.nac) comisionSetHoja_(he, f, c('nacionalidad'), 'nacionalidad', String(x.nac), por, acta);
       }
     });
   }
@@ -712,7 +782,7 @@ function comisionGradoDatos(p) {
   Object.keys(gnames).forEach(function (n) { var ap0 = apoyo.filter(function (a) { return a.n === n; })[0]; var idn = comisionIdentidad_(n); personas[n] = { ced: (ap0 && /acad|rector|convivencia|redes/i.test(ap0.rol)) ? '' : cedulaDoc_(n), correo: (ap0 && ap0.correo) || comisionCorreoDe_(n) || idn.mail, tel: idn.cel }; });
   var setg = {}; codes.forEach(function (c) { setg[c] = gs[codes.indexOf(c)]; });
   var est = [];
-  datos_('Estudiantes').forEach(function (e, i) { var g = String(e.grupo); if (setg[g]) var sx = comisionCol_(e, ['sexo', 'genero']); est.push({ id: i + 1, g: setg[g], a: comisionTitulo_(e.apellidos), n: comisionTitulo_(e.nombres), ndoc: comisionCol_(e, ['documento', 'nodoc', 'numerodocumento', 'numdoc', 'ndoc', 'identificacion', 'cedula']).replace(/\D/g, ''), tdoc: comisionCol_(e, ['tipodoc', 'tipodedocumento', 'tipodocumento', 'tdoc', 'tipo']).replace(/[^A-Za-z]/g, '').toUpperCase(), tel: comisionCol_(e, ['telacudiente', 'telefonoacudiente', 'celularacudiente']).replace(/\D/g, ''), lex: comisionCol_(e, ['lugarexpedicion', 'lugardeexpedicion', 'expedicion']), nac: comisionCol_(e, ['nacionalidad']), sx: /^(m|h|hombre|masculino)$/i.test(sx) ? 'M' : /^(f|mujer|femenino)$/i.test(sx) ? 'F' : '' }); });
+  datos_('Estudiantes').forEach(function (e, i) { var g = String(e.grupo); if (!setg[g]) return; var sx = comisionCol_(e, ['sexo', 'genero']); est.push({ id: i + 1, g: setg[g], a: comisionTitulo_(e.apellidos), n: comisionTitulo_(e.nombres), ndoc: comisionCol_(e, ['documento', 'nodoc', 'numerodocumento', 'numdoc', 'ndoc', 'identificacion', 'cedula']).replace(/\D/g, ''), tdoc: comisionCol_(e, ['tipodoc', 'tipodedocumento', 'tipodocumento', 'tdoc', 'tipo']).replace(/[^A-Za-z]/g, '').toUpperCase(), tel: comisionCol_(e, ['telacudiente', 'telefonoacudiente', 'celularacudiente']).replace(/\D/g, ''), lex: comisionCol_(e, ['lugarexpedicion', 'lugardeexpedicion', 'expedicion']), nac: comisionCol_(e, ['nacionalidad']), sx: /^(m|h|hombre|masculino)$/i.test(sx) ? 'M' : /^(f|mujer|femenino)$/i.test(sx) ? 'F' : '' }); });
   var e0 = datos_('Estudiantes')[0] || {}, kn = function (s) { return comisionSinTildes_(String(s)).toLowerCase().replace(/[^a-z0-9]/g, ''); }, ks0 = Object.keys(e0).map(kn);
   var diag = { colDoc: ks0.indexOf('documento') >= 0 || ks0.indexOf('nodoc') >= 0 || ks0.indexOf('numerodocumento') >= 0, colTipo: ks0.indexOf('tipodoc') >= 0 || ks0.indexOf('tipodedocumento') >= 0 || ks0.indexOf('tipodocumento') >= 0, conDoc: est.filter(function (x) { return x.ndoc; }).length, total: est.length, version: (typeof VERSION_SISTEMA !== 'undefined' ? VERSION_SISTEMA : '') };
   return { diag: diag, codigo: cod, label: label, niv: niv, sig: COM_GRADO_SIG[cod], gs: gs, codes: codes, dir: dir, dir2: dir2, ap: Object.keys(ap).sort(), areas: areas, apoyo: apoyo, personas: personas, estudiantes: est };

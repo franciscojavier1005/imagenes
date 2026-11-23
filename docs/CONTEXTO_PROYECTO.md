@@ -776,3 +776,8 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 94 (2026-11-23, versión 2026.11.23-p)
 - Datos faltantes: `pintaFaltDoc` lista de nuevo a directivos, orientadora y tutora (p o apoyo) para actualizar cédula, correo y celular; `faltDocList` (pendientes) sigue sin exigirles. La cédula se escribe en Identidad_Docentes si estaba vacía.
+
+## Ampliación 95 (2026-11-23, versión 2026.11.23-q)
+- **Historial de una semana**: hojas `Comision_Historial` (estado anterior de cada sección, como mucho cada 10 min por sección, con caché de 10 min como freno) y `Comision_CambiosHojas` (cada celda que el acta escribe en Estudiantes/Identidad_Docentes con valor anterior); `comisionHistorial`, `comisionRestaurar` (directivos o control total), `comisionHojaDeshacer` (coordinación), purga nocturna `comisionPurgaHistorial_` (8 días) desde `respaldoProgramado`; copias diarias completas del libro: `respaldo_dias` por defecto 8. UI: botón «Historial y recuperación».
+- «Completar o modificar» en pendientes (id del estudiante en cada fila de datos) y en la tabla de reconocimientos (`docChip`).
+- **Defecto corregido** (introducido en 2026.11.23-g): `comisionGradoDatos` enviaba los estudiantes de TODOS los grados (sin curso) porque el `if (setg[g])` solo cubría la declaración de `sx`; ahora `return` si el grupo no es del grado. Humo de preescolar, 2.º, 4.º y 5.º en `integ6.js`/`integ5.js` sin errores.

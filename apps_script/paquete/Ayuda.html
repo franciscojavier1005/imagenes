@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.23-p</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.23-q</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -103,6 +103,8 @@
 <li><b>Antes de empezar</b> la pantalla pide <b>dónde está</b> y <b>a qué hora empezó</b>; le llega a coordinación en el seguimiento.</li>
 <li>Los directivos, la orientadora y la tutora que acompañan <b>no declaran ni confirman nada</b>: declaran y firman los docentes del grado. Cada casilla de declaración o revisión se desactiva al marcarla.</li>
 <li>En «Datos faltantes» y «Listados» use <b>Completar o modificar datos</b> para escribir documento, tipo, lugar de expedición, sexo y nacionalidad (por defecto Colombiana; también Venezolana, Ecuatoriana u Otra). Quedan en la hoja Estudiantes. El imprimible se puede generar aunque falten datos.</li>
+<li><b>Historial y recuperación</b> (coordinación, directivos y quien tenga control total): botón arriba de la pantalla. Guarda <b>una semana</b> de versiones anteriores del acta y de cambios hechos en las hojas; permite volver una parte del acta a como estaba y, a coordinación, deshacer un cambio en la hoja. Además se hace una copia completa del libro cada noche.</li>
+<li>En los pendientes y en reconocimientos use <b>Completar o modificar</b> para corregir los datos de un estudiante sin salir de la lista.</li>
 <li>Si se pierde la conexión o se recarga la página, <b>no se pierde lo escrito</b>: queda guardado en su navegador, se envía al libro cuando vuelve la conexión y la pantalla regresa al último paso. Al <b>cerrar sesión</b> con cambios sin enviar, se avisa.</li>
 <li>La declaración bajo juramento se marca docente por docente (de grupo y de área); la nacionalidad colombiana se deduce del tipo de documento.</li>
 <li>En «Listados», cada curso tiene su botón <b>+ Agregar estudiante</b> y cada estudiante sus botones <b>Modificar</b> y <b>Retirar</b>; se ven el tipo y el número de documento. Todos los docentes del grado confirman su revisión.</li>
@@ -271,7 +273,7 @@
 <p><b>ronda_horas_margen</b>: horas después de la jornada en que los demás directivos aún pueden registrar la ronda; <b>reunion_desde</b> / <b>reunion_hasta</b>: horario normal de reuniones; <b>reunion_personas_extra</b>: personas que siempre deben aparecer en las reuniones de todo el personal.</p></section>
 
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.23-p</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.23-q</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

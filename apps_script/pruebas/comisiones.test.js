@@ -4,8 +4,9 @@ const fs=require('fs'), vm=require('vm'), path=require('path');
 class Hoja{constructor(v){this.v=v}
   getDataRange(){return {getValues:()=>JSON.parse(JSON.stringify(this.v))}}
   appendRow(r){this.v.push(r)}
+  getName(){return this.nombre||''}
   getLastColumn(){return Math.max(0,...this.v.map(r=>r.length))}
-  getRange(r,c,nr,nc){const s=this;return {getValues(){const o=[];for(let i=0;i<(nr||1);i++){const row=[];for(let j=0;j<(nc||1);j++){const x=(s.v[r-1+i]||[])[c-1+j];row.push(x===undefined?'':x)}o.push(row)}return o},setValue(x){while(s.v.length<r)s.v.push([]);while(s.v[r-1].length<c)s.v[r-1].push('');s.v[r-1][c-1]=x},
+  getRange(r,c,nr,nc){const s=this;return {getValue(){return ((s.v[r-1]||[])[c-1])===undefined?'':(s.v[r-1]||[])[c-1]},getValues(){const o=[];for(let i=0;i<(nr||1);i++){const row=[];for(let j=0;j<(nc||1);j++){const x=(s.v[r-1+i]||[])[c-1+j];row.push(x===undefined?'':x)}o.push(row)}return o},setValue(x){while(s.v.length<r)s.v.push([]);while(s.v[r-1].length<c)s.v[r-1].push('');s.v[r-1][c-1]=x},
     setValues(a){a.forEach((row,i)=>{while(s.v.length<=r-1+i)s.v.push([]);row.forEach((x,j)=>{while(s.v[r-1+i].length<=c-1+j)s.v[r-1+i].push('');s.v[r-1+i][c-1+j]=x})})}}}
   deleteRow(r){this.v.splice(r-1,1)}}
 const fmt=(d,tz,p)=>{const o=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d).reduce((a,x)=>(a[x.type]=x.value,a),{});
@@ -28,7 +29,7 @@ const carpeta=(ruta)=>({ruta,moveTo(f){movidos.push(ruta+' -> '+f.ruta)},getFile
 carpeta.hechos=new Set();
 const g={Utilities:{formatDate:fmt,getUuid:()=>'u'+Math.random().toString(36).slice(2,10),base64Decode:s=>Array.from(Buffer.from(s,'base64')),newBlob:(b,m,n)=>({b,m,n})},
   Logger:{log(){}},LockService:{getScriptLock:()=>({waitLock(){},releaseLock(){}})},Session:{getActiveUser:()=>({getEmail:()=>EMAIL})},
-  SpreadsheetApp:{getActive:()=>({getId:()=>'LIBRO1',getName:()=>'Libro ICET',getEditors:()=>[{getEmail:()=>'dueno@gmail.com'}],getOwner:()=>({getEmail:()=>'dueno@gmail.com'}),getSheetByName:n=>hojas[n]||null,insertSheet:n=>(hojas[n]=new Hoja([]))}),getUi:()=>({alert(){}})},
+  SpreadsheetApp:{getActive:()=>({getId:()=>'LIBRO1',getName:()=>'Libro ICET',getEditors:()=>[{getEmail:()=>'dueno@gmail.com'}],getOwner:()=>({getEmail:()=>'dueno@gmail.com'}),getSheetByName:n=>{if(hojas[n])hojas[n].nombre=n;return hojas[n]||null},insertSheet:n=>(hojas[n]=new Hoja([]))}),getUi:()=>({alert(){}})},
   DriveApp:{Access:{PRIVATE:1},Permission:{NONE:1},getRootFolder:()=>carpeta('RAIZ'),getFolderById:id=>carpeta('SUELTA_'+id),getFileById:id=>carpeta('ARCHIVO_'+id)},console};
 const FIJA=new Date('2026-11-22T20:41:00Z').getTime();   // 15:41 en Bogotá
 g.Date=class extends Date{constructor(...a){a.length?super(...a):super(FIJA)} static now(){return FIJA}};
@@ -99,7 +100,17 @@ ok(hojas.Identidad_Docentes&&hojas.Identidad_Docentes.v.some(r=>r.includes('3009
 // ---- datos completados: lugar de expedición, sexo y nacionalidad también quedan en la hoja; acompañantes sin obligaciones ----
 yo('ana@x.com'); run("comisionAHojas_('faltantes',{datos:{2:{mod:1,ndoc:'123456789',tdoc:'TI',lex:'TUMACO',sx:'M',nac:'Venezolana',falta:[]}}})");
 { const f=hojas.Estudiantes.v[2]; ok(f.includes('123456789')&&f.includes('TI')&&f.includes('TUMACO')&&f.includes('M')&&f.includes('Venezolana'),'documento, tipo, lugar de expedición, sexo y nacionalidad modificados en el acta se escriben en la hoja Estudiantes'); }
+{ const g5=run("comisionGradoDatos({grado:'08'})"); ok(g5.estudiantes.every(x=>x.g),'solo se envían los estudiantes del grado abierto (ninguno sin curso)'); }
 { const gd=run("comisionGradoDatos({grado:'08'})"); ok(gd.apoyo.every(x=>x.p===false),'los directivos acompañantes no figuran como participantes por defecto'); }
+// ---- historial: versiones anteriores y cambios en hojas, con retroceso ----
+yo('coord@x.com');
+{ const h0=run("comisionHistorial({acta:A1})"); ok(h0.dias===8&&Array.isArray(h0.secciones)&&h0.secciones.length>0,'historial: se guardan versiones anteriores de las secciones que se van pisando');
+  ok(h0.hojas.length>=1&&h0.hojas.some(x=>x.hoja==='Estudiantes'||x.hoja==='Identidad_Docentes'),'historial: cada cambio en las hojas queda con su valor anterior');
+  const sec=h0.secciones[0]; const antes=run("comisionCargar({acta:A1})").secciones[sec.seccion].version;
+  const r=run("comisionRestaurar({acta:A1,fila:"+sec.fila+",fecha:"+JSON.stringify(sec.fecha)+"})"); ok(r.ok&&r.version>antes,'historial: coordinación restaura una versión anterior (queda como versión nueva)');
+  const hh=h0.hojas.find(x=>x.hoja==='Estudiantes'); if(hh){ run("comisionHojaDeshacer({id:"+JSON.stringify(hh.id)+"})"); ok(true,'historial: coordinación deshace un cambio en la hoja'); } }
+yo('beto@x.com'); ok(/Solo coordinación|control total|directivos/.test(falla("comisionHistorial({acta:A1})")||''),'historial: un docente sin control total no lo ve');
+{ yo('coord@x.com'); const n=run("comisionPurgaHistorial_()"); ok(n===0,'historial: nada que purgar el mismo día (se conserva una semana)'); }
 // ---- turno de edición y permisos por nivel (2026-11-23) ----
 TURNO_AUTO=false;
 yo('ana@x.com'); run("comisionResponsable({acta:A1,nombre:'Ana Director'})");

@@ -706,3 +706,7 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ### Ampliación 78 — Auditoría del 2026-11-22 y vista previa v60
 - Auditoría completa en `docs/AUDITORIA_COMISIONES_2026-11-22.md` (14 grados × 2 periodos sin hallazgos; 19 archivos de pruebas en verde). Defecto corregido: convivencia, compromisos y PIAR ahora se ordenan por curso y apellidos.
+
+### Ampliación 79 — Ingreso: avisos cuando la sesión no se abre (2026.11.22-i)
+- Diagnóstico (2026-11-22 19:24, hoja Sesiones): tras restablecer la clave, `ingresar` sí creó sesión (dos filas de Francisco Cortés con un minuto de diferencia) pero la pantalla volvía al ingreso sin mensaje. Causas posibles: el navegador no deja guardar el token (almacenamiento bloqueado o modo privado) o `contextoPanel` falló después; ambos caminos volvían en silencio. Ahora `Menu.html` muestra el motivo en cada caso.
+- Pendiente: pantalla de ingreso de docentes con contraseña temporal (hoy los docentes entran por cuenta de Google registrada en Usuarios, a través del front).

@@ -764,3 +764,7 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 ## Ampliación 91 (2026-11-23, versión 2026.11.23-m)
 - Listados con tipo y número de documento, Modificar/Retirar por estudiante, + Agregar por curso, revisión de todos los docentes, cierre reordenado, aviso `INTERNAL` tolerado, diagnóstico de columnas documento/tipo_doc (`diag` en `comisionGradoDatos`).
 - La plantilla fuente de la pantalla real (`comisiones_v53.tpl.html`) contiene datos reales de docentes y **no se versiona**; vive fuera del repo (/tmp/cartilla). `build_real.py` y `real_layer.js` están en `scripts/comisiones_build/` (sin datos); la plantilla debe conservarse en la carpeta privada del coordinador.
+
+## Ampliación 92 (2026-11-23, versión 2026.11.23-n)
+- **Respaldo local** (`guardaDrafts`/`restauraDrafts`, claves `icet_com_d:<usuario>:<acta>` y `icet_com_pos:<usuario>` en localStorage): cada ciclo con cambios pendientes los guarda en el navegador; se borran al llegar al libro; al reabrir se reaplican (fusionando si el servidor cambió) y se vuelve al último grado, periodo, pestaña y paso. Cerrar sesión avisa si hay cambios sin enviar y limpia el respaldo. Probado en `integ5.js` (sin conexión simulada, recarga, recuperación y envío). Límite: sin conexión al abrir no se puede cargar el acta (no se guarda copia de lectura).
+- Juramento por docente (`setJurDe`, lista `revLista()`); nacionalidad colombiana deducida de RC/TI/NUIP/CC; `tel_acudiente` leído de la hoja Estudiantes.

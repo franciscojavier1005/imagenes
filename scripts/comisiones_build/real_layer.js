@@ -28,7 +28,9 @@ function construyeGrado(d){DIAGDOC=d.diag||null;
  var l=d.label;G={};G[l]={niv:d.niv,gs:d.gs.slice(),sig:d.sig,dir:d.dir.slice(),dir2:d.dir2.slice(),ap:d.ap.slice(),areas:d.areas||{}};
  CODES={};d.gs.forEach(function(g,i){CODES[g]=d.codes[i]});REALN={};
  var falta=['Tipo y número de documento','Lugar de expedición','Sexo','Nacionalidad o procedencia','Teléfono del acudiente'];
- EST=d.estudiantes.map(function(e){REALN[e.g]=(REALN[e.g]||0)+1;var DOCGRADO_TMP=0;var fl=falta.slice();if(e.ndoc){fl=fl.filter(function(x){return x!=='Tipo y número de documento'})}if(e.sx){fl=fl.filter(function(x){return x!=='Sexo'})}return {id:e.id,g:e.g,a:e.a,n:e.n,doc:e.ndoc&&!fl.length?'ok':'falta',sx:e.sx||'',ndoc:e.ndoc||'',tdoc:e.tdoc||'',falta:fl,tel:'',gest:'',real:1,base:1,f0:fl.length}});
+ EST=d.estudiantes.map(function(e){REALN[e.g]=(REALN[e.g]||0)+1;var fl=falta.slice();if(e.ndoc){fl=fl.filter(function(x){return x!=='Tipo y número de documento'})}
+  var nacI='';if(/^(RC|TI|NUIP|CC)$/.test(e.tdoc||'')){nacI='Colombiana';fl=fl.filter(function(x){return x!=='Nacionalidad o procedencia'})}
+  if(e.tel){fl=fl.filter(function(x){return x!=='Teléfono del acudiente'})}if(e.sx){fl=fl.filter(function(x){return x!=='Sexo'})}return {id:e.id,g:e.g,a:e.a,n:e.n,doc:e.ndoc&&!fl.length?'ok':'falta',sx:e.sx||'',ndoc:e.ndoc||'',tdoc:e.tdoc||'',nac:nacI,falta:fl,tel:e.tel||'',gest:'',real:1,base:1,f0:fl.length}});
  nid=1000000+Math.floor(Math.random()*8000000);ROSTER_COMPLETO=true;
  APOYO=d.apoyo.map(function(a){return [a.n,a.rol,!!a.p]});
  var nm={};d.dir.forEach(function(n){if(n)nm[n]=1});d.dir2.forEach(function(x){nm[x.n]=1});d.ap.forEach(function(n){nm[n]=1});Object.keys(d.areas||{}).forEach(function(a){String(d.areas[a]).split(' / ').forEach(function(n){if(n)nm[n]=1})});
@@ -153,9 +155,10 @@ function tick(){
  var parts=particiona(),cola=[];
  Object.keys(parts).forEach(function(k){var j=js(parts[k]);if(SYNC.last[k]===undefined){SYNC.last[k]=j;return}if(j!==SYNC.last[k]&&puedeEscribir(k))cola.push(k)});
  if(!cola.length)return;
+ try{guardaDrafts(cola,parts)}catch(e){}
  SYNC.busy=true;estadoSync('Guardando en el libro…','a');
  var p=Promise.resolve(),hubo=false;
- cola.forEach(function(k){p=p.then(function(){return guardaSec(k,parts[k]).then(function(r){if(r==='conf')hubo=true})})});
+ cola.forEach(function(k){p=p.then(function(){return guardaSec(k,parts[k]).then(function(r){try{borraDraft(k)}catch(e){}if(r==='conf')hubo=true})})});
  p.then(function(){SYNC.busy=false;estadoSync('Guardado en el libro '+ahora(),'v');if(hubo){pintaTodo();pintaPasos();pintaPendientes()}}).catch(function(e){SYNC.busy=false;estadoSync('No se pudo guardar: '+msgE(e),'f');avisoSync('<b>No se pudo guardar en el libro:</b> '+esc(msgE(e))+' (se reintenta solo).')})}
 function sondeo(){
  if(!SYNC.activo||SYNC.busy||!ACTA)return;
@@ -182,7 +185,9 @@ function abreActa(){
   if(!S.resp&&PERFIL==='d'){var q=S.int.filter(function(x){return x.n===USR})[0];if(q)q.p=true;S.resp=USR}
   if(ACTA.estado==='CERRADA'){S.cerrada=true;hCi=ACTA.hora_cierre||'';try{$('#hCi').value=hCi}catch(e){}}
   var parts=particiona();SYNC.last={};Object.keys(parts).forEach(function(k){SYNC.last[k]=js(parts[k])});
+  try{restauraDrafts(r.secciones)}catch(e){}
   vista(false);setPerfil(PERFIL);pintaTodo();pintaPasos();pintaPendientes();try{etiqueta()}catch(e){}
+  try{vuelveAPos()}catch(e){}
   SYNC.activo=true;pidePresencia();SYNC.t3=setInterval(latido,120000);SYNC.t1=setInterval(tick,2000);SYNC.t2=setInterval(sondeo,5000);estadoSync('Acta abierta '+ahora(),'v');
   if(CERRADO_SRV)avisoSync('Esta acta está cerrada: es de solo lectura.');
  }).catch(function(e){estadoSync('Error','f');alert('No se pudo abrir el acta: '+msgE(e))})}
@@ -206,7 +211,8 @@ function REAL_BOOT(){
   var be=$('#btnEj');if(be&&c.quien.dev)be.style.display='';var p=$('#perfil');if(p){p.value=PERFIL;if(!c.quien.dev){var pf=document.querySelector('.perf');if(pf)pf.style.display='none'}}
   $('#grado').onchange=abreActa;$('#periodo').onchange=abreActa;
   pintaGrados();try{setPerfil(PERFIL)}catch(e){}
-  if(GRADOS_REAL.length===1){$('#grado').value=GRADOS_REAL[0];abreActa()}
+  var pos0=leePos();if(pos0&&pos0.grado&&GRADOS_REAL.indexOf(pos0.grado)>=0&&pos0.periodo){$('#grado').value=pos0.grado;$('#periodo').value=pos0.periodo;POS_PEND=pos0;abreActa()}
+  else if(GRADOS_REAL.length===1){$('#grado').value=GRADOS_REAL[0];abreActa()}
   else estadoSync('Elija el grado y el periodo','m');
   document.body.classList.add('jsok');try{irTab('p1')}catch(e){}
  }).catch(function(e){document.body.insertAdjacentHTML('afterbegin','<div style="background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;padding:12px;font:14px Arial">No se pudo abrir las comisiones: '+esc(msgE(e))+' <a href="javascript:irAlMenu()">Volver al menú</a></div>')})}
@@ -239,7 +245,7 @@ function modoEjemplo(){if(!ACTA||!S){alert('Abra primero un grado y un periodo.'
 
 /* ---------- volver al menú y cerrar sesión ---------- */
 function volverMenu(){if(S&&SYNC.activo){try{if(typeof tick==='function')tick()}catch(e){}}irAlMenu()}
-function salirSesion(){if(!confirm('¿Cerrar la sesión? Lo que ya se guardó en el acta queda en el libro.'))return;
+function salirSesion(){var pend=hayDrafts();if(!confirm(pend?'Hay cambios que todavía NO llegaron al libro (sin conexión). Si cierra la sesión se perderán. ¿Cerrar de todos modos?':'¿Cerrar la sesión? Lo que ya se guardó en el acta queda en el libro.'))return;limpiaLocal();
  SYNC.activo=false;clearInterval(SYNC.t1);clearInterval(SYNC.t2);clearInterval(SYNC.t3);
  var t=tokenGuardado();borrarToken();
  try{google.script.run.withSuccessHandler(irAlMenu).withFailureHandler(irAlMenu).cerrarSesion(t)}catch(e){irAlMenu()}}
@@ -291,3 +297,26 @@ var _tl_firma=turnoLibre;turnoLibre=function(){if(!esTotal()&&S&&S.cierreProp&&S
 var _pl_diag=pintaLis;pintaLis=function(){_pl_diag();var el=$('#lisBox'),d=DIAGDOC;if(!el||!d)return;
  var ok=d.colDoc&&d.colTipo&&d.conDoc>0,h='<div class="'+(ok?'bien':'mal')+'" style="margin:6px 0"><b>Documentos desde la hoja «Estudiantes»:</b> columna «documento» '+(d.colDoc?'✓':'✗ no encontrada')+' · columna «tipo_doc» '+(d.colTipo?'✓':'✗ no encontrada')+' · '+d.conDoc+' de '+d.total+' estudiantes con número de documento.'+(ok?'':' Revise que los encabezados estén en la fila 1 de esa hoja (documento y tipo_doc, justo después de «nombres») y que haya publicado la versión '+(d.version||'')+' del código.')+'</div>';
  el.insertAdjacentHTML('afterbegin',h)};
+
+function setJurDe(i,v){var x=revLista()[i];if(!x||S.cerrada)return;S.jur=S.jur||{};if(v)S.jur[x.n]=ahora();else delete S.jur[x.n];pintaPre();pintaPasos();try{aplicaJuramento()}catch(e){}pintaPendientes()}
+
+/* ---------- respaldo local: si se pierde la conexión o se recarga, no se pierde lo escrito y se vuelve al último paso ---------- */
+var POS_PEND=null;
+function dKey(){return 'icet_com_d:'+USR+':'+(ACTA&&ACTA.id)}
+function dLee(){try{return JSON.parse(localStorage.getItem(dKey())||'{}')||{}}catch(e){return {}}}
+function dEsc(o){try{if(Object.keys(o).length)localStorage.setItem(dKey(),JSON.stringify(o));else localStorage.removeItem(dKey())}catch(e){}}
+function guardaDrafts(secs,parts){var d=dLee();secs.forEach(function(k){d[k]={ver:SYNC.ver[k]||0,base:SYNC.last[k]||'null',data:parts[k],t:Date.now()}});dEsc(d)}
+function borraDraft(k){var d=dLee();if(d[k]){delete d[k];dEsc(d)}}
+function hayDrafts(){try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('icet_com_d:'+USR+':')===0&&Object.keys(JSON.parse(localStorage.getItem(k)||'{}')).length)return true}}catch(e){}return false}
+function limpiaLocal(){try{var L=[];for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('icet_com_')===0)L.push(k)}L.forEach(function(k){localStorage.removeItem(k)})}catch(e){}}
+function restauraDrafts(secciones){var d=dLee(),n=0;Object.keys(d).forEach(function(k){var x=d[k],srv=secciones&&secciones[k];if(!x||x.data===undefined)return;
+  var datos=x.data;if(srv&&srv.version!==x.ver){try{datos=fusiona(srv.datos,x.data,JSON.parse(x.base||'null'))}catch(e){datos=x.data}}
+  try{aplicaUna(k,datos);n++}catch(e){}});
+ if(n)avisoSync('<b>Se recuperaron cambios que no se habían guardado</b> (se perdió la conexión o se recargó la página). Se enviarán al libro en unos segundos.')}
+function posKey(){return 'icet_com_pos:'+USR}
+function leePos(){try{return JSON.parse(localStorage.getItem(posKey())||'null')}catch(e){return null}}
+function guardaPos(){try{if(!ACTA||!S)return;localStorage.setItem(posKey(),JSON.stringify({grado:$('#grado').value,periodo:$('#periodo').value,tab:PANE,paso:paso,y:Math.round(window.scrollY||0)}))}catch(e){}}
+function vuelveAPos(){var p=POS_PEND;POS_PEND=null;if(!p)return;if(p.tab&&p.tab!=='p1')irTab(p.tab);else if(typeof p.paso==='number')ir(p.paso);setTimeout(function(){try{window.scrollTo(0,p.y||0)}catch(e){}},200)}
+var _irTab_c=irTab;irTab=function(){var r=_irTab_c.apply(this,arguments);try{guardaPos()}catch(e){}return r};
+var _ir_c=ir;ir=function(){var r=_ir_c.apply(this,arguments);try{guardaPos()}catch(e){}return r};
+window.addEventListener('beforeunload',function(){try{guardaPos();if(SYNC.activo&&S&&ACTA){var parts=particiona(),cola=[];Object.keys(parts).forEach(function(k){if(SYNC.last[k]!==undefined&&js(parts[k])!==SYNC.last[k]&&puedeEscribir(k))cola.push(k)});if(cola.length)guardaDrafts(cola,parts)}}catch(e){}});

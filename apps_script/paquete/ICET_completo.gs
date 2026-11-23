@@ -3866,11 +3866,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-m';
+var VERSION_SISTEMA = '2026.11.23-n';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-n', fecha: '2026-11-23', cambios: [
+    'Comisiones: respaldo local en el navegador (si se pierde la conexión o se recarga, se recuperan los cambios que no habían llegado al libro y se vuelve al último paso); la declaración bajo juramento se marca docente por docente (grupo y área); la nacionalidad colombiana se deduce del tipo de documento (RC, TI, NUIP, CC) y el teléfono del acudiente se lee de la columna tel_acudiente de la hoja Estudiantes.'] },
   { version: '2026.11.23-m', fecha: '2026-11-23', cambios: [
     'Comisiones, listados: aviso de diagnóstico sobre las columnas documento y tipo_doc de la hoja Estudiantes (si las encontró y a cuántos estudiantes les leyó el número); los números guardados como número o como texto se leen igual.'] },
   { version: '2026.11.23-l', fecha: '2026-11-23', cambios: [
@@ -5638,7 +5640,7 @@ function comisionGradoDatos(p) {
   Object.keys(gnames).forEach(function (n) { var ap0 = apoyo.filter(function (a) { return a.n === n; })[0]; var idn = comisionIdentidad_(n); personas[n] = { ced: (ap0 && /acad|rector|convivencia|redes/i.test(ap0.rol)) ? '' : cedulaDoc_(n), correo: (ap0 && ap0.correo) || comisionCorreoDe_(n) || idn.mail, tel: idn.cel }; });
   var setg = {}; codes.forEach(function (c) { setg[c] = gs[codes.indexOf(c)]; });
   var est = [];
-  datos_('Estudiantes').forEach(function (e, i) { var g = String(e.grupo); if (setg[g]) var sx = comisionCol_(e, ['sexo', 'genero']); est.push({ id: i + 1, g: setg[g], a: comisionTitulo_(e.apellidos), n: comisionTitulo_(e.nombres), ndoc: comisionCol_(e, ['documento', 'nodoc', 'numerodocumento', 'numdoc', 'ndoc', 'identificacion', 'cedula']).replace(/\D/g, ''), tdoc: comisionCol_(e, ['tipodoc', 'tipodedocumento', 'tipodocumento', 'tdoc', 'tipo']), sx: /^(m|h|hombre|masculino)$/i.test(sx) ? 'M' : /^(f|mujer|femenino)$/i.test(sx) ? 'F' : '' }); });
+  datos_('Estudiantes').forEach(function (e, i) { var g = String(e.grupo); if (setg[g]) var sx = comisionCol_(e, ['sexo', 'genero']); est.push({ id: i + 1, g: setg[g], a: comisionTitulo_(e.apellidos), n: comisionTitulo_(e.nombres), ndoc: comisionCol_(e, ['documento', 'nodoc', 'numerodocumento', 'numdoc', 'ndoc', 'identificacion', 'cedula']).replace(/\D/g, ''), tdoc: comisionCol_(e, ['tipodoc', 'tipodedocumento', 'tipodocumento', 'tdoc', 'tipo']).replace(/[^A-Za-z]/g, '').toUpperCase(), tel: comisionCol_(e, ['telacudiente', 'telefonoacudiente', 'celularacudiente']).replace(/\D/g, ''), sx: /^(m|h|hombre|masculino)$/i.test(sx) ? 'M' : /^(f|mujer|femenino)$/i.test(sx) ? 'F' : '' }); });
   var e0 = datos_('Estudiantes')[0] || {}, kn = function (s) { return comisionSinTildes_(String(s)).toLowerCase().replace(/[^a-z0-9]/g, ''); }, ks0 = Object.keys(e0).map(kn);
   var diag = { colDoc: ks0.indexOf('documento') >= 0 || ks0.indexOf('nodoc') >= 0 || ks0.indexOf('numerodocumento') >= 0, colTipo: ks0.indexOf('tipodoc') >= 0 || ks0.indexOf('tipodedocumento') >= 0 || ks0.indexOf('tipodocumento') >= 0, conDoc: est.filter(function (x) { return x.ndoc; }).length, total: est.length, version: (typeof VERSION_SISTEMA !== 'undefined' ? VERSION_SISTEMA : '') };
   return { diag: diag, codigo: cod, label: label, niv: niv, sig: COM_GRADO_SIG[cod], gs: gs, codes: codes, dir: dir, dir2: dir2, ap: Object.keys(ap).sort(), areas: areas, apoyo: apoyo, personas: personas, estudiantes: est };

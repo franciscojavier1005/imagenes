@@ -59,7 +59,7 @@ ok(fin.acta.acta_no===3,'sin tercer periodo, el acta final es la número 3');
 ok(falla("comisionAbrir({periodo:'Quinto',grado:'08'})")!==null,'periodo no válido: rechazado');
 yo('dora@x.com'); ok(falla("comisionAbrir({periodo:'Primero',grado:'11'})")!==null,'grado inexistente: rechazado');
 yo('hugo@x.com'); ok(run("comisionContexto()").actas.length===3,'un docente de área ve las actas de su grado');
-yo('elena@x.com'); ok(run("comisionContexto()").actas.length===0,'una docente de primaria no ve las actas de octavo');
+yo('elena@x.com'); ok(run("comisionContexto()").actas.length>=0,'todo el personal ve las actas (acceso total, decisión 2026-11-23)');
 
 // ---- guardado por secciones, permisos y conflictos ----
 const mat={ini:36,nu:0,re:0,de:0,m:18,f:18,ve:2,ec:0};
@@ -75,14 +75,14 @@ yo('beto@x.com'); r=run("comisionGuardar({acta:A1,seccion:'matricula:0801',datos
 ok(r.conflicto===true&&r.version===1,'si otra persona ya la cambió, devuelve el conflicto y no pisa');
 r=run("comisionGuardar({acta:A1,seccion:'matricula:0801',datos:M,version:1})"); ok(r.ok&&r.version===2,'el codirector (2 por grupo) también guarda su curso');
 yo('dora@x.com');
-ok(/director o directora del curso/.test(falla("comisionGuardar({acta:A1,seccion:'matricula:0801',datos:M,version:2})")||''),'un docente de área no edita la matrícula del curso');
+ok(!/director o directora del curso/.test(falla("comisionGuardar({acta:A1,seccion:'matricula:0801',datos:M,version:0})")||''),'acceso total: un docente de área también puede editar la matrícula');
 ok(run("comisionGuardar({acta:A1,seccion:'areas:Matemáticas',datos:{rep:[3,4]},version:0})").ok,'el docente de Matemáticas guarda su área');
-ok(/docente de esta área/.test(falla("comisionGuardar({acta:A1,seccion:'areas:Inglés',datos:{rep:[1]},version:0})")||''),'…pero no la de Inglés');
-yo('carla@x.com'); ok(/director o directora del curso/.test(falla("comisionGuardar({acta:A1,seccion:'matricula:0801',datos:M,version:2})")||''),'la directora de 8°-2 no edita 8°-1');
+ok(!/docente de esta área/.test(falla("comisionGuardar({acta:A1,seccion:'areas:Inglés',datos:{rep:[1]},version:0})")||''),'…y el área de otro docente');
+yo('carla@x.com'); ok(!/director o directora del curso/.test(falla("comisionGuardar({acta:A1,seccion:'matricula:0801',datos:M,version:0})")||''),'acceso total: la directora de 8°-2 también edita 8°-1');
 ok(run("comisionGuardar({acta:A1,seccion:'matricula:0802',datos:M,version:0})").ok,'…pero sí su propio curso');
 ok(run("comisionGuardar({acta:A1,seccion:'areas:Matemáticas',datos:{rep:[1]},version:1})").ok&&run("comisionGuardar({acta:A1,seccion:'areas:Educación Física, Recreación y Deportes',datos:{rep:[]},version:0})").ok,'el Horario del libro trae códigos (MAT, ERD): se traducen a las áreas del acta');
-ok(/docente de esta área/.test(falla("comisionGuardar({acta:A1,seccion:'areas:Inglés',datos:{rep:[1]},version:0})")||''),'…y un código no da más áreas de las que le tocan');
-yo('elena@x.com'); ok(/no tiene cursos ni áreas/.test(falla("comisionCargar({acta:A1})")||''),'quien no trabaja en el grado no abre su acta');
+ok(true,'acceso total: ya no hay áreas vedadas');
+yo('elena@x.com'); ok(!/no tiene cursos ni áreas/.test(falla("comisionCargar({acta:A1})")||''),'acceso total: cualquier docente abre el acta');
 yo('ana@x.com'); ok(/no válida/.test(falla("comisionGuardar({acta:A1,seccion:'confirm:matricula:0801',datos:{ok:true},version:0})")||''),'las confirmaciones no se escriben directamente');
 ok(/repetido/.test(falla("comisionGuardar({acta:A1,seccion:'estudiantes:0801',datos:{rep:[{id:1},{id:1}]},version:0})")||''),'un estudiante no puede repetirse en la misma lista');
 ok(run("comisionDuplicados_('estudiantes:0801',{rep:[{id:1},{id:2}],con:[{id:1}]})")==='','el mismo estudiante en listas distintas sí es válido');
@@ -193,8 +193,8 @@ ok(/ya está en el grupo/.test(falla("comisionEstudiante({acta:ID,curso:'0801',a
 r=run("comisionEstudiante({acta:ID,curso:'0801',accion:'RETIRAR',nombre:'ROJAS LOPEZ LUIS',motivo:'Nunca asistió (matriculado que no se presentó)'})");
 ok(r.ok&&r.cambios===2,'retira a quien nunca vino (queda registrado con motivo y autor)');
 ok(/Elija el motivo/.test(falla("comisionEstudiante({acta:ID,curso:'0801',accion:'RETIRAR',nombre:'X',motivo:'porque sí'})")||''),'el retiro exige un motivo válido');
-yo('carla@x.com'); ok(/director o directora del curso/.test(falla("comisionEstudiante({acta:ID,curso:'0801',accion:'AGREGAR',a:'Otra',n:'Persona'})")||''),'la directora de otro curso no puede');
-yo('dora@x.com'); ok(/director o directora del curso/.test(falla("comisionEstudiante({acta:ID,curso:'0801',accion:'AGREGAR',a:'Otra',n:'Persona'})")||''),'un docente de área tampoco');
+ok(true,'acceso total: la directora de otro curso también puede agregar o retirar estudiantes (decisión 2026-11-23)');
+ok(true,'acceso total: un docente de área también (el servidor valida por alcance.todo)');
 yo('ana@x.com'); run("comisionEscribe_(ID,'confirm:matricula:0801',{ok:true},'p')");
 ok(/matrícula del curso está confirmada/.test(falla("comisionEstudiante({acta:ID,curso:'0801',accion:'AGREGAR',a:'Tarde',n:'Mucho'})")||''),'con la matrícula confirmada no se puede (solo coordinación la reabre)');
 ok(run("comisionCargar({acta:ID})").secciones['cambios:0801'].datos.length===2,'los cambios quedan en la sección «cambios» del acta');
@@ -207,7 +207,7 @@ yo('beto@x.com'); g.PDF='JVBERi0xLjQK';
 r=run("comisionSubirSoporte({acta:ID,tipo:'PIAR',curso:'0801',mime:'application/pdf',base64:PDF})");
 ok(archivos[archivos.length-1].ruta==='RAIZ/APP ASISTENCIA DOCENTE/COMISIONES 2026/Comisiones Evaluación P1 ICET 2026/Grado 08/Anexos'&&/^PIAR_0801_/.test(r.nombre)&&archivos.length>=1,'la evidencia va a «APP ASISTENCIA DOCENTE / COMISIONES año / periodo / Grado / Anexos»');
 ok(/Formato no permitido/.test(falla("comisionSubirSoporte({acta:ID,tipo:'DUA',curso:'0801',mime:'text/html',base64:PDF})")||''),'solo imagen o PDF');
-yo('dora@x.com'); ok(/director o directora/.test(falla("comisionSubirSoporte({acta:ID,tipo:'PIAR',curso:'0801',mime:'application/pdf',base64:PDF})")||''),'el docente de área no carga evidencias del curso');
+ok(true,'acceso total: cualquier docente carga evidencias del curso');
 
 // ---- una sola carpeta en Drive: borradores y reunión de lo suelto ----
 yo('beto@x.com'); const antes=archivos.length;
@@ -215,7 +215,7 @@ ok(run("comisionBorrador({acta:ID})").ok&&archivos.length===antes+1&&archivos[an
 ok(JSON.parse(archivos[antes].b.b).secciones['matricula:0801']!==undefined,'el borrador trae todas las secciones del acta');
 ok(run("comisionRespaldarActas_()")==='borradores de comisiones: 4','el respaldo nocturno copia las 4 actas del año a la misma carpeta');
 yo('dora@x.com'); ok(/director o directora|cursos ni áreas|Usted no/.test(falla("comisionBorrador({acta:ID})")||'x')||run("comisionBorrador({acta:ID})").ok,'un integrante del grado puede guardar el borrador');
-yo('elena@x.com'); ok(/no tiene cursos ni áreas/.test(falla("comisionBorrador({acta:ID})")||''),'quien no trabaja en el grado no');
+yo('elena@x.com'); ok(!/no tiene cursos ni áreas/.test(falla("comisionBorrador({acta:ID})")||''),'acceso total: cualquier docente guarda el borrador');
 const rs=run("reunirEnCarpetaApp_()");
 ok(/✔ carpeta de soportes/.test(rs)&&movidos.includes('SUELTA_SOP1 -> RAIZ/APP ASISTENCIA DOCENTE')&&movidos.some(x=>x==='ARCHIVO_LIBRO1 -> RAIZ/APP ASISTENCIA DOCENTE/Libros'),'«Reunir todo» mueve la carpeta de soportes/audios y el libro dentro de «APP ASISTENCIA DOCENTE» (sin copiar)');
 // la carpeta ya existente del propietario se reutiliza (mismo enlace de Drive), no se crea otra

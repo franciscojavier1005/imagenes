@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-d';
+var VERSION_SISTEMA = '2026.11.23-e';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-e', fecha: '2026-11-23', cambios: [
+    'Comisiones: acceso total para docentes, orientación, tutora PTAFI y directivos (una sola persona puede hacer todo el ejercicio); se confirman uno a uno los documentos previos; fecha y hora con calendario y reloj; botones «Volver al menú» y «Cerrar sesión»; documento de identidad y tipo tomados de la hoja Estudiantes (columnas documento, tipo_doc y sexo opcionales); modo ejemplo para el desarrollador (no guarda nada).'] },
   { version: '2026.11.23-d', fecha: '2026-11-23', cambios: [
     'Comisiones: la fecha y la hora del acta se eligen con calendario y reloj (las edita el responsable o coordinación).'] },
   { version: '2026.11.23-c', fecha: '2026-11-23', cambios: [

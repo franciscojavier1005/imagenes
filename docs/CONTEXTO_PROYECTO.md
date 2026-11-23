@@ -731,3 +731,11 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 83 (2026-11-23, versión 2026.11.23-d)
 - Fecha y hora del acta con controles nativos (calendario/reloj); los campos ocultos `#fecha`/`#hora`/`#hAp` siguen guardando el texto dd/mm/aaaa y HH:MM. Solo editan responsable y coordinación.
+
+## Ampliación 84 (2026-11-23, versión 2026.11.23-e)
+- **Acceso total** (decisión del coordinador): `comisionAlcance_` devuelve `todo:true` para todos; docentes, orientación, tutora PTAFI y directivos editan todo el acta; general/integrantes/requisitos sin restricción; cualquiera puede ser responsable o cerrar; confirmaciones oficiales las reabre coordinación o directivo. Los conflictos de guardado se fusionan campo a campo en todas las secciones (`fusiona`). Pruebas de rol invertidas.
+- Documentos previos (`PRE_ITEMS`) confirmables uno a uno (sección `requisitos`, ya sin bloqueo). Fecha y hora con `input date/time` (campos ocultos `#fecha`/`#hora`/`#hAp` siguen guardando el texto).
+- «← Volver al menú» y «Cerrar sesión» en la barra superior de Comisiones.
+- Documento: `comisionGradoDatos` lee columnas opcionales `documento`, `tipo_doc`, `sexo` de la hoja Estudiantes. Se cruzó el SIREC 2026 (Drive) con Estudiantes: 1025 de 1045 con documento (51 por coincidencia aproximada de nombre), 20 sin cruzar; el archivo con documentos es PRIVADO (menores) y no se versiona; el usuario lo pega en las columnas F:G de Estudiantes.
+- Modo ejemplo para el desarrollador (`modoEjemplo`, botón `#btnEj`): llena el acta con datos de prueba, sin sincronizar ni guardar; «Volver a los datos reales».
+- Defecto corregido en 2026.11.23-c: respuestas con Date devolvían null a la pantalla (`sanearSalida_`).

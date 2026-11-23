@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.23-d</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.23-e</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -98,16 +98,16 @@
 <li>Como docente solo ve <b>lo suyo</b>: su informe, sus soportes y las comisiones de su grado. No ve rondas, reuniones ni nada de directivos.</li></ol>
 </section>
 <section id="comisiones"><h2>Comisiones de evaluación y promoción</h2>
-<p>Desde el menú toque <b>«Comisiones de evaluación y promoción»</b>. Elija el <b>grado</b> y el <b>periodo</b>: se abre el acta de ese grado y todos los docentes trabajan en ella <b>al mismo tiempo</b>; lo que uno guarda aparece en las pantallas de los demás a los pocos segundos.</p>
+<p>Desde el menú toque <b>«Comisiones de evaluación y promoción»</b>. Elija el <b>grado</b> y el <b>periodo</b>: se abre el acta de ese grado con la lista real de estudiantes y la asignación del libro. Todo el personal (docentes, orientación, tutora PTAFI y directivos) tiene <b>acceso total</b>: una sola persona puede hacer todo el ejercicio, o varias pueden trabajar al mismo tiempo (lo que uno guarda aparece en las pantallas de los demás a los pocos segundos).</p>
 <ol>
-<li><b>Antes de empezar</b> la pantalla pide <b>dónde está</b> (sala de profesores, aula, biblioteca…) y <b>a qué hora empezó</b>. Esa información le llega a coordinación en el seguimiento.</li>
-<li>Arriba aparece <b>«Usted entra como»</b>: <b>Responsable del registro y cierre</b> (la primera persona que entra; marca la asistencia, pone las etiquetas de los roles y cierra el acta), <b>Director/a de grupo</b> (matrícula, reconocimientos, promoción y casos de su curso), <b>Docente de área</b> (las cifras y recomendaciones de su área) o <b>Editor del acta</b> (etiqueta que pone el responsable para que alguien pueda corregir lo de todos).</li>
-<li>Lo que no le corresponde se ve <b>atenuado</b> y no se puede cambiar. Los docentes de primaria y preescolar registran todas las áreas de su grupo.</li>
-<li>Cada persona hace su <b>declaración bajo juramento</b>, confirma que <b>revisó los listados</b> y, al final, firma el acta impresa.</li>
-<li>Solo el <b>responsable</b> (o coordinación) cierra el acta; la hora de cierre es la del servidor. Imprima o guarde el PDF antes de salir.</li>
+<li><b>Antes de empezar</b> la pantalla pide <b>dónde está</b> y <b>a qué hora empezó</b>; le llega a coordinación en el seguimiento.</li>
+<li>En «Datos generales» elija la <b>fecha</b> con el calendario y la <b>hora</b> con el reloj.</li>
+<li>En el paso 1 confirme, uno por uno, los <b>documentos que deben estar listos</b> (notas cargadas, planillas, resúmenes, cuadernos, observaciones…) y haga su <b>declaración bajo juramento</b>.</li>
+<li>La primera persona que entra queda como <b>responsable del registro</b>; puede cambiarse en el listado. Cualquiera puede cerrar el acta cuando no queden pendientes.</li>
+<li>Arriba tiene <b>«← Volver al menú»</b> y <b>«Cerrar sesión»</b>.</li>
 </ol>
-<div class="tip"><b>Directivos:</b> en el menú, <b>«Seguimiento de las comisiones»</b> muestra el avance de cada comisión abierta (porcentaje y componentes), quién la redacta, <b>dónde</b> está y desde qué hora, y qué directivo, docente orientadora o tutora PTAFI acompaña. Avisa cada vez que alguien avanza y, cada media hora, trae un resumen mientras tenga la aplicación abierta.</div>
-<div class="ojo">Los cambios del acta <b>no modifican la plataforma de registro académico</b>: si se agrega o retira un estudiante o cambia un dato, también hay que corregirlo allá.</div></section>
+<div class="tip"><b>Directivos:</b> «Seguimiento de las comisiones» muestra avance, quién redacta y dónde, y quién acompaña; avisa cuando alguien avanza y cada media hora.</div>
+<div class="ojo">Los cambios del acta <b>no modifican la plataforma de registro académico</b>. Los documentos de identidad vienen del listado SIREC cargado en la hoja Estudiantes; los pocos que falten se completan en la pantalla.</div></section>
 
 
 <section id="icono"><h2>3. Dejar un icono en el celular</h2>
@@ -266,7 +266,7 @@
 <p><b>ronda_horas_margen</b>: horas después de la jornada en que los demás directivos aún pueden registrar la ronda; <b>reunion_desde</b> / <b>reunion_hasta</b>: horario normal de reuniones; <b>reunion_personas_extra</b>: personas que siempre deben aparecer en las reuniones de todo el personal.</p></section>
 
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.23-d</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.23-e</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

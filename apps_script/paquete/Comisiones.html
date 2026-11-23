@@ -444,10 +444,10 @@ section.pan .card>.row>.btn{align-self:flex-end;min-height:40px}
 .stk .stkv{text-align:right;line-height:1.1}.stk .stkv b{font-size:15px;color:#0f2a5c;display:block}.stk .stkv small{font-size:11px;color:#6b7a99}
 .stk *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 @media (max-width:560px){.stk .stkr{grid-template-columns:1fr 64px}.stk .stkn{grid-column:1/-1}.stk .stkt{grid-column:1}}
-.vp{display:none!important}</style><style id="pieSty"></style></head><body>
+.vp{display:none!important}input[type=date],input[type=time]{width:100%;padding:8px;border:2px solid var(--borde);border-radius:9px;font:inherit;font-size:inherit;color:inherit;background:#fff;box-sizing:border-box;min-height:40px}.grow>label{display:block}</style><style id="pieSty"></style></head><body>
 <header class="top"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-logo="1" alt="Escudo ICET"><div><h1>Comisiones de evaluación y promoción · 2026</h1><small>Institución Ciudadela Educativa Tumac · ICET · Tumaco · Sistema de control de asistencia docente</small></div></header>
 <div id="jsfail" style="background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;padding:10px 14px;font:14px Arial,sans-serif"><b>Esta vista previa necesita ejecutar JavaScript y no se ejecutó.</b> Si ve este mensaje, el archivo no se cargó completo o su visor bloquea los scripts: guárdelo en el Mac y ábralo con <b>Chrome</b> (clic derecho, Abrir con, Chrome). Mientras tanto puede revisar el PDF «Recorrido de pantallas».</div><div class="vp"><b>COMISIONES</b> · estudiantes inventados; docentes y directivos como en el libro. No guarda nada. <b>Los datos de ejemplo ya están cargados</b> (8° Secundaria, acta final). Cambie el <b>perfil</b>, el <b>grado</b> o el <b>periodo</b> y vuelva a cargar el ejemplo si quiere.<div class="row" style="margin-top:6px;gap:6px"><button class="btn s" onclick="init(GK);irTab('p1')">Acta vacía</button><button class="btn s" onclick="abreReales()">Usar listados reales del libro</button></div><div class="ejg"><b>Ejemplo completo por nivel:</b> <button class="btn s" onclick="ejGrado('0° Preescolar')">Preescolar</button><button class="btn s" onclick="ejGrado('5° Primaria')">5.º Primaria</button><button class="btn s" onclick="ejGrado('8° Secundaria')">8.º Secundaria</button><button class="btn s" onclick="ejGrado('11° Media')">11.º Media</button></div></div>
-<div class="perf"><b>Ver como:</b><select id="perfil" onchange="setPerfil(this.value)"><option value="d">Docente (del grado o director de grupo)</option><option value="c">Coordinación, rectoría u orientación</option><option value="a">Administrador</option><option value="x">Desarrollador (ensayos)</option></select><small>Cada persona ve solo lo que le corresponde.</small><b style="margin-left:10px">Entré como <small style="font-weight:400">(solo vista previa: escoja su nombre)</small>:</b><select id="selUsr" style="width:auto" onchange="setUsr(this.value)" title="Solo vista previa: en el sistema real es la persona que entró con su correo"></select></div><div id="bandaPrueba"></div><div id="avisoBorr"></div><div id="avisoRed"></div><div id="permBanda"></div>
+<div class="row" id="barraSes" style="padding:6px 10px;justify-content:space-between;background:#fff;border-bottom:1px solid var(--borde)"><button class="btn s" onclick="volverMenu()">← Volver al menú</button><span><small class="g" id="quienSes"></small> <button class="btn s" onclick="salirSesion()">Cerrar sesión</button></span></div><div class="perf"><b>Ver como:</b><select id="perfil" onchange="setPerfil(this.value)"><option value="d">Docente (del grado o director de grupo)</option><option value="c">Coordinación, rectoría u orientación</option><option value="a">Administrador</option><option value="x">Desarrollador (ensayos)</option></select><small>Cada persona ve solo lo que le corresponde.</small><b style="margin-left:10px">Entré como <small style="font-weight:400">(solo vista previa: escoja su nombre)</small>:</b><select id="selUsr" style="width:auto" onchange="setUsr(this.value)" title="Solo vista previa: en el sistema real es la persona que entró con su correo"></select></div><div id="bandaPrueba"></div><div id="avisoBorr"></div><div id="avisoRed"></div><div id="permBanda"></div>
 <nav class="tabs" id="tabs"></nav>
 <main>
 
@@ -478,7 +478,7 @@ section.pan .card>.row>.btn{align-self:flex-end;min-height:40px}
 <div class="grow"><label>Fecha</label><input type="hidden" id="fecha"><input type="date" id="fechaP"></div>
 <div class="grow"><label>Hora de apertura</label><input type="hidden" id="hora"><input type="time" id="horaP"></div>
 </div>
-<div class="row" style="margin-top:6px"><small class="g">Decreto 1290 de 2009 y Manual de Convivencia (encabezado del formato).</small></div></details>
+<div class="row" style="margin-top:6px"><button class="btn s" id="btnEj" style="display:none" onclick="modoEjemplo()">Cargar ejemplo completo (solo desarrollador · no se guarda)</button><small class="g">Decreto 1290 de 2009 y Manual de Convivencia (encabezado del formato).</small></div></details>
 <div class="prog"><i id="barra"></i></div>
 <div id="bandaPer"></div><div style="display:flex;justify-content:flex-end;margin:2px 0"><span class="chip m" id="estadoG">Borrador: sin guardar aún</span></div><div class="vista">Vista del acta: <button id="vAcc" onclick="vista(true)">Desplegable</button><button id="vPas" onclick="vista(false)">Por pasos</button></div><div class="pasos" id="pasos"></div>
 <div id="msg"></div>
@@ -1536,7 +1536,7 @@ function construyeGrado(d){
  var l=d.label;G={};G[l]={niv:d.niv,gs:d.gs.slice(),sig:d.sig,dir:d.dir.slice(),dir2:d.dir2.slice(),ap:d.ap.slice(),areas:d.areas||{}};
  CODES={};d.gs.forEach(function(g,i){CODES[g]=d.codes[i]});REALN={};
  var falta=['Tipo y número de documento','Lugar de expedición','Sexo','Nacionalidad o procedencia','Teléfono del acudiente'];
- EST=d.estudiantes.map(function(e){REALN[e.g]=(REALN[e.g]||0)+1;return {id:e.id,g:e.g,a:e.a,n:e.n,doc:'falta',sx:'',falta:falta.slice(),tel:'',gest:'',real:1,base:1}});
+ EST=d.estudiantes.map(function(e){REALN[e.g]=(REALN[e.g]||0)+1;var fl=falta.slice();if(e.ndoc){fl=fl.filter(function(x){return x!=='Tipo y número de documento'})}if(e.sx){fl=fl.filter(function(x){return x!=='Sexo'})}return {id:e.id,g:e.g,a:e.a,n:e.n,doc:e.ndoc&&!fl.length?'ok':'falta',sx:e.sx||'',ndoc:e.ndoc||'',tdoc:e.tdoc||'',falta:fl,tel:'',gest:'',real:1,base:1}});
  nid=1000000+Math.floor(Math.random()*8000000);ROSTER_COMPLETO=true;
  APOYO=d.apoyo.map(function(a){return [a.n,a.rol,!!a.p]});
  var nm={};d.dir.forEach(function(n){if(n)nm[n]=1});d.dir2.forEach(function(x){nm[x.n]=1});d.ap.forEach(function(n){nm[n]=1});Object.keys(d.areas||{}).forEach(function(a){String(d.areas[a]).split(' / ').forEach(function(n){if(n)nm[n]=1})});
@@ -1569,9 +1569,10 @@ function particiona(){
  return o}
 function esResp(){return !S.resp||S.resp===USR}
 function esEditor(){return S.int.some(function(x){return x.n===USR&&(x.roles||[]).indexOf('Editor del acta')>=0})}
-function puedeGeneral(){return PERFIL!=='d'||esResp()||esEditor()}
+function puedeGeneral(){return true}
 function puedeEscribir(sec){
  if(S&&S.cerrada)return false;
+ return true;
  if(PERFIL!=='d')return true;
  if(SECR.indexOf(sec)>=0)return puedeGeneral();
  if(esEditor())return true;
@@ -1636,7 +1637,7 @@ function pintaRoles(){var e=$('#rolesBar');if(!e){e=document.createElement('div'
 function atenua(){if(!S||!S.gs)return;var ok=puedeGeneral();
  $$('#tInt tr').forEach(function(tr,i){if(i===0)return;var r=S.int[i-1];if(!r)return;[].forEach.call(tr.querySelectorAll('input,select,button'),function(c){var propio=r.n===USR&&(c.type==='email'||c.type==='text'||c.inputMode==='tel');var dis=!ok&&!propio;if(dis!==c.disabled){c.disabled=dis}});tr.style.opacity=ok||r.n===USR?'':'.7'});
  ['#swAc','#obsAc','#difT','#txtDif','#txtEst','#txtCon','#prevTxt','#addI'].forEach(function(id){var c=$(id);if(c)c.disabled=!ok});
- var sr=$('#selResp');if(sr)sr.disabled=!(esResp()||PERFIL!=='d');
+ var sr=$('#selResp');if(sr)sr.disabled=false;
  pintaRoles()}
 (function(){var _e=etiqueta;etiqueta=function(){_e();try{atenua()}catch(e){}}})();
 /* ---------- guardar y refrescar ---------- */
@@ -1647,7 +1648,7 @@ function guardaSec(sec,datos,intento){
  var v=SYNC.ver[sec]||0;
  return API('comisionGuardar',{acta:ACTA.id,seccion:sec,datos:datos,version:v}).then(function(r){
   if(r&&r.conflicto){SYNC.ver[sec]=r.version;
-   if(SECG.indexOf(sec)>=0&&(intento||0)<2){var m=fusiona(r.datos,datos,JSON.parse(SYNC.last[sec]||'null'));SYNC.last[sec]=js(r.datos);return guardaSec(sec,m,(intento||0)+1)}
+   if((intento||0)<2){var m=fusiona(r.datos,datos,JSON.parse(SYNC.last[sec]||'null'));SYNC.last[sec]=js(r.datos);return guardaSec(sec,m,(intento||0)+1)}
    aplicaUna(sec,r.datos);SYNC.last[sec]=js(r.datos);avisoSync('<b>Otra persona editó «'+esc(sec.split(':').slice(-1)[0])+'» al mismo tiempo.</b> Se cargó su versión: revise y repita su cambio si hace falta.');return 'conf'}
   SYNC.ver[sec]=r.version;if(intento){aplicaUna(sec,datos);SYNC.last[sec]=js(particiona()[sec])}else SYNC.last[sec]=js(datos);return 'ok'})}
 function sincResp(){
@@ -1706,9 +1707,9 @@ function REAL_BOOT(){
  document.body.classList.add('jsok');
  if(!tokenGuardado()){irAlMenu();return}
  API('comisionContexto').then(function(c){
-  CTXR=c;USR=c.quien.nombre;PERFIL=c.quien.rol==='docente'?'d':'c';
+  CTXR=c;USR=c.quien.nombre;try{$('#quienSes').textContent=USR}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
   GRADOS_REAL=c.grados.map(function(code){return COM_LABEL[code]}).filter(Boolean);LABEL_DE={};c.grados.forEach(function(code){LABEL_DE[COM_LABEL[code]]=code});
-  var p=$('#perfil');if(p){p.value=PERFIL;if(!c.quien.dev){var pf=document.querySelector('.perf');if(pf)pf.style.display='none'}}
+  var be=$('#btnEj');if(be&&c.quien.dev)be.style.display='';var p=$('#perfil');if(p){p.value=PERFIL;if(!c.quien.dev){var pf=document.querySelector('.perf');if(pf)pf.style.display='none'}}
   $('#grado').onchange=abreActa;$('#periodo').onchange=abreActa;
   pintaGrados();try{setPerfil(PERFIL)}catch(e){}
   if(GRADOS_REAL.length===1){$('#grado').value=GRADOS_REAL[0];abreActa()}
@@ -1729,5 +1730,22 @@ function syncPick(){var f=$('#fecha'),fp=$('#fechaP'),hp=$('#horaP'),ha=$('#hApP
 function eligeFecha(v){var m=/^(\d{4})-(\d\d)-(\d\d)$/.exec(v||'');if(m)$('#fecha').value=m[3]+'/'+m[2]+'/'+m[1]}
 function eligeHora(v){if(!/^\d\d:\d\d$/.test(v||''))return;hAp=v;$('#hora').value=v;$('#hAp').value=v;var a=$('#hApP'),b=$('#horaP');if(a)a.value=v;if(b)b.value=v}
 document.addEventListener('change',function(e){var t=e.target||{};if(t.id==='fechaP')eligeFecha(t.value);else if(t.id==='horaP'||t.id==='hApP')eligeHora(t.value)});
+/* acceso total para todo el personal (decisión del coordinador): nada se atenúa por rol */
+perm=function(){return null};
+
+/* ---------- modo desarrollador: ejemplo completo sobre el grado abierto (NO se guarda en el libro) ---------- */
+function modoEjemplo(){if(!ACTA||!S){alert('Abra primero un grado y un periodo.');return}
+ if(!confirm('Modo ejemplo: se llena el acta con datos de prueba SOLO en esta pantalla. Nada se guarda en el libro. Para volver a los datos reales use «Volver a los datos reales». ¿Continuar?'))return;
+ SYNC.activo=false;clearInterval(SYNC.t1);clearInterval(SYNC.t2);clearInterval(SYNC.t3);
+ try{ejemploCompleto()}catch(e){alert('No se pudo cargar el ejemplo: '+e.message)}
+ try{pintaTodo();pintaPasos();pintaPendientes();etiqueta()}catch(e){}
+ estadoSync('MODO EJEMPLO · nada se guarda en el libro','a');avisoSync('<b>Modo ejemplo (desarrollador).</b> Los datos son de prueba y no se guardan. <button class="btn s" onclick="abreActa()">Volver a los datos reales</button>')}
+
+/* ---------- volver al menú y cerrar sesión ---------- */
+function volverMenu(){if(S&&SYNC.activo){try{if(typeof tick==='function')tick()}catch(e){}}irAlMenu()}
+function salirSesion(){if(!confirm('¿Cerrar la sesión? Lo que ya se guardó en el acta queda en el libro.'))return;
+ SYNC.activo=false;clearInterval(SYNC.t1);clearInterval(SYNC.t2);clearInterval(SYNC.t3);
+ var t=tokenGuardado();borrarToken();
+ try{google.script.run.withSuccessHandler(irAlMenu).withFailureHandler(irAlMenu).cerrarSesion(t)}catch(e){irAlMenu()}}
 
 </script></body></html>

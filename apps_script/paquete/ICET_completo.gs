@@ -3866,11 +3866,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-d';
+var VERSION_SISTEMA = '2026.11.23-e';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-e', fecha: '2026-11-23', cambios: [
+    'Comisiones: acceso total para docentes, orientación, tutora PTAFI y directivos (una sola persona puede hacer todo el ejercicio); se confirman uno a uno los documentos previos; fecha y hora con calendario y reloj; botones «Volver al menú» y «Cerrar sesión»; documento de identidad y tipo tomados de la hoja Estudiantes (columnas documento, tipo_doc y sexo opcionales); modo ejemplo para el desarrollador (no guarda nada).'] },
   { version: '2026.11.23-d', fecha: '2026-11-23', cambios: [
     'Comisiones: la fecha y la hora del acta se eligen con calendario y reloj (las edita el responsable o coordinación).'] },
   { version: '2026.11.23-c', fecha: '2026-11-23', cambios: [
@@ -4998,24 +5000,9 @@ function comisionSinTildes_(s) { return String(s == null ? '' : s).normalize('NF
 /** Cursos (grupos) que dirige y áreas que dicta el docente en un grado. Coordinación y rectoría ven todo. */
 function comisionSinAlcance_(al) { return !al.todo && !al.cursos.length && !al.areas.length && !al.multiareas && !al.acompana; }
 function comisionAlcance_(quien, grado) {
-  if (quien.rol === 'directivo') return { todo: true, cursos: [], areas: [], multiareas: true };
-  if (quien.rol === 'docente') {   // orientación y tutoría PTAFI acompañan cualquier grado, sin editar cursos ni áreas
-    var dd = datos_('Docentes').filter(function (x) { return comisionSinTildes_(x.nombre_completo) === comisionSinTildes_(quien.nombre); })[0];
-    if (dd && /ORIENTACI|TUTORA|PTAFI/i.test(String(dd.nivel))) return { todo: false, cursos: [], areas: [], multiareas: false, acompana: true };
-  }
-  var nom = comisionSinTildes_(quien.nombre), cursos = [], areas = [], multi = false, esDelGrado = function (g) { return partesGrupo_(g).grado === grado; };
-  datos_('Direccion_Grupo').forEach(function (d) {
-    if (!esDelGrado(d.grupo)) return;
-    if (comisionSinTildes_(d.docente_1) === nom || comisionSinTildes_(d.docente_2) === nom) cursos.push(String(d.grupo));
-  });
-  datos_('Horario').forEach(function (h) {
-    if (comisionSinTildes_(h.docente) !== nom || !esDelGrado(h.grupo)) return;
-    var a = String(h.area || '').trim();
-    if (/MULTIPLES/i.test(comisionSinTildes_(a))) { multi = true; return; }
-    /* el Horario del libro usa códigos (MAT, CAS, CSI…): se traducen a las áreas del acta */
-    (COM_COD_AREA[comisionSinTildes_(a)] || [a]).forEach(function (x) { if (x && areas.indexOf(x) < 0) areas.push(x); });
-  });
-  return { todo: false, cursos: cursos, areas: areas, multiareas: multi || (cursos.length > 0 && /^0[0-5]$/.test(String(grado))) };
+  /* Decisión del coordinador (2026-11-23): todo el personal (docentes, orientación, tutoría PTAFI y directivos) puede trabajar el acta completa,
+     para que una sola persona haga el ejercicio. Las firmas, declaraciones y presencia siguen siendo de cada quien. */
+  return { todo: true, cursos: [], areas: [], multiareas: true };
 }
 /** ¿Puede escribir esta sección? Devuelve null si puede o el motivo si no. */
 function comisionEsEditor_(quien, secciones) {
@@ -5029,8 +5016,7 @@ function comisionPermisoSeccion_(quien, alcance, seccion, secciones, acta) {
   if (tipo === 'firmas' || tipo === 'faltantes' || tipo === 'listos' || tipo === 'presencia') return null;   // cada persona pone lo suyo (firma, declaración, revisión) y los datos faltantes
   if (tipo === 'general' || tipo === 'integrantes' || tipo === 'requisitos') {   // asistencia, etiquetas y datos generales: el responsable del registro, quien tenga la etiqueta «Editor del acta» o coordinación
     var resp = acta && acta.responsable;
-    if (quien.coord || editor || !resp || resp === quien.nombre) return null;
-    return 'Solo el responsable del registro (' + resp + ') o quien tenga la etiqueta «Editor del acta» puede editar esta sección.';
+    return null;
   }
   if (alcance.todo || editor) { /* coordinación, rectoría y quien tenga la etiqueta «Editor del acta» pueden corregir cualquier curso o área */ } else if (['matricula', 'estudiantes', 'reconocimientos', 'promocion', 'obs'].indexOf(tipo) >= 0) {
     if (alcance.cursos.indexOf(clave) < 0) return 'Solo el director o directora del curso puede editar esta sección.';
@@ -5038,7 +5024,7 @@ function comisionPermisoSeccion_(quien, alcance, seccion, secciones, acta) {
     return 'Solo el docente de esta área puede editarla.';
   }
   var conf = secciones && secciones['confirm:' + tipo + ':' + clave];
-  if ((tipo === 'matricula' || tipo === 'reconocimientos') && conf && conf.datos && conf.datos.ok && !quien.coord) {
+  if ((tipo === 'matricula' || tipo === 'reconocimientos') && conf && conf.datos && conf.datos.ok && !quien.coord && quien.rol !== 'directivo') {
     return 'Esta sección está confirmada y es oficial: solo coordinación académica puede reabrirla.';
   }
   return null;
@@ -5175,8 +5161,6 @@ function comisionResponsable(p) {
   var quien = comisionQuien_(); p = p || {};
   var a = comisionActa_(p.acta); if (a.estado !== 'ABIERTA') throw new Error('El acta está cerrada.');
   var nuevoR = String(p.nombre || '');
-  if (a.responsable && a.responsable !== quien.nombre && !quien.coord) throw new Error('Solo ' + a.responsable + ' (responsable del registro) o coordinación puede cambiar al responsable.');
-  if (!a.responsable && nuevoR && nuevoR !== quien.nombre && !quien.coord) throw new Error('Solo coordinación puede nombrar a otra persona como responsable; usted puede anotarse a sí mismo.');
   var fila = comisionFilaActa_(a.id); hojaOCrea_('Comision_Actas', COL_CACTAS).getRange(fila, 7).setValue(nuevoR);
   comisionLog_(a.id, quien.nombre, 'RESPONSABLE', p.nombre);
   return { ok: true };
@@ -5534,7 +5518,7 @@ function comisionGradoDatos(p) {
   Object.keys(gnames).forEach(function (n) { var ap0 = apoyo.filter(function (a) { return a.n === n; })[0]; personas[n] = { ced: (ap0 && /acad|rector|convivencia|redes/i.test(ap0.rol)) ? '' : cedulaDoc_(n), correo: (ap0 && ap0.correo) || comisionCorreoDe_(n), tel: '' }; });
   var setg = {}; codes.forEach(function (c) { setg[c] = gs[codes.indexOf(c)]; });
   var est = [];
-  datos_('Estudiantes').forEach(function (e, i) { var g = String(e.grupo); if (setg[g]) est.push({ id: i + 1, g: setg[g], a: comisionTitulo_(e.apellidos), n: comisionTitulo_(e.nombres) }); });
+  datos_('Estudiantes').forEach(function (e, i) { var g = String(e.grupo); if (setg[g]) est.push({ id: i + 1, g: setg[g], a: comisionTitulo_(e.apellidos), n: comisionTitulo_(e.nombres), ndoc: String(e.documento || '').replace(/\D/g, ''), tdoc: String(e.tipo_doc || '').trim(), sx: /^(m|h|hombre|masculino)$/i.test(String(e.sexo || '').trim()) ? 'M' : /^(f|mujer|femenino)$/i.test(String(e.sexo || '').trim()) ? 'F' : '' }); });
   return { codigo: cod, label: label, niv: niv, sig: COM_GRADO_SIG[cod], gs: gs, codes: codes, dir: dir, dir2: dir2, ap: Object.keys(ap).sort(), areas: areas, apoyo: apoyo, personas: personas, estudiantes: est };
 }
 /** Cierre del acta desde la pantalla (la pantalla ya verificó los pendientes): solo el responsable o coordinación; la hora es la del servidor. */
@@ -5543,7 +5527,6 @@ function comisionCierreSimple(p) {
   var lock = LockService.getScriptLock(); lock.waitLock(15000);
   try {
     var a = comisionActa_(p.acta); if (a.estado !== 'ABIERTA') throw new Error('El acta ya está cerrada.');
-    if (!quien.coord && a.responsable && a.responsable !== quien.nombre) throw new Error('Solo ' + a.responsable + ' (responsable del registro y cierre) o coordinación puede cerrar el acta.');
     return comisionCerrarActa_(a, { por: quien.nombre }, quien);
   } finally { lock.releaseLock(); }
 }

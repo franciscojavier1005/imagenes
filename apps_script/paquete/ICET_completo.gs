@@ -172,7 +172,7 @@ function doGet(e) {
     return ContentService.createTextOutput('ICET API').setMimeType(ContentService.MimeType.TEXT);
   }
   var pag = (e && e.parameter && e.parameter.p) || 'menu';   // sin parámetros abre el menú de entrada
-  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], novedad: ['Novedad', 'ICET - Registrar novedades'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y actividades'], horarios: ['Horarios', 'ICET - Horarios y listados'], ayuda: ['Ayuda', 'ICET - Ayuda y manual de uso'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'] };
+  var PAGINAS = { menu: ['Menu', 'ICET - Control de asistencia docente'], novedad: ['Novedad', 'ICET - Registrar novedades'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y actividades'], horarios: ['Horarios', 'ICET - Horarios y listados'], ayuda: ['Ayuda', 'ICET - Ayuda y manual de uso'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'], comisiones: ['Comisiones', 'ICET - Comisiones de evaluación y promoción'] };
   var pg = PAGINAS[pag] || PAGINAS.menu;
   return HtmlService.createHtmlOutputFromFile(pg[0])
     .setTitle(pg[1])
@@ -1363,7 +1363,7 @@ function contextoPanel() {
     var docs = datos_('Docentes').filter(function (d) { return d.nivel !== 'REEMPLAZADO'; }), niveles = {};
     docs.forEach(function (d) { niveles[d.nivel] = 1; });
     var ec = estadoCorreo_(id);
-    return { rol: 'directivo', nombre: id.nombre, vistaInicial: id.vistaInicial, debeCambiar: !!ec.debeCambiar, necesitaCorreo: ec.necesitaCorreo, correo: ec.correo || '', informes: ec.informes || null,
+    return { rol: 'directivo', nombre: id.nombre, vistaInicial: id.vistaInicial, administra: puedeAdministrar_(id), debeCambiar: !!ec.debeCambiar, necesitaCorreo: ec.necesitaCorreo, correo: ec.correo || '', informes: ec.informes || null,
              docentes: docs.map(function (d) { return { nombre: d.nombre_completo, nivel: d.nivel }; }), niveles: Object.keys(niveles).sort() };
   }
   if (id.rol === 'docente') {
@@ -3866,11 +3866,15 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-a';
+var VERSION_SISTEMA = '2026.11.23-b';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-b', fecha: '2026-11-23', cambios: [
+    'Comisiones de evaluación y promoción: pantalla real (?p=comisiones) con botón en el menú de docentes y directivos. Cada docente entra a su grado y periodo; el acta se guarda por secciones en el libro (Comision_Actas, Comision_Secciones, Comision_Log) y varias personas trabajan a la vez con refresco automático. Roles: responsable del registro (primera persona), director/a de grupo, docente de área, editor del acta (etiqueta) y coordinación.',
+    'Al abrir, cada persona dice dónde está y desde qué hora. Los directivos tienen «Seguimiento de las comisiones»: avance, quién redacta y dónde, quién acompaña (directivos, orientación, tutora PTAFI) y avisos cada vez que alguien avanza y cada media hora.',
+    'Menú de coordinación «Docentes: agregar o editar datos» (nuevos docentes, cédula y correo con validación). Correo del docente con máscara y corrección de errores comunes (gmial.com, hotmial.com…).'] },
   { version: '2026.11.23-a', fecha: '2026-11-23', cambios: [
     'Ingreso de docentes: «Soy docente» → grado que atiende → nombre (solo los docentes de ese grado, más orientación y tutoría) → correo de contacto (cualquier proveedor) y clave. La primera vez la clave es la cédula (hoja Identidad_Docentes) y se elige una propia de 6 a 12 números. Coordinación restablece desde el menú «Docentes: restablecer la clave de un docente». El docente no ve rondas ni nada de directivos.',
     'Menú nuevo «Comisiones: prueba de funcionamiento»: guarda, lee, provoca un conflicto y borra un acta de prueba del año 2099 para comprobar que todo guarda sin errores.'] },
@@ -4757,13 +4761,24 @@ function abrirSesionDoc_(nombre, correo, debeCambiar) {
   sh.appendRow([hash_(token), nombre, correo, ahora, ahora + SESION_DIAS * 86400000, ahora]);
   return { token: token, nombre: nombre, rol: 'docente', debeCambiar: !!debeCambiar };
 }
-function correoValidoDoc_(e) { return /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(String(e || '').trim()); }
+var DOMINIOS_ERRATA_ = { 'gmial.com': 'gmail.com', 'gmai.com': 'gmail.com', 'gamil.com': 'gmail.com', 'gmail.con': 'gmail.com', 'gmail.co': 'gmail.com', 'gmil.com': 'gmail.com', 'gmail.cm': 'gmail.com', 'hotmial.com': 'hotmail.com', 'hotmai.com': 'hotmail.com', 'hotmail.con': 'hotmail.com', 'hormail.com': 'hotmail.com', 'hotmal.com': 'hotmail.com', 'yahooo.com': 'yahoo.com', 'yaho.com': 'yahoo.com', 'yahoo.con': 'yahoo.com', 'yahoo.es.com': 'yahoo.es', 'outlok.com': 'outlook.com', 'outlook.con': 'outlook.com', 'iclod.com': 'icloud.com', 'icloud.con': 'icloud.com' };
+/** Revisa un correo lo mejor posible sin poder verificarlo: forma válida, sin errores comunes de escritura. Devuelve {ok, correo, msg}. */
+function correoRevisar_(e) {
+  var c = String(e == null ? '' : e).trim().toLowerCase().replace(/\s+/g, '');
+  if (!c) return { ok: false, correo: '', msg: 'Escriba su correo electrónico.' };
+  if (c.length > 254 || !/^[a-z0-9._%+\-]{1,64}@([a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}$/.test(c) || /\.\./.test(c) || /^\.|\.@|@\.|@-/.test(c)) return { ok: false, correo: c, msg: 'El correo no es válido. Debe verse así: nombre@gmail.com' };
+  var dom = c.split('@')[1];
+  if (DOMINIOS_ERRATA_[dom]) return { ok: false, correo: c, msg: '¿Quiso escribir ' + c.split('@')[0] + '@' + DOMINIOS_ERRATA_[dom] + '?' };
+  return { ok: true, correo: c, msg: '' };
+}
+function correoValidoDoc_(e) { return correoRevisar_(e).ok; }
 /** Ingreso de un docente. p = {nombre, pin, correo (la primera vez, cualquier proveedor)}. */
 function ingresarDocente(p) {
   p = p || {};
   var r = verificarClaveDoc_(p.nombre, p.pin), d = r.d, doc = r.doc, correo = correoInternoDoc_(doc);
-  if (correoValidoDoc_(p.correo)) d.sh.getRange(d.fila, d.col.correo_contacto + 1).setValue(String(p.correo).trim());
-  else if (String(d.v[d.col.clave_temporal] || '') === 'SI' && !String(d.v[d.col.correo_contacto] || '').trim()) { /* la primera vez se pide, pero no bloquea */ }
+  var rc = correoRevisar_(p.correo), sinCorreo = !String(d.v[d.col.correo_contacto] || '').trim();
+  if (rc.ok) d.sh.getRange(d.fila, d.col.correo_contacto + 1).setValue(rc.correo);
+  else if (r.temp && sinCorreo) throw new Error(rc.msg);   // la primera vez el correo es obligatorio y debe verse válido
   asegurarUsuarioDoc_(doc, correo);
   return abrirSesionDoc_(doc.nombre_completo, correo, r.temp);
 }
@@ -4828,6 +4843,61 @@ function verDocentesActivos() {
     (sinCed.length ? '\n\nSin cédula en la hoja Identidad_Docentes (no podrán entrar la primera vez):\n' + sinCed.map(function (d) { return '· ' + d.nombre_completo; }).join('\n') : ''));
 }
 
+
+/* ------------------------------ coordinación: agregar o editar docentes y sus datos ------------------------------ */
+var NIVELES_DOC = ['SECUNDARIA', 'PRIMARIA', 'PREESCOLAR', 'ORIENTACIÓN', 'TUTORA PTAFI', 'REEMPLAZADO'];
+function exigirAdminDocentes_() {
+  var id = identidad_();
+  if (id.rol !== 'directivo' || !puedeAdministrar_(id)) throw new Error('Solo coordinación académica o quien administra puede ver y editar los datos de los docentes.');
+  return id;
+}
+function listarDocentesAdmin() {
+  exigirAdminDocentes_();
+  return datos_('Docentes').map(function (d) {
+    return { n: d.n, nombre_completo: d.nombre_completo, apellidos: d.apellidos, nombres: d.nombres, nivel: d.nivel, direccion_grupo: d.direccion_grupo || '', areas: d.areas || '', nota: d.nota || '',
+      cedula: cedulaDoc_(d.nombre_completo) ? 'sí' : '', correo: (typeof comisionCorreoDe_ === 'function' ? comisionCorreoDe_(d.nombre_completo) : '') };
+  }).sort(function (a, b) { return String(a.nombre_completo).localeCompare(String(b.nombre_completo), 'es'); });
+}
+function celdaPorNombre_(sh, fila, cab, nombre, valor) { var i = cab.indexOf(nombre); if (i >= 0) sh.getRange(fila, i + 1).setValue(valor); }
+/** p = {actual (nombre completo si edita; vacío si es nuevo), apellidos, nombres, nivel, direccion_grupo, areas, cedula, correo, nota}. */
+function guardarDocenteAdmin(p) {
+  var id = exigirAdminDocentes_(); p = p || {};
+  var sh = hoja_('Docentes'), v = sh.getDataRange().getValues(), cab = v[0], ap = String(p.apellidos || '').trim().replace(/\s+/g, ' '), nm = String(p.nombres || '').trim().replace(/\s+/g, ' ');
+  if (!ap || !nm) throw new Error('Escriba los apellidos y los nombres.');
+  var nivel = String(p.nivel || 'SECUNDARIA').toUpperCase(); if (NIVELES_DOC.indexOf(nivel) < 0) throw new Error('Elija el nivel.');
+  var ced = String(p.cedula || '').replace(/\D/g, ''); if (ced && !/^\d{5,12}$/.test(ced)) throw new Error('La cédula debe tener entre 5 y 12 números.');
+  var mail = String(p.correo || '').trim(), rc = mail ? correoRevisar_(mail) : { ok: true, correo: '' }; if (!rc.ok) throw new Error(rc.msg);
+  var completo = (ap + ' ' + nm).trim(), colN = cab.indexOf('nombre_completo'), colNum = cab.indexOf('n'), fila = 0, maxN = 0, actual = String(p.actual || '').trim();
+  for (var i = 1; i < v.length; i++) {
+    maxN = Math.max(maxN, Number(v[i][colNum]) || 0);
+    if (actual && sinTildesDoc_(v[i][colN]) === sinTildesDoc_(actual)) fila = i + 1;
+    else if (sinTildesDoc_(v[i][colN]) === sinTildesDoc_(completo) && (!actual || sinTildesDoc_(actual) !== sinTildesDoc_(completo))) throw new Error('Ya existe un docente con ese nombre.');
+  }
+  if (actual && !fila) throw new Error('No se encontró al docente que se quiere editar.');
+  if (!fila) {
+    var n = maxN + 1, nueva = cab.map(function (c) { return ''; });
+    var set = { codigo: 'D' + ('00' + n).slice(-3), n: n, apellidos: ap, nombres: nm, nombre_completo: completo, nivel: nivel, direccion_grupo: String(p.direccion_grupo || ''), areas: String(p.areas || ''), tiene_horario: 'NO', nota: String(p.nota || '') };
+    Object.keys(set).forEach(function (k) { var j = cab.indexOf(k); if (j >= 0) nueva[j] = set[k]; });
+    sh.appendRow(nueva);
+  } else {
+    var nuevo = { apellidos: ap, nombres: nm, nombre_completo: completo, nivel: nivel, direccion_grupo: String(p.direccion_grupo || ''), areas: String(p.areas || ''), nota: String(p.nota || '') };
+    Object.keys(nuevo).forEach(function (k) { celdaPorNombre_(sh, fila, cab, k, nuevo[k]); });
+  }
+  if (ced) {
+    var hi = hojaOCrea_('Identidad_Docentes', COL_IDENTIDAD_DOC), vi = hi.getDataRange().getValues(), fi = 0, base = actual || completo;
+    for (var k = 1; k < vi.length; k++) if (sinTildesDoc_(vi[k][0]) === sinTildesDoc_(base)) fi = k + 1;
+    if (fi) { hi.getRange(fi, 1).setValue(completo); hi.getRange(fi, 2).setValue(ced); } else hi.appendRow([completo, ced]);
+  }
+  if (rc.correo) {
+    var d = filaClaveDoc_(completo) || filaClaveDoc_(actual || completo);
+    if (!d) { hojaClavesDoc_().appendRow([completo, '', '', 0, '', '', '', ahoraTxt_(), rc.correo]); }
+    else d.sh.getRange(d.fila, d.col.correo_contacto + 1).setValue(rc.correo);
+  }
+  try { invalidarCache_('Docentes'); } catch (e) { /* sin caché */ }
+  try { bitacora_(fila ? 'Docente editado' : 'Docente agregado', completo + ' · por ' + (id.nombre || id.email)); } catch (e) { /* solo informativo */ }
+  return { ok: true, nombre: completo, nuevo: !fila, aviso: !fila ? 'Se agregó sin horario (tiene_horario = NO). Cuando cargue su horario en la hoja Horario, cambie esa columna a SI.' : '' };
+}
+
 // ===================== Comisiones.gs =====================
 /**
  * Comisiones de evaluación y promoción: el acta del grado que arman entre todos los docentes.
@@ -4857,7 +4927,7 @@ var LIM_RECONOC = [1, 2, 2];                  // cupos por curso: excelencia, re
 var MAX_JSON_SECCION = 45000;                  // una celda de Sheets admite 50.000 caracteres
 var MAX_BYTES_COM = 8 * 1024 * 1024;
 var MIME_COM = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'application/pdf': 'pdf' };
-var SECCIONES_COM = /^(general|integrantes|requisitos|firmas|faltantes|listos|(matricula|estudiantes|reconocimientos|promocion|obs):[0-9A-Za-z]+|(areas|recomendaciones):.{1,80})$/;
+var SECCIONES_COM = /^(general|integrantes|requisitos|firmas|faltantes|listos|presencia|(matricula|estudiantes|reconocimientos|promocion|obs):[0-9A-Za-z]+|(areas|recomendaciones):.{1,80})$/;
 
 /* ------------------------------ hojas y registro ------------------------------ */
 function comisionPrepararHojas() {
@@ -4914,8 +4984,13 @@ function comisionQuien_() {
 }
 function comisionSinTildes_(s) { return String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/\s+/g, ' ').trim(); }
 /** Cursos (grupos) que dirige y áreas que dicta el docente en un grado. Coordinación y rectoría ven todo. */
+function comisionSinAlcance_(al) { return !al.todo && !al.cursos.length && !al.areas.length && !al.multiareas && !al.acompana; }
 function comisionAlcance_(quien, grado) {
   if (quien.rol === 'directivo') return { todo: true, cursos: [], areas: [], multiareas: true };
+  if (quien.rol === 'docente') {   // orientación y tutoría PTAFI acompañan cualquier grado, sin editar cursos ni áreas
+    var dd = datos_('Docentes').filter(function (x) { return comisionSinTildes_(x.nombre_completo) === comisionSinTildes_(quien.nombre); })[0];
+    if (dd && /ORIENTACI|TUTORA|PTAFI/i.test(String(dd.nivel))) return { todo: false, cursos: [], areas: [], multiareas: false, acompana: true };
+  }
   var nom = comisionSinTildes_(quien.nombre), cursos = [], areas = [], multi = false, esDelGrado = function (g) { return partesGrupo_(g).grado === grado; };
   datos_('Direccion_Grupo').forEach(function (d) {
     if (!esDelGrado(d.grupo)) return;
@@ -4931,13 +5006,23 @@ function comisionAlcance_(quien, grado) {
   return { todo: false, cursos: cursos, areas: areas, multiareas: multi || (cursos.length > 0 && /^0[0-5]$/.test(String(grado))) };
 }
 /** ¿Puede escribir esta sección? Devuelve null si puede o el motivo si no. */
-function comisionPermisoSeccion_(quien, alcance, seccion, secciones) {
+function comisionEsEditor_(quien, secciones) {
+  var d = secciones && secciones.integrantes && secciones.integrantes.datos, L = (d && d.int) || [];
+  return L.some(function (x) { return x && x.n === quien.nombre && (x.roles || []).indexOf('Editor del acta') >= 0; });
+}
+function comisionPermisoSeccion_(quien, alcance, seccion, secciones, acta) {
   if (!SECCIONES_COM.test(seccion)) return 'Sección no válida.';
   var p = seccion.split(':'), tipo = p[0], clave = p.slice(1).join(':');
-  if (tipo === 'general' || tipo === 'integrantes' || tipo === 'requisitos' || tipo === 'firmas' || tipo === 'faltantes' || tipo === 'listos') return null;
-  if (alcance.todo) { /* coordinación y rectoría pueden corregir */ } else if (['matricula', 'estudiantes', 'reconocimientos', 'promocion', 'obs'].indexOf(tipo) >= 0) {
+  var editor = comisionEsEditor_(quien, secciones);
+  if (tipo === 'firmas' || tipo === 'faltantes' || tipo === 'listos' || tipo === 'presencia') return null;   // cada persona pone lo suyo (firma, declaración, revisión) y los datos faltantes
+  if (tipo === 'general' || tipo === 'integrantes' || tipo === 'requisitos') {   // asistencia, etiquetas y datos generales: el responsable del registro, quien tenga la etiqueta «Editor del acta» o coordinación
+    var resp = acta && acta.responsable;
+    if (quien.coord || editor || !resp || resp === quien.nombre) return null;
+    return 'Solo el responsable del registro (' + resp + ') o quien tenga la etiqueta «Editor del acta» puede editar esta sección.';
+  }
+  if (alcance.todo || editor) { /* coordinación, rectoría y quien tenga la etiqueta «Editor del acta» pueden corregir cualquier curso o área */ } else if (['matricula', 'estudiantes', 'reconocimientos', 'promocion', 'obs'].indexOf(tipo) >= 0) {
     if (alcance.cursos.indexOf(clave) < 0) return 'Solo el director o directora del curso puede editar esta sección.';
-  } else if (alcance.areas.indexOf(clave) < 0 && !alcance.multiareas) {
+  } else if (alcance.areas.indexOf(clave) < 0 && !alcance.multiareas && !(clave === 'Convivencia' && alcance.cursos.length)) {
     return 'Solo el docente de esta área puede editarla.';
   }
   var conf = secciones && secciones['confirm:' + tipo + ':' + clave];
@@ -5000,9 +5085,10 @@ function comisionContexto() {
   var lista = comisionActas_().filter(function (a) { return String(a.anio) === String(anio); }).map(function (a) {
     return { id: a.id, periodo: a.periodo, grado: a.grado, acta_no: a.acta_no, estado: a.estado, responsable: a.responsable, hora_cierre: a.hora_cierre };
   });
-  var visibles = lista;
-  if (!quien.coord && quien.rol === 'docente') visibles = lista.filter(function (a) { var al = comisionAlcance_(quien, String(a.grado)); return al.cursos.length || al.areas.length || al.multiareas; });
-  return { anio: anio, quien: { nombre: quien.nombre, rol: quien.rol, coord: quien.coord }, periodos: PERIODOS_COM, grados: Object.keys(grados).sort(), actas: visibles };
+  var visibles = lista, gr = Object.keys(grados).sort();
+  if (!quien.coord && quien.rol === 'docente') gr = gr.filter(function (c) { var al = comisionAlcance_(quien, c); return al.cursos.length || al.areas.length || al.multiareas || al.acompana; });
+  if (!quien.coord && quien.rol === 'docente') visibles = lista.filter(function (a) { var al = comisionAlcance_(quien, String(a.grado)); return al.cursos.length || al.areas.length || al.multiareas || al.acompana; });
+  return { anio: anio, quien: { nombre: quien.nombre, rol: quien.rol, coord: quien.coord, dev: !!(quien.coord && quien.email && editoresLibro_().indexOf(String(quien.email).toLowerCase()) >= 0) }, periodos: PERIODOS_COM, grados: gr, actas: visibles };
 }
 /** Abre el acta del grado y periodo (la crea si no existe; fecha, hora y grado empiezan en blanco: los llena el equipo). */
 function comisionAbrir(p) {
@@ -5012,7 +5098,7 @@ function comisionAbrir(p) {
   var grado = String(p.grado || '');
   if (!datos_('Grupos').some(function (g) { return partesGrupo_(g.grupo).grado === grado; })) throw new Error('Ese grado no existe.');
   var al = comisionAlcance_(quien, grado);
-  if (!al.todo && !al.cursos.length && !al.areas.length && !al.multiareas) throw new Error('Usted no tiene cursos ni áreas en este grado.');
+  if (comisionSinAlcance_(al)) throw new Error('Usted no tiene cursos ni áreas en este grado.');
   var lock = LockService.getScriptLock(); lock.waitLock(15000);
   try {
     var ex = comisionActas_().filter(function (a) { return String(a.anio) === String(anio) && a.periodo === p.periodo && String(a.grado) === grado; })[0];
@@ -5027,7 +5113,7 @@ function comisionAbrir(p) {
 }
 function comisionCargar(p) {
   var quien = comisionQuien_(), a = comisionActa_((p || {}).acta), al = comisionAlcance_(quien, String(a.grado));
-  if (!al.todo && !al.cursos.length && !al.areas.length && !al.multiareas) throw new Error('Usted no tiene cursos ni áreas en este grado.');
+  if (comisionSinAlcance_(al)) throw new Error('Usted no tiene cursos ni áreas en este grado.');
   return { acta: a, alcance: al, quien: { nombre: quien.nombre, rol: quien.rol, coord: quien.coord }, secciones: comisionSecciones_(a.id) };
 }
 /** Solo lo que cambió desde la versión que ya tiene la pantalla (para refrescar cada pocos segundos sin traer todo). */
@@ -5045,7 +5131,7 @@ function comisionGuardar(p) {
     var a = comisionActa_(p.acta);
     if (a.estado !== 'ABIERTA') throw new Error('El acta está cerrada (solo lectura). Solo coordinación académica puede reabrirla.');
     var al = comisionAlcance_(quien, String(a.grado)), secs = comisionSecciones_(a.id);
-    var no = comisionPermisoSeccion_(quien, al, String(p.seccion || ''), secs);
+    var no = comisionPermisoSeccion_(quien, al, String(p.seccion || ''), secs, a);
     if (no) throw new Error(no);
     var dup = comisionDuplicados_(String(p.seccion || ''), p.datos); if (dup) throw new Error(dup);
     var actual = secs[p.seccion];
@@ -5076,7 +5162,10 @@ function comisionDuplicados_(seccion, datos) {
 function comisionResponsable(p) {
   var quien = comisionQuien_(); p = p || {};
   var a = comisionActa_(p.acta); if (a.estado !== 'ABIERTA') throw new Error('El acta está cerrada.');
-  var fila = comisionFilaActa_(a.id); hojaOCrea_('Comision_Actas', COL_CACTAS).getRange(fila, 7).setValue(String(p.nombre || ''));
+  var nuevoR = String(p.nombre || '');
+  if (a.responsable && a.responsable !== quien.nombre && !quien.coord) throw new Error('Solo ' + a.responsable + ' (responsable del registro) o coordinación puede cambiar al responsable.');
+  if (!a.responsable && nuevoR && nuevoR !== quien.nombre && !quien.coord) throw new Error('Solo coordinación puede nombrar a otra persona como responsable; usted puede anotarse a sí mismo.');
+  var fila = comisionFilaActa_(a.id); hojaOCrea_('Comision_Actas', COL_CACTAS).getRange(fila, 7).setValue(nuevoR);
   comisionLog_(a.id, quien.nombre, 'RESPONSABLE', p.nombre);
   return { ok: true };
 }
@@ -5277,7 +5366,7 @@ function comisionBorradorDrive_(a) {
 /** Botón «Guardar borrador en Drive»: cualquier integrante del acta. */
 function comisionBorrador(p) {
   var quien = comisionQuien_(), a = comisionActa_((p || {}).acta), al = comisionAlcance_(quien, String(a.grado));
-  if (!al.todo && !al.cursos.length && !al.areas.length && !al.multiareas) throw new Error('Usted no tiene cursos ni áreas en este grado.');
+  if (comisionSinAlcance_(al)) throw new Error('Usted no tiene cursos ni áreas en este grado.');
   comisionBorradorDrive_(a); comisionLog_(a.id, quien.nombre, 'BORRADOR_DRIVE', '');
   return { ok: true };
 }
@@ -5294,7 +5383,7 @@ function comisionRespaldarActas_() {
 function comisionGuardarPdf(p) {
   var quien = comisionQuien_(); p = p || {};
   var a = comisionActa_(p.acta), al = comisionAlcance_(quien, String(a.grado));
-  if (!al.todo && !al.cursos.length && !al.areas.length && !al.multiareas) throw new Error('Usted no tiene cursos ni áreas en este grado.');
+  if (comisionSinAlcance_(al)) throw new Error('Usted no tiene cursos ni áreas en este grado.');
   var html = String(p.html || ''); if (html.length < 200) throw new Error('El acta está vacía.'); if (html.length > 3000000) throw new Error('El acta es demasiado grande para convertirla.');
   var nombre = 'Acta ' + a.acta_no + ' ' + a.periodo + (a.estado === 'CERRADA' ? ' · cerrada' : ' · borrador') + '.pdf';
   var pdf = Utilities.newBlob('<html><head><meta charset="utf-8"></head><body>' + html + '</body></html>', 'text/html', nombre).getAs('application/pdf');
@@ -5390,6 +5479,97 @@ function comisionesPruebaDeHumo() {
     r.map(function (x) { return (x.ok ? '✔ ' : '✖ ') + x.paso + (x.msg ? ' → ' + x.msg : ''); }).join('\n') + '\n\nLa prueba usa un acta del año 2099 y la borra al terminar.', SpreadsheetApp.getUi().ButtonSet.OK);
 }
 
+/* ------------------------------ datos del grado para la pantalla real ------------------------------ */
+var COM_GRADO_LABEL = { '00': '0° Preescolar', '01': '1° Primaria', '02': '2° Primaria', '03': '3° Primaria', '04': '4° Primaria', '05': '5° Primaria', '06': '6° Secundaria', 'CS1': 'CS 1 (Caminar en Secundaria 1, 6°-7°)', '07': '7° Secundaria', '08': '8° Secundaria', '09': '9° Secundaria', 'CS2': 'CS 2 (Caminar en Secundaria 2, 8°-9°)', '10': '10° Media', '11': '11° Media' };
+var COM_GRADO_SIG = { '00': '1°', '01': '2°', '02': '3°', '03': '4°', '04': '5°', '05': '6°', '06': '7°', 'CS1': 'Caminar en Secundaria 2', '07': '8°', '08': '9°', '09': '10°', 'CS2': '10°', '10': '11°', '11': 'egreso (graduandos)' };
+function comisionTitulo_(s) { return String(s == null ? '' : s).toLowerCase().replace(/(^|[\s\-])([a-záéíóúñü])/g, function (m, a, b) { return a + b.toUpperCase(); }).replace(/ (De|Del|La|Las|Los|Y) /g, function (m) { return m.toLowerCase(); }).trim(); }
+function comisionCorreoDe_(nombre) {
+  var f = null; try { f = filaClaveDoc_(nombre); } catch (e) { f = null; }
+  var c = f && String(f.v[f.col.correo_contacto] || '').trim();
+  if (c) return c;
+  var d = datos_('Docentes').filter(function (x) { return comisionSinTildes_(x.nombre_completo) === comisionSinTildes_(nombre); })[0];
+  return d && d.correo ? String(d.correo).trim() : '';
+}
+/** Todo lo que la pantalla necesita de UN grado: cursos, directores, áreas y sus docentes, estudiantes y datos de los integrantes. */
+function comisionGradoDatos(p) {
+  var quien = comisionQuien_(); p = p || {};
+  var cod = String(p.grado || ''), label = COM_GRADO_LABEL[cod];
+  if (!label) throw new Error('Ese grado no existe.');
+  var al = comisionAlcance_(quien, cod);
+  if (comisionSinAlcance_(al)) throw new Error('Usted no tiene cursos ni áreas en este grado.');
+  var grupos = datos_('Grupos').filter(function (g) { return partesGrupo_(g.grupo).grado === cod; }).sort(function (a, b) { return String(a.grupo).localeCompare(String(b.grupo)); });
+  var gs = grupos.map(function (g) { return String(g.nombre); }), codes = grupos.map(function (g) { return String(g.grupo); });
+  var niv = cod === '00' ? 'pre' : /^0[1-4]$/.test(cod) ? 'pri' : cod === '05' ? 'rot' : 'sec';
+  var dir = [], dir2 = [], dirs = {};
+  grupos.forEach(function (g, i) {
+    var d = datos_('Direccion_Grupo').filter(function (x) { return String(x.grupo) === String(g.grupo); })[0] || {};
+    dir.push(String(d.docente_1 || '')); if (d.docente_2) dir2.push({ n: String(d.docente_2), gr: gs[i] });
+    [d.docente_1, d.docente_2].forEach(function (n) { if (n) dirs[comisionSinTildes_(n)] = 1; });
+  });
+  var areas = {}, nomAreas = {}, ap = {};
+  datos_('Horario').forEach(function (h) {
+    if (!h.docente || partesGrupo_(h.grupo).grado !== cod) return;
+    var a = String(h.area || '').trim(); if (/MULTIPLES/i.test(comisionSinTildes_(a))) return;
+    (COM_COD_AREA[comisionSinTildes_(a)] || []).forEach(function (x) { nomAreas[x] = nomAreas[x] || {}; nomAreas[x][String(h.docente)] = 1; });
+    if (!dirs[comisionSinTildes_(h.docente)]) ap[String(h.docente)] = 1;
+  });
+  Object.keys(nomAreas).forEach(function (a) { areas[a] = Object.keys(nomAreas[a]).sort().join(' / '); });
+  var apoyo = [];
+  datos_('Directivos').forEach(function (d) { var n = nombreDirectivoCompleto_(d.nombre, d); apoyo.push({ n: n, rol: String(d.rol), p: /acad[eé]mico/i.test(String(d.rol)), correo: String(d.correo || d.correo_temporal || '') }); });
+  datos_('Docentes').forEach(function (d) { if (/ORIENTACI/i.test(String(d.nivel))) apoyo.push({ n: d.nombre_completo, rol: 'Docente orientadora', p: false }); else if (/PTAFI/i.test(String(d.nivel))) apoyo.push({ n: d.nombre_completo, rol: 'Tutora PTAFI', p: false }); });
+  var gnames = {}; dir.forEach(function (n) { if (n) gnames[n] = 1; }); dir2.forEach(function (d) { gnames[d.n] = 1; }); Object.keys(ap).forEach(function (n) { gnames[n] = 1; }); apoyo.forEach(function (a) { gnames[a.n] = 1; });
+  var personas = {};
+  Object.keys(gnames).forEach(function (n) { var ap0 = apoyo.filter(function (a) { return a.n === n; })[0]; personas[n] = { ced: (ap0 && /acad|rector|convivencia|redes/i.test(ap0.rol)) ? '' : cedulaDoc_(n), correo: (ap0 && ap0.correo) || comisionCorreoDe_(n), tel: '' }; });
+  var setg = {}; codes.forEach(function (c) { setg[c] = gs[codes.indexOf(c)]; });
+  var est = [];
+  datos_('Estudiantes').forEach(function (e, i) { var g = String(e.grupo); if (setg[g]) est.push({ id: i + 1, g: setg[g], a: comisionTitulo_(e.apellidos), n: comisionTitulo_(e.nombres) }); });
+  return { codigo: cod, label: label, niv: niv, sig: COM_GRADO_SIG[cod], gs: gs, codes: codes, dir: dir, dir2: dir2, ap: Object.keys(ap).sort(), areas: areas, apoyo: apoyo, personas: personas, estudiantes: est };
+}
+/** Cierre del acta desde la pantalla (la pantalla ya verificó los pendientes): solo el responsable o coordinación; la hora es la del servidor. */
+function comisionCierreSimple(p) {
+  var quien = comisionQuien_(); p = p || {};
+  var lock = LockService.getScriptLock(); lock.waitLock(15000);
+  try {
+    var a = comisionActa_(p.acta); if (a.estado !== 'ABIERTA') throw new Error('El acta ya está cerrada.');
+    if (!quien.coord && a.responsable && a.responsable !== quien.nombre) throw new Error('Solo ' + a.responsable + ' (responsable del registro y cierre) o coordinación puede cerrar el acta.');
+    return comisionCerrarActa_(a, { por: quien.nombre }, quien);
+  } finally { lock.releaseLock(); }
+}
+
+/* ------------------------------ seguimiento para directivos ------------------------------ */
+/** Avance de cada acta del año: qué componentes ya están, quién tocó algo por última vez y qué porcentaje lleva. Solo directivos. */
+function comisionSeguimiento() {
+  var id = identidad_(); if (id.rol !== 'directivo') throw new Error('Solo directivos ven el seguimiento de las comisiones.');
+  var anio = Number(parametro_('anio_lectivo', String(new Date().getFullYear()))), out = [];
+  var grupos = datos_('Grupos');
+  comisionActas_().filter(function (a) { return String(a.anio) === String(anio); }).forEach(function (a) {
+    var secs = comisionSecciones_(a.id), cod = String(a.grado), pre = cod === '00', fin = a.periodo === 'Final';
+    function d(k) { return secs[k] && secs[k].datos; }
+    var cursos = grupos.filter(function (g) { return partesGrupo_(g.grupo).grado === cod; }).map(function (g) { return String(g.grupo); });
+    var c = { matricula: 0, reprobacion: 0, reconocimientos: 0, convivencia: 0, compromisos: 0, piar: 0, promocion: 0 };
+    cursos.forEach(function (k) {
+      var m = d('matricula:' + k); if (m && m.mat && m.mat.ok) c.matricula++;
+      var e = d('estudiantes:' + k) || {}, sc = e.sc || {};
+      if ((e.rep || []).length || sc.rep) c.reprobacion++; if ((e.con || []).length || sc.con) c.convivencia++; if ((e.com || []).length || sc.com) c.compromisos++; if ((e.piar || []).length || sc.piar) c.piar++;
+      var r = d('reconocimientos:' + k) || {}; if (r.recOk || r.sc) c.reconocimientos++;
+      var p = d('promocion:' + k); if (p && p.promOk) c.promocion++;
+    });
+    var nAreas = pre ? 1 : COM_AREAS.length, nRec = pre ? COM_PRE_CLAVES.length : COM_AREAS.length, areas = 0, recs = 0;
+    Object.keys(secs).forEach(function (k) { if (/^areas:/.test(k)) areas++; if (/^recomendaciones:/.test(k) && secs[k].datos && String(secs[k].datos.texto || '').trim()) recs++; });
+    var integ = (d('integrantes') || {}).int || [], pres = integ.filter(function (x) { return x && x.p; }).length, jur = Object.keys((d('listos') || {}).jur || {}).length, firm = Object.keys((d('firmas') || {}).firm || {}).length;
+    var comp = [['Matrícula confirmada', c.matricula, cursos.length], ['Reprobación declarada', c.reprobacion, cursos.length], ['Reconocimientos confirmados', c.reconocimientos, cursos.length], ['Convivencia declarada', c.convivencia, cursos.length], ['Compromisos declarados', c.compromisos, cursos.length], ['PIAR declarado', c.piar, cursos.length]];
+    if (fin && !pre) comp.push(['Promoción confirmada', c.promocion, cursos.length]);
+    comp.push([pre ? 'Propósitos registrados' : 'Áreas con cifras', Math.min(areas, nAreas), nAreas], ['Recomendaciones escritas', Math.min(recs, nRec), nRec]);
+    var hecho = 0, total = 0; comp.forEach(function (x) { hecho += x[1]; total += x[2]; });
+    var pr = (d('presencia') || {}).pers || {}, ahoraMin = Number(Utilities.formatDate(new Date(), TZ, 'HH')) * 60 + Number(Utilities.formatDate(new Date(), TZ, 'mm')), hoy = Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd');
+    var redactando = Object.keys(pr).map(function (n) { var x = pr[n] || {}, v = String(x.visto || ''), m = /^(\d\d):(\d\d)$/.exec(v); return { n: n, rol: String(x.rol || ''), lugar: String(x.lugar || ''), desde: String(x.desde || ''), visto: v, dia: String(x.dia || ''), activo: !!(m && x.dia === hoy && ahoraMin - (Number(m[1]) * 60 + Number(m[2])) <= 10 && ahoraMin >= (Number(m[1]) * 60 + Number(m[2]))) }; }).filter(function (x) { return x.dia === hoy; });
+    var ult = { por: '', fecha: '' }; Object.keys(secs).forEach(function (k) { if (secs[k].fecha > ult.fecha) ult = { por: secs[k].por, fecha: secs[k].fecha }; });
+    out.push({ id: a.id, grado: cod, label: COM_GRADO_LABEL[cod] || cod, periodo: a.periodo, estado: a.estado, responsable: a.responsable, acta_no: a.acta_no, asistentes: pres, declaraciones: jur, firmas: firm, ultima: ult,
+      redactando: redactando, porcentaje: total ? Math.round(hecho / total * 100) : 0, componentes: comp.map(function (x) { return { nombre: x[0], hecho: x[1], total: x[2] }; }) });
+  });
+  return out.sort(function (x, y) { return String(y.ultima.fecha).localeCompare(String(x.ultima.fecha)); });
+}
+
 // ===================== Api.gs =====================
 /**
  * API del "back": el proyecto vinculado al libro, desplegado como aplicación web que se ejecuta COMO EL PROPIETARIO
@@ -5426,6 +5606,8 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   historialNovedades: ['directivo'],
   cambiarClave: ['directivo'],
   cambiarClaveDocente: ['docente'],
+  listarDocentesAdmin: ['directivo'],
+  guardarDocenteAdmin: ['directivo'],
   listarIncumplimientos: ['directivo'],
   actualizarSeguimiento: ['directivo'],
   consultaHorarios: ['directivo'],
@@ -5449,6 +5631,9 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   avisosHoy: ['directivo'],
   quitarReunionesDuplicadas: ['directivo'],
   comisionContexto: ['directivo', 'docente'],
+  comisionGradoDatos: ['directivo', 'docente'],
+  comisionSeguimiento: ['directivo'],
+  comisionCierreSimple: ['directivo', 'docente'],
   comisionAbrir: ['directivo', 'docente'],
   comisionCargar: ['directivo', 'docente'],
   comisionCambios: ['directivo', 'docente'],
@@ -5474,6 +5659,8 @@ function apiFunciones_() {
     listarReuniones: listarReuniones, crearReunion: crearReunion, cargarReunion: cargarReunion, guardarAsistenciaReunion: guardarAsistenciaReunion,
     cambiarClave: cambiarClave,
     cambiarClaveDocente: cambiarClaveDocente,
+    listarDocentesAdmin: listarDocentesAdmin,
+    guardarDocenteAdmin: guardarDocenteAdmin,
     listarIncumplimientos: listarIncumplimientos, actualizarSeguimiento: actualizarSeguimiento,
     consultaHorarios: consultaHorarios,
     guardarCorreo: guardarCorreo,
@@ -5485,7 +5672,7 @@ function apiFunciones_() {
     levantarMarcasEstudiante: levantarMarcasEstudiante,
     informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
     editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, cerrarReunion: cerrarReunion, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas,
-    comisionContexto: comisionContexto, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
+    comisionContexto: comisionContexto, comisionGradoDatos: comisionGradoDatos, comisionSeguimiento: comisionSeguimiento, comisionCierreSimple: comisionCierreSimple, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
     comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte, comisionBorrador: comisionBorrador, comisionPendientes: comisionPendientes, comisionGuardarPdf: comisionGuardarPdf, comisionEstudiante: comisionEstudiante
   };
 }

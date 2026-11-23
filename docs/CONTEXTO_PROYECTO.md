@@ -717,3 +717,11 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - **Prueba de comisiones** (menú «Comisiones: prueba de funcionamiento»): abre un acta de prueba de 2099, guarda, lee, provoca conflicto, rechaza repetidos, pide pendientes y la borra; 10 pasos, probado.
 - Vista previa v61: los botones de ejemplo solo se ven en modo desarrollador.
 - Pendiente: botón «Comisiones» en el menú del docente (fase 2), y llenar las 13 cédulas que faltan en Identidad_Docentes.
+
+## Ampliación 81 (2026-11-23, versión 2026.11.23-b)
+- Pantalla real de Comisiones (`?p=comisiones`, `apps_script/Comisiones.html`, generada; no editar a mano) con botón en el menú de docentes y directivos. Acta por secciones en `Comision_Actas`, `Comision_Secciones`, `Comision_Log`; varias personas a la vez (guardado cada 2 s, sondeo cada 5 s).
+- Roles: responsable del registro (primer docente que abre), «Editor del acta», director de grupo, docente de área, acompañantes (directivos, orientación, tutora PTAFI). Lo no permitido se ve atenuado; el servidor también lo impone.
+- Presencia (lugar y hora de inicio) y `comisionSeguimiento` para directivos, con avisos por avance y resumen cada 30 min.
+- Docentes: ingreso por grado, nombre y clave (primera vez, cédula); administración de docentes; máscara de correo.
+- Manuales actualizados (Ayuda, cartilla, manual de comisiones).
+- Limitaciones: bloqueos `confirm:*` solo en cliente; estudiantes nuevos del acta no se escriben en la hoja Estudiantes; cierre validado en cliente; faltan 13 cédulas en Identidad_Docentes; Direccion_Grupo de Prado y Puches por corregir en el libro.

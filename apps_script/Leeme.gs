@@ -5,11 +5,15 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-a';
+var VERSION_SISTEMA = '2026.11.23-b';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-b', fecha: '2026-11-23', cambios: [
+    'Comisiones de evaluación y promoción: pantalla real (?p=comisiones) con botón en el menú de docentes y directivos. Cada docente entra a su grado y periodo; el acta se guarda por secciones en el libro (Comision_Actas, Comision_Secciones, Comision_Log) y varias personas trabajan a la vez con refresco automático. Roles: responsable del registro (primera persona), director/a de grupo, docente de área, editor del acta (etiqueta) y coordinación.',
+    'Al abrir, cada persona dice dónde está y desde qué hora. Los directivos tienen «Seguimiento de las comisiones»: avance, quién redacta y dónde, quién acompaña (directivos, orientación, tutora PTAFI) y avisos cada vez que alguien avanza y cada media hora.',
+    'Menú de coordinación «Docentes: agregar o editar datos» (nuevos docentes, cédula y correo con validación). Correo del docente con máscara y corrección de errores comunes (gmial.com, hotmial.com…).'] },
   { version: '2026.11.23-a', fecha: '2026-11-23', cambios: [
     'Ingreso de docentes: «Soy docente» → grado que atiende → nombre (solo los docentes de ese grado, más orientación y tutoría) → correo de contacto (cualquier proveedor) y clave. La primera vez la clave es la cédula (hoja Identidad_Docentes) y se elige una propia de 6 a 12 números. Coordinación restablece desde el menú «Docentes: restablecer la clave de un docente». El docente no ve rondas ni nada de directivos.',
     'Menú nuevo «Comisiones: prueba de funcionamiento»: guarda, lee, provoca un conflicto y borra un acta de prueba del año 2099 para comprobar que todo guarda sin errores.'] },

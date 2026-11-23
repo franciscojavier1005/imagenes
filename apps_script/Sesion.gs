@@ -364,13 +364,24 @@ function abrirSesionDoc_(nombre, correo, debeCambiar) {
   sh.appendRow([hash_(token), nombre, correo, ahora, ahora + SESION_DIAS * 86400000, ahora]);
   return { token: token, nombre: nombre, rol: 'docente', debeCambiar: !!debeCambiar };
 }
-function correoValidoDoc_(e) { return /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(String(e || '').trim()); }
+var DOMINIOS_ERRATA_ = { 'gmial.com': 'gmail.com', 'gmai.com': 'gmail.com', 'gamil.com': 'gmail.com', 'gmail.con': 'gmail.com', 'gmail.co': 'gmail.com', 'gmil.com': 'gmail.com', 'gmail.cm': 'gmail.com', 'hotmial.com': 'hotmail.com', 'hotmai.com': 'hotmail.com', 'hotmail.con': 'hotmail.com', 'hormail.com': 'hotmail.com', 'hotmal.com': 'hotmail.com', 'yahooo.com': 'yahoo.com', 'yaho.com': 'yahoo.com', 'yahoo.con': 'yahoo.com', 'yahoo.es.com': 'yahoo.es', 'outlok.com': 'outlook.com', 'outlook.con': 'outlook.com', 'iclod.com': 'icloud.com', 'icloud.con': 'icloud.com' };
+/** Revisa un correo lo mejor posible sin poder verificarlo: forma válida, sin errores comunes de escritura. Devuelve {ok, correo, msg}. */
+function correoRevisar_(e) {
+  var c = String(e == null ? '' : e).trim().toLowerCase().replace(/\s+/g, '');
+  if (!c) return { ok: false, correo: '', msg: 'Escriba su correo electrónico.' };
+  if (c.length > 254 || !/^[a-z0-9._%+\-]{1,64}@([a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}$/.test(c) || /\.\./.test(c) || /^\.|\.@|@\.|@-/.test(c)) return { ok: false, correo: c, msg: 'El correo no es válido. Debe verse así: nombre@gmail.com' };
+  var dom = c.split('@')[1];
+  if (DOMINIOS_ERRATA_[dom]) return { ok: false, correo: c, msg: '¿Quiso escribir ' + c.split('@')[0] + '@' + DOMINIOS_ERRATA_[dom] + '?' };
+  return { ok: true, correo: c, msg: '' };
+}
+function correoValidoDoc_(e) { return correoRevisar_(e).ok; }
 /** Ingreso de un docente. p = {nombre, pin, correo (la primera vez, cualquier proveedor)}. */
 function ingresarDocente(p) {
   p = p || {};
   var r = verificarClaveDoc_(p.nombre, p.pin), d = r.d, doc = r.doc, correo = correoInternoDoc_(doc);
-  if (correoValidoDoc_(p.correo)) d.sh.getRange(d.fila, d.col.correo_contacto + 1).setValue(String(p.correo).trim());
-  else if (String(d.v[d.col.clave_temporal] || '') === 'SI' && !String(d.v[d.col.correo_contacto] || '').trim()) { /* la primera vez se pide, pero no bloquea */ }
+  var rc = correoRevisar_(p.correo), sinCorreo = !String(d.v[d.col.correo_contacto] || '').trim();
+  if (rc.ok) d.sh.getRange(d.fila, d.col.correo_contacto + 1).setValue(rc.correo);
+  else if (r.temp && sinCorreo) throw new Error(rc.msg);   // la primera vez el correo es obligatorio y debe verse válido
   asegurarUsuarioDoc_(doc, correo);
   return abrirSesionDoc_(doc.nombre_completo, correo, r.temp);
 }
@@ -433,4 +444,59 @@ function verDocentesActivos() {
       sinCed = todos.filter(function (d) { return !cedulaDoc_(d.nombre_completo); });
   SpreadsheetApp.getUi().alert('Docentes con clave propia: ' + (todos.length - faltan.length) + ' de ' + todos.length + '\n\nFaltan por entrar y elegir su clave:\n' + (faltan.map(function (d) { return '· ' + d.nombre_completo; }).join('\n') || 'ninguno') +
     (sinCed.length ? '\n\nSin cédula en la hoja Identidad_Docentes (no podrán entrar la primera vez):\n' + sinCed.map(function (d) { return '· ' + d.nombre_completo; }).join('\n') : ''));
+}
+
+
+/* ------------------------------ coordinación: agregar o editar docentes y sus datos ------------------------------ */
+var NIVELES_DOC = ['SECUNDARIA', 'PRIMARIA', 'PREESCOLAR', 'ORIENTACIÓN', 'TUTORA PTAFI', 'REEMPLAZADO'];
+function exigirAdminDocentes_() {
+  var id = identidad_();
+  if (id.rol !== 'directivo' || !puedeAdministrar_(id)) throw new Error('Solo coordinación académica o quien administra puede ver y editar los datos de los docentes.');
+  return id;
+}
+function listarDocentesAdmin() {
+  exigirAdminDocentes_();
+  return datos_('Docentes').map(function (d) {
+    return { n: d.n, nombre_completo: d.nombre_completo, apellidos: d.apellidos, nombres: d.nombres, nivel: d.nivel, direccion_grupo: d.direccion_grupo || '', areas: d.areas || '', nota: d.nota || '',
+      cedula: cedulaDoc_(d.nombre_completo) ? 'sí' : '', correo: (typeof comisionCorreoDe_ === 'function' ? comisionCorreoDe_(d.nombre_completo) : '') };
+  }).sort(function (a, b) { return String(a.nombre_completo).localeCompare(String(b.nombre_completo), 'es'); });
+}
+function celdaPorNombre_(sh, fila, cab, nombre, valor) { var i = cab.indexOf(nombre); if (i >= 0) sh.getRange(fila, i + 1).setValue(valor); }
+/** p = {actual (nombre completo si edita; vacío si es nuevo), apellidos, nombres, nivel, direccion_grupo, areas, cedula, correo, nota}. */
+function guardarDocenteAdmin(p) {
+  var id = exigirAdminDocentes_(); p = p || {};
+  var sh = hoja_('Docentes'), v = sh.getDataRange().getValues(), cab = v[0], ap = String(p.apellidos || '').trim().replace(/\s+/g, ' '), nm = String(p.nombres || '').trim().replace(/\s+/g, ' ');
+  if (!ap || !nm) throw new Error('Escriba los apellidos y los nombres.');
+  var nivel = String(p.nivel || 'SECUNDARIA').toUpperCase(); if (NIVELES_DOC.indexOf(nivel) < 0) throw new Error('Elija el nivel.');
+  var ced = String(p.cedula || '').replace(/\D/g, ''); if (ced && !/^\d{5,12}$/.test(ced)) throw new Error('La cédula debe tener entre 5 y 12 números.');
+  var mail = String(p.correo || '').trim(), rc = mail ? correoRevisar_(mail) : { ok: true, correo: '' }; if (!rc.ok) throw new Error(rc.msg);
+  var completo = (ap + ' ' + nm).trim(), colN = cab.indexOf('nombre_completo'), colNum = cab.indexOf('n'), fila = 0, maxN = 0, actual = String(p.actual || '').trim();
+  for (var i = 1; i < v.length; i++) {
+    maxN = Math.max(maxN, Number(v[i][colNum]) || 0);
+    if (actual && sinTildesDoc_(v[i][colN]) === sinTildesDoc_(actual)) fila = i + 1;
+    else if (sinTildesDoc_(v[i][colN]) === sinTildesDoc_(completo) && (!actual || sinTildesDoc_(actual) !== sinTildesDoc_(completo))) throw new Error('Ya existe un docente con ese nombre.');
+  }
+  if (actual && !fila) throw new Error('No se encontró al docente que se quiere editar.');
+  if (!fila) {
+    var n = maxN + 1, nueva = cab.map(function (c) { return ''; });
+    var set = { codigo: 'D' + ('00' + n).slice(-3), n: n, apellidos: ap, nombres: nm, nombre_completo: completo, nivel: nivel, direccion_grupo: String(p.direccion_grupo || ''), areas: String(p.areas || ''), tiene_horario: 'NO', nota: String(p.nota || '') };
+    Object.keys(set).forEach(function (k) { var j = cab.indexOf(k); if (j >= 0) nueva[j] = set[k]; });
+    sh.appendRow(nueva);
+  } else {
+    var nuevo = { apellidos: ap, nombres: nm, nombre_completo: completo, nivel: nivel, direccion_grupo: String(p.direccion_grupo || ''), areas: String(p.areas || ''), nota: String(p.nota || '') };
+    Object.keys(nuevo).forEach(function (k) { celdaPorNombre_(sh, fila, cab, k, nuevo[k]); });
+  }
+  if (ced) {
+    var hi = hojaOCrea_('Identidad_Docentes', COL_IDENTIDAD_DOC), vi = hi.getDataRange().getValues(), fi = 0, base = actual || completo;
+    for (var k = 1; k < vi.length; k++) if (sinTildesDoc_(vi[k][0]) === sinTildesDoc_(base)) fi = k + 1;
+    if (fi) { hi.getRange(fi, 1).setValue(completo); hi.getRange(fi, 2).setValue(ced); } else hi.appendRow([completo, ced]);
+  }
+  if (rc.correo) {
+    var d = filaClaveDoc_(completo) || filaClaveDoc_(actual || completo);
+    if (!d) { hojaClavesDoc_().appendRow([completo, '', '', 0, '', '', '', ahoraTxt_(), rc.correo]); }
+    else d.sh.getRange(d.fila, d.col.correo_contacto + 1).setValue(rc.correo);
+  }
+  try { invalidarCache_('Docentes'); } catch (e) { /* sin caché */ }
+  try { bitacora_(fila ? 'Docente editado' : 'Docente agregado', completo + ' · por ' + (id.nombre || id.email)); } catch (e) { /* solo informativo */ }
+  return { ok: true, nombre: completo, nuevo: !fila, aviso: !fila ? 'Se agregó sin horario (tiene_horario = NO). Cuando cargue su horario en la hoja Horario, cambie esa columna a SI.' : '' };
 }

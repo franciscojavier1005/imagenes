@@ -33,6 +33,8 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   historialNovedades: ['directivo'],
   cambiarClave: ['directivo'],
   cambiarClaveDocente: ['docente'],
+  listarDocentesAdmin: ['directivo'],
+  guardarDocenteAdmin: ['directivo'],
   listarIncumplimientos: ['directivo'],
   actualizarSeguimiento: ['directivo'],
   consultaHorarios: ['directivo'],
@@ -56,6 +58,9 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   avisosHoy: ['directivo'],
   quitarReunionesDuplicadas: ['directivo'],
   comisionContexto: ['directivo', 'docente'],
+  comisionGradoDatos: ['directivo', 'docente'],
+  comisionSeguimiento: ['directivo'],
+  comisionCierreSimple: ['directivo', 'docente'],
   comisionAbrir: ['directivo', 'docente'],
   comisionCargar: ['directivo', 'docente'],
   comisionCambios: ['directivo', 'docente'],
@@ -81,6 +86,8 @@ function apiFunciones_() {
     listarReuniones: listarReuniones, crearReunion: crearReunion, cargarReunion: cargarReunion, guardarAsistenciaReunion: guardarAsistenciaReunion,
     cambiarClave: cambiarClave,
     cambiarClaveDocente: cambiarClaveDocente,
+    listarDocentesAdmin: listarDocentesAdmin,
+    guardarDocenteAdmin: guardarDocenteAdmin,
     listarIncumplimientos: listarIncumplimientos, actualizarSeguimiento: actualizarSeguimiento,
     consultaHorarios: consultaHorarios,
     guardarCorreo: guardarCorreo,
@@ -92,7 +99,7 @@ function apiFunciones_() {
     levantarMarcasEstudiante: levantarMarcasEstudiante,
     informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
     editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, cerrarReunion: cerrarReunion, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas,
-    comisionContexto: comisionContexto, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
+    comisionContexto: comisionContexto, comisionGradoDatos: comisionGradoDatos, comisionSeguimiento: comisionSeguimiento, comisionCierreSimple: comisionCierreSimple, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
     comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte, comisionBorrador: comisionBorrador, comisionPendientes: comisionPendientes, comisionGuardarPdf: comisionGuardarPdf, comisionEstudiante: comisionEstudiante
   };
 }

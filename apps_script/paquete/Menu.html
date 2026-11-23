@@ -47,7 +47,7 @@
 <main>
   <div class="saludo" id="saludo"></div>
   <div id="botones"><div class="espera">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.23-a</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.23-b</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -80,7 +80,7 @@ window.AVISO_MANUAL=true;   // en el menú el aviso del día sale al entrar (des
 var BASE='', NOMBRES=[];
 function el(id){return document.getElementById(id);}
 function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-var COLORES={ayuda:'#8a5a00',ronda:'#2f8f5b',novedad:'#d9822b',reunion:'#6b5bb5',horarios:'#1e88a8',panel:'#2c4a7c'};
+var COLORES={comisiones:'#1b6b4a',docentes:'#7a4a8c',ayuda:'#8a5a00',ronda:'#2f8f5b',novedad:'#d9822b',reunion:'#6b5bb5',horarios:'#1e88a8',panel:'#2c4a7c'};
 function boton(p,ic,t,d){ return '<a class="boton" style="--c:'+(COLORES[p]||'#f0c000')+'" target="_top" href="'+esc(BASE+'?p='+p)+'"><span class="ic">'+ic+'</span><div><b>'+t+'</b><span>'+d+'</span></div></a>'; }
 
 /* ---------- pantalla de ingreso con clave (docentes y directivos) ---------- */
@@ -119,7 +119,7 @@ function loginDocente(aviso){
     var ult=''; try{ ult=localStorage.getItem('icet_grado')||''; }catch(e){}
     var h=pestanasLogin()+'<div class="caja"><label>Grado que atiende<select id="dGrado" onchange="cargaDocentes()"><option value="">— Elija el grado —</option>'+(gr||[]).map(function(g){return '<option value="'+esc(g.codigo)+'"'+(g.codigo===ult?' selected':'')+'>'+esc(g.etiqueta)+'</option>';}).join('')+'</select></label>'+
       '<label>Su nombre<select id="dNombre" onchange="cambiaDocente()"><option value="">— Primero elija el grado —</option></select></label>'+
-      '<label id="dMailW" style="display:none">Su correo electrónico (el que usted use, no tiene que ser de Google)<input id="dMail" type="email" autocomplete="email" placeholder="nombre@correo.com"></label>'+
+      '<label id="dMailW" style="display:none">Su correo electrónico (el que usted use, no tiene que ser de Google)<input id="dMail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="254" placeholder="nombre@gmail.com" oninput="correoMascara(this)" onblur="correoMascara(this,true)"><small id="dMailH" class="msg"></small></label>'+
       '<label><span id="dPinT">Clave</span><input class="pin" id="dPin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="12" placeholder="••••••"></label>'+
       '<button class="btn" id="dBtn" onclick="entrarDoc()">Entrar</button><div class="msg" id="dMsg">'+esc(aviso||'')+'</div></div>'+
       '<div class="pie">La primera vez su clave es su <b>número de cédula</b>; al entrar elegirá una clave propia. Si la olvida, pídale a coordinación que la restablezca.</div>'+boton('ayuda','❓','Ayuda y manual de uso','Cómo entrar y usar la aplicación.');
@@ -127,6 +127,21 @@ function loginDocente(aviso){
     var p=el('dPin'); if(p){ p.addEventListener('keydown',function(e){ if(e.key==='Enter') entrarDoc(); }); }
     if(ult) cargaDocentes();
   }).withFailureHandler(function(e){ el('botones').innerHTML=pestanasLogin()+'<div class="msg">Error: '+esc(e&&e.message||e)+'</div>'; }).listarGradosPublicos();
+}
+var ERRATA_DOM={'gmial.com':'gmail.com','gmai.com':'gmail.com','gamil.com':'gmail.com','gmail.con':'gmail.com','gmail.co':'gmail.com','gmil.com':'gmail.com','gmail.cm':'gmail.com','hotmial.com':'hotmail.com','hotmai.com':'hotmail.com','hotmail.con':'hotmail.com','hormail.com':'hotmail.com','hotmal.com':'hotmail.com','yahooo.com':'yahoo.com','yaho.com':'yahoo.com','yahoo.con':'yahoo.com','outlok.com':'outlook.com','outlook.con':'outlook.com','iclod.com':'icloud.com','icloud.con':'icloud.com'};
+function correoRevisar(v){
+  var c=String(v||'').trim().toLowerCase().replace(/\s+/g,'');
+  if(!c) return {ok:false,correo:'',msg:'Escriba su correo electrónico.'};
+  if(c.length>254||!/^[a-z0-9._%+\-]{1,64}@([a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}$/.test(c)||/\.\./.test(c)||/^\.|\.@|@\.|@-/.test(c)) return {ok:false,correo:c,msg:'El correo no es válido. Debe verse así: nombre@gmail.com'};
+  var d=c.split('@')[1]; if(ERRATA_DOM[d]) return {ok:false,correo:c,msg:'¿Quiso escribir '+c.split('@')[0]+'@'+ERRATA_DOM[d]+'?'};
+  return {ok:true,correo:c,msg:''};
+}
+/* máscara: sin espacios ni mayúsculas mientras escribe; al salir del campo avisa si no parece un correo válido */
+function correoMascara(inp,fin){
+  var v=inp.value.replace(/\s+/g,'').toLowerCase(); if(v!==inp.value) inp.value=v;
+  var h=document.getElementById(inp.id==='dMail'?'dMailH':'gMailH'); if(!h) return;
+  if(!fin){ h.textContent=''; return; }
+  var r=correoRevisar(v); h.style.color=r.ok?'#1b5e20':'#a31515'; h.textContent=v?(r.ok?'✔ Correo con formato válido (no se puede comprobar si existe).':r.msg):'';
 }
 function cargaDocentes(){
   var g=el('dGrado').value, sel=el('dNombre'); DOCS_GRADO=[];
@@ -145,11 +160,80 @@ function entrarDoc(){
   if(!g){ el('dMsg').textContent='Elija el grado que atiende.'; return; }
   if(!n){ el('dMsg').textContent='Elija su nombre de la lista.'; return; }
   if(pin.length<4){ el('dMsg').textContent='Escriba su clave (la primera vez, su número de cédula).'; return; }
+  if(el('dMailW').style.display!=='none'){ var rc=correoRevisar(mail); if(!rc.ok){ el('dMsg').textContent=rc.msg; return; } mail=rc.correo; }
   el('dBtn').disabled=true; el('dMsg').textContent='';
   try{ localStorage.setItem('icet_grado',g); }catch(e){}
   srv().withSuccessHandler(function(r){ guardarToken(r.token); if(tokenGuardado()!==r.token){ mostrarLogin('La clave es correcta, pero su navegador no deja guardar la sesión (bloquea el almacenamiento del sitio o está en modo privado). Abra el enlace en una ventana normal de Chrome y permita los datos del sitio.'); return; } iniciar(); })
    .withFailureHandler(function(e){ var b=el('dBtn'); if(b) b.disabled=false; el('dMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); el('dPin').value=''; }).ingresarDocente({nombre:n,pin:pin,correo:mail});
 }
+
+/* ---------- coordinación: agregar o editar docentes ---------- */
+var DOCS_ADMIN=[];
+function abrirDocentes(){
+  el('saludo').textContent='Docentes: agregar o editar datos';
+  el('botones').innerHTML='<div class="espera">Cargando…</div>';
+  srv().withSuccessHandler(function(l){ DOCS_ADMIN=l||[]; pintaDocentes(''); })
+   .withFailureHandler(function(e){ el('botones').innerHTML='<div class="msg">'+esc(String(e&&e.message||e).replace(/^Error: /,''))+'</div><button class="btn" onclick="iniciar()">Volver</button>'; }).listarDocentesAdmin();
+}
+function pintaDocentes(q){
+  var Q=String(q||'').toLowerCase(), L=DOCS_ADMIN.filter(function(d){return !Q||String(d.nombre_completo).toLowerCase().indexOf(Q)>=0;});
+  el('botones').innerHTML='<div class="caja"><input id="gQ" type="text" placeholder="Buscar por apellido o nombre" value="'+esc(q||'')+'" oninput="pintaDocentes(this.value)"><button class="btn" onclick="formDocente(-1)">+ Agregar docente</button> <button class="btn" onclick="iniciar()">Volver al menú</button></div>'+
+   '<div class="caja" style="max-height:60vh;overflow:auto">'+L.map(function(d){var i=DOCS_ADMIN.indexOf(d);return '<div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #e5e8ee"><div><b>'+esc(d.nombre_completo)+'</b><br><small>'+esc(d.nivel)+' · cédula '+(d.cedula?'✔':'<span style="color:#a31515">falta</span>')+' · '+(d.correo?esc(d.correo):'<span style="color:#a31515">sin correo</span>')+'</small></div><button class="btn" onclick="formDocente('+i+')">Editar</button></div>';}).join('')+'</div>';
+  var qi=el('gQ'); if(qi&&q){ qi.focus(); qi.setSelectionRange(q.length,q.length); }
+}
+function formDocente(i){
+  var d=i>=0?DOCS_ADMIN[i]:{nombre_completo:'',apellidos:'',nombres:'',nivel:'SECUNDARIA',direccion_grupo:'',areas:'',nota:'',correo:''};
+  window.__dAct=d.nombre_completo;
+  el('botones').innerHTML='<div class="caja"><b>'+(i>=0?'Editar docente':'Agregar docente')+'</b>'+
+   '<label>Apellidos<input id="gAp" type="text" value="'+esc(d.apellidos)+'"></label><label>Nombres<input id="gNm" type="text" value="'+esc(d.nombres)+'"></label>'+
+   '<label>Nivel<select id="gNv">'+['SECUNDARIA','PRIMARIA','PREESCOLAR','ORIENTACIÓN','TUTORA PTAFI','REEMPLAZADO'].map(function(n){return '<option'+(n===d.nivel?' selected':'')+'>'+n+'</option>';}).join('')+'</select></label>'+
+   '<label>Dirección de grupo (si dirige)<input id="gDg" type="text" value="'+esc(d.direccion_grupo)+'" placeholder="ej. 7°-2"></label><label>Áreas<input id="gAr" type="text" value="'+esc(d.areas)+'" placeholder="ej. MAT"></label>'+
+   '<label>Número de cédula<input id="gCe" type="text" inputmode="numeric" maxlength="14" placeholder="'+(d.cedula?'ya registrada (déjela vacía para no cambiarla)':'solo números')+'"></label>'+
+   '<label>Correo electrónico<input id="gMail" type="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="254" value="'+esc(d.correo||'')+'" placeholder="nombre@gmail.com" oninput="correoMascara(this)" onblur="correoMascara(this,true)"><small id="gMailH" class="msg"></small></label>'+
+   '<button class="btn" onclick="guardarDoc()">Guardar</button> <button class="btn" onclick="pintaDocentes(\'\')">Cancelar</button><div class="msg" id="gMsg"></div></div>';
+}
+function guardarDoc(){
+  var m=(el('gMail').value||'').trim(), rc=m?correoRevisar(m):{ok:true,correo:''}; if(!rc.ok){ el('gMsg').textContent=rc.msg; return; }
+  var p={actual:window.__dAct||'',apellidos:el('gAp').value,nombres:el('gNm').value,nivel:el('gNv').value,direccion_grupo:el('gDg').value,areas:el('gAr').value,cedula:el('gCe').value,correo:rc.correo};
+  el('gMsg').textContent='Guardando…';
+  srv().withSuccessHandler(function(r){ srv().withSuccessHandler(function(l){ DOCS_ADMIN=l||[]; pintaDocentes(''); if(r.aviso) alert(r.aviso); }).listarDocentesAdmin(); })
+   .withFailureHandler(function(e){ el('gMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); }).guardarDocenteAdmin(p);
+}
+
+/* ---------- seguimiento de las comisiones (directivos): ventana de avance y avisos ---------- */
+var SEG_T=null, SEG_ULT=0;
+function segVistas(){ try{ return JSON.parse(localStorage.getItem('icet_seg')||'{}'); }catch(e){ return {}; } }
+function segGuarda(o){ try{ localStorage.setItem('icet_seg',JSON.stringify(o)); }catch(e){} }
+function toastSeg(html){
+  var b=el('segToast'); if(!b){ b=document.createElement('div'); b.id='segToast'; b.style.cssText='position:fixed;right:10px;bottom:10px;z-index:9999;display:flex;flex-direction:column;gap:6px;max-width:330px'; document.body.appendChild(b); }
+  var d=document.createElement('div'); d.style.cssText='background:#0f2a5c;color:#fff;border-radius:10px;padding:9px 12px;font:13px Arial,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer'; d.innerHTML=html; d.onclick=function(){ abrirSeguimiento(); if(d.parentNode) d.parentNode.removeChild(d); };
+  b.appendChild(d); setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); },15000);
+  try{ if(document.hidden&&window.Notification&&Notification.permission==='granted') new Notification('Comisiones',{body:d.textContent}); }catch(e){}
+}
+function revisaSeguimiento(avisar){
+  srv().withSuccessHandler(function(L){
+    L=L||[]; var v=segVistas(), nuevos=0;
+    L.forEach(function(a){ var f=String(a.ultima&&a.ultima.fecha||''); if(f&&f>(v[a.id]||'')){ if(avisar&&v[a.id]!==undefined) { nuevos++; toastSeg('🔔 <b>'+esc(a.label)+' · '+esc(a.periodo)+'</b>: '+esc(a.ultima.por||'alguien')+' avanzó ('+a.porcentaje+' %). Toque para ver el seguimiento.'); } v[a.id]=f; } else if(v[a.id]===undefined) v[a.id]=f; });
+    segGuarda(v);
+    if(avisar&&!nuevos&&Date.now()-SEG_ULT>1790000&&L.some(function(a){return a.estado==='ABIERTA';})){ SEG_ULT=Date.now(); var ab=L.filter(function(a){return a.estado==='ABIERTA';}); toastSeg('📊 <b>Seguimiento:</b> '+ab.length+' comisión'+(ab.length===1?'':'es')+' abierta'+(ab.length===1?'':'s')+', avance promedio '+Math.round(ab.reduce(function(x,a){return x+a.porcentaje;},0)/ab.length)+' %. Toque para ver.'); }
+    if(!SEG_ULT) SEG_ULT=Date.now();
+  }).withFailureHandler(function(){}).comisionSeguimiento();
+}
+function iniciaSeguimiento(){ if(SEG_T) return; revisaSeguimiento(false); SEG_T=setInterval(function(){ revisaSeguimiento(true); },120000); }
+function abrirSeguimiento(){
+  el('saludo').textContent='Seguimiento de las comisiones';
+  el('botones').innerHTML='<div class="espera">Cargando…</div>';
+  srv().withSuccessHandler(function(L){
+    L=L||[]; var v=segVistas(); L.forEach(function(a){ v[a.id]=String(a.ultima&&a.ultima.fecha||''); }); segGuarda(v);
+    el('botones').innerHTML='<div class="caja"><button class="btn" onclick="iniciar()">Volver al menú</button> <button class="btn" onclick="abrirSeguimiento()">Actualizar</button> <button class="btn" onclick="pedirNotif()">Avisos en el navegador</button><div class="msg" style="color:#555">Se actualiza solo cada 2 minutos mientras esté en la aplicación. Avisa cada vez que alguien avanza y, cada media hora, un resumen.</div></div>'+
+     (L.length?L.map(function(a){return '<div class="caja"><b>'+esc(a.label)+' · '+esc(a.periodo)+'</b> <span style="float:right"><b>'+a.porcentaje+' %</b> '+(a.estado==='CERRADA'?'· cerrada':'')+'</span>'+
+       '<div style="height:10px;background:#e5e8ee;border-radius:6px;margin:6px 0"><div style="height:100%;width:'+a.porcentaje+'%;background:'+(a.estado==='CERRADA'?'#2f8f5b':'#3b82f6')+';border-radius:6px"></div></div>'+
+       '<small>Responsable: '+esc(a.responsable||'—')+' · Último cambio: '+esc(a.ultima.por||'—')+' '+esc(a.ultima.fecha||'')+' · Asistentes: '+a.asistentes+' · Declaraciones: '+a.declaraciones+' · Firmas: '+a.firmas+'</small>'+
+       '<div style="margin-top:6px"><b>Redactando:</b> '+((a.redactando||[]).length?(a.redactando||[]).map(function(r){return '<span style="font-size:12px;padding:2px 8px;border-radius:10px;background:'+(r.activo?'#dff3e7':'#eceff4')+'">'+(r.activo?'🟢 ':'⚪ ')+esc(r.n)+(r.rol&&r.rol!=='Docente'?' <b>('+esc(r.rol)+')</b>':'')+' · '+esc(r.lugar)+' · desde '+esc(r.desde)+' · visto '+esc(r.visto)+'</span> ';}).join(''):'<small>nadie hoy</small>')+'</div>'+
+       '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">'+a.componentes.map(function(c){var ok=c.total&&c.hecho>=c.total;return '<span style="font-size:11.5px;padding:2px 8px;border-radius:10px;background:'+(ok?'#dff3e7':c.hecho?'#fff3cf':'#f1f3f7')+'">'+(ok?'✔ ':'')+esc(c.nombre)+' '+c.hecho+'/'+c.total+'</span>';}).join('')+'</div></div>';}).join(''):'<div class="caja">Todavía no hay comisiones abiertas este año.</div>');
+  }).withFailureHandler(function(e){ el('botones').innerHTML='<div class="msg">'+esc(String(e&&e.message||e).replace(/^Error: /,''))+'</div><button class="btn" onclick="iniciar()">Volver</button>'; }).comisionSeguimiento();
+}
+function pedirNotif(){ try{ Notification.requestPermission().then(function(p){ alert(p==='granted'?'Listo: recibirá avisos del navegador cuando tenga otra pestaña abierta.':'El navegador no permitió los avisos.'); }); }catch(e){ alert('Este navegador no permite avisos.'); } }
 
 /* ---------- menú ---------- */
 function pintar(rol,nombre,c){
@@ -164,10 +248,15 @@ function pintar(rol,nombre,c){
     h+=boton('reunion','👥','Reuniones y actividades','Asistencia en reuniones y en actividades institucionales generales (entrega de boletines, clausura...).');
     h+=boton('horarios','🗓','Horarios y listados','Horario de un docente o grupo, quiénes deben estar ahora y directores de grupo.');
     h+=boton('panel','📊','Panel e informes','Ver cifras, tendencias y el informe del periodo.');
+    h+=boton('comisiones','📋','Comisiones de evaluación y promoción','Actas por grado y periodo: matrícula, áreas, reconocimientos, promoción y cierre.');
+    h+='<a class="boton" style="--c:#2c4a7c" href="#" onclick="abrirSeguimiento();return false"><span class="ic">📊</span><div><b>Seguimiento de las comisiones</b><span>Avance de cada comisión y avisos cuando alguien avanza.</span></div></a>';
+    setTimeout(iniciaSeguimiento,1500);
+    if(CTX.administra) h+='<a class="boton" style="--c:'+COLORES.docentes+'" href="#" onclick="abrirDocentes();return false"><span class="ic">🧑‍🏫</span><div><b>Docentes: agregar o editar datos</b><span>Nuevos docentes, cédula y correo de contacto.</span></div></a>';
     h+=boton('ayuda','❓','Ayuda y manual de uso','Cómo se usa cada pantalla, paso a paso (se puede imprimir en PDF).');
     if(CTX.necesitaCorreo) h+='<div class="sub" style="margin:6px 4px 0;color:#456">✉ Aún no recibe informes por correo. Si lo desea, <button class="enlace" onclick="abrirCorreo()">registre su correo</button> (opcional, de cualquier proveedor).</div>';
   } else {
     el('saludo').textContent='Bienvenido(a)'+(nombre?', '+nombre:'')+'. Toque para continuar.';
+    h+=boton('comisiones','📋','Comisiones de evaluación y promoción','Registrar los datos de su curso y de su área en el acta de su grado.');
     h+=boton('panel','📊','Mi informe y mis soportes','Ver mi asistencia, cargar soportes o pedir acceso.');
     h+=boton('ayuda','❓','Ayuda y manual de uso','Cómo se usa la aplicación, paso a paso.');
   }

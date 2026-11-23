@@ -80,7 +80,26 @@ g.R3=run(`ingresarDocente({nombre:${JSON.stringify(P)},pin:'27123456'})`);
 ok(g.R3.debeCambiar===true,'tras restablecer debe elegir una clave nueva');
 ok(/solo se hace desde el libro|editor/i.test(falla(`restablecerClaveDocente_(${JSON.stringify(P)},'')`)||''),'solo el editor del libro puede restablecer');
 // ---- 6) docente de otro grado: otra identidad, sin mezclar
-g.R4=run("ingresarDocente({nombre:'Puches Ana Milena',pin:'59000111'})");
+ok(/gmail\.com/.test(falla("ingresarDocente({nombre:'Puches Ana Milena',pin:'59000111',correo:'ana@gmial.com'})")||''),'el correo con un error común (gmial.com) se corrige con una sugerencia');
+ok(/válido/.test(falla("ingresarDocente({nombre:'Puches Ana Milena',pin:'59000111',correo:'ana@@x'})")||''),'un correo mal formado no pasa la primera vez');
+ok(run("correoRevisar_(' Ana.Puches+icet@Hotmail.COM ')").correo==='ana.puches+icet@hotmail.com'&&run("correoRevisar_('ana puches@yahoo.com')").ok,'la máscara limpia espacios y mayúsculas');
+ok(['a@b','@x.com','a..b@x.com','a@x.c','a@-x.com','.a@x.com',''].every(c=>!run(`correoRevisar_(${JSON.stringify(c)})`).ok),'rechaza correos imposibles');
+g.R4=run("ingresarDocente({nombre:'Puches Ana Milena',pin:'59000111',correo:'ana@outlook.es'})");
 ok(run(`llamarSeguro(R4.token,'contextoPanel',[])`).nombre==='Puches Ana Milena','cada docente entra con su propia identidad');
 ok(hojas.Usuarios.v.filter(r=>/@docente\.icet\.local$/.test(r[0])).length===2,'cada docente con clave tiene su fila interna en Usuarios');
+// ---- 7) coordinación agrega o edita docentes
+EMAIL='';
+ok(/Solo coordinación/.test(falla("listarDocentesAdmin()")||''),'sin sesión de coordinación no se ven ni editan los datos de los docentes');
+EMAIL='dueno@gmail.com';
+ok(run("listarDocentesAdmin()").length===6,'coordinación ve la lista de docentes');
+const nv=run("guardarDocenteAdmin({actual:'',apellidos:'Nuevo Docente',nombres:'Prueba',nivel:'SECUNDARIA',cedula:'123.456.789',correo:' NUEVO@Gmail.com ',direccion_grupo:'7°-1',areas:'MAT'})");
+ok(nv.ok&&nv.nuevo&&/sin horario/.test(nv.aviso),'agrega un docente nuevo (queda sin horario hasta que se cargue)');
+ok(hojas.Docentes.v.some(r=>r[4]==='Nuevo Docente Prueba'&&r[1]===7&&r[0]==='D007'&&r[10]==='NO'),'el docente nuevo recibe número y código consecutivos');
+ok(hojas.Identidad_Docentes.v.some(r=>r[0]==='Nuevo Docente Prueba'&&r[1]==='123456789'),'guarda su cédula en la hoja reservada');
+ok(hojas.Claves_Docentes.v.some(r=>r[0]==='Nuevo Docente Prueba'&&r[8]==='nuevo@gmail.com'),'guarda su correo ya limpio (minúsculas, sin espacios)');
+ok(/Ya existe/.test(falla("guardarDocenteAdmin({actual:'',apellidos:'Nuevo Docente',nombres:'Prueba',nivel:'SECUNDARIA'})")||''),'no permite repetir un docente');
+ok(/gmail\.com/.test(falla("guardarDocenteAdmin({actual:'Nuevo Docente Prueba',apellidos:'Nuevo Docente',nombres:'Prueba',nivel:'SECUNDARIA',correo:'x@gmial.com'})")||''),'avisa el error común de escritura del correo');
+const ed=run("guardarDocenteAdmin({actual:'Nuevo Docente Prueba',apellidos:'Nuevo Docente',nombres:'Prueba Dos',nivel:'PRIMARIA',cedula:'987654321'})");
+ok(ed.ok&&!ed.nuevo&&hojas.Docentes.v.some(r=>r[4]==='Nuevo Docente Prueba Dos'&&r[5]==='PRIMARIA')&&hojas.Identidad_Docentes.v.some(r=>r[0]==='Nuevo Docente Prueba Dos'&&r[1]==='987654321'),'edita nombre, nivel y cédula de un docente');
+ok(/cédula debe tener/.test(falla("guardarDocenteAdmin({actual:'',apellidos:'Zeta',nombres:'Uno',cedula:'12'})")||''),'valida la cédula');
 console.log(fallos?'\n'+fallos+' FALLA(S)':'\nTodo bien'); process.exitCode=fallos?1:0;

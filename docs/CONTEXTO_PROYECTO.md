@@ -791,3 +791,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 98 (2026-11-23, versión 2026.11.23-s)
 - Borrador explícito (`guardaBorEsp`, `ofreceBorrador`, `recuperaBor`, clave `icet_com_bor:<usuario>:<acta>`): copia de todo el avance; al abrir se ofrece «Recuperar borrador» (fusión con base). `pintaFaltDoc` vuelve a listar solo a quienes tienen `p` (marcados en la asistencia).
+
+## Ampliación 99 (2026-11-23, versión 2026.11.23-t)
+- `promBad`: solo EXCELENCIA y RENDIMIENTO ACADÉMICO exigen promedio (índices 0 y 1 de `tiposRec`); los demás muestran «no se pide». Presencia: campo opcional `detalle` (40 caracteres) junto al lugar; se muestra en «Redactando ahora» y en `comisionSeguimiento`/Menu.

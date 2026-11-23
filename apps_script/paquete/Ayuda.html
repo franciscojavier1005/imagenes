@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.23-s</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.23-t</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -108,6 +108,7 @@
 <li>En <b>matrícula</b>, hombres y mujeres siempre suman el total actual: al subir una casilla baja la otra (por defecto todos figuran como hombres; escriba las mujeres y los hombres se ajustan solos).</li>
 <li><b>Sin conexión:</b> si ya había abierto el acta en ese equipo, se abre con la última copia guardada y lo que escriba se envía al volver la conexión. «Guardar borrador» lo guarda en el libro y en el equipo y, al volver, entra donde estaba.</li>
 <li><b>Guardar borrador</b> guarda una copia de todo su avance; al volver aparece <b>Recuperar borrador</b>. En «Datos faltantes» solo se piden datos a quienes se marcaron como participantes en la asistencia.</li>
+<li>En reconocimientos, solo <b>excelencia</b> y <b>rendimiento académico</b> exigen promedio; los demás tipos (convivencia, colaboración y buen porte, otros) no piden nota.</li>
 <li>Si se pierde la conexión o se recarga la página, <b>no se pierde lo escrito</b>: queda guardado en su navegador, se envía al libro cuando vuelve la conexión y la pantalla regresa al último paso. Al <b>cerrar sesión</b> con cambios sin enviar, se avisa.</li>
 <li>La declaración bajo juramento se marca docente por docente (de grupo y de área); la nacionalidad colombiana se deduce del tipo de documento.</li>
 <li>En «Listados», cada curso tiene su botón <b>+ Agregar estudiante</b> y cada estudiante sus botones <b>Modificar</b> y <b>Retirar</b>; se ven el tipo y el número de documento. Todos los docentes del grado confirman su revisión.</li>
@@ -276,7 +277,7 @@
 <p><b>ronda_horas_margen</b>: horas después de la jornada en que los demás directivos aún pueden registrar la ronda; <b>reunion_desde</b> / <b>reunion_hasta</b>: horario normal de reuniones; <b>reunion_personas_extra</b>: personas que siempre deben aparecer en las reuniones de todo el personal.</p></section>
 
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.23-s</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.23-t</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

@@ -3866,11 +3866,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-s';
+var VERSION_SISTEMA = '2026.11.23-t';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-t', fecha: '2026-11-23', cambios: [
+    'Comisiones: los reconocimientos distintos a excelencia y rendimiento académico (convivencia, colaboración y buen porte, otros) ya no exigen promedio. Al empezar, junto al lugar hay una casilla corta opcional para el detalle (n.º de aula o salón, área…); se ve en «Redactando ahora» y en el seguimiento de los directivos.'] },
   { version: '2026.11.23-s', fecha: '2026-11-23', cambios: [
     'Comisiones: «Guardar borrador» guarda una copia de todo el avance y, al volver o recargar, aparece «Recuperar borrador» (se mezcla con lo que haya en el libro). Datos faltantes de docentes y acompañantes: solo se piden los marcados como participantes en la asistencia.'] },
   { version: '2026.11.23-r', fecha: '2026-11-23', cambios: [
@@ -5768,7 +5770,7 @@ function comisionSeguimiento() {
     comp.push([pre ? 'Propósitos registrados' : 'Áreas con cifras', Math.min(areas, nAreas), nAreas], ['Recomendaciones escritas', Math.min(recs, nRec), nRec]);
     var hecho = 0, total = 0; comp.forEach(function (x) { hecho += x[1]; total += x[2]; });
     var pr = (d('presencia') || {}).pers || {}, ahoraMin = Number(Utilities.formatDate(new Date(), TZ, 'HH')) * 60 + Number(Utilities.formatDate(new Date(), TZ, 'mm')), hoy = Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd');
-    var redactando = Object.keys(pr).map(function (n) { var x = pr[n] || {}, v = String(x.visto || ''), m = /^(\d\d):(\d\d)$/.exec(v); return { n: n, rol: String(x.rol || ''), lugar: String(x.lugar || ''), desde: String(x.desde || ''), visto: v, dia: String(x.dia || ''), activo: !!(m && x.dia === hoy && ahoraMin - (Number(m[1]) * 60 + Number(m[2])) <= 10 && ahoraMin >= (Number(m[1]) * 60 + Number(m[2]))) }; }).filter(function (x) { return x.dia === hoy; });
+    var redactando = Object.keys(pr).map(function (n) { var x = pr[n] || {}, v = String(x.visto || ''), m = /^(\d\d):(\d\d)$/.exec(v); return { n: n, rol: String(x.rol || ''), lugar: String(x.lugar || ''), detalle: String(x.detalle || '').slice(0, 40), desde: String(x.desde || ''), visto: v, dia: String(x.dia || ''), activo: !!(m && x.dia === hoy && ahoraMin - (Number(m[1]) * 60 + Number(m[2])) <= 10 && ahoraMin >= (Number(m[1]) * 60 + Number(m[2]))) }; }).filter(function (x) { return x.dia === hoy; });
     var ult = { por: '', fecha: '' }; Object.keys(secs).forEach(function (k) { if (secs[k].fecha > ult.fecha) ult = { por: secs[k].por, fecha: secs[k].fecha }; });
     out.push({ id: a.id, grado: cod, label: COM_GRADO_LABEL[cod] || cod, periodo: a.periodo, estado: a.estado, responsable: a.responsable, acta_no: a.acta_no, asistentes: pres, declaraciones: jur, firmas: firm, ultima: ult,
       redactando: redactando, porcentaje: total ? Math.round(hecho / total * 100) : 0, componentes: comp.map(function (x) { return { nombre: x[0], hecho: x[1], total: x[2] }; }) });

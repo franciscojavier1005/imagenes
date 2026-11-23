@@ -47,7 +47,7 @@
 <main>
   <div class="saludo" id="saludo"></div>
   <div id="botones"><div class="espera">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.23-s</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.23-t</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -251,7 +251,7 @@ function abrirSeguimiento(){
      (L.length?L.map(function(a){return '<div class="caja"><b>'+esc(a.label)+' · '+esc(a.periodo)+'</b> <span style="float:right"><b>'+a.porcentaje+' %</b> '+(a.estado==='CERRADA'?'· cerrada':'')+'</span>'+
        '<div style="height:10px;background:#e5e8ee;border-radius:6px;margin:6px 0"><div style="height:100%;width:'+a.porcentaje+'%;background:'+(a.estado==='CERRADA'?'#2f8f5b':'#3b82f6')+';border-radius:6px"></div></div>'+
        '<small>Responsable: '+esc(a.responsable||'—')+' · Último cambio: '+esc(a.ultima.por||'—')+' '+esc(a.ultima.fecha||'')+' · Asistentes: '+a.asistentes+' · Declaraciones: '+a.declaraciones+' · Firmas: '+a.firmas+'</small>'+
-       '<div style="margin-top:6px"><b>Redactando:</b> '+((a.redactando||[]).length?(a.redactando||[]).map(function(r){return '<span style="font-size:12px;padding:2px 8px;border-radius:10px;background:'+(r.activo?'#dff3e7':'#eceff4')+'">'+(r.activo?'🟢 ':'⚪ ')+esc(r.n)+(r.rol&&r.rol!=='Docente'?' <b>('+esc(r.rol)+')</b>':'')+' · '+esc(r.lugar)+' · desde '+esc(r.desde)+' · visto '+esc(r.visto)+'</span> ';}).join(''):'<small>nadie hoy</small>')+'</div>'+
+       '<div style="margin-top:6px"><b>Redactando:</b> '+((a.redactando||[]).length?(a.redactando||[]).map(function(r){return '<span style="font-size:12px;padding:2px 8px;border-radius:10px;background:'+(r.activo?'#dff3e7':'#eceff4')+'">'+(r.activo?'🟢 ':'⚪ ')+esc(r.n)+(r.rol&&r.rol!=='Docente'?' <b>('+esc(r.rol)+')</b>':'')+' · '+esc(r.lugar)+(r.detalle?' ('+esc(r.detalle)+')':'')+' · desde '+esc(r.desde)+' · visto '+esc(r.visto)+'</span> ';}).join(''):'<small>nadie hoy</small>')+'</div>'+
        '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">'+a.componentes.map(function(c){var ok=c.total&&c.hecho>=c.total;return '<span style="font-size:11.5px;padding:2px 8px;border-radius:10px;background:'+(ok?'#dff3e7':c.hecho?'#fff3cf':'#f1f3f7')+'">'+(ok?'✔ ':'')+esc(c.nombre)+' '+c.hecho+'/'+c.total+'</span>';}).join('')+'</div></div>';}).join(''):'<div class="caja">Todavía no hay comisiones abiertas este año.</div>');
   }).withFailureHandler(function(e){ el('botones').innerHTML='<div class="msg">'+esc(String(e&&e.message||e).replace(/^Error: /,''))+'</div><button class="btn" onclick="iniciar()">Volver</button>'; }).comisionSeguimiento();
 }

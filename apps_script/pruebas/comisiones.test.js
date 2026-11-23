@@ -4,7 +4,8 @@ const fs=require('fs'), vm=require('vm'), path=require('path');
 class Hoja{constructor(v){this.v=v}
   getDataRange(){return {getValues:()=>JSON.parse(JSON.stringify(this.v))}}
   appendRow(r){this.v.push(r)}
-  getRange(r,c,nr,nc){const s=this;return {setValue(x){while(s.v.length<r)s.v.push([]);while(s.v[r-1].length<c)s.v[r-1].push('');s.v[r-1][c-1]=x},
+  getLastColumn(){return Math.max(0,...this.v.map(r=>r.length))}
+  getRange(r,c,nr,nc){const s=this;return {getValues(){const o=[];for(let i=0;i<(nr||1);i++){const row=[];for(let j=0;j<(nc||1);j++){const x=(s.v[r-1+i]||[])[c-1+j];row.push(x===undefined?'':x)}o.push(row)}return o},setValue(x){while(s.v.length<r)s.v.push([]);while(s.v[r-1].length<c)s.v[r-1].push('');s.v[r-1][c-1]=x},
     setValues(a){a.forEach((row,i)=>{while(s.v.length<=r-1+i)s.v.push([]);row.forEach((x,j)=>{while(s.v[r-1+i].length<=c-1+j)s.v[r-1+i].push('');s.v[r-1+i][c-1+j]=x})})}}}
   deleteRow(r){this.v.splice(r-1,1)}}
 const fmt=(d,tz,p)=>{const o=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d).reduce((a,x)=>(a[x.type]=x.value,a),{});
@@ -89,6 +90,12 @@ ok(run("comisionDuplicados_('estudiantes:0801',{rep:[{id:1},{id:2}],con:[{id:1}]
 ok(/demasiado grande/.test(falla("comisionGuardar({acta:A1,seccion:'estudiantes:0801',datos:{x:'a'.repeat(46000)},version:0})")||''),'una sección no puede pasar del límite de la celda');
 
 yo('ana@x.com'); { const gd=run("comisionGradoDatos({grado:'08'})"); ok(gd.estudiantes[0].ndoc==='1085957103'&&gd.estudiantes[0].tdoc==='RC'&&gd.estudiantes[1].ndoc==='','el documento y el tipo salen de la hoja Estudiantes aunque el encabezado sea «Documento» o «Tipo_Doc»'); }
+// ---- lo que se completa en el acta queda también en las hojas ----
+yo('ana@x.com'); run("comisionResponsable({acta:A1,nombre:'Ana Director'})");
+run("comisionGuardar({acta:A1,seccion:'faltantes',datos:{datos:{1:{tel:'3151234567',gest:'Ya llamé al acudiente',falta:[]}},ing:[],cambios:[]},version:0})");
+run("comisionGuardar({acta:A1,seccion:'firmas',datos:{firm:{},pers:{'Ana Director':{tel:'3009998877',correo:'ana.d@gmail.com'}}},version:0})");
+ok(hojas.Estudiantes.v[1][7]==='3151234567'||hojas.Estudiantes.v[1].includes('3151234567'),'el teléfono del acudiente se escribe también en la hoja Estudiantes');
+ok(hojas.Identidad_Docentes&&hojas.Identidad_Docentes.v.some(r=>r.includes('3009998877')&&r.includes('ana.d@gmail.com')),'el celular y el correo del docente se escriben también en Identidad_Docentes');
 // ---- turno de edición y permisos por nivel (2026-11-23) ----
 TURNO_AUTO=false;
 yo('ana@x.com'); run("comisionResponsable({acta:A1,nombre:'Ana Director'})");

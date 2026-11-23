@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-i';
+var VERSION_SISTEMA = '2026.11.23-j';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-j', fecha: '2026-11-23', cambios: [
+    'Comisiones: corregido el bloqueo de controles (la pantalla se redibujaba unas 15 veces por segundo y los clics se perdían; afectaba sobre todo a los grados con muchos estudiantes). Lo que se completa en el acta se escribe también en las hojas: celular y correo personal de los docentes en Identidad_Docentes (columnas celular y correo_personal) y teléfono del acudiente y gestión en Estudiantes (columnas tel_acudiente y gestion_acta).'] },
   { version: '2026.11.23-i', fecha: '2026-11-23', cambios: [
     'Comisiones: turno de edición (todos pueden editar pero una sola persona a la vez; se suelta, se pasa o se toma tras 15 min sin actividad; coordinación y directivos siempre). Menú «Permisos de las comisiones»: coordinación elige por nivel quién puede ver y quién editar. Fecha y hora actuales por defecto. Celular y correo institucional de los docentes desde la hoja Identidad_Docentes (columnas celular y correo_institucional).'] },
   { version: '2026.11.23-h', fecha: '2026-11-23', cambios: [

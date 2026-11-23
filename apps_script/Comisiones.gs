@@ -267,6 +267,7 @@ function comisionGuardar(p) {
     if (actual && (Number(p.version) || 0) !== actual.version) return { conflicto: true, version: actual.version, datos: actual.datos, por: actual.por };
     if (!actual && Number(p.version)) return { conflicto: true, version: 0, datos: null, por: '' };
     var v = comisionEscribe_(a.id, p.seccion, p.datos, quien.nombre);
+    try { comisionAHojas_(String(p.seccion), p.datos); } catch (eh) { comisionLog_(a.id, quien.nombre, 'HOJA_ERROR', String(eh && eh.message || eh).slice(0, 120)); }
     return { ok: true, version: v };
   } finally { lock.releaseLock(); }
 }
@@ -627,6 +628,34 @@ function comisionIdentidad_(nombre) {
   if (!f) return { cel: '', mail: '' };
   var cel = comisionCol_(f, ['celular', 'telefono', 'telefonomovil', 'movil']).replace(/\D/g, '');
   return { cel: cel, mail: comisionCol_(f, ['correoinstitucional', 'correo', 'email']) };
+}
+/** Devuelve la columna (1..n) de un encabezado en la hoja; si no existe la agrega al final. */
+function comisionColHoja_(sh, nombre) {
+  var h = sh.getRange(1, 1, 1, Math.max(1, sh.getLastColumn())).getValues()[0], i, n = comisionSinTildes_(nombre).toLowerCase().replace(/[^a-z0-9]/g, '');
+  for (i = 0; i < h.length; i++) if (comisionSinTildes_(h[i]).toLowerCase().replace(/[^a-z0-9]/g, '') === n) return i + 1;
+  sh.getRange(1, h.length + 1).setValue(nombre); return h.length + 1;
+}
+/** Lo que se completa en el acta también queda en las hojas del libro: celular y correo de los docentes (Identidad_Docentes) y teléfono del acudiente (Estudiantes). */
+function comisionAHojas_(seccion, datos) {
+  if (!datos || typeof datos !== 'object') return;
+  if (seccion === 'firmas') {
+    var pers = datos.pers || {}, nombres = Object.keys(pers); if (!nombres.length) return;
+    var sh = hojaOCrea_('Identidad_Docentes', COL_IDENTIDAD_DOC), v = sh.getDataRange().getValues(), cCel = comisionColHoja_(sh, 'celular'), cMail = comisionColHoja_(sh, 'correo_personal');
+    nombres.forEach(function (n) {
+      var x = pers[n] || {}, cel = String(x.tel || '').replace(/\D/g, ''), mail = String(x.correo || '').trim();
+      if (!cel && !mail) return;
+      var fila = 0; for (var i = 1; i < v.length; i++) if (comisionSinTildes_(v[i][0]) === comisionSinTildes_(n)) { fila = i + 1; break; }
+      if (!fila) { sh.appendRow([n, '']); v.push([n, '']); fila = v.length; }
+      if (/^3\d{9}$/.test(cel)) sh.getRange(fila, cCel).setValue(cel);
+      if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail) && !/@icet\./i.test(mail)) sh.getRange(fila, cMail).setValue(mail);
+    });
+  } else if (seccion === 'faltantes') {
+    var d = datos.datos || {}, ids = Object.keys(d).filter(function (k) { return d[k] && String(d[k].tel || '').replace(/\D/g, '').length >= 7; }); if (!ids.length) return;
+    var he = hojaOCrea_('Estudiantes', ['grupo', 'curso', 'no', 'apellidos', 'nombres']), ve = he.getDataRange().getValues(), filas = [];
+    for (var j = 1; j < ve.length; j++) if (ve[j][0] !== '') filas.push(j + 1);   // mismo orden que datos_('Estudiantes'): id = posición
+    var cTel = comisionColHoja_(he, 'tel_acudiente'), cGes = comisionColHoja_(he, 'gestion_acta');
+    ids.forEach(function (k) { var f = filas[Number(k) - 1]; if (!f) return; he.getRange(f, cTel).setValue(String(d[k].tel).replace(/\D/g, '')); if (d[k].gest) he.getRange(f, cGes).setValue(String(d[k].gest)); });
+  }
 }
 function comisionTitulo_(s) { return String(s == null ? '' : s).toLowerCase().replace(/(^|[\s\-])([a-záéíóúñü])/g, function (m, a, b) { return a + b.toUpperCase(); }).replace(/ (De|Del|La|Las|Los|Y) /g, function (m) { return m.toLowerCase(); }).trim(); }
 function comisionCorreoDe_(nombre) {

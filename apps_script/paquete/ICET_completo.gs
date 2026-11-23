@@ -3866,11 +3866,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-q';
+var VERSION_SISTEMA = '2026.11.23-r';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-r', fecha: '2026-11-23', cambios: [
+    'Comisiones, matrícula: hombres + mujeres siempre suman el total actual (si sube una casilla baja la otra); por defecto todos figuran como hombres, o lo que traigan las hojas si ya tienen sexo. Datos de directivos, orientadora y tutora (cédula, celular, correo) se traen de la hoja Identidad_Docentes. Sin conexión: si ya abrió el acta antes, se abre con la última copia guardada en este equipo y lo que escriba se envía al volver la conexión. «Guardar borrador» guarda en el libro y en el equipo y recuerda dónde estaba.'] },
   { version: '2026.11.23-q', fecha: '2026-11-23', cambios: [
     'Comisiones: botón «Completar o modificar» en los pendientes y en reconocimientos (documento, tipo, lugar de expedición, sexo, nacionalidad…). Historial de una semana (hojas Comision_Historial y Comision_CambiosHojas): versiones anteriores de cada parte del acta y cada cambio hecho en las hojas con su valor anterior; coordinación, directivos y quienes tengan control total pueden restaurar (botón «Historial y recuperación»), y coordinación deshace cambios en las hojas. Copias diarias completas del libro: ahora 8 días por defecto. Corregido: el servidor enviaba a la pantalla los estudiantes de todos los grados (ahora solo los del grado abierto).'] },
   { version: '2026.11.23-p', fecha: '2026-11-23', cambios: [
@@ -5719,7 +5721,7 @@ function comisionGradoDatos(p) {
   datos_('Docentes').forEach(function (d) { if (/ORIENTACI/i.test(String(d.nivel))) apoyo.push({ n: d.nombre_completo, rol: 'Docente orientadora', p: false }); else if (/PTAFI/i.test(String(d.nivel))) apoyo.push({ n: d.nombre_completo, rol: 'Tutora PTAFI', p: false }); });
   var gnames = {}; dir.forEach(function (n) { if (n) gnames[n] = 1; }); dir2.forEach(function (d) { gnames[d.n] = 1; }); Object.keys(ap).forEach(function (n) { gnames[n] = 1; }); apoyo.forEach(function (a) { gnames[a.n] = 1; });
   var personas = {};
-  Object.keys(gnames).forEach(function (n) { var ap0 = apoyo.filter(function (a) { return a.n === n; })[0]; var idn = comisionIdentidad_(n); personas[n] = { ced: (ap0 && /acad|rector|convivencia|redes/i.test(ap0.rol)) ? '' : cedulaDoc_(n), correo: (ap0 && ap0.correo) || comisionCorreoDe_(n) || idn.mail, tel: idn.cel }; });
+  Object.keys(gnames).forEach(function (n) { var ap0 = apoyo.filter(function (a) { return a.n === n; })[0]; var idn = comisionIdentidad_(n); personas[n] = { ced: cedulaDoc_(n), correo: (ap0 && ap0.correo) || comisionCorreoDe_(n) || idn.mail, tel: idn.cel }; });
   var setg = {}; codes.forEach(function (c) { setg[c] = gs[codes.indexOf(c)]; });
   var est = [];
   datos_('Estudiantes').forEach(function (e, i) { var g = String(e.grupo); if (!setg[g]) return; var sx = comisionCol_(e, ['sexo', 'genero']); est.push({ id: i + 1, g: setg[g], a: comisionTitulo_(e.apellidos), n: comisionTitulo_(e.nombres), ndoc: comisionCol_(e, ['documento', 'nodoc', 'numerodocumento', 'numdoc', 'ndoc', 'identificacion', 'cedula']).replace(/\D/g, ''), tdoc: comisionCol_(e, ['tipodoc', 'tipodedocumento', 'tipodocumento', 'tdoc', 'tipo']).replace(/[^A-Za-z]/g, '').toUpperCase(), tel: comisionCol_(e, ['telacudiente', 'telefonoacudiente', 'celularacudiente']).replace(/\D/g, ''), lex: comisionCol_(e, ['lugarexpedicion', 'lugardeexpedicion', 'expedicion']), nac: comisionCol_(e, ['nacionalidad']), sx: /^(m|h|hombre|masculino)$/i.test(sx) ? 'M' : /^(f|mujer|femenino)$/i.test(sx) ? 'F' : '' }); });

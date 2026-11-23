@@ -178,7 +178,10 @@ function sondeo(){
 function abreActa(){
  var label=$('#grado').value,per=$('#periodo').value,code=LABEL_DE[label];if(!code||!per)return;
  SYNC.activo=false;clearInterval(SYNC.t1);clearInterval(SYNC.t2);clearInterval(SYNC.t3);SYNC.ver={};SYNC.last={};avisoSync('');estadoSync('Cargando el acta…','a');
- API('comisionGradoDatos',{grado:code}).then(function(d){construyeGrado(d);return API('comisionAbrir',{periodo:per,grado:code})}).then(function(r){
+ var SNAP=false;
+ API('comisionGradoDatos',{grado:code}).then(function(d){return API('comisionAbrir',{periodo:per,grado:code}).then(function(r){try{guardaSnap(code,per,d,r)}catch(e){}return [d,r]})})
+ .catch(function(e){var sn=leeSnap(code,per);if(sn){SNAP=true;return [sn.d,sn.r]}throw e})
+ .then(function(dr){var r=dr[1];construyeGrado(dr[0]);
   ACTA=r.acta;init(GK=Object.keys(G)[0]);$('#grado').value=GK;$('#periodo').value=per;$('#acta').value=ACTA.acta_no;
   Object.keys(r.secciones).forEach(function(k){SYNC.ver[k]=r.secciones[k].version});
   aplicaSecciones(r.secciones);S.resp=ACTA.responsable||'';SYNC.resp=S.resp;
@@ -190,6 +193,7 @@ function abreActa(){
   try{vuelveAPos()}catch(e){}
   SYNC.activo=true;pidePresencia();SYNC.t3=setInterval(latido,120000);SYNC.t1=setInterval(tick,2000);SYNC.t2=setInterval(sondeo,5000);estadoSync('Acta abierta '+ahora(),'v');
   if(CERRADO_SRV)avisoSync('Esta acta está cerrada: es de solo lectura.');
+  if(SNAP){avisoSync('<b>Sin conexión con el libro.</b> Está trabajando con la última copia guardada en este equipo; lo que escriba se enviará solo cuando vuelva la conexión.');estadoSync('Sin conexión · copia local','f')}
  }).catch(function(e){estadoSync('Error','f');alert('No se pudo abrir el acta: '+msgE(e))})}
 
 /* ---------- cierre: la pantalla verifica; el servidor pone la hora ---------- */
@@ -332,3 +336,25 @@ function restauraSec(fila,fecha){if(!confirm('¿Volver esta parte del acta a com
  API('comisionRestaurar',{acta:ACTA.id,fila:fila,fecha:fecha}).then(function(){var o=$('#mHist');if(o)o.remove();alert('Restaurado. Se recarga el acta.');abreActa()}).catch(function(e){alert(msgE(e))})}
 function deshaceHoja(id){if(!confirm('¿Devolver ese dato de la hoja a su valor anterior?'))return;
  API('comisionHojaDeshacer',{id:id}).then(function(){abrirHistorial()}).catch(function(e){alert(msgE(e))})}
+
+/* ---------- copia local del acta abierta (para poder seguir si no hay conexión) ---------- */
+function snapKey(code,per){return 'icet_com_snap:'+USR+':'+code+':'+per}
+function guardaSnap(code,per,d,r){try{localStorage.setItem(snapKey(code,per),JSON.stringify({t:Date.now(),d:d,r:r}))}catch(e){}}
+function leeSnap(code,per){try{return JSON.parse(localStorage.getItem(snapKey(code,per))||'null')}catch(e){return null}}
+/* el sondeo refresca la copia local con lo último del libro */
+var _sond_snap=sondeo;sondeo=function(){_sond_snap();try{if(ACTA&&S&&SYNC.activo&&!SYNC.busy){var code=LABEL_DE[$('#grado').value],per=$('#periodo').value,sn=leeSnap(code,per);if(sn&&Date.now()-sn.t>60000){API('comisionCargar',{acta:ACTA.id}).then(function(r){var s2=leeSnap(code,per);if(s2){s2.r=r;s2.t=Date.now();localStorage.setItem(snapKey(code,per),JSON.stringify(s2))}}).catch(function(){})}}}catch(e){}};
+/* ---------- borrador: guarda ya en el libro y en este equipo, y recuerda dónde estaba ---------- */
+guardaBorrador=function(manual){try{guardaPos();if(SYNC.activo&&S&&ACTA){var parts=particiona(),cola=[];Object.keys(parts).forEach(function(k){if(SYNC.last[k]!==undefined&&js(parts[k])!==SYNC.last[k]&&puedeEscribir(k))cola.push(k)});if(cola.length)guardaDrafts(cola,parts);try{tick()}catch(e){}}
+  estadoGuard('Borrador guardado '+ahora(),'v');if(manual)$('#finMsg').innerHTML='<div class="bien">Borrador guardado a las '+ahora()+': ya está en el libro (si hay conexión) y en este equipo. Si se cierra la pantalla, se pierde la conexión o se actualiza la aplicación, al volver entrará <b>donde estaba</b>, con lo que escribió.</div>'}catch(e){estadoGuard('No se pudo guardar el borrador','f')}};
+avisoBorrador=function(){};
+/* ---------- matrícula: hombres + mujeres = total actual (si sube una casilla, baja la otra); por defecto todos hombres, o lo que traen las hojas ---------- */
+function matInvariante(){if(!S||!S.mat)return;S.mat.forEach(function(r,i){if(r.ok)return;var t=tot(r);
+  if(!r.sxSet&&!r.f){var L=EST.filter(function(e){return e.g===r.g&&!e.baja});if(L.length&&L.every(function(e){return e.sx==='M'||e.sx==='F'}))r.f=Math.min(t,L.filter(function(e){return e.sx==='F'}).length)}
+  r.f=Math.max(0,Math.min(+r.f||0,t));r.m=Math.max(0,t-r.f)})}
+function matSet(i,k,v){var r=S.mat[i];if(!r)return;v=Math.max(0,+v||0);r.ok=false;
+ if(k==='m'){r.sxSet=true;var t=tot(r);r.m=Math.min(v,t);r.f=t-r.m}
+ else if(k==='f'){r.sxSet=true;var t2=tot(r);r.f=Math.min(v,t2);r.m=t2-r.f}
+ else r[k]=v;
+ pintaMat()}
+numI=function(i,k,bad){return '<input type="number" min="0" class="'+(bad[k]?'bad':'')+'" value="'+S.mat[i][k]+'" '+(S.mat[i].ok?'disabled ':'')+'onchange="matSet('+i+',\''+k+'\',this.value)">'};
+var _pm_inv=pintaMat;pintaMat=function(){matInvariante();_pm_inv()};

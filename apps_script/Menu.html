@@ -47,7 +47,7 @@
 <main>
   <div class="saludo" id="saludo"></div>
   <div id="botones"><div class="espera">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.23-j</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.23-k</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
@@ -179,12 +179,15 @@ function pintaPermisosCom(){
   var r=PERM_COM, ed=r.puedeEditar;
   el('botones').innerHTML='<div class="caja"><b>¿Quién puede ver y quién puede editar las actas?</b><br><small>Los directivos siempre tienen acceso total. «Editar» permite modificar el acta, de a una persona por vez (turno de edición); «Ver» permite consultar el acta y sus informes, también cuando ya está cerrada.</small></div>'+
    r.niveles.map(function(n){var c=r.config[n.clave]||{ver:true,editar:true};return '<div class="caja" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><b>'+esc(n.nombre)+'</b><span><label style="margin-right:12px"><input type="checkbox" '+(c.ver?'checked ':'')+(ed?'':'disabled ')+'onchange="cambiaPermCom(\''+n.clave+'\',\'ver\',this.checked)"> Ver</label><label><input type="checkbox" '+(c.editar?'checked ':'')+(ed?'':'disabled ')+'onchange="cambiaPermCom(\''+n.clave+'\',\'editar\',this.checked)"> Editar</label></span></div>';}).join('')+
+   '<div class="caja"><b>Control total</b><br><small>Estas personas editan siempre, sin esperar el turno (como coordinación), aunque su nivel solo tenga lectura.</small><div style="margin:6px 0">'+((r.total||[]).length?(r.total||[]).map(function(n,i){return '<span class="chip" style="display:inline-block;margin:2px;padding:4px 8px;border-radius:10px;background:#dff3e7">'+esc(n)+(ed?' <a href="#" onclick="quitaTotalCom('+i+');return false">✕</a>':'')+'</span>';}).join(''):'<small>Nadie por ahora.</small>')+'</div>'+(ed?'<select id="selTotal"><option value="">Dar control total a…</option>'+(r.docentes||[]).filter(function(n){return (r.total||[]).indexOf(n)<0;}).map(function(n){return '<option>'+esc(n)+'</option>';}).join('')+'</select> <button class="btn s" onclick="agregaTotalCom()">Agregar</button>':'')+'</div>'+
    (ed?'<div class="caja"><button class="btn p" onclick="guardaPermCom()">Guardar permisos</button> <span id="permMsg"></span></div>':'<div class="msg">Solo coordinación académica puede cambiarlos.</div>')+'<button class="btn" onclick="iniciar()">Volver</button>';
 }
+function agregaTotalCom(){var v=el('selTotal').value;if(!v)return;PERM_COM.total=PERM_COM.total||[];if(PERM_COM.total.indexOf(v)<0)PERM_COM.total.push(v);pintaPermisosCom();}
+function quitaTotalCom(i){PERM_COM.total.splice(i,1);pintaPermisosCom();}
 function cambiaPermCom(k,campo,v){var c=PERM_COM.config[k]=PERM_COM.config[k]||{ver:true,editar:true};c[campo]=v;if(campo==='ver'&&!v)c.editar=false;if(campo==='editar'&&v)c.ver=true;pintaPermisosCom();}
 function guardaPermCom(){
   srv().withSuccessHandler(function(){ pintaPermisosCom(); var m=el('permMsg'); if(m)m.textContent='Guardado.'; })
-   .withFailureHandler(function(e){ var m=el('permMsg'); if(m)m.textContent=String(e&&e.message||e).replace(/^Error: /,''); }).comisionPermisosGuardar({config:PERM_COM.config});
+   .withFailureHandler(function(e){ var m=el('permMsg'); if(m)m.textContent=String(e&&e.message||e).replace(/^Error: /,''); }).comisionPermisosGuardar({config:PERM_COM.config,total:PERM_COM.total||[]});
 }
 /* ---------- coordinación: agregar o editar docentes ---------- */
 var DOCS_ADMIN=[];

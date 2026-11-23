@@ -1708,7 +1708,7 @@ function REAL_BOOT(){
  document.body.classList.add('jsok');
  if(!tokenGuardado()){irAlMenu();return}
  API('comisionContexto').then(function(c){
-  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='2026.11.23-j'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión 2026.11.23-j y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.23-j · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
+  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='2026.11.23-k'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión 2026.11.23-k y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.23-k · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
   GRADOS_REAL=c.grados.map(function(code){return COM_LABEL[code]}).filter(Boolean);LABEL_DE={};c.grados.forEach(function(code){LABEL_DE[COM_LABEL[code]]=code});
   var be=$('#btnEj');if(be&&c.quien.dev)be.style.display='';var p=$('#perfil');if(p){p.value=PERFIL;if(!c.quien.dev){var pf=document.querySelector('.perf');if(pf)pf.style.display='none'}}
   $('#grado').onchange=abreActa;$('#periodo').onchange=abreActa;
@@ -1752,8 +1752,9 @@ function salirSesion(){if(!confirm('¿Cerrar la sesión? Lo que ya se guardó en
  try{google.script.run.withSuccessHandler(irAlMenu).withFailureHandler(irAlMenu).cerrarSesion(t)}catch(e){irAlMenu()}}
 
 /* ---------- turno de edición: todos pueden editar, pero una sola persona a la vez ---------- */
-function sinEdicion(){return !!(CTXR&&CTXR.quien&&CTXR.quien.editar===false&&PERFIL==='d')}
-function turnoLibre(){return !sinEdicion()&&(!S||!S.resp||S.resp===USR||PERFIL!=='d')}
+function sinEdicion(){return !esTotal()&&!!(CTXR&&CTXR.quien&&CTXR.quien.editar===false&&PERFIL==='d')}
+function esTotal(){return !!(CTXR&&CTXR.quien&&CTXR.quien.total)}
+function turnoLibre(){return esTotal()||!sinEdicion()&&(!S||!S.resp||S.resp===USR||PERFIL!=='d')}
 function minDe(v){var a=/^(\d\d):(\d\d)$/.exec(v||'');return a?Number(a[1])*60+Number(a[2]):-9999}
 function editorActivo(){var x=PRES[S.resp];return !!(x&&x.dia===hoyTxt()&&minDe(hhmmReal())-minDe(x.visto)>=0&&minDe(hhmmReal())-minDe(x.visto)<=15)}
 function tomarTurno(){if(!S||S.cerrada||sinEdicion())return;S.resp=USR;pintaTurno();aplicaLectura();tick()}
@@ -1762,6 +1763,7 @@ function pasarTurno(n){if(!n)return;S.resp=n;pintaTurno();aplicaLectura();tick()
 var TURNO_HTML='';
 function pintaTurno(){var el=$('#turno');if(!el||!S||!ACTA)return;var h;
  if(S.cerrada){h='<div class="nota" style="margin:0"><b>Acta cerrada:</b> solo lectura.</div>'}
+ else if(esTotal()&&S.resp!==USR){h='<div class="ojo" style="margin:0"><b>Usted tiene control total</b> (otorgado por coordinación): edita siempre'+(S.resp?'; la edición del registro la tiene '+esc(S.resp):'')+'. <button class="btn s" onclick="tomarTurno()">Quedarme con la edición</button></div>'}
  else if(sinEdicion()){h='<div class="mal" style="margin:0"><b>Solo lectura:</b> la coordinación no habilitó la edición de las actas para su nivel. Puede consultar, declarar, firmar y completar datos faltantes.</div>'}
  else if(S.resp===USR){h='<div class="bien" style="margin:0"><b>Usted tiene la edición.</b> Solo usted modifica el acta ahora (las demás personas la ven y pueden firmar, declarar y completar datos faltantes). <button class="btn s" onclick="soltarTurno()">Soltar la edición</button> <select id="selPasar" onchange="pasarTurno(this.value)"><option value="">Pasar la edición a…</option>'+DOCS.filter(function(n){return n!==USR}).map(function(n){return '<option>'+esc(n)+'</option>'}).join('')+'</select></div>'}
  else if(!S.resp){h='<div class="ojo" style="margin:0"><b>Nadie tiene la edición.</b> <button class="btn s p" onclick="tomarTurno()">Tomar la edición</button></div>'}

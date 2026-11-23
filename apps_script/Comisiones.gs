@@ -77,7 +77,7 @@ function comisionQuien_() {
   if (id.rol === 'directivo') return { rol: 'directivo', nombre: nombreDirectivoCompleto_(id.nombre) || id.email, email: id.email, coord: puedeAdministrar_(id) };
   if (id.rol === 'docente') {
     if (!id.autorizado && !id.preregistro) { /* mismo criterio que el resto: el docente debe haber aceptado la autorización al registrarse */ }
-    return { rol: 'docente', nombre: id.docente, email: id.email, coord: false };
+    return { rol: 'docente', nombre: id.docente, email: id.email, coord: false, total: comisionControlTotal_().indexOf(comisionSinTildes_(id.docente)) >= 0 };
   }
   throw new Error('Debe iniciar sesión con una cuenta autorizada.');
 }
@@ -97,16 +97,20 @@ function comisionPermisosConfig_() {
   COM_NIVELES_PERM.forEach(function (n) { var x = c[n[0]] || {}; c[n[0]] = { ver: x.ver !== false, editar: x.editar !== false && x.ver !== false }; });
   return c;
 }
-function comisionPermisoNivel_(quien) { return quien.rol === 'docente' ? comisionPermisosConfig_()[comisionNivelPerm_(quien.nombre)] : { ver: true, editar: true }; }
+function comisionControlTotal_() { var c = []; try { c = JSON.parse(parametro_('comisiones_controltotal', '[]')) || []; } catch (e) { c = []; } return c.map(comisionSinTildes_); }
+function comisionPermisoNivel_(quien) { return quien.rol === 'docente' && !quien.total ? comisionPermisosConfig_()[comisionNivelPerm_(quien.nombre)] : { ver: true, editar: true }; }
 function comisionPermisosLeer() {
   var quien = comisionQuien_(); if (quien.rol !== 'directivo') throw new Error('Solo directivos.');
-  return { niveles: COM_NIVELES_PERM.map(function (n) { return { clave: n[0], nombre: n[1] }; }), config: comisionPermisosConfig_(), puedeEditar: !!quien.coord };
+  var tot = []; try { tot = JSON.parse(parametro_('comisiones_controltotal', '[]')) || []; } catch (e) { tot = []; }
+  return { niveles: COM_NIVELES_PERM.map(function (n) { return { clave: n[0], nombre: n[1] }; }), config: comisionPermisosConfig_(), total: tot, docentes: datos_('Docentes').map(function (d) { return String(d.nombre_completo); }).filter(Boolean).sort(function (a, b) { return a.localeCompare(b, 'es'); }), puedeEditar: !!quien.coord };
 }
 function comisionPermisosGuardar(p) {
   var quien = comisionQuien_(); if (!quien.coord) throw new Error('Solo coordinación académica cambia estos permisos.');
   var c = {}; COM_NIVELES_PERM.forEach(function (n) { var x = ((p || {}).config || {})[n[0]] || {}; c[n[0]] = { ver: x.ver !== false, editar: x.editar !== false && x.ver !== false }; });
   guardarParametro_('comisiones_permisos', JSON.stringify(c));
-  return { ok: true, config: c };
+  var tot = (((p || {}).total) || []).map(String).filter(function (n) { return n && n.length < 120; }).slice(0, 60);
+  guardarParametro_('comisiones_controltotal', JSON.stringify(tot));
+  return { ok: true, config: c, total: tot };
 }
 /* Turno de edición (decisión del coordinador, 2026-11-23): todos pueden editar, pero en cada acta solo UNA persona a la vez (el «responsable del registro»), que puede soltar o pasar el turno.
    Directivos (coordinación, desarrollador, rectoría) editan siempre. Firmas, declaraciones, revisión, presencia y datos faltantes son de cada quien y siempre se pueden escribir. */
@@ -120,7 +124,7 @@ function comisionEditorActivo_(acta, secs) {
 }
 /** Devuelve '' si esta persona tiene hoy el turno de edición, o el mensaje de por qué no. */
 function comisionTurno_(quien, acta) {
-  if (quien.rol === 'directivo') return '';
+  if (quien.rol === 'directivo' || quien.total) return '';
   if (!comisionPermisoNivel_(quien).editar) return 'La coordinación no habilitó la edición de las actas para su nivel (solo lectura).';
   var r = acta && acta.responsable; if (!r || r === quien.nombre) return '';
   return 'Ahora tiene la edición ' + r + ' (solo una persona edita a la vez). Pídale que la suelte o la pase, o use «Tomar la edición» si lleva más de ' + COM_INACTIVO_MIN + ' minutos sin actividad.';
@@ -152,7 +156,7 @@ function comisionPermisoSeccion_(quien, alcance, seccion, secciones, acta) {
     return 'Solo el docente de esta área puede editarla.';
   }
   var conf = secciones && secciones['confirm:' + tipo + ':' + clave];
-  if ((tipo === 'matricula' || tipo === 'reconocimientos') && conf && conf.datos && conf.datos.ok && !quien.coord && quien.rol !== 'directivo') {
+  if ((tipo === 'matricula' || tipo === 'reconocimientos') && conf && conf.datos && conf.datos.ok && !quien.coord && quien.rol !== 'directivo' && !quien.total) {
     return 'Esta sección está confirmada y es oficial: solo coordinación académica puede reabrirla.';
   }
   return null;
@@ -215,7 +219,7 @@ function comisionContexto() {
   if (!quien.coord && quien.rol === 'docente') gr = gr.filter(function (c) { var al = comisionAlcance_(quien, c); return al.cursos.length || al.areas.length || al.multiareas || al.acompana; });
   if (!quien.coord && quien.rol === 'docente') visibles = lista.filter(function (a) { var al = comisionAlcance_(quien, String(a.grado)); return al.cursos.length || al.areas.length || al.multiareas || al.acompana; });
   if (!perm.ver) return { version: (typeof VERSION_SISTEMA !== 'undefined' ? VERSION_SISTEMA : ''), anio: anio, quien: { nombre: quien.nombre, rol: quien.rol, coord: false, dev: false, ver: false, editar: false }, periodos: PERIODOS_COM, grados: [], actas: [], bloqueado: 'La coordinación no habilitó la consulta de las actas para su nivel.' };
-  return { version: (typeof VERSION_SISTEMA !== 'undefined' ? VERSION_SISTEMA : ''), anio: anio, quien: { ver: true, editar: perm.editar, nombre: quien.nombre, rol: quien.rol, coord: quien.coord, dev: !!(quien.coord && quien.email && editoresLibro_().indexOf(String(quien.email).toLowerCase()) >= 0) }, periodos: PERIODOS_COM, grados: gr, actas: visibles };
+  return { version: (typeof VERSION_SISTEMA !== 'undefined' ? VERSION_SISTEMA : ''), anio: anio, quien: { total: !!quien.total, ver: true, editar: perm.editar, nombre: quien.nombre, rol: quien.rol, coord: quien.coord, dev: !!(quien.coord && quien.email && editoresLibro_().indexOf(String(quien.email).toLowerCase()) >= 0) }, periodos: PERIODOS_COM, grados: gr, actas: visibles };
 }
 /** Abre el acta del grado y periodo (la crea si no existe; fecha, hora y grado empiezan en blanco: los llena el equipo). */
 function comisionAbrir(p) {
@@ -293,7 +297,7 @@ function comisionResponsable(p) {
   var quien = comisionQuien_(); p = p || {};
   var a = comisionActa_(p.acta); if (a.estado !== 'ABIERTA') throw new Error('El acta está cerrada.');
   var nuevoR = String(p.nombre || '');
-  if (quien.rol !== 'directivo' && a.responsable && a.responsable !== quien.nombre) {
+  if (quien.rol !== 'directivo' && !quien.total && a.responsable && a.responsable !== quien.nombre) {
     if (!(nuevoR === quien.nombre && !comisionEditorActivo_(a, comisionSecciones_(a.id)))) throw new Error(comisionTurno_(quien, a));
   }
   var fila = comisionFilaActa_(a.id); hojaOCrea_('Comision_Actas', COL_CACTAS).getRange(fila, 7).setValue(nuevoR);

@@ -109,8 +109,11 @@ yo('coord@x.com'); run("comisionResponsable({acta:A1,nombre:''})");
 yo('coord@x.com'); ok(run("comisionPermisosLeer()").puedeEditar===true&&run("comisionPermisosLeer()").niveles.length===4,'permisos: coordinación ve los 4 niveles y puede cambiarlos');
 run("comisionPermisosGuardar({config:{SECUNDARIA:{ver:true,editar:false},PRIMARIA:{ver:true,editar:true},ORIENTACION:{ver:true,editar:true},PTAFI:{ver:true,editar:true}}})");
 yo('beto@x.com'); { const q=run("comisionContexto()").quien; ok(q.ver===true,'permisos: con «ver» activo el docente consulta'); }
+yo('coord@x.com'); run("comisionPermisosGuardar({config:{SECUNDARIA:{ver:true,editar:false}},total:['Beto Codirector']})");
+yo('ana@x.com'); run("comisionResponsable({acta:A1,nombre:'Ana Director'})");
+TURNO_AUTO=false; yo('beto@x.com'); { const q=run("comisionQuien_()"); ok(q.total===true,'control total: la persona elegida figura con control total'); const r=falla("comisionGuardar({acta:A1,seccion:'matricula:0801',datos:M,version:0})")||''; ok(!/tiene la edición|no habilitó/.test(r),'control total: edita aunque otra persona tenga el turno y su nivel sea solo lectura'); }
 TURNO_AUTO=true;
-yo('coord@x.com'); run("comisionPermisosGuardar({config:{}})");
+yo('coord@x.com'); run("comisionPermisosGuardar({config:{},total:[]})");
 // ---- confirmaciones oficiales ----
 yo('ana@x.com');
 run("comisionGuardar({acta:A1,seccion:'matricula:0801',datos:{ini:36,nu:0,re:0,de:0,m:18,f:17,ve:2,ec:0},version:2})");

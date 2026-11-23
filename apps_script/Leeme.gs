@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-f';
+var VERSION_SISTEMA = '2026.11.23-g';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-g', fecha: '2026-11-23', cambios: [
+    'Comisiones: las columnas de documento, tipo de documento y sexo de la hoja Estudiantes se leen sin importar mayúsculas, tildes, espacios ni guiones del encabezado (Documento, Tipo_Doc, tipo doc…).'] },
   { version: '2026.11.23-f', fecha: '2026-11-23', cambios: [
     'Comisiones: la pantalla compara su versión con la del servidor y avisa si el código de Apps Script quedó desactualizado (por eso podían verse controles que no guardan); los errores al guardar se muestran en pantalla.'] },
   { version: '2026.11.23-e', fecha: '2026-11-23', cambios: [

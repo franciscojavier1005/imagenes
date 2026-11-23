@@ -14,7 +14,7 @@ const hojas={
  Grupos:new Hoja([['grupo','tipo','grado','nombre','modalidad'],['0801','REGULAR','08','8°-1',''],['0802','REGULAR','08','8°-2',''],['0501','REGULAR','05','5°-1',''],['0001','REGULAR','00','0°-1','']]),
  Direccion_Grupo:new Hoja([['grupo','nombre','tipo_direccion','docente_1','docente_2','modalidad','dinamizadores'],['0801','8°-1','DIRECTOR','Ana Director','Beto Codirector','',''],['0802','8°-2','DIRECTOR','Carla Director','','',''],['0501','5°-1','DIRECTOR','Elena Primaria','','',''],['0001','0°-1','DIRECTOR','Paula Preescolar','','','']]),
  Horario:new Hoja([['docente','dia','hora','grupo','area'],['Dora Mate','LUNES',1,'0801','Matemáticas'],['Dora Mate','LUNES',2,'0802','Matemáticas'],['Hugo Ingles','LUNES',3,'0801','Inglés'],['Elena Primaria','LUNES',1,'0501','ÁREAS MÚLTIPLES'],['Carla Director','MARTES',1,'0802','MAT'],['Carla Director','MARTES',2,'0802','ERD']]),
- Estudiantes:new Hoja([['grupo','curso','no','apellidos','nombres'],['0801','8°-1',1,'PEREZ GOMEZ','ANA'],['0801','8°-1',2,'ROJAS LOPEZ','LUIS']]),
+ Estudiantes:new Hoja([['grupo','curso','no','apellidos','nombres','Documento','Tipo_Doc'],['0801','8°-1',1,'PEREZ GOMEZ','ANA','1085957103','RC'],['0801','8°-1',2,'ROJAS LOPEZ','LUIS','','']]),
  Marcas_Estudiantes:new Hoja([['clave','grupo','curso','apellidos','nombres','tipo','nota','estado','fecha','registrado_por','fecha_levantada','levantada_por']]),
  Docentes:new Hoja([['codigo','n','nombre_completo','nivel','correo'],[1,1,'Ana Director','SECUNDARIA','']]),
  Directivos:new Hoja([['nombre','rol','correo_temporal','administra'],['Coord Académica','Coordinador académico','coord@x.com','']]),
@@ -88,6 +88,7 @@ ok(/repetido/.test(falla("comisionGuardar({acta:A1,seccion:'estudiantes:0801',da
 ok(run("comisionDuplicados_('estudiantes:0801',{rep:[{id:1},{id:2}],con:[{id:1}]})")==='','el mismo estudiante en listas distintas sí es válido');
 ok(/demasiado grande/.test(falla("comisionGuardar({acta:A1,seccion:'estudiantes:0801',datos:{x:'a'.repeat(46000)},version:0})")||''),'una sección no puede pasar del límite de la celda');
 
+yo('ana@x.com'); { const gd=run("comisionGradoDatos({grado:'08'})"); ok(gd.estudiantes[0].ndoc==='1085957103'&&gd.estudiantes[0].tdoc==='RC'&&gd.estudiantes[1].ndoc==='','el documento y el tipo salen de la hoja Estudiantes aunque el encabezado sea «Documento» o «Tipo_Doc»'); }
 // ---- confirmaciones oficiales ----
 yo('ana@x.com');
 run("comisionGuardar({acta:A1,seccion:'matricula:0801',datos:{ini:36,nu:0,re:0,de:0,m:18,f:17,ve:2,ec:0},version:2})");

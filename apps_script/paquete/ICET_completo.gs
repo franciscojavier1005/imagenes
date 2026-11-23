@@ -3866,11 +3866,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-f';
+var VERSION_SISTEMA = '2026.11.23-g';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-g', fecha: '2026-11-23', cambios: [
+    'Comisiones: las columnas de documento, tipo de documento y sexo de la hoja Estudiantes se leen sin importar mayúsculas, tildes, espacios ni guiones del encabezado (Documento, Tipo_Doc, tipo doc…).'] },
   { version: '2026.11.23-f', fecha: '2026-11-23', cambios: [
     'Comisiones: la pantalla compara su versión con la del servidor y avisa si el código de Apps Script quedó desactualizado (por eso podían verse controles que no guardan); los errores al guardar se muestran en pantalla.'] },
   { version: '2026.11.23-e', fecha: '2026-11-23', cambios: [
@@ -5480,6 +5482,12 @@ function comisionesPruebaDeHumo() {
 /* ------------------------------ datos del grado para la pantalla real ------------------------------ */
 var COM_GRADO_LABEL = { '00': '0° Preescolar', '01': '1° Primaria', '02': '2° Primaria', '03': '3° Primaria', '04': '4° Primaria', '05': '5° Primaria', '06': '6° Secundaria', 'CS1': 'CS 1 (Caminar en Secundaria 1, 6°-7°)', '07': '7° Secundaria', '08': '8° Secundaria', '09': '9° Secundaria', 'CS2': 'CS 2 (Caminar en Secundaria 2, 8°-9°)', '10': '10° Media', '11': '11° Media' };
 var COM_GRADO_SIG = { '00': '1°', '01': '2°', '02': '3°', '03': '4°', '04': '5°', '05': '6°', '06': '7°', 'CS1': 'Caminar en Secundaria 2', '07': '8°', '08': '9°', '09': '10°', 'CS2': '10°', '10': '11°', '11': 'egreso (graduandos)' };
+/** Lee una columna opcional de una fila de la hoja sin importar mayúsculas, tildes, espacios ni guiones del encabezado (documento, Documento, tipo_doc, Tipo doc…). */
+function comisionCol_(fila, nombres) {
+  var ks = Object.keys(fila), norm = function (s) { return comisionSinTildes_(String(s)).toLowerCase().replace(/[^a-z0-9]/g, ''); };
+  for (var i = 0; i < nombres.length; i++) for (var j = 0; j < ks.length; j++) if (norm(ks[j]) === nombres[i]) { var v = fila[ks[j]]; return v === null || v === undefined ? '' : String(v).trim(); }
+  return '';
+}
 function comisionTitulo_(s) { return String(s == null ? '' : s).toLowerCase().replace(/(^|[\s\-])([a-záéíóúñü])/g, function (m, a, b) { return a + b.toUpperCase(); }).replace(/ (De|Del|La|Las|Los|Y) /g, function (m) { return m.toLowerCase(); }).trim(); }
 function comisionCorreoDe_(nombre) {
   var f = null; try { f = filaClaveDoc_(nombre); } catch (e) { f = null; }
@@ -5520,7 +5528,7 @@ function comisionGradoDatos(p) {
   Object.keys(gnames).forEach(function (n) { var ap0 = apoyo.filter(function (a) { return a.n === n; })[0]; personas[n] = { ced: (ap0 && /acad|rector|convivencia|redes/i.test(ap0.rol)) ? '' : cedulaDoc_(n), correo: (ap0 && ap0.correo) || comisionCorreoDe_(n), tel: '' }; });
   var setg = {}; codes.forEach(function (c) { setg[c] = gs[codes.indexOf(c)]; });
   var est = [];
-  datos_('Estudiantes').forEach(function (e, i) { var g = String(e.grupo); if (setg[g]) est.push({ id: i + 1, g: setg[g], a: comisionTitulo_(e.apellidos), n: comisionTitulo_(e.nombres), ndoc: String(e.documento || '').replace(/\D/g, ''), tdoc: String(e.tipo_doc || '').trim(), sx: /^(m|h|hombre|masculino)$/i.test(String(e.sexo || '').trim()) ? 'M' : /^(f|mujer|femenino)$/i.test(String(e.sexo || '').trim()) ? 'F' : '' }); });
+  datos_('Estudiantes').forEach(function (e, i) { var g = String(e.grupo); if (setg[g]) var sx = comisionCol_(e, ['sexo', 'genero']); est.push({ id: i + 1, g: setg[g], a: comisionTitulo_(e.apellidos), n: comisionTitulo_(e.nombres), ndoc: comisionCol_(e, ['documento', 'nodoc', 'numerodocumento', 'numdoc', 'ndoc', 'identificacion', 'cedula']).replace(/\D/g, ''), tdoc: comisionCol_(e, ['tipodoc', 'tipodedocumento', 'tipodocumento', 'tdoc', 'tipo']), sx: /^(m|h|hombre|masculino)$/i.test(sx) ? 'M' : /^(f|mujer|femenino)$/i.test(sx) ? 'F' : '' }); });
   return { codigo: cod, label: label, niv: niv, sig: COM_GRADO_SIG[cod], gs: gs, codes: codes, dir: dir, dir2: dir2, ap: Object.keys(ap).sort(), areas: areas, apoyo: apoyo, personas: personas, estudiantes: est };
 }
 /** Cierre del acta desde la pantalla (la pantalla ya verificó los pendientes): solo el responsable o coordinación; la hora es la del servidor. */

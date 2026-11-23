@@ -742,3 +742,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 85 (2026-11-23, versión 2026.11.23-f)
 - Diagnóstico de versión: `comisionContexto` devuelve `version`; la pantalla (`__CLIENTVER__`, tomado de Leeme.gs en build_real.py) muestra un aviso rojo si el servidor tiene otra versión. Errores de guardado visibles en pantalla. Causa probable de controles que no guardan / documentos que siguen faltando: código de Apps Script sin actualizar o hoja Estudiantes sin columnas documento/tipo_doc.
+
+## Ampliación 86 (2026-11-23, versión 2026.11.23-g)
+- `comisionCol_`: lectura tolerante de columnas opcionales de Estudiantes (documento/tipo_doc/sexo) por encabezado normalizado.

@@ -725,3 +725,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Docentes: ingreso por grado, nombre y clave (primera vez, cédula); administración de docentes; máscara de correo.
 - Manuales actualizados (Ayuda, cartilla, manual de comisiones).
 - Limitaciones: bloqueos `confirm:*` solo en cliente; estudiantes nuevos del acta no se escriben en la hoja Estudiantes; cierre validado en cliente; faltan 13 cédulas en Identidad_Docentes; Direccion_Grupo de Prado y Puches por corregir en el libro.
+
+## Ampliación 82 (2026-11-23, versión 2026.11.23-c)
+- Defecto real: `comisionAbrir` devolvía null a la pantalla («reading 'acta'») porque las celdas de fecha de `Comision_Actas` llegan como Date y `google.script.run` descarta la respuesta. `llamarSeguro` ahora pasa por `sanearSalida_` (Date → texto). Regla: nunca devolver Date a la pantalla.

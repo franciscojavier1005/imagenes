@@ -3866,11 +3866,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-b';
+var VERSION_SISTEMA = '2026.11.23-c';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-c', fecha: '2026-11-23', cambios: [
+    'Corrección: al abrir el acta de comisiones salía «Cannot read properties of null» porque las fechas de las hojas llegaban como objeto Date y Apps Script devolvía vacío; ahora se convierten a texto.'] },
   { version: '2026.11.23-b', fecha: '2026-11-23', cambios: [
     'Comisiones de evaluación y promoción: pantalla real (?p=comisiones) con botón en el menú de docentes y directivos. Cada docente entra a su grado y periodo; el acta se guarda por secciones en el libro (Comision_Actas, Comision_Secciones, Comision_Log) y varias personas trabajan a la vez con refresco automático. Roles: responsable del registro (primera persona), director/a de grupo, docente de área, editor del acta (etiqueta) y coordinación.',
     'Al abrir, cada persona dice dónde está y desde qué hora. Los directivos tienen «Seguimiento de las comisiones»: avance, quién redacta y dónde, quién acompaña (directivos, orientación, tutora PTAFI) y avisos cada vez que alguien avanza y cada media hora.',
@@ -4503,7 +4505,15 @@ function llamarSeguro(token, fn, args) {
   TOKEN_ACTUAL_ = token;
   var out = apiDespachar_(ses.correo, fn, args);
   if (!out.ok) throw new Error(out.error);
-  return out.data;
+  return sanearSalida_(out.data);
+}
+
+/** Apps Script devuelve null a la pantalla si la respuesta trae objetos Date (las hojas convierten «2026-11-23 08:41» en fecha). Se pasan a texto. */
+function sanearSalida_(v) {
+  if (Object.prototype.toString.call(v) === '[object Date]') return isNaN(v.getTime()) ? '' : Utilities.formatDate(v, TZ, 'yyyy-MM-dd HH:mm');
+  if (Array.isArray(v)) return v.map(sanearSalida_);
+  if (v && typeof v === 'object') { var o = {}; Object.keys(v).forEach(function (k) { o[k] = sanearSalida_(v[k]); }); return o; }
+  return v;
 }
 
 /** El directivo cambia su propia clave. p = {actual, nueva} (se ejecuta con su sesión). */

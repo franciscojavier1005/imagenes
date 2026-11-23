@@ -106,7 +106,15 @@ function llamarSeguro(token, fn, args) {
   TOKEN_ACTUAL_ = token;
   var out = apiDespachar_(ses.correo, fn, args);
   if (!out.ok) throw new Error(out.error);
-  return out.data;
+  return sanearSalida_(out.data);
+}
+
+/** Apps Script devuelve null a la pantalla si la respuesta trae objetos Date (las hojas convierten «2026-11-23 08:41» en fecha). Se pasan a texto. */
+function sanearSalida_(v) {
+  if (Object.prototype.toString.call(v) === '[object Date]') return isNaN(v.getTime()) ? '' : Utilities.formatDate(v, TZ, 'yyyy-MM-dd HH:mm');
+  if (Array.isArray(v)) return v.map(sanearSalida_);
+  if (v && typeof v === 'object') { var o = {}; Object.keys(v).forEach(function (k) { o[k] = sanearSalida_(v[k]); }); return o; }
+  return v;
 }
 
 /** El directivo cambia su propia clave. p = {actual, nueva} (se ejecuta con su sesión). */

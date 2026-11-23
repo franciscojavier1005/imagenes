@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-g';
+var VERSION_SISTEMA = '2026.11.23-h';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-h', fecha: '2026-11-23', cambios: [
+    'Comisiones: la barra superior muestra la versión de la pantalla y la del servidor para comprobar que ambas quedaron actualizadas.'] },
   { version: '2026.11.23-g', fecha: '2026-11-23', cambios: [
     'Comisiones: las columnas de documento, tipo de documento y sexo de la hoja Estudiantes se leen sin importar mayúsculas, tildes, espacios ni guiones del encabezado (Documento, Tipo_Doc, tipo doc…).'] },
   { version: '2026.11.23-f', fecha: '2026-11-23', cambios: [

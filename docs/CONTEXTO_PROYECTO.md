@@ -745,3 +745,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 86 (2026-11-23, versión 2026.11.23-g)
 - `comisionCol_`: lectura tolerante de columnas opcionales de Estudiantes (documento/tipo_doc/sexo) por encabezado normalizado.
+
+## Ampliación 87 (2026-11-23, versión 2026.11.23-h)
+- La barra superior de Comisiones muestra «pantalla X · servidor Y». Los controles bloqueados que reportó el usuario no se reproducen con el código actual (prueba integrada: docente no responsable activa verificaciones y juramento y se guardan en el libro); causa probable: archivo HTML `Comisiones` del proyecto sin actualizar.

@@ -109,7 +109,7 @@ function contextoPanel() {
              docentes: docs.map(function (d) { return { nombre: d.nombre_completo, nivel: d.nivel }; }), niveles: Object.keys(niveles).sort() };
   }
   if (id.rol === 'docente') {
-    return { rol: 'docente', vistaInicial: 'docente', docente: id.docente, autorizado: id.autorizado, textoAutorizacion: TEXTO_AUTORIZACION, version: TEXTO_AUTORIZACION_VERSION };
+    return { rol: 'docente', vistaInicial: 'docente', docente: id.docente, nombre: id.docente, autorizado: id.autorizado, debeCambiar: docenteDebeCambiarClave_(id), conClave: esCorreoInternoDoc_(id.email), textoAutorizacion: TEXTO_AUTORIZACION, version: TEXTO_AUTORIZACION_VERSION };
   }
   if (id.rol === 'sin_registro') {
     return { rol: 'sin_registro', email: id.email, docentes: nombresRegistro_(), textoAutorizacion: TEXTO_AUTORIZACION, version: TEXTO_AUTORIZACION_VERSION };

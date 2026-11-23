@@ -65,6 +65,9 @@ yo('elena@x.com'); ok(run("comisionContexto()").actas.length===0,'una docente de
 const mat={ini:36,nu:0,re:0,de:0,m:18,f:18,ve:2,ec:0};
 yo('ana@x.com');
 g.A1=id1; g.M=mat;
+{ const antes=JSON.stringify([run("hojaOCrea_('Comision_Actas',COL_CACTAS).getDataRange().getValues().length"),run("hojaOCrea_('Comision_Secciones',COL_CSEC).getDataRange().getValues().length")]); yo('coord@x.com'); const pr=run('comisionesPruebaDeHumo_()'); yo('ana@x.com');
+  ok(pr.length>=8&&pr.every(x=>x.ok),'la prueba de funcionamiento del menú pasa todos sus pasos ('+pr.filter(x=>x.ok).length+' de '+pr.length+')'+pr.filter(x=>!x.ok).map(x=>' ✖ '+x.paso+': '+x.msg).join(';'));
+  ok(JSON.stringify([run("hojaOCrea_('Comision_Actas',COL_CACTAS).getDataRange().getValues().length"),run("hojaOCrea_('Comision_Secciones',COL_CSEC).getDataRange().getValues().length")])===antes,'…y no deja nada en las hojas (borra su acta de prueba)'); }
 ok(run("hojaOCrea_('Comision_Actas',COL_CACTAS).getDataRange().getValues()[1][6]")==='Ana Director','la primera persona que abre el acta queda como responsable del registro y cierre');
 ok(run("nombreDirectivoCompleto_('Harold Angulo')")==='Angulo Merchancano Harold Wilson'&&run("nombreDirectivoCompleto_('Otro Nombre')")==='Otro Nombre','los directivos se muestran con nombre completo y apellidos primero');
 r=run("comisionGuardar({acta:A1,seccion:'matricula:0801',datos:M,version:0})"); ok(r.ok&&r.version===1,'la directora de grupo guarda la matrícula de su curso (versión 1)');

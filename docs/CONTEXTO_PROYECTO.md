@@ -710,3 +710,10 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 ### Ampliación 79 — Ingreso: avisos cuando la sesión no se abre (2026.11.22-i)
 - Diagnóstico (2026-11-22 19:24, hoja Sesiones): tras restablecer la clave, `ingresar` sí creó sesión (dos filas de Francisco Cortés con un minuto de diferencia) pero la pantalla volvía al ingreso sin mensaje. Causas posibles: el navegador no deja guardar el token (almacenamiento bloqueado o modo privado) o `contextoPanel` falló después; ambos caminos volvían en silencio. Ahora `Menu.html` muestra el motivo en cada caso.
 - Pendiente: pantalla de ingreso de docentes con contraseña temporal (hoy los docentes entran por cuenta de Google registrada en Usuarios, a través del front).
+
+### Ampliación 80 — Ingreso de docentes con clave y prueba de comisiones (2026.11.23-a)
+- **Docentes** (`Sesion.gs`): «Soy docente» → grado que atiende → sus docentes (dirección de grupo + horario, más orientación y tutoría PTAFI en todos) → nombre, correo de contacto (cualquier proveedor, la primera vez) y clave. Primera vez: la clave es la cédula (hoja reservada `Identidad_Docentes`: docente, cedula; la llena coordinación); al entrar se elige clave propia de 6 a 12 números. Hojas `Claves_Docentes` (solo hash) y `Usuarios` (correo interno docNN@docente.icet.local). 5 intentos → 15 minutos. Restablecer: menú «Docentes: restablecer la clave de un docente» (vuelve a la cédula o a una temporal) y «Docentes: ver quién ya activó su acceso». El docente no ve rondas ni nada de directivos (9 de 9 funciones bloqueadas en las pruebas). Nuevo `apps_script/pruebas/docentes_clave.test.js`.
+- **Directivos** siguen con su pestaña «Soy directivo» (nombre y clave).
+- **Prueba de comisiones** (menú «Comisiones: prueba de funcionamiento»): abre un acta de prueba de 2099, guarda, lee, provoca conflicto, rechaza repetidos, pide pendientes y la borra; 10 pasos, probado.
+- Vista previa v61: los botones de ejemplo solo se ven en modo desarrollador.
+- Pendiente: botón «Comisiones» en el menú del docente (fase 2), y llenar las 13 cédulas que faltan en Identidad_Docentes.

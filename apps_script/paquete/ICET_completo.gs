@@ -31,7 +31,10 @@ function onOpen() {
     .addItem('Importar bandeja de WhatsApp (filas marcadas SI)', 'importarBandejaWhatsApp')
     .addItem('Generar claves de ingreso de los directivos', 'generarClavesDirectivos')
     .addItem('Restablecer la clave de un directivo', 'restablecerClaveDirectivo')
+    .addItem('Docentes: restablecer la clave de un docente', 'restablecerClaveDocente')
+    .addItem('Docentes: ver quién ya activó su acceso', 'verDocentesActivos')
     .addItem('Ver sesiones abiertas (quién está usando el sistema)', 'verSesionesAbiertas')
+    .addItem('Comisiones: prueba de funcionamiento (guarda y borra un acta de prueba)', 'comisionesPruebaDeHumo')
     .addItem('Acerca de este sistema', 'acercaDe')
     .addItem('Actualizar hoja LEEME (versión y cambios)', 'actualizarLeeme')
     .addItem('Quitar reuniones repetidas', 'quitarReunionesDuplicadasLibro')
@@ -1364,7 +1367,7 @@ function contextoPanel() {
              docentes: docs.map(function (d) { return { nombre: d.nombre_completo, nivel: d.nivel }; }), niveles: Object.keys(niveles).sort() };
   }
   if (id.rol === 'docente') {
-    return { rol: 'docente', vistaInicial: 'docente', docente: id.docente, autorizado: id.autorizado, textoAutorizacion: TEXTO_AUTORIZACION, version: TEXTO_AUTORIZACION_VERSION };
+    return { rol: 'docente', vistaInicial: 'docente', docente: id.docente, nombre: id.docente, autorizado: id.autorizado, debeCambiar: docenteDebeCambiarClave_(id), conClave: esCorreoInternoDoc_(id.email), textoAutorizacion: TEXTO_AUTORIZACION, version: TEXTO_AUTORIZACION_VERSION };
   }
   if (id.rol === 'sin_registro') {
     return { rol: 'sin_registro', email: id.email, docentes: nombresRegistro_(), textoAutorizacion: TEXTO_AUTORIZACION, version: TEXTO_AUTORIZACION_VERSION };
@@ -3863,11 +3866,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.22-i';
-var FECHA_VERSION = '2026-11-22';
+var VERSION_SISTEMA = '2026.11.23-a';
+var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-a', fecha: '2026-11-23', cambios: [
+    'Ingreso de docentes: «Soy docente» → grado que atiende → nombre (solo los docentes de ese grado, más orientación y tutoría) → correo de contacto (cualquier proveedor) y clave. La primera vez la clave es la cédula (hoja Identidad_Docentes) y se elige una propia de 6 a 12 números. Coordinación restablece desde el menú «Docentes: restablecer la clave de un docente». El docente no ve rondas ni nada de directivos.',
+    'Menú nuevo «Comisiones: prueba de funcionamiento»: guarda, lee, provoca un conflicto y borra un acta de prueba del año 2099 para comprobar que todo guarda sin errores.'] },
   { version: '2026.11.22-i', fecha: '2026-11-22', cambios: [
     'Ingreso: si la clave es correcta pero el navegador no puede guardar la sesión, o el servidor no abre la sesión, ahora la pantalla lo dice con el motivo (antes volvía al ingreso sin explicar nada).'] },
   { version: '2026.11.22-h', fecha: '2026-11-22', cambios: [
@@ -4123,6 +4129,7 @@ var LEEME_HOJAS = [
   'Semana_Alternancia / Alternancias   Quién dicta cada semana en las parejas que alternan.',
   'Turnos_Ronda       Quién debe hacer la ronda en cada bloque de cada día (titular y quien suele reemplazarlo). Se puede editar; solo avisa, no bloquea.',
   'Usuarios / Soportes / Parametros   Cuentas de docentes, soportes de ausencias y parámetros.',
+  'Claves_Docentes / Identidad_Docentes   Ingreso de docentes con clave: Claves_Docentes guarda solo el hash de cada clave (no se edita); Identidad_Docentes (docente, cedula) la llena coordinación y es la clave inicial de cada docente. Datos reservados: no compartir la hoja.',
   'Notas_Ronda / Bandeja_WhatsApp   Observaciones de la ronda y novedades propuestas desde WhatsApp.',
   'Directivos        Quiénes registran: claves (hash), correo, ve_todo (NO = solo ve sus rondas), cambia_asignacion (SI/NO: puede cambiar quién dicta en las parejas), administra (SI/NO: puede anular reuniones). No escriba PIN a mano.',
   'Copias en Drive    Carpeta «App Asistencia / Respaldos» (Diario 3 días, Semanal, Mensual) con el libro principal y el de respaldo; se programa desde el menú «Respaldos: programar copia diaria (Drive)».',
@@ -4647,6 +4654,178 @@ function verSesionesAbiertas() {
   var txt = Object.keys(por).map(function (n) { return n + ': ' + por[n].n + ' sesión(es) abierta(s) · la más antigua desde ' + f(por[n].desde) + ' · último uso ' + f(por[n].uso); }).join('\n') || 'No hay sesiones abiertas.';
   var ui = SpreadsheetApp.getUi();
   ui.alert('Sesiones abiertas', txt + '\n\nSi alguien tiene más sesiones de las que usa (por ejemplo otra persona con su usuario), restablezca su clave: «Restablecer la clave de un directivo» cierra todas sus sesiones.', ui.ButtonSet.OK);
+}
+
+/* ======================================================================================================================
+ * Docentes con clave (sin cuenta de Google). Autor del sistema: Francisco Javier Cortés Cabezas.
+ *  - Pantalla de ingreso: la persona elige el GRADO que atiende y de ese grado se muestran sus docentes (más orientación y tutoría, que
+ *    trabajan con todos); elige su nombre, escribe un correo de contacto (cualquiera, no tiene que ser de Google) y su clave.
+ *  - Primera vez: la clave es su número de cédula (hoja reservada Identidad_Docentes: docente, cedula). Al entrar elige una clave propia (6 a 12 números).
+ *  - Si la olvida: coordinación la restablece desde el menú del libro (vuelve a su cédula o a la temporal que se escriba).
+ *  - 5 intentos fallidos bloquean 15 minutos. Todo se guarda con sal y hash (hoja Claves_Docentes); la cédula nunca viaja a las pantallas.
+ *  - Internamente cada docente tiene un correo interno (docNN@docente.icet.local) con una fila en Usuarios: el resto del sistema (permisos de
+ *    rol docente, soportes, comisiones) funciona igual y NO ve nada de rondas ni de directivos.
+ * ====================================================================================================================== */
+var COL_CLAVES_DOC = ['docente', 'pin_hash', 'pin_sal', 'intentos', 'bloqueado_hasta', 'clave_temporal', 'correo_interno', 'creada', 'correo_contacto'];
+var COL_IDENTIDAD_DOC = ['docente', 'cedula'];
+var DOMINIO_DOC = '@docente.icet.local';
+function sinTildesDoc_(s) { return String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/\s+/g, ' ').trim(); }
+function claveDocValida_(pin) { return /^\d{6,12}$/.test(String(pin)); }
+function docentesParaClave_() { return datos_('Docentes').filter(function (d) { return d.nivel !== 'REEMPLAZADO' && d.nombre_completo; }); }
+function docenteExacto_(nombre) { var n = sinTildesDoc_(nombre); return docentesParaClave_().filter(function (d) { return sinTildesDoc_(d.nombre_completo) === n; })[0] || null; }
+function hojaClavesDoc_() { return hojaOCrea_('Claves_Docentes', COL_CLAVES_DOC); }
+function filaClaveDoc_(nombre) {
+  var sh = hojaClavesDoc_(), v = sh.getDataRange().getValues(), cab = v[0], col = {};
+  COL_CLAVES_DOC.forEach(function (k) { if (cab.indexOf(k) < 0) { sh.getRange(1, cab.length + 1).setValue(k); cab.push(k); v[0] = cab; } });
+  cab.forEach(function (k, i) { col[k] = i; });
+  for (var i = 1; i < v.length; i++) if (sinTildesDoc_(v[i][col.docente]) === sinTildesDoc_(nombre)) return { sh: sh, fila: i + 1, v: v[i], col: col };
+  return null;
+}
+function correoInternoDoc_(d) { return 'doc' + String(d.n || sinTildesDoc_(d.nombre_completo).replace(/[^A-Z0-9]/g, '').slice(0, 12)).toLowerCase() + DOMINIO_DOC; }
+function esCorreoInternoDoc_(e) { return String(e || '').toLowerCase().slice(-DOMINIO_DOC.length) === DOMINIO_DOC; }
+function cedulaDoc_(nombre) {
+  var f = datosOCrea_('Identidad_Docentes', COL_IDENTIDAD_DOC).filter(function (x) { return sinTildesDoc_(x.docente) === sinTildesDoc_(nombre); })[0];
+  return f ? String(f.cedula == null ? '' : f.cedula).replace(/\D/g, '') : '';
+}
+function asegurarUsuarioDoc_(d, correo) {
+  var sh = hojaOCrea_('Usuarios', COL_USUARIOS), v = sh.getDataRange().getValues();
+  for (var i = 1; i < v.length; i++) if (String(v[i][0]).toLowerCase() === correo) { if (v[i][2] !== 'ACTIVO') sh.getRange(i + 1, 3).setValue('ACTIVO'); return; }
+  sh.appendRow([correo, d.nombre_completo, 'ACTIVO', ahoraTxt_(), '', '', '', 'clave', '']);
+}
+/** Grados para la pantalla de ingreso: [{codigo, etiqueta}] en orden. */
+function listarGradosPublicos() {
+  var visto = {}, out = [];
+  datos_('Grupos').forEach(function (g) {
+    var c = partesGrupo_(g.grupo).grado; if (c === 'N/A' || c === 'ORI' || c === 'PTA' || visto[c]) return; visto[c] = 1;
+    out.push({ codigo: c, etiqueta: /^CS/.test(c) ? 'Caminar en Secundaria ' + c.slice(2) : c === '00' ? 'Preescolar (0°)' : Number(c) + '°' + (Number(c) <= 5 ? ' (primaria)' : '') });
+  });
+  return out.sort(function (a, b) { var x = /^CS/.test(a.codigo) ? 100 + Number(a.codigo.slice(2)) : Number(a.codigo), y = /^CS/.test(b.codigo) ? 100 + Number(b.codigo.slice(2)) : Number(b.codigo); return x - y; });
+}
+/** Nombres de los docentes de un grado (dirección de grupo y horario) más orientación y tutoría. */
+function docentesDelGrado_(grado) {
+  var nom = {};
+  datos_('Direccion_Grupo').forEach(function (d) { if (partesGrupo_(d.grupo).grado === grado) [d.docente_1, d.docente_2].forEach(function (n) { if (n) nom[sinTildesDoc_(n)] = 1; }); });
+  datos_('Horario').forEach(function (h) { if (h.docente && partesGrupo_(h.grupo).grado === grado) nom[sinTildesDoc_(h.docente)] = 1; });
+  return docentesParaClave_().filter(function (d) { return nom[sinTildesDoc_(d.nombre_completo)] || /ORIENTACI|TUTORA|PTAFI/i.test(String(d.nivel)); });
+}
+/** Docentes del grado elegido para la pantalla de ingreso (solo nombres y si ya tienen clave propia). */
+function listarDocentesPublicos(grado) {
+  hojaClavesDoc_();
+  var con = {}; datos_('Claves_Docentes').forEach(function (c) { if (String(c.pin_hash || '').trim() && String(c.clave_temporal || '') !== 'SI') con[sinTildesDoc_(c.docente)] = 1; });
+  var lista = grado ? docentesDelGrado_(String(grado)) : docentesParaClave_();
+  return lista.map(function (d) { return { nombre: d.nombre_completo, tieneClave: !!con[sinTildesDoc_(d.nombre_completo)] }; })
+    .sort(function (a, b) { return a.nombre.localeCompare(b.nombre, 'es'); });
+}
+function verificarClaveDoc_(nombre, pin) {
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var doc = docenteExacto_(nombre); if (!doc) throw new Error('Nombre o clave incorrectos.');
+    var d = filaClaveDoc_(doc.nombre_completo);
+    if (!d) { hojaClavesDoc_().appendRow([doc.nombre_completo, '', '', 0, '', '', correoInternoDoc_(doc), ahoraTxt_(), '']); d = filaClaveDoc_(doc.nombre_completo); }
+    var c = d.col, bloq = Number(d.v[c.bloqueado_hasta]) || 0;
+    if (bloq > ahoraMs_()) throw new Error('Demasiados intentos. Espere unos minutos e intente de nuevo.');
+    var ok = false, primera = false;
+    if (String(d.v[c.pin_hash] || '').trim()) ok = /^\d{4,12}$/.test(String(pin)) && igualConstante_(hash_(d.v[c.pin_sal] + pin), d.v[c.pin_hash]);
+    else {   // primera vez: la clave es la cédula registrada por coordinación
+      var ced = cedulaDoc_(doc.nombre_completo);
+      if (!ced) throw new Error('Coordinación aún no registró su cédula. Avise a coordinación.');
+      ok = igualConstante_(String(pin).replace(/\D/g, ''), ced); primera = ok;
+    }
+    if (!ok) {
+      var n = (Number(d.v[c.intentos]) || 0) + 1;
+      d.sh.getRange(d.fila, c.intentos + 1).setValue(n >= PIN_INTENTOS ? 0 : n);
+      if (n >= PIN_INTENTOS) d.sh.getRange(d.fila, c.bloqueado_hasta + 1).setValue(ahoraMs_() + BLOQUEO_MIN * 60000);
+      throw new Error(n >= PIN_INTENTOS ? 'Demasiados intentos. Espere ' + BLOQUEO_MIN + ' minutos.' : 'Nombre o clave incorrectos.');
+    }
+    d.sh.getRange(d.fila, c.intentos + 1).setValue(0);
+    if (primera) guardarClaveDoc_(d, String(pin).replace(/\D/g, ''), true);   // queda como temporal: debe elegir la suya
+    return { d: d, doc: doc, temp: primera || String(d.v[c.clave_temporal] || '') === 'SI' };
+  } finally { lock.releaseLock(); }
+}
+function guardarClaveDoc_(d, pin, temporal) {
+  var sal = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
+  d.sh.getRange(d.fila, d.col.pin_sal + 1).setValue(sal);
+  d.sh.getRange(d.fila, d.col.pin_hash + 1).setValue(hash_(sal + pin));
+  d.sh.getRange(d.fila, d.col.intentos + 1).setValue(0);
+  d.sh.getRange(d.fila, d.col.bloqueado_hasta + 1).setValue('');
+  d.sh.getRange(d.fila, d.col.clave_temporal + 1).setValue(temporal ? 'SI' : '');
+}
+function abrirSesionDoc_(nombre, correo, debeCambiar) {
+  var token = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
+  var ahora = ahoraMs_(), sh = hojaOCrea_('Sesiones', COL_SESIONES), v = sh.getDataRange().getValues();
+  for (var i = v.length - 1; i >= 1; i--) if (Number(v[i][4]) < ahora) sh.deleteRow(i + 1);
+  sh.appendRow([hash_(token), nombre, correo, ahora, ahora + SESION_DIAS * 86400000, ahora]);
+  return { token: token, nombre: nombre, rol: 'docente', debeCambiar: !!debeCambiar };
+}
+function correoValidoDoc_(e) { return /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(String(e || '').trim()); }
+/** Ingreso de un docente. p = {nombre, pin, correo (la primera vez, cualquier proveedor)}. */
+function ingresarDocente(p) {
+  p = p || {};
+  var r = verificarClaveDoc_(p.nombre, p.pin), d = r.d, doc = r.doc, correo = correoInternoDoc_(doc);
+  if (correoValidoDoc_(p.correo)) d.sh.getRange(d.fila, d.col.correo_contacto + 1).setValue(String(p.correo).trim());
+  else if (String(d.v[d.col.clave_temporal] || '') === 'SI' && !String(d.v[d.col.correo_contacto] || '').trim()) { /* la primera vez se pide, pero no bloquea */ }
+  asegurarUsuarioDoc_(doc, correo);
+  return abrirSesionDoc_(doc.nombre_completo, correo, r.temp);
+}
+/** El docente cambia su propia clave. p = {actual, nueva}. Sirve también para reemplazar la clave inicial (la cédula). */
+function cambiarClaveDocente(p) {
+  p = p || {};
+  var id = identidad_();
+  if (id.rol !== 'docente' || !esCorreoInternoDoc_(id.email)) throw new Error('Solo un docente que entró con clave puede cambiarla aquí.');
+  if (!claveDocValida_(p.nueva)) throw new Error('La clave nueva debe tener de 6 a 12 números.');
+  if (String(p.nueva) === String(p.actual)) throw new Error('La clave nueva debe ser distinta.');
+  var r = verificarClaveDoc_(id.docente, p.actual);
+  guardarClaveDoc_(r.d, String(p.nueva), false);
+  var sh = hojaOCrea_('Sesiones', COL_SESIONES), v = sh.getDataRange().getValues(), actual = TOKEN_ACTUAL_ ? hash_(TOKEN_ACTUAL_) : '', cerradas = 0;
+  for (var i = v.length - 1; i >= 1; i--) if (String(v[i][2]).toLowerCase() === id.email && v[i][0] !== actual) { sh.deleteRow(i + 1); cerradas++; }
+  return { ok: true, sesionesCerradas: cerradas };
+}
+/** ¿Esta persona (docente con clave) debe elegir una clave nueva? Lo usa contextoPanel. */
+function docenteDebeCambiarClave_(id) {
+  if (!id || id.rol !== 'docente' || !esCorreoInternoDoc_(id.email)) return false;
+  var d = filaClaveDoc_(id.docente);
+  return !!(d && String(d.v[d.col.clave_temporal] || '') === 'SI');
+}
+/** Coordinación: restablece la clave de un docente (vuelve a su cédula, o a la temporal que se escriba) y cierra sus sesiones. */
+function restablecerClaveDocente_(nombre, pinElegido) {
+  exigirEditor_();
+  var doc = docenteExacto_(nombre); if (!doc) throw new Error('No se encontró a ' + nombre + '.');
+  var pin = String(pinElegido || '').trim() || cedulaDoc_(doc.nombre_completo);
+  if (!pin) throw new Error('Esa persona no tiene cédula registrada en la hoja Identidad_Docentes: escriba una clave temporal de 6 a 12 números.');
+  if (!claveDocValida_(pin)) throw new Error('La clave temporal debe tener de 6 a 12 números.');
+  var correo = correoInternoDoc_(doc), d = filaClaveDoc_(doc.nombre_completo);
+  if (!d) { hojaClavesDoc_().appendRow([doc.nombre_completo, '', '', 0, '', '', correo, ahoraTxt_(), '']); d = filaClaveDoc_(doc.nombre_completo); }
+  guardarClaveDoc_(d, pin, true); asegurarUsuarioDoc_(doc, correo);
+  var sh = hojaOCrea_('Sesiones', COL_SESIONES), v = sh.getDataRange().getValues();
+  for (var i = v.length - 1; i >= 1; i--) if (String(v[i][2]).toLowerCase() === correo) sh.deleteRow(i + 1);
+  return { nombre: doc.nombre_completo, pin: pin, esCedula: !pinElegido };
+}
+function restablecerClaveDocente() {
+  exigirEditor_();
+  var ui = SpreadsheetApp.getUi(), r = ui.prompt('Restablecer la clave de un docente', 'Escriba el apellido o parte del nombre del docente:', ui.ButtonSet.OK_CANCEL);
+  if (r.getSelectedButton() !== ui.Button.OK) return;
+  var q = sinTildesDoc_(r.getResponseText()); if (!q) return;
+  var hall = docentesParaClave_().filter(function (d) { return sinTildesDoc_(d.nombre_completo).indexOf(q) >= 0; });
+  if (!hall.length) { ui.alert('No encontré a nadie con «' + r.getResponseText() + '».'); return; }
+  var elegido = hall[0];
+  if (hall.length > 1) {
+    var r1 = ui.prompt('Varios docentes', 'Escriba el NÚMERO:\n\n' + hall.slice(0, 15).map(function (d, i) { return (i + 1) + '. ' + d.nombre_completo; }).join('\n'), ui.ButtonSet.OK_CANCEL);
+    if (r1.getSelectedButton() !== ui.Button.OK) return;
+    var n = Number(String(r1.getResponseText()).trim()); if (!(n >= 1 && n <= Math.min(15, hall.length))) { ui.alert('Número no válido.'); return; }
+    elegido = hall[n - 1];
+  }
+  var r2 = ui.prompt('Clave de ' + elegido.nombre_completo, 'Deje vacío para que la clave vuelva a ser su número de cédula, o escriba una clave temporal de 6 a 12 números.', ui.ButtonSet.OK_CANCEL);
+  if (r2.getSelectedButton() !== ui.Button.OK) return;
+  var out; try { out = restablecerClaveDocente_(elegido.nombre_completo, String(r2.getResponseText()).trim()); } catch (e) { ui.alert(e.message); return; }
+  ui.alert(out.nombre + ': ' + (out.esCedula ? 'su clave volvió a ser su número de cédula.' : 'clave temporal ' + out.pin + '.') + '\n\nAl ingresar deberá elegir una clave propia. Se cerraron sus sesiones abiertas.');
+}
+function verDocentesActivos() {
+  exigirEditor_();
+  var act = {}; datos_('Claves_Docentes').forEach(function (c) { if (String(c.pin_hash || '').trim() && String(c.clave_temporal || '') !== 'SI') act[sinTildesDoc_(c.docente)] = 1; });
+  var todos = docentesParaClave_(), faltan = todos.filter(function (d) { return !act[sinTildesDoc_(d.nombre_completo)]; }),
+      sinCed = todos.filter(function (d) { return !cedulaDoc_(d.nombre_completo); });
+  SpreadsheetApp.getUi().alert('Docentes con clave propia: ' + (todos.length - faltan.length) + ' de ' + todos.length + '\n\nFaltan por entrar y elegir su clave:\n' + (faltan.map(function (d) { return '· ' + d.nombre_completo; }).join('\n') || 'ninguno') +
+    (sinCed.length ? '\n\nSin cédula en la hoja Identidad_Docentes (no podrán entrar la primera vez):\n' + sinCed.map(function (d) { return '· ' + d.nombre_completo; }).join('\n') : ''));
 }
 
 // ===================== Comisiones.gs =====================
@@ -5177,6 +5356,40 @@ function comisionSubirSoporte(p) {
   return { nombre: nombre, id: archivo.getId(), url: archivo.getUrl() };
 }
 
+/* ------------------------------ prueba de humo (la ejecuta quien administra desde el menú del libro) ------------------------------ */
+/** Abre un acta de PRUEBA (año 2099), guarda, lee, provoca un conflicto, pide pendientes y borra todo lo que creó. Devuelve [{paso, ok, msg}]. */
+function comisionesPruebaDeHumo_() {
+  var out = [], id = '', grado = '';
+  function paso(nombre, f) { try { var r = f(); out.push({ paso: nombre, ok: r !== false, msg: r === false ? 'no cumplió lo esperado' : '' }); } catch (e) { out.push({ paso: nombre, ok: false, msg: String(e && e.message || e) }); } }
+  var g = datos_('Grupos').map(function (x) { return partesGrupo_(x.grupo).grado; }).filter(function (c) { return /^\d\d$/.test(c); })[0] || '';
+  paso('Elegir un grado para la prueba', function () { grado = g; return !!grado; });
+  if (!grado) return out;
+  paso('Abrir un acta de prueba (año 2099)', function () { var r = comisionAbrir({ anio: 2099, periodo: PERIODOS_COM[0], grado: grado }); id = r.acta.id; return !!id && r.acta.estado === 'ABIERTA'; });
+  if (id) {
+    paso('Guardar una sección', function () { var r = comisionGuardar({ acta: id, seccion: 'general', datos: { texto: 'prueba' }, version: 0 }); return r.ok && r.version === 1; });
+    paso('Leer lo guardado', function () { var r = comisionCargar({ acta: id }); return r.secciones.general && r.secciones.general.datos.texto === 'prueba'; });
+    paso('Detectar un conflicto (otra persona ya cambió la sección)', function () { return comisionGuardar({ acta: id, seccion: 'general', datos: { texto: 'otra' }, version: 0 }).conflicto === true; });
+    paso('Guardar con la versión correcta', function () { var r = comisionGuardar({ acta: id, seccion: 'general', datos: { texto: 'dos' }, version: 1 }); return r.ok && r.version === 2; });
+    paso('Pedir los cambios desde la versión cero', function () { return !!comisionCambios({ acta: id, versiones: {} }).cambios.general; });
+    paso('Rechazar un estudiante repetido en una lista', function () { try { comisionGuardar({ acta: id, seccion: 'estudiantes:' + (datos_('Grupos').filter(function (x) { return partesGrupo_(x.grupo).grado === grado; })[0] || {}).grupo, datos: { rep: [{ id: 1 }, { id: 1 }] }, version: 0 }); return false; } catch (e) { return /repetido/.test(String(e.message)); } });
+    paso('Calcular los pendientes del acta', function () { var r = comisionPendientes({ acta: id }); return !!r; });
+    paso('Borrar el acta de prueba', function () { comisionBorrarActaPrueba_(id); return !comisionActas_().some(function (a) { return a.id === id; }); });
+  }
+  return out;
+}
+function comisionBorrarActaPrueba_(id) {
+  [['Comision_Actas', COL_CACTAS, 0], ['Comision_Secciones', COL_CSEC, 0], ['Comision_Log', COL_CLOG, 1]].forEach(function (t) {
+    var sh = hojaOCrea_(t[0], t[1]), v = sh.getDataRange().getValues();
+    for (var i = v.length - 1; i >= 1; i--) if (String(v[i][t[2]]) === String(id)) sh.deleteRow(i + 1);
+  });
+}
+function comisionesPruebaDeHumo() {
+  exigirEditor_();
+  var r = comisionesPruebaDeHumo_(), malos = r.filter(function (x) { return !x.ok; });
+  SpreadsheetApp.getUi().alert('Prueba de comisiones: ' + (malos.length ? malos.length + ' paso(s) con problema' : 'TODO BIEN'),
+    r.map(function (x) { return (x.ok ? '✔ ' : '✖ ') + x.paso + (x.msg ? ' → ' + x.msg : ''); }).join('\n') + '\n\nLa prueba usa un acta del año 2099 y la borra al terminar.', SpreadsheetApp.getUi().ButtonSet.OK);
+}
+
 // ===================== Api.gs =====================
 /**
  * API del "back": el proyecto vinculado al libro, desplegado como aplicación web que se ejecuta COMO EL PROPIETARIO
@@ -5212,6 +5425,7 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   cerrarReunion: ['directivo'],
   historialNovedades: ['directivo'],
   cambiarClave: ['directivo'],
+  cambiarClaveDocente: ['docente'],
   listarIncumplimientos: ['directivo'],
   actualizarSeguimiento: ['directivo'],
   consultaHorarios: ['directivo'],
@@ -5259,6 +5473,7 @@ function apiFunciones_() {
     guardarNotaRonda: guardarNotaRonda, listarPropuestas: listarPropuestas, resolverPropuesta: resolverPropuesta, definirAlternancia: definirAlternancia,
     listarReuniones: listarReuniones, crearReunion: crearReunion, cargarReunion: cargarReunion, guardarAsistenciaReunion: guardarAsistenciaReunion,
     cambiarClave: cambiarClave,
+    cambiarClaveDocente: cambiarClaveDocente,
     listarIncumplimientos: listarIncumplimientos, actualizarSeguimiento: actualizarSeguimiento,
     consultaHorarios: consultaHorarios,
     guardarCorreo: guardarCorreo,

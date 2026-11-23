@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.22-i';
-var FECHA_VERSION = '2026-11-22';
+var VERSION_SISTEMA = '2026.11.23-a';
+var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-a', fecha: '2026-11-23', cambios: [
+    'Ingreso de docentes: «Soy docente» → grado que atiende → nombre (solo los docentes de ese grado, más orientación y tutoría) → correo de contacto (cualquier proveedor) y clave. La primera vez la clave es la cédula (hoja Identidad_Docentes) y se elige una propia de 6 a 12 números. Coordinación restablece desde el menú «Docentes: restablecer la clave de un docente». El docente no ve rondas ni nada de directivos.',
+    'Menú nuevo «Comisiones: prueba de funcionamiento»: guarda, lee, provoca un conflicto y borra un acta de prueba del año 2099 para comprobar que todo guarda sin errores.'] },
   { version: '2026.11.22-i', fecha: '2026-11-22', cambios: [
     'Ingreso: si la clave es correcta pero el navegador no puede guardar la sesión, o el servidor no abre la sesión, ahora la pantalla lo dice con el motivo (antes volvía al ingreso sin explicar nada).'] },
   { version: '2026.11.22-h', fecha: '2026-11-22', cambios: [
@@ -265,6 +268,7 @@ var LEEME_HOJAS = [
   'Semana_Alternancia / Alternancias   Quién dicta cada semana en las parejas que alternan.',
   'Turnos_Ronda       Quién debe hacer la ronda en cada bloque de cada día (titular y quien suele reemplazarlo). Se puede editar; solo avisa, no bloquea.',
   'Usuarios / Soportes / Parametros   Cuentas de docentes, soportes de ausencias y parámetros.',
+  'Claves_Docentes / Identidad_Docentes   Ingreso de docentes con clave: Claves_Docentes guarda solo el hash de cada clave (no se edita); Identidad_Docentes (docente, cedula) la llena coordinación y es la clave inicial de cada docente. Datos reservados: no compartir la hoja.',
   'Notas_Ronda / Bandeja_WhatsApp   Observaciones de la ronda y novedades propuestas desde WhatsApp.',
   'Directivos        Quiénes registran: claves (hash), correo, ve_todo (NO = solo ve sus rondas), cambia_asignacion (SI/NO: puede cambiar quién dicta en las parejas), administra (SI/NO: puede anular reuniones). No escriba PIN a mano.',
   'Copias en Drive    Carpeta «App Asistencia / Respaldos» (Diario 3 días, Semanal, Mensual) con el libro principal y el de respaldo; se programa desde el menú «Respaldos: programar copia diaria (Drive)».',

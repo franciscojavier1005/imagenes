@@ -47,11 +47,11 @@
 <main>
   <div class="saludo" id="saludo"></div>
   <div id="botones"><div class="espera">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.22-i</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.23-a</div>
 </main>
 <script>
 /* ---- Comunicación con el servidor: toda llamada lleva el token de la sesión (ingreso con clave, sin cuenta de Google) ---- */
-var TOKEN_KEY='icet_token', PUBLICAS={urlBase:1,listarDirectivosPublicos:1,ingresar:1,cerrarSesion:1};
+var TOKEN_KEY='icet_token', PUBLICAS={urlBase:1,listarDirectivosPublicos:1,ingresar:1,cerrarSesion:1,listarGradosPublicos:1,listarDocentesPublicos:1,ingresarDocente:1};
 function tokenGuardado(){try{return localStorage.getItem(TOKEN_KEY)||'';}catch(e){return '';}}
 function guardarToken(t){try{localStorage.setItem(TOKEN_KEY,t);}catch(e){}}
 function borrarToken(){try{localStorage.removeItem(TOKEN_KEY);}catch(e){}}
@@ -83,20 +83,28 @@ function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return
 var COLORES={ayuda:'#8a5a00',ronda:'#2f8f5b',novedad:'#d9822b',reunion:'#6b5bb5',horarios:'#1e88a8',panel:'#2c4a7c'};
 function boton(p,ic,t,d){ return '<a class="boton" style="--c:'+(COLORES[p]||'#f0c000')+'" target="_top" href="'+esc(BASE+'?p='+p)+'"><span class="ic">'+ic+'</span><div><b>'+t+'</b><span>'+d+'</span></div></a>'; }
 
-/* ---------- pantalla de ingreso con clave ---------- */
-function mostrarLogin(aviso){
-  el('saludo').textContent='Ingrese con su nombre y su clave';
-  el('botones').innerHTML='<div class="espera">Cargando…</div>';
+/* ---------- pantalla de ingreso con clave (docentes y directivos) ---------- */
+var MODO_LOGIN=(function(){ try{ return localStorage.getItem('icet_modo')||'doc'; }catch(e){ return 'doc'; } })(), DOCS_GRADO=[];
+function pestanasLogin(){
+  return '<div style="display:flex;gap:6px;margin:0 0 10px"><button class="btn" style="flex:1;'+(MODO_LOGIN==='doc'?'':'opacity:.55')+'" onclick="mostrarLogin(\'\',\'doc\')">Soy docente</button><button class="btn" style="flex:1;'+(MODO_LOGIN==='dir'?'':'opacity:.55')+'" onclick="mostrarLogin(\'\',\'dir\')">Soy directivo</button></div>';
+}
+function mostrarLogin(aviso,modo){
+  if(modo){ MODO_LOGIN=modo; try{ localStorage.setItem('icet_modo',modo); }catch(e){} }
+  el('saludo').textContent='Ingrese a la aplicación';
+  el('botones').innerHTML=pestanasLogin()+'<div class="espera">Cargando…</div>';
+  if(MODO_LOGIN==='doc') loginDocente(aviso); else loginDirectivo(aviso);
+}
+function loginDirectivo(aviso){
   srv().withSuccessHandler(function(lista){
     NOMBRES=lista||[];
     var hayClaves=NOMBRES.some(function(d){return d.tieneClave;});
-    var h='<div class="caja"><label>¿Quién es?<select id="lNombre">'+NOMBRES.map(function(d){return '<option value="'+esc(d.nombre)+'">'+esc(d.etiqueta||d.nombre)+' — '+esc(d.rol)+'</option>';}).join('')+'</select></label>'+
+    var h=pestanasLogin()+'<div class="caja"><label>¿Quién es?<select id="lNombre">'+NOMBRES.map(function(d){return '<option value="'+esc(d.nombre)+'">'+esc(d.etiqueta||d.nombre)+' — '+esc(d.rol)+'</option>';}).join('')+'</select></label>'+
       '<label>Clave (6 números)<input class="pin" id="lPin" type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="6" placeholder="••••••"></label>'+
       '<button class="btn" id="lBtn" onclick="entrar()">Entrar</button><div class="msg" id="lMsg">'+esc(aviso||(hayClaves?'':'Aún no hay claves. Quien administra el libro debe crearlas (menú Asistencia ICET > Generar claves de ingreso).'))+'</div></div>'+
       '<div class="pie">Su clave es personal. Si la olvida, pídala a quien administra el libro.</div>'+boton('ayuda','❓','Ayuda y manual de uso','Cómo entrar y usar la aplicación.');
     el('botones').innerHTML=h;
     var p=el('lPin'); if(p){ p.addEventListener('keydown',function(e){ if(e.key==='Enter') entrar(); }); }
-  }).withFailureHandler(function(e){ el('botones').innerHTML='<div class="msg">Error: '+esc(e&&e.message||e)+'</div>'; }).listarDirectivosPublicos();
+  }).withFailureHandler(function(e){ el('botones').innerHTML=pestanasLogin()+'<div class="msg">Error: '+esc(e&&e.message||e)+'</div>'; }).listarDirectivosPublicos();
 }
 function entrar(){
   var n=el('lNombre').value, pin=el('lPin').value.replace(/\D/g,'');
@@ -105,12 +113,49 @@ function entrar(){
   srv().withSuccessHandler(function(r){ guardarToken(r.token); if(tokenGuardado()!==r.token){ mostrarLogin('La clave es correcta, pero su navegador no deja guardar la sesión (bloquea el almacenamiento del sitio o está en modo privado). Abra el enlace en una ventana normal de Chrome y permita los datos del sitio.'); return; } iniciar(); })
    .withFailureHandler(function(e){ var b=el('lBtn'); if(b) b.disabled=false; el('lMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); el('lPin').value=''; }).ingresar({nombre:n,pin:pin});
 }
+/* docentes: grado que atiende → sus docentes → nombre, correo (la primera vez, cualquiera) y clave (la primera vez, su cédula) */
+function loginDocente(aviso){
+  srv().withSuccessHandler(function(gr){
+    var ult=''; try{ ult=localStorage.getItem('icet_grado')||''; }catch(e){}
+    var h=pestanasLogin()+'<div class="caja"><label>Grado que atiende<select id="dGrado" onchange="cargaDocentes()"><option value="">— Elija el grado —</option>'+(gr||[]).map(function(g){return '<option value="'+esc(g.codigo)+'"'+(g.codigo===ult?' selected':'')+'>'+esc(g.etiqueta)+'</option>';}).join('')+'</select></label>'+
+      '<label>Su nombre<select id="dNombre" onchange="cambiaDocente()"><option value="">— Primero elija el grado —</option></select></label>'+
+      '<label id="dMailW" style="display:none">Su correo electrónico (el que usted use, no tiene que ser de Google)<input id="dMail" type="email" autocomplete="email" placeholder="nombre@correo.com"></label>'+
+      '<label><span id="dPinT">Clave</span><input class="pin" id="dPin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="12" placeholder="••••••"></label>'+
+      '<button class="btn" id="dBtn" onclick="entrarDoc()">Entrar</button><div class="msg" id="dMsg">'+esc(aviso||'')+'</div></div>'+
+      '<div class="pie">La primera vez su clave es su <b>número de cédula</b>; al entrar elegirá una clave propia. Si la olvida, pídale a coordinación que la restablezca.</div>'+boton('ayuda','❓','Ayuda y manual de uso','Cómo entrar y usar la aplicación.');
+    el('botones').innerHTML=h;
+    var p=el('dPin'); if(p){ p.addEventListener('keydown',function(e){ if(e.key==='Enter') entrarDoc(); }); }
+    if(ult) cargaDocentes();
+  }).withFailureHandler(function(e){ el('botones').innerHTML=pestanasLogin()+'<div class="msg">Error: '+esc(e&&e.message||e)+'</div>'; }).listarGradosPublicos();
+}
+function cargaDocentes(){
+  var g=el('dGrado').value, sel=el('dNombre'); DOCS_GRADO=[];
+  if(!g){ sel.innerHTML='<option value="">— Primero elija el grado —</option>'; cambiaDocente(); return; }
+  sel.innerHTML='<option value="">Cargando…</option>';
+  srv().withSuccessHandler(function(l){ DOCS_GRADO=l||[]; sel.innerHTML='<option value="">— Elija su nombre —</option>'+DOCS_GRADO.map(function(d){return '<option value="'+esc(d.nombre)+'">'+esc(d.nombre)+'</option>';}).join(''); cambiaDocente(); })
+   .withFailureHandler(function(e){ sel.innerHTML='<option value="">Error</option>'; el('dMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); }).listarDocentesPublicos(g);
+}
+function cambiaDocente(){
+  var n=el('dNombre').value, d=DOCS_GRADO.filter(function(x){return x.nombre===n;})[0], primera=!!d&&!d.tieneClave;
+  el('dMailW').style.display=primera?'':'none';
+  el('dPinT').textContent=primera?'Clave (la primera vez: su número de cédula)':'Clave';
+}
+function entrarDoc(){
+  var g=el('dGrado').value, n=el('dNombre').value, pin=el('dPin').value.replace(/\D/g,''), mail=(el('dMail').value||'').trim();
+  if(!g){ el('dMsg').textContent='Elija el grado que atiende.'; return; }
+  if(!n){ el('dMsg').textContent='Elija su nombre de la lista.'; return; }
+  if(pin.length<4){ el('dMsg').textContent='Escriba su clave (la primera vez, su número de cédula).'; return; }
+  el('dBtn').disabled=true; el('dMsg').textContent='';
+  try{ localStorage.setItem('icet_grado',g); }catch(e){}
+  srv().withSuccessHandler(function(r){ guardarToken(r.token); if(tokenGuardado()!==r.token){ mostrarLogin('La clave es correcta, pero su navegador no deja guardar la sesión (bloquea el almacenamiento del sitio o está en modo privado). Abra el enlace en una ventana normal de Chrome y permita los datos del sitio.'); return; } iniciar(); })
+   .withFailureHandler(function(e){ var b=el('dBtn'); if(b) b.disabled=false; el('dMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); el('dPin').value=''; }).ingresarDocente({nombre:n,pin:pin,correo:mail});
+}
 
 /* ---------- menú ---------- */
 function pintar(rol,nombre,c){
   var h='';
   CTX=c||{}; CTX.nombre=nombre;
-  if(rol==='directivo'&&CTX.debeCambiar){ el('saludo').textContent='Bienvenido(a)'+(nombre?', '+nombre:'')+'. Antes de seguir, elija su clave personal.'; el('botones').innerHTML='<div id="claveForm">'+formClaveObligatoria()+'</div><div class="pie"><button class="enlace" onclick="salir()">Cerrar sesión</button></div>'; return; }
+  if((rol==='directivo'||rol==='docente')&&CTX.debeCambiar){ el('saludo').textContent='Bienvenido(a)'+(nombre?', '+nombre:'')+'. Antes de seguir, elija su clave personal.'; el('botones').innerHTML='<div id="claveForm">'+formClaveObligatoria()+'</div><div class="pie"><button class="enlace" onclick="salir()">Cerrar sesión</button></div>'; return; }
   if(rol==='directivo'){
     el('saludo').textContent='Bienvenido(a)'+(nombre?', '+nombre:'')+'. ¿Qué desea hacer?';
     setTimeout(function(){ if(typeof avisoDia==='function') avisoDia(false); },800);
@@ -122,7 +167,7 @@ function pintar(rol,nombre,c){
     h+=boton('ayuda','❓','Ayuda y manual de uso','Cómo se usa cada pantalla, paso a paso (se puede imprimir en PDF).');
     if(CTX.necesitaCorreo) h+='<div class="sub" style="margin:6px 4px 0;color:#456">✉ Aún no recibe informes por correo. Si lo desea, <button class="enlace" onclick="abrirCorreo()">registre su correo</button> (opcional, de cualquier proveedor).</div>';
   } else {
-    el('saludo').textContent='Bienvenido(a). Toque para continuar.';
+    el('saludo').textContent='Bienvenido(a)'+(nombre?', '+nombre:'')+'. Toque para continuar.';
     h+=boton('panel','📊','Mi informe y mis soportes','Ver mi asistencia, cargar soportes o pedir acceso.');
     h+=boton('ayuda','❓','Ayuda y manual de uso','Cómo se usa la aplicación, paso a paso.');
   }
@@ -145,24 +190,27 @@ function guardarMail(){
   srv().withSuccessHandler(function(){ CTX.necesitaCorreo=false; CTX.correo=p.correo; CTX.informes={dia:p.dia,semana:p.semana,mes:p.mes}; el('kMsg').style.color='#1b5e20'; el('kMsg').textContent='Listo: correo guardado.'; setTimeout(function(){ pintar('directivo',CTX.nombre,CTX); },900); })
    .withFailureHandler(function(e){ el('kMsg').style.color='#a31515'; el('kMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); }).guardarCorreo(p);
 }
-function formClaveObligatoria(){
+function fnClave(){ return (CTX&&CTX.rol==='docente')?'cambiarClaveDocente':'cambiarClave'; }
+function PL(){ return (CTX&&CTX.rol==='docente')?12:6; }
+function ajustaPin(){ [].forEach.call(document.querySelectorAll('#claveForm input.pin'),function(i){ i.maxLength=PL(); }); }
+function formClaveObligatoria(){ setTimeout(ajustaPin,50);
   return '<div class="caja"><b>Su clave actual es temporal</b><div class="msg" style="color:#555">Escriba la clave temporal que le entregaron y elija una clave propia de 6 números que solo usted conozca. Si algún día la olvida, quien administra el libro le da una temporal nueva.</div>'+
-    '<label>Clave temporal<input class="pin" id="cA" type="text" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="6"></label><label>Su clave nueva (6 números)<input class="pin" id="cN" type="text" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="6"></label>'+
+    '<label>Clave temporal<input class="pin" id="cA" type="text" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="'+PL()+'"></label><label>Su clave nueva ('+(PL()===12?'6 a 12':'6')+' números)<input class="pin" id="cN" type="text" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="6"></label>'+
     '<label>Repita su clave nueva<input class="pin" id="cN2" type="text" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="6"></label>'+
     '<button class="btn" onclick="cambiarObligatoria()">Guardar mi clave</button><div class="msg" id="cMsg"></div></div>';
 }
 function cambiarObligatoria(){
   if(el('cN').value!==el('cN2').value){ el('cMsg').style.color='#a31515'; el('cMsg').textContent='Las dos claves nuevas no coinciden.'; return; }
   srv().withSuccessHandler(function(){ el('cMsg').style.color='#1b5e20'; el('cMsg').textContent='Listo: su clave quedó guardada.'; setTimeout(iniciar,900); })
-   .withFailureHandler(function(e){ el('cMsg').style.color='#a31515'; el('cMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); }).cambiarClave({actual:el('cA').value,nueva:el('cN').value});
+   .withFailureHandler(function(e){ el('cMsg').style.color='#a31515'; el('cMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); })[fnClave()]({actual:el('cA').value,nueva:el('cN').value});
 }
-function formClave(){
+function formClave(){ setTimeout(ajustaPin,50);
   el('claveForm').innerHTML='<div class="caja"><label>Clave actual<input class="pin" id="cA" type="text" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="6"></label><label>Clave nueva (6 números)<input class="pin" id="cN" type="text" inputmode="numeric" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="6"></label>'+
     '<button class="btn" onclick="cambiar()">Guardar clave nueva</button><div class="msg" id="cMsg"></div></div>';
 }
 function cambiar(){
   srv().withSuccessHandler(function(){ el('cMsg').style.color='#1b5e20'; el('cMsg').textContent='Listo: su clave se cambió.'; el('cA').value=''; el('cN').value=''; })
-   .withFailureHandler(function(e){ el('cMsg').style.color='#a31515'; el('cMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); }).cambiarClave({actual:el('cA').value,nueva:el('cN').value});
+   .withFailureHandler(function(e){ el('cMsg').style.color='#a31515'; el('cMsg').textContent=String(e&&e.message||e).replace(/^Error: /,''); })[fnClave()]({actual:el('cA').value,nueva:el('cN').value});
 }
 function salir(){ var t=tokenGuardado(); borrarToken(); srv().withSuccessHandler(function(){ mostrarLogin(); }).withFailureHandler(function(){ mostrarLogin(); }).cerrarSesion(t); }
 function iniciar(){
@@ -173,7 +221,7 @@ function iniciar(){
     if(!tokenGuardado()&&!window.PREVIEW){ listo=true; mostrarLogin(); return; }
     if(ctx===null) return;
     listo=true; BASE=base;
-    if(!ctx||ctx.rol==='anonimo'){ borrarToken(); mostrarLogin('El servidor no reconoció su sesión. Ingrese de nuevo; si se repite, avise a quien administra el libro.'); } else pintar(ctx.rol,ctx.nombre,ctx);
+    if(!ctx||ctx.rol==='anonimo'){ borrarToken(); mostrarLogin('El servidor no reconoció su sesión. Ingrese de nuevo; si se repite, avise a quien administra el libro.'); } else pintar(ctx.rol,ctx.nombre||ctx.docente,ctx);
   }
   var msgE=function(e){ return String(e&&e.message||e).replace(/^Error: /,''); };
   srv().withSuccessHandler(function(u){ base=u||''; fin(); }).withFailureHandler(function(e){ fallo=true; mostrarLogin('No se pudo cargar la aplicación: '+msgE(e)); }).urlBase();

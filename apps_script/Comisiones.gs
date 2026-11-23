@@ -524,3 +524,37 @@ function comisionSubirSoporte(p) {
   comisionLog_(a.id, quien.nombre, 'SOPORTE', nombre);
   return { nombre: nombre, id: archivo.getId(), url: archivo.getUrl() };
 }
+
+/* ------------------------------ prueba de humo (la ejecuta quien administra desde el menú del libro) ------------------------------ */
+/** Abre un acta de PRUEBA (año 2099), guarda, lee, provoca un conflicto, pide pendientes y borra todo lo que creó. Devuelve [{paso, ok, msg}]. */
+function comisionesPruebaDeHumo_() {
+  var out = [], id = '', grado = '';
+  function paso(nombre, f) { try { var r = f(); out.push({ paso: nombre, ok: r !== false, msg: r === false ? 'no cumplió lo esperado' : '' }); } catch (e) { out.push({ paso: nombre, ok: false, msg: String(e && e.message || e) }); } }
+  var g = datos_('Grupos').map(function (x) { return partesGrupo_(x.grupo).grado; }).filter(function (c) { return /^\d\d$/.test(c); })[0] || '';
+  paso('Elegir un grado para la prueba', function () { grado = g; return !!grado; });
+  if (!grado) return out;
+  paso('Abrir un acta de prueba (año 2099)', function () { var r = comisionAbrir({ anio: 2099, periodo: PERIODOS_COM[0], grado: grado }); id = r.acta.id; return !!id && r.acta.estado === 'ABIERTA'; });
+  if (id) {
+    paso('Guardar una sección', function () { var r = comisionGuardar({ acta: id, seccion: 'general', datos: { texto: 'prueba' }, version: 0 }); return r.ok && r.version === 1; });
+    paso('Leer lo guardado', function () { var r = comisionCargar({ acta: id }); return r.secciones.general && r.secciones.general.datos.texto === 'prueba'; });
+    paso('Detectar un conflicto (otra persona ya cambió la sección)', function () { return comisionGuardar({ acta: id, seccion: 'general', datos: { texto: 'otra' }, version: 0 }).conflicto === true; });
+    paso('Guardar con la versión correcta', function () { var r = comisionGuardar({ acta: id, seccion: 'general', datos: { texto: 'dos' }, version: 1 }); return r.ok && r.version === 2; });
+    paso('Pedir los cambios desde la versión cero', function () { return !!comisionCambios({ acta: id, versiones: {} }).cambios.general; });
+    paso('Rechazar un estudiante repetido en una lista', function () { try { comisionGuardar({ acta: id, seccion: 'estudiantes:' + (datos_('Grupos').filter(function (x) { return partesGrupo_(x.grupo).grado === grado; })[0] || {}).grupo, datos: { rep: [{ id: 1 }, { id: 1 }] }, version: 0 }); return false; } catch (e) { return /repetido/.test(String(e.message)); } });
+    paso('Calcular los pendientes del acta', function () { var r = comisionPendientes({ acta: id }); return !!r; });
+    paso('Borrar el acta de prueba', function () { comisionBorrarActaPrueba_(id); return !comisionActas_().some(function (a) { return a.id === id; }); });
+  }
+  return out;
+}
+function comisionBorrarActaPrueba_(id) {
+  [['Comision_Actas', COL_CACTAS, 0], ['Comision_Secciones', COL_CSEC, 0], ['Comision_Log', COL_CLOG, 1]].forEach(function (t) {
+    var sh = hojaOCrea_(t[0], t[1]), v = sh.getDataRange().getValues();
+    for (var i = v.length - 1; i >= 1; i--) if (String(v[i][t[2]]) === String(id)) sh.deleteRow(i + 1);
+  });
+}
+function comisionesPruebaDeHumo() {
+  exigirEditor_();
+  var r = comisionesPruebaDeHumo_(), malos = r.filter(function (x) { return !x.ok; });
+  SpreadsheetApp.getUi().alert('Prueba de comisiones: ' + (malos.length ? malos.length + ' paso(s) con problema' : 'TODO BIEN'),
+    r.map(function (x) { return (x.ok ? '✔ ' : '✖ ') + x.paso + (x.msg ? ' → ' + x.msg : ''); }).join('\n') + '\n\nLa prueba usa un acta del año 2099 y la borra al terminar.', SpreadsheetApp.getUi().ButtonSet.OK);
+}

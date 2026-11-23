@@ -647,10 +647,11 @@ function comisionAHojas_(seccion, datos) {
     var sh = hojaOCrea_('Identidad_Docentes', COL_IDENTIDAD_DOC), v = sh.getDataRange().getValues(), cCel = comisionColHoja_(sh, 'celular'), cMail = comisionColHoja_(sh, 'correo_personal');
     nombres.forEach(function (n) {
       var x = pers[n] || {}, cel = String(x.tel || '').replace(/\D/g, ''), mail = String(x.correo || '').trim();
-      if (!cel && !mail) return;
+      if (!cel && !mail && !String(x.ced || '').trim()) return;
       var fila = 0; for (var i = 1; i < v.length; i++) if (comisionSinTildes_(v[i][0]) === comisionSinTildes_(n)) { fila = i + 1; break; }
       if (!fila) { sh.appendRow([n, '']); v.push([n, '']); fila = v.length; }
       if (/^3\d{9}$/.test(cel)) sh.getRange(fila, cCel).setValue(cel);
+      var ced = String(x.ced || '').replace(/\D/g, ''); if (/^\d{5,12}$/.test(ced) && !String(v[fila - 1] && v[fila - 1][1] || '').trim()) sh.getRange(fila, 2).setValue(ced);
       if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail) && !/@icet\./i.test(mail)) sh.getRange(fila, cMail).setValue(mail);
     });
   } else if (seccion === 'faltantes') {

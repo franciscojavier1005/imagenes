@@ -3866,11 +3866,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-o';
+var VERSION_SISTEMA = '2026.11.23-p';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-p', fecha: '2026-11-23', cambios: [
+    'Comisiones, datos faltantes: los directivos, la orientadora y la tutora aparecen de nuevo en la tabla de docentes para actualizar cédula, correo y celular (sin ser obligatorio); la cédula también se escribe en Identidad_Docentes si ese campo estaba vacío.'] },
   { version: '2026.11.23-o', fecha: '2026-11-23', cambios: [
     'Comisiones: los directivos, la orientadora y la tutora que acompañan ya no figuran como participantes por defecto ni tienen que declarar, confirmar revisión ni firmar; declaran y confirman todos los docentes del grado (de grupo y de área), y cada casilla se desactiva al marcarse (solo coordinación la habilita de nuevo). Nacionalidad por defecto Colombiana (Venezolana/Ecuatoriana/Otra en lista desplegable, no obligatoria). En «Datos faltantes» y en «Listados» se pueden completar o modificar documento, tipo, lugar de expedición, sexo y nacionalidad, y quedan también en la hoja Estudiantes. El imprimible ya no se bloquea por datos faltantes y los datos de estudiantes pendientes son advertencia, no impiden cerrar.'] },
   { version: '2026.11.23-n', fecha: '2026-11-23', cambios: [
@@ -5582,10 +5584,11 @@ function comisionAHojas_(seccion, datos) {
     var sh = hojaOCrea_('Identidad_Docentes', COL_IDENTIDAD_DOC), v = sh.getDataRange().getValues(), cCel = comisionColHoja_(sh, 'celular'), cMail = comisionColHoja_(sh, 'correo_personal');
     nombres.forEach(function (n) {
       var x = pers[n] || {}, cel = String(x.tel || '').replace(/\D/g, ''), mail = String(x.correo || '').trim();
-      if (!cel && !mail) return;
+      if (!cel && !mail && !String(x.ced || '').trim()) return;
       var fila = 0; for (var i = 1; i < v.length; i++) if (comisionSinTildes_(v[i][0]) === comisionSinTildes_(n)) { fila = i + 1; break; }
       if (!fila) { sh.appendRow([n, '']); v.push([n, '']); fila = v.length; }
       if (/^3\d{9}$/.test(cel)) sh.getRange(fila, cCel).setValue(cel);
+      var ced = String(x.ced || '').replace(/\D/g, ''); if (/^\d{5,12}$/.test(ced) && !String(v[fila - 1] && v[fila - 1][1] || '').trim()) sh.getRange(fila, 2).setValue(ced);
       if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail) && !/@icet\./i.test(mail)) sh.getRange(fila, cMail).setValue(mail);
     });
   } else if (seccion === 'faltantes') {

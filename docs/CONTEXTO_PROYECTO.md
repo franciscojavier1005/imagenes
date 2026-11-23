@@ -773,3 +773,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Acompañantes (directivos, orientadora, tutora): `apoyo.p=false` por defecto; `esApoyoOb()` los excluye de declaración, revisión, pendientes y confirmación del cierre. Declaran/revisan todos los docentes del grado (`revLista()` = DOCGRADO + docentes agregados a mano); casillas se desactivan al marcar.
 - Nacionalidad: por defecto Colombiana (PEP/PPT → Venezolana, CE → Otra), editable en lista (Colombiana/Venezolana/Ecuatoriana/Otra); ya no es dato faltante. Datos de estudiantes pendientes = advertencia (no bloquean el cierre); el imprimible (p3) ya no se bloquea.
 - `modEst` permite completar documento, tipo, lugar de expedición, sexo, nacionalidad y acudiente (también con matrícula oficial; solo los nombres se bloquean); botón en «Datos faltantes» y en «Listados». `comisionAHojas_` escribe documento, tipo_doc, lugar_expedicion, sexo, nacionalidad, tel_acudiente y gestion_acta en Estudiantes; `comisionGradoDatos` lee lugar_expedicion y nacionalidad si existen.
+
+## Ampliación 94 (2026-11-23, versión 2026.11.23-p)
+- Datos faltantes: `pintaFaltDoc` lista de nuevo a directivos, orientadora y tutora (p o apoyo) para actualizar cédula, correo y celular; `faltDocList` (pendientes) sigue sin exigirles. La cédula se escribe en Identidad_Docentes si estaba vacía.

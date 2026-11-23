@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-o';
+var VERSION_SISTEMA = '2026.11.23-p';
 var FECHA_VERSION = '2026-11-23';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.23-p', fecha: '2026-11-23', cambios: [
+    'Comisiones, datos faltantes: los directivos, la orientadora y la tutora aparecen de nuevo en la tabla de docentes para actualizar cédula, correo y celular (sin ser obligatorio); la cédula también se escribe en Identidad_Docentes si ese campo estaba vacío.'] },
   { version: '2026.11.23-o', fecha: '2026-11-23', cambios: [
     'Comisiones: los directivos, la orientadora y la tutora que acompañan ya no figuran como participantes por defecto ni tienen que declarar, confirmar revisión ni firmar; declaran y confirman todos los docentes del grado (de grupo y de área), y cada casilla se desactiva al marcarse (solo coordinación la habilita de nuevo). Nacionalidad por defecto Colombiana (Venezolana/Ecuatoriana/Otra en lista desplegable, no obligatoria). En «Datos faltantes» y en «Listados» se pueden completar o modificar documento, tipo, lugar de expedición, sexo y nacionalidad, y quedan también en la hoja Estudiantes. El imprimible ya no se bloquea por datos faltantes y los datos de estudiantes pendientes son advertencia, no impiden cerrar.'] },
   { version: '2026.11.23-n', fecha: '2026-11-23', cambios: [

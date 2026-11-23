@@ -100,6 +100,7 @@ ok(hojas.Identidad_Docentes&&hojas.Identidad_Docentes.v.some(r=>r.includes('3009
 // ---- datos completados: lugar de expedición, sexo y nacionalidad también quedan en la hoja; acompañantes sin obligaciones ----
 yo('ana@x.com'); run("comisionAHojas_('faltantes',{datos:{2:{mod:1,ndoc:'123456789',tdoc:'TI',lex:'TUMACO',sx:'M',nac:'Venezolana',falta:[]}}})");
 { const f=hojas.Estudiantes.v[2]; ok(f.includes('123456789')&&f.includes('TI')&&f.includes('TUMACO')&&f.includes('M')&&f.includes('Venezolana'),'documento, tipo, lugar de expedición, sexo y nacionalidad modificados en el acta se escriben en la hoja Estudiantes'); }
+ok(run("comisionMailPersonal_('juan@icet.edu.co')")===''&&run("comisionMailPersonal_('juan@gmail.com')")==='juan@gmail.com','el correo institucional no se toma como correo personal del docente');
 { const g5=run("comisionGradoDatos({grado:'08'})"); ok(g5.estudiantes.every(x=>x.g),'solo se envían los estudiantes del grado abierto (ninguno sin curso)'); }
 { const gd=run("comisionGradoDatos({grado:'08'})"); ok(gd.apoyo.every(x=>x.p===false),'los directivos acompañantes no figuran como participantes por defecto'); }
 // ---- historial: versiones anteriores y cambios en hojas, con retroceso ----

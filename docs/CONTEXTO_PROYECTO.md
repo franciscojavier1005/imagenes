@@ -794,3 +794,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 99 (2026-11-23, versión 2026.11.23-t)
 - `promBad`: solo EXCELENCIA y RENDIMIENTO ACADÉMICO exigen promedio (índices 0 y 1 de `tiposRec`); los demás muestran «no se pide». Presencia: campo opcional `detalle` (40 caracteres) junto al lugar; se muestra en «Redactando ahora» y en `comisionSeguimiento`/Menu.
+
+## Ampliación 100 (2026-11-23, versión 2026.11.23-u)
+- `pintaEquipo` y `pintaCierreProp` refrescan `pintaPendientes`; al cerrar (`cierraActa`) se va a `irTab('p3')` (imprimible). Pendientes de datos de estudiantes: solo reconocidos, sin «Teléfono del acudiente» (`faltaSinTel`). `comisionMailPersonal_` descarta correos @icet.edu.co (el correo del docente debe ser personal). Matrícula: por defecto m=0, f=total; al cambiar hombres, mujeres = total − hombres.

@@ -510,7 +510,7 @@ body.lectura #p1 .paso:not(#s8) .card{pointer-events:none;opacity:.78}body.lectu
 <div class="paso" id="s4"><div class="card"><h3>Reconocimientos</h3>
 <div class="nota"><b>Reconocimientos sugeridos (recomendados) por grupo:</b> son una guía para decidir, no una obligación; la comisión puede apartarse de ella y dejar constancia. La <b>excelencia</b> es para el <b>1.er puesto académico</b> con excelente convivencia y compromiso. <b>Si el grupo no tiene excelencia</b>, el rendimiento académico va al <b>1.º y 2.º</b> puesto; <b>si la tiene</b>, el rendimiento va al <b>2.º y 3.º</b> (el acta no especifica el puesto). Cupos sugeridos por grupo: 1 de excelencia, 2 de rendimiento, 2 de convivencia, y opcionales colaboración y buen porte del uniforme (alternativo, sin medalla ni mención) y otros. El <b>documento pendiente</b> aparece en «Datos faltantes». <b>Cada director de grupo confirma los reconocimientos de su curso</b>: después de la comisión ya no se permiten cambios.</div><div class="row"><button class="btn p s" onclick="abrirPick('rec')">+ Agregar estudiante</button><button class="btn s" onclick="abrirNuevo('rec')">El estudiante no aparece</button></div>
 
-<div class="tw"><table id="tRec"></table></div><h3 style="margin-top:16px">Estadística y confirmación por curso</h3><div id="cuota"></div><div id="recMerge" class="solo-dir"></div></div></div>
+<div class="nota"><b>Recuerde:</b> los datos de cada estudiante reconocido (tipo y número de documento, lugar de expedición, sexo, nacionalidad) deben quedar completos y correctos porque van en el acta y en la mención. Use el botón <b>Pendiente · Completar</b> de la columna Documento.</div><div class="tw"><table id="tRec"></table></div><h3 style="margin-top:16px">Estadística y confirmación por curso</h3><div id="cuota"></div><div id="recMerge" class="solo-dir"></div></div></div>
 
 <div class="paso" id="s5"><div class="card"><h3>Convivencia: casos y situaciones críticas</h3>
 <div class="nota">Se escribe <b>el motivo</b> y se registra si se <b>reportó a coordinación de convivencia</b>, a la <b>docente orientadora</b> y si se <b>notificó al padre de familia</b>. Sin diagnósticos.</div>
@@ -1309,8 +1309,8 @@ function pendientesCierre(){var L=[],pre=S.niv==='pre',fin=FIN(),PD={rep:pasoDe(
  S.con.filter(function(r){return r.rc==='No'||r.ro==='No'||r.rp==='No'}).forEach(function(r){var e=est(r.id);add(PD.con,'Convivencia',e.g,nom(e),'Falta reportar o notificar (coordinación, orientación o padre de familia).','Director/a de grupo',true)});
  S.recKeys.forEach(function(k){if(!String(S.recs[k]||'').trim()&&!(S.recSel[k]||[]).length)add(PD.recs,'Recomendaciones','','',(pre?'':'Área: ')+k+': falta escribir una recomendación o marcar etiquetas.','Docente del '+(pre?'propósito':'área'))});
  faltDocList().forEach(function(x){var q=persDe(x.n),f=[];if(!okMail(q.correo||''))f.push('correo personal');if(!okTel(q.tel))f.push('celular');if(!/^\d{5,12}$/.test(String(q.ced||'').replace(/\D/g,'')))f.push('cédula');if(f.length&&!L.some(function(y){return y.persona===x.n&&y.comp==='Docentes'}))add('p2','Docentes','',x.n,'Falta: '+f.join(', ')+'.','El propio docente; cédula en rectoría, archivo o coordinador')});
- usados().map(est).filter(function(e){return e.falta.length}).forEach(function(e){add('p2','Datos de estudiantes',e.g,nom(e),'Falta: '+e.falta.join(', ')+'.','Llamar a la familia; si no, pedir en rectoría, en archivo o al coordinador',true);L[L.length-1].id=e.id});
- EST.filter(function(e){return e.ing&&!e.baja&&S.gs.indexOf(e.g)>=0&&e.falta.length&&usados().indexOf(e.id)<0}).forEach(function(e){add('p2','Datos de estudiantes',e.g,nom(e),'Falta: '+e.falta.join(', ')+'.','Llamar a la familia; si no, pedir en rectoría, en archivo o al coordinador',true);L[L.length-1].id=e.id});
+ S.rec.map(function(r){return est(r.id)}).filter(function(e){return e&&faltaSinTel(e).length}).forEach(function(e){add('p2','Datos de estudiantes (reconocidos)',e.g,nom(e),'Recuerde actualizar sus datos: '+faltaSinTel(e).join(', ')+'.','Documento y datos: familia, archivo, rectoría o coordinador (el teléfono del acudiente no es obligatorio)',true);L[L.length-1].id=e.id});
+ EST.filter(function(e){return e.ing&&!e.baja&&S.gs.indexOf(e.g)>=0&&faltaSinTel(e).length&&usados().indexOf(e.id)<0}).forEach(function(e){add('p2','Datos de estudiantes',e.g,nom(e),'Recuerde actualizar sus datos: '+faltaSinTel(e).join(', ')+'.','Familia, archivo, rectoría o coordinador',true);L[L.length-1].id=e.id});
  P.filter(function(x){return x.cierre!==false&&!S.firm[x.n]}).forEach(function(x){add('s8','Firmas','',x.n,'Falta su firma de cierre.','El propio docente')});
  P.filter(function(x){return !OG().listo[x.n]}).forEach(function(x){add('s8','Mi parte lista','',x.n,'No ha marcado «Mi parte lista».','El propio docente',true)});
  var ord=PKEYS.concat(['p2']);L.forEach(function(x){x.o=ord.indexOf(x.paso)});L.sort(function(a,b){return a.o-b.o});return L}
@@ -1711,7 +1711,7 @@ function abreActa(){
 
 /* ---------- cierre: la pantalla verifica; el servidor pone la hora ---------- */
 (function(){var _c=cierraActa;cierraActa=function(){_c();if(!S||!S.cerrada||!ACTA)return;
- API('comisionCierreSimple',{acta:ACTA.id}).then(function(r){hCi=r.hora_cierre||hCi;try{$('#hCi').value=hCi}catch(e){}S.cerrada=true;pintaTodo();pintaPendientes();estadoSync('Acta cerrada '+hCi,'v')})
+ API('comisionCierreSimple',{acta:ACTA.id}).then(function(r){hCi=r.hora_cierre||hCi;try{$('#hCi').value=hCi}catch(e){}S.cerrada=true;pintaTodo();pintaPendientes();estadoSync('Acta cerrada '+hCi,'v');setTimeout(function(){try{irTab('p3');window.scrollTo(0,0)}catch(e){}},400)})
   .catch(function(e){alert('El acta se cerró en esta pantalla, pero no se pudo registrar el cierre en el libro ('+msgE(e)+'). Genere el PDF igual y avise a coordinación.')})}})();
 
 /* varias personas trabajan a la vez: cada quien puede ir al paso que le toca; lo pendiente solo bloquea el CIERRE */
@@ -1723,7 +1723,7 @@ function REAL_BOOT(){
  document.body.classList.add('jsok');
  if(!tokenGuardado()){irAlMenu();return}
  API('comisionContexto').then(function(c){
-  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='2026.11.23-t'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión 2026.11.23-t y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.23-t · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
+  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='2026.11.23-u'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión 2026.11.23-u y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.23-u · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
   GRADOS_REAL=c.grados.map(function(code){return COM_LABEL[code]}).filter(Boolean);LABEL_DE={};c.grados.forEach(function(code){LABEL_DE[COM_LABEL[code]]=code});
   var bh=$('#btnHist');if(bh&&(c.quien.rol!=='docente'||c.quien.total))bh.style.display='';var be=$('#btnEj');if(be&&c.quien.dev)be.style.display='';var p=$('#perfil');if(p){p.value=PERFIL;if(!c.quien.dev){var pf=document.querySelector('.perf');if(pf)pf.style.display='none'}}
   $('#grado').onchange=abreActa;$('#periodo').onchange=abreActa;
@@ -1861,9 +1861,10 @@ guardaBorrador=function(manual){try{guardaBorEsp();guardaPos();if(SYNC.activo&&S
   estadoGuard('Borrador guardado '+ahora(),'v');if(manual)$('#finMsg').innerHTML='<div class="bien">Borrador guardado a las '+ahora()+': ya está en el libro (si hay conexión) y en este equipo. Si se cierra la pantalla, se pierde la conexión o se actualiza la aplicación, al volver entrará <b>donde estaba</b>, con lo que escribió.</div>'}catch(e){estadoGuard('No se pudo guardar el borrador','f')}};
 avisoBorrador=function(){};
 /* ---------- matrícula: hombres + mujeres = total actual (si sube una casilla, baja la otra); por defecto todos hombres, o lo que traen las hojas ---------- */
+function faltaSinTel(e){return (e.falta||[]).filter(function(x){return x!=='Teléfono del acudiente'})}
 function matInvariante(){if(!S||!S.mat)return;S.mat.forEach(function(r,i){if(r.ok)return;var t=tot(r);
-  if(!r.sxSet&&!r.f){var L=EST.filter(function(e){return e.g===r.g&&!e.baja});if(L.length&&L.every(function(e){return e.sx==='M'||e.sx==='F'}))r.f=Math.min(t,L.filter(function(e){return e.sx==='F'}).length)}
-  r.f=Math.max(0,Math.min(+r.f||0,t));r.m=Math.max(0,t-r.f)})}
+  if(!r.sxSet&&!r.m){var L=EST.filter(function(e){return e.g===r.g&&!e.baja});if(L.length&&L.every(function(e){return e.sx==='M'||e.sx==='F'}))r.m=Math.min(t,L.filter(function(e){return e.sx==='M'}).length)}
+  r.m=Math.max(0,Math.min(+r.m||0,t));r.f=Math.max(0,t-r.m)})}
 function matSet(i,k,v){var r=S.mat[i];if(!r)return;v=Math.max(0,+v||0);r.ok=false;
  if(k==='m'){r.sxSet=true;var t=tot(r);r.m=Math.min(v,t);r.f=t-r.m}
  else if(k==='f'){r.sxSet=true;var t2=tot(r);r.f=Math.min(v,t2);r.m=t2-r.f}
@@ -1883,5 +1884,8 @@ function recuperaBor(){var b=leeBor();if(!b)return;var n=0;Object.keys(b.parts).
   var m;try{m=fusiona(act,b.parts[k],base)}catch(e){m=b.parts[k]}if(js(m)!==js(act)){aplicaUna(k,m);n++}});
  pintaTodo();pintaPasos();pintaPendientes();try{etiqueta()}catch(e){}avisoSync(n?'<b>Borrador recuperado</b> ('+n+' parte'+(n===1?'':'s')+'). Se envía al libro en unos segundos.':'El borrador ya estaba al día.')}
 function descartaBor(){try{localStorage.removeItem(borKey())}catch(e){}avisoSync('')}
+
+var _pe_pend=pintaEquipo;pintaEquipo=function(){_pe_pend();try{if($('#pendBox'))pintaPendientes()}catch(e){}};
+var _pc_pend=pintaCierreProp;pintaCierreProp=function(){_pc_pend();try{if($('#pendBox'))pintaPendientes()}catch(e){}};
 
 </script></body></html>

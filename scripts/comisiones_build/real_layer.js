@@ -199,7 +199,7 @@ function abreActa(){
 
 /* ---------- cierre: la pantalla verifica; el servidor pone la hora ---------- */
 (function(){var _c=cierraActa;cierraActa=function(){_c();if(!S||!S.cerrada||!ACTA)return;
- API('comisionCierreSimple',{acta:ACTA.id}).then(function(r){hCi=r.hora_cierre||hCi;try{$('#hCi').value=hCi}catch(e){}S.cerrada=true;pintaTodo();pintaPendientes();estadoSync('Acta cerrada '+hCi,'v')})
+ API('comisionCierreSimple',{acta:ACTA.id}).then(function(r){hCi=r.hora_cierre||hCi;try{$('#hCi').value=hCi}catch(e){}S.cerrada=true;pintaTodo();pintaPendientes();estadoSync('Acta cerrada '+hCi,'v');setTimeout(function(){try{irTab('p3');window.scrollTo(0,0)}catch(e){}},400)})
   .catch(function(e){alert('El acta se cerró en esta pantalla, pero no se pudo registrar el cierre en el libro ('+msgE(e)+'). Genere el PDF igual y avise a coordinación.')})}})();
 
 /* varias personas trabajan a la vez: cada quien puede ir al paso que le toca; lo pendiente solo bloquea el CIERRE */
@@ -349,9 +349,10 @@ guardaBorrador=function(manual){try{guardaBorEsp();guardaPos();if(SYNC.activo&&S
   estadoGuard('Borrador guardado '+ahora(),'v');if(manual)$('#finMsg').innerHTML='<div class="bien">Borrador guardado a las '+ahora()+': ya está en el libro (si hay conexión) y en este equipo. Si se cierra la pantalla, se pierde la conexión o se actualiza la aplicación, al volver entrará <b>donde estaba</b>, con lo que escribió.</div>'}catch(e){estadoGuard('No se pudo guardar el borrador','f')}};
 avisoBorrador=function(){};
 /* ---------- matrícula: hombres + mujeres = total actual (si sube una casilla, baja la otra); por defecto todos hombres, o lo que traen las hojas ---------- */
+function faltaSinTel(e){return (e.falta||[]).filter(function(x){return x!=='Teléfono del acudiente'})}
 function matInvariante(){if(!S||!S.mat)return;S.mat.forEach(function(r,i){if(r.ok)return;var t=tot(r);
-  if(!r.sxSet&&!r.f){var L=EST.filter(function(e){return e.g===r.g&&!e.baja});if(L.length&&L.every(function(e){return e.sx==='M'||e.sx==='F'}))r.f=Math.min(t,L.filter(function(e){return e.sx==='F'}).length)}
-  r.f=Math.max(0,Math.min(+r.f||0,t));r.m=Math.max(0,t-r.f)})}
+  if(!r.sxSet&&!r.m){var L=EST.filter(function(e){return e.g===r.g&&!e.baja});if(L.length&&L.every(function(e){return e.sx==='M'||e.sx==='F'}))r.m=Math.min(t,L.filter(function(e){return e.sx==='M'}).length)}
+  r.m=Math.max(0,Math.min(+r.m||0,t));r.f=Math.max(0,t-r.m)})}
 function matSet(i,k,v){var r=S.mat[i];if(!r)return;v=Math.max(0,+v||0);r.ok=false;
  if(k==='m'){r.sxSet=true;var t=tot(r);r.m=Math.min(v,t);r.f=t-r.m}
  else if(k==='f'){r.sxSet=true;var t2=tot(r);r.f=Math.min(v,t2);r.m=t2-r.f}
@@ -371,3 +372,6 @@ function recuperaBor(){var b=leeBor();if(!b)return;var n=0;Object.keys(b.parts).
   var m;try{m=fusiona(act,b.parts[k],base)}catch(e){m=b.parts[k]}if(js(m)!==js(act)){aplicaUna(k,m);n++}});
  pintaTodo();pintaPasos();pintaPendientes();try{etiqueta()}catch(e){}avisoSync(n?'<b>Borrador recuperado</b> ('+n+' parte'+(n===1?'':'s')+'). Se envía al libro en unos segundos.':'El borrador ya estaba al día.')}
 function descartaBor(){try{localStorage.removeItem(borKey())}catch(e){}avisoSync('')}
+
+var _pe_pend=pintaEquipo;pintaEquipo=function(){_pe_pend();try{if($('#pendBox'))pintaPendientes()}catch(e){}};
+var _pc_pend=pintaCierreProp;pintaCierreProp=function(){_pc_pend();try{if($('#pendBox'))pintaPendientes()}catch(e){}};

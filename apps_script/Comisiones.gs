@@ -697,11 +697,13 @@ function comisionCol_(fila, nombres) {
   return '';
 }
 /** Celular y correo institucional del docente desde la hoja Identidad_Docentes (columnas opcionales «celular» y «correo_institucional»). */
+/** El correo institucional (@icet.edu.co) no sirve como contacto: cada docente debe registrar uno personal. */
+function comisionMailPersonal_(m) { m = String(m || '').trim(); return /@([a-z0-9-]+\.)*icet\.edu\.co$/i.test(m) ? '' : m; }
 function comisionIdentidad_(nombre) {
   var f = datosOCrea_('Identidad_Docentes', COL_IDENTIDAD_DOC).filter(function (x) { return comisionSinTildes_(x.docente) === comisionSinTildes_(nombre); })[0];
   if (!f) return { cel: '', mail: '' };
   var cel = comisionCol_(f, ['celular', 'telefono', 'telefonomovil', 'movil']).replace(/\D/g, '');
-  return { cel: cel, mail: comisionCol_(f, ['correoinstitucional', 'correo', 'email']) };
+  return { cel: cel, mail: comisionMailPersonal_(comisionCol_(f, ['correopersonal'])) };
 }
 /** Devuelve la columna (1..n) de un encabezado en la hoja; si no existe la agrega al final. */
 function comisionColHoja_(sh, nombre) {
@@ -779,7 +781,7 @@ function comisionGradoDatos(p) {
   datos_('Docentes').forEach(function (d) { if (/ORIENTACI/i.test(String(d.nivel))) apoyo.push({ n: d.nombre_completo, rol: 'Docente orientadora', p: false }); else if (/PTAFI/i.test(String(d.nivel))) apoyo.push({ n: d.nombre_completo, rol: 'Tutora PTAFI', p: false }); });
   var gnames = {}; dir.forEach(function (n) { if (n) gnames[n] = 1; }); dir2.forEach(function (d) { gnames[d.n] = 1; }); Object.keys(ap).forEach(function (n) { gnames[n] = 1; }); apoyo.forEach(function (a) { gnames[a.n] = 1; });
   var personas = {};
-  Object.keys(gnames).forEach(function (n) { var ap0 = apoyo.filter(function (a) { return a.n === n; })[0]; var idn = comisionIdentidad_(n); personas[n] = { ced: cedulaDoc_(n), correo: (ap0 && ap0.correo) || comisionCorreoDe_(n) || idn.mail, tel: idn.cel }; });
+  Object.keys(gnames).forEach(function (n) { var ap0 = apoyo.filter(function (a) { return a.n === n; })[0]; var idn = comisionIdentidad_(n); personas[n] = { ced: cedulaDoc_(n), correo: comisionMailPersonal_((ap0 && ap0.correo) || comisionCorreoDe_(n) || idn.mail), tel: idn.cel }; });
   var setg = {}; codes.forEach(function (c) { setg[c] = gs[codes.indexOf(c)]; });
   var est = [];
   datos_('Estudiantes').forEach(function (e, i) { var g = String(e.grupo); if (!setg[g]) return; var sx = comisionCol_(e, ['sexo', 'genero']); est.push({ id: i + 1, g: setg[g], a: comisionTitulo_(e.apellidos), n: comisionTitulo_(e.nombres), ndoc: comisionCol_(e, ['documento', 'nodoc', 'numerodocumento', 'numdoc', 'ndoc', 'identificacion', 'cedula']).replace(/\D/g, ''), tdoc: comisionCol_(e, ['tipodoc', 'tipodedocumento', 'tipodocumento', 'tdoc', 'tipo']).replace(/[^A-Za-z]/g, '').toUpperCase(), tel: comisionCol_(e, ['telacudiente', 'telefonoacudiente', 'celularacudiente']).replace(/\D/g, ''), lex: comisionCol_(e, ['lugarexpedicion', 'lugardeexpedicion', 'expedicion']), nac: comisionCol_(e, ['nacionalidad']), sx: /^(m|h|hombre|masculino)$/i.test(sx) ? 'M' : /^(f|mujer|femenino)$/i.test(sx) ? 'F' : '' }); });

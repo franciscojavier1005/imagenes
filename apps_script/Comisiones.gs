@@ -736,7 +736,7 @@ function comisionesVerGuardado() {
 /* ------------------------------ datos del grado para la pantalla real ------------------------------ */
 /* Decisión del coordinador (2026-11-24): los grupos de «Caminar en Secundaria» se trabajan en el acta del grado al que corresponden: CS 1 con 7.º y CS 2 con 9.º. */
 var COM_PERIODOS = ['Primero', 'Segundo', 'Tercero', 'Final'];
-function comisionUnionDefecto_(periodo) { return /^(Tercero|Final)$/.test(String(periodo || 'Final')) ? { CS1: '07', CS2: '09' } : { CS1: '06', CS2: '08' }; }
+function comisionUnionDefecto_(periodo) { return { CS1: '06', CS2: '08' }; }  // decisión 2026-11-24 (esta vez): CS 1 con 6.º y CS 2 con 8.º en todos los períodos; coordinación puede cambiarlo por período
 /* Coordinación puede cambiar la integración por período (parámetro comisiones_union): CS1 con 6.º o 7.º y CS2 con 8.º o 9.º. */
 function comisionUnionConfig_() { var c = {}; try { c = JSON.parse(parametro_('comisiones_union', '{}')) || {}; } catch (e) { c = {}; } return c; }
 function comisionUnion_(periodo) {

@@ -109,7 +109,7 @@ ok(run("comisionMailPersonal_('juan@icet.edu.co')")===''&&run("comisionMailPerso
   A.push(['dup-vacia','2026','Final',5,1,'ABIERTA','','x','2026-11-22 10:00','','','',0],['dup-llena','2026','Final',5,1,'ABIERTA','Ana','x','2026-11-22 11:00','','','',0]);
   S.push(['dup-llena','general',1,'{}','x','2026-11-22 11:01'],['dup-llena','matricula:0501',1,'{}','x','2026-11-22 11:02']);
   const act=run("comisionActas_().filter(function(a){return a.id==='dup-llena'})[0].grado"); ok(act==='05','el grado guardado como número 5 se lee como «05»');
-  ok(run("comisionGradoKey_('CS2')")==='09'&&run("comisionGradoKey_('CS1')")==='07'&&run("comisionGradoKey_(5)")==='05','las actas abiertas antes bajo CS 1 o CS 2 pasan a 7.º y 9.º');
+  ok(run("comisionGradoKey_('CS2')")==='08'&&run("comisionGradoKey_('CS1')")==='06'&&run("comisionGradoKey_(5)")==='05','las actas abiertas antes bajo CS 1 o CS 2 pasan a 6.º y 8.º');
   const n=run("comisionesUnificarDuplicadas()"); ok(n>=1,'unificar: se ocultan las actas duplicadas (quedan con estado DUPLICADA)');
   ok(A.some(r=>r[0]==='dup-vacia'&&r[5]==='DUPLICADA')&&A.some(r=>r[0]==='dup-llena'&&r[5]==='ABIERTA'),'unificar: queda vigente la que más trabajo tiene y no se borra nada');
   A.splice(A.findIndex(r=>r[0]==='dup-vacia'),1); A.splice(A.findIndex(r=>r[0]==='dup-llena'),1); S.splice(S.findIndex(r=>r[0]==='dup-llena'),2); }
@@ -119,6 +119,7 @@ ok(run("comisionMailPersonal_('juan@icet.edu.co')")===''&&run("comisionMailPerso
 { hojas.Grupos.v.push(['0701','REGULAR','7°','7°-1',null],['CS101','CAMINAR','CS1','CS 1-1',null],['0901','REGULAR','9°','9°-1',null],['CS201','CAMINAR','CS2','CS 2-1',null]);
   hojas.Estudiantes.v.push(['0701','7°-1',1,'SEPTIMO UNO','ANA','','',''],['CS101','CS 1-1',1,'CAMINAR UNO','LUIS','','',''],['CS201','CS 2-1',1,'CAMINAR DOS','EVA','','','']);
   yo('coord@x.com');
+  yo('coord@x.com'); run("comisionUnionGuardar({periodo:'Final',CS1:'07',CS2:'09'})");
   const c7=run("comisionGradoDatos({grado:'07'})"), c9=run("comisionGradoDatos({grado:'09'})"), ctx=run("comisionContexto()");
   ok(c7.gs.indexOf('CS 1-1')>=0&&c7.gs.indexOf('7°-1')>=0&&c7.estudiantes.some(e=>e.g==='CS 1-1'),'el acta de 7.º incluye los cursos de Caminar en Secundaria 1 y sus estudiantes');
   ok(c9.gs.indexOf('CS 2-1')>=0&&c9.gs.indexOf('9°-1')>=0&&!c9.gs.some(x=>/^CS 1/.test(x)),'el acta de 9.º incluye Caminar en Secundaria 2 (y no el 1)');
@@ -132,6 +133,8 @@ ok(run("comisionMailPersonal_('juan@icet.edu.co')")===''&&run("comisionMailPerso
   ok(run("comisionGradoDatos({grado:'06',periodo:'Segundo'})").gs.indexOf('CS 1-1')>=0,'el cambio de un período no afecta a los demás');
   ok(falla("comisionUnionGuardar({periodo:'Primero',CS1:'08',CS2:'09'})")!==null,'CS 1 solo con 6.º o 7.º');
   run("comisionUnionGuardar({periodo:'Primero',CS1:'06',CS2:'08'})");
+  run("comisionUnionGuardar({periodo:'Final',CS1:'06',CS2:'08'})");
+  ok(run("comisionGradoDatos({grado:'06'})").gs.indexOf('CS 1-1')>=0,'por defecto CS 1 va con 6.º y CS 2 con 8.º (también en el final)');
   hojas.Grupos.v.length-=4; hojas.Estudiantes.v.length-=3; }
 // ---- historial: versiones anteriores y cambios en hojas, con retroceso ----
 yo('coord@x.com');

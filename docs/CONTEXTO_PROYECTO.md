@@ -822,3 +822,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Integración de Caminar configurable por período (parámetro `comisiones_union`; `comisionUnionLeer`/`comisionUnionGuardar`, solo coordinación/desarrollador guardan). `comisionUnion_(periodo)` usa la configuración y, si no hay, el defecto (P1-P2: 6.º/8.º; P3-Final: 7.º/9.º). Etiquetas de grado neutras; el banner `#unionBox` muestra la integración vigente y el botón «Cambiar integración» (coord/dev).
 - «Habilitar de nuevo» en línea (`habInline`) junto a revisión de listados, acuerdo, reconocimientos, promoción y matrícula (usa `habilita`, con justificación y registro).
 - Barra `#barRepA` en reprobación para seleccionar por área y curso; el selector de área solo agrega y la cifra de `S.rp` no baja.
+
+## Ampliación 106 (2026-11-24, versión 2026.11.24-e)
+- Por orden del coordinador («esta vez»): el defecto de `comisionUnionDefecto_` pasa a CS1→6.º y CS2→8.º en todos los períodos; se puede cambiar por período con «Cambiar integración». La regla anterior (P3/Final con 7.º/9.º) ya no es el defecto.

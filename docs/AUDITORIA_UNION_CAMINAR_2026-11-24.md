@@ -1,4 +1,4 @@
-# Auditoría · Caminar en Secundaria unido a 7.º y 9.º (comisiones)
+# Auditoría · Caminar en Secundaria (defecto CS1 con 6.º y CS2 con 8.º) (comisiones)
 
 Fecha: 24 de noviembre de 2026 · versión 2026.11.24-b · Autor del sistema: Francisco Javier Cortés Cabezas.
 
@@ -72,3 +72,5 @@ Menú del libro: **Comisiones: ver qué hay guardado (y en qué hoja)** resume p
 
 
 > **Actualización 2026.11.24-c:** la unión ahora depende del período. En los períodos 1 y 2, CS 1 se integra con 6.º y CS 2 con 8.º; en el período 3 y final, CS 1 con 7.º y CS 2 con 9.º (lo descrito arriba corresponde al período 3 y final).
+
+> **Actualización 2026.11.24-e:** por indicación del coordinador, el defecto pasa a CS 1 con 6.º y CS 2 con 8.º en todos los períodos (configurable por período).

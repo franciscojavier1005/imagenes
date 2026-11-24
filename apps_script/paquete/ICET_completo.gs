@@ -3868,11 +3868,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.24-d';
+var VERSION_SISTEMA = '2026.11.24-e';
 var FECHA_VERSION = '2026-11-24';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.24-e', fecha: '2026-11-24', cambios: [
+    'Comisiones: por defecto, en todos los períodos, Caminar en Secundaria 1 se integra con 6.º y Caminar en Secundaria 2 con 8.º. Coordinación o el desarrollador pueden cambiarlo por período (CS 1 con 6.º o 7.º; CS 2 con 8.º o 9.º) con «Cambiar integración».'
+  ] },
   { version: '2026.11.24-d', fecha: '2026-11-24', cambios: [
     'Comisiones: Caminar en Secundaria se une por período: en los períodos 1 y 2, CS 1 va con 6.º y CS 2 con 8.º; en el período 3 y final, CS 1 va con 7.º y CS 2 con 9.º. En los listados, el botón «No asiste» inhibe al estudiante (queda opaco, no sale de la lista, no se promueve ni se reprueba y se descuenta de la matrícula); «Retirados» queda solo para quien se fue a otra institución, cambió de domicilio o canceló la matrícula. Los listados tienen columna Sexo editable. En promoción se ven todos los del listado inicial y los reprobados traen sus causas. La matrícula no se bloquea hasta confirmar la promoción del curso. En reconocimientos y reprobación se pueden agregar varios estudiantes a la vez; en Áreas, el botón «Seleccionar» elige los reprobados de cada área y curso. Excelencia y rendimiento académico inician con promedio 4,6 resaltado hasta confirmarlo. Con el acta cerrada solo coordinación académica o el desarrollador pueden seguir modificándola.'
   ] },
@@ -5693,7 +5696,7 @@ function comisionesVerGuardado() {
 /* ------------------------------ datos del grado para la pantalla real ------------------------------ */
 /* Decisión del coordinador (2026-11-24): los grupos de «Caminar en Secundaria» se trabajan en el acta del grado al que corresponden: CS 1 con 7.º y CS 2 con 9.º. */
 var COM_PERIODOS = ['Primero', 'Segundo', 'Tercero', 'Final'];
-function comisionUnionDefecto_(periodo) { return /^(Tercero|Final)$/.test(String(periodo || 'Final')) ? { CS1: '07', CS2: '09' } : { CS1: '06', CS2: '08' }; }
+function comisionUnionDefecto_(periodo) { return { CS1: '06', CS2: '08' }; }  // decisión 2026-11-24 (esta vez): CS 1 con 6.º y CS 2 con 8.º en todos los períodos; coordinación puede cambiarlo por período
 /* Coordinación puede cambiar la integración por período (parámetro comisiones_union): CS1 con 6.º o 7.º y CS2 con 8.º o 9.º. */
 function comisionUnionConfig_() { var c = {}; try { c = JSON.parse(parametro_('comisiones_union', '{}')) || {}; } catch (e) { c = {}; } return c; }
 function comisionUnion_(periodo) {

@@ -433,7 +433,7 @@ function pintaUnion(){var per=$('#periodo')&&$('#periodo').value,box=$('#unionBo
  box.innerHTML='<b>Caminar en Secundaria · período '+esc(per)+':</b> CS 1 se trabaja con <b>'+etUnion(u.CS1)+'</b> y CS 2 con <b>'+etUnion(u.CS2)+'</b>.'+(coord?' <button class="btn s" onclick="abreUnion()">Cambiar integración</button>':'')}
 function abreUnion(){if(!UNION)return;var m=$('#mUnion');if(!m){m=document.createElement('div');m.className='modal';m.id='mUnion';document.body.appendChild(m)}
  var per=$('#periodo').value||'Final';
- m.innerHTML='<div class="box"><h3>Integración de Caminar en Secundaria</h3><div class="nota">Elija, por período, con qué grado se trabaja cada Caminar. Por defecto: períodos 1 y 2 → CS 1 con 6.º y CS 2 con 8.º; período 3 y final → CS 1 con 7.º y CS 2 con 9.º. Las actas que ya tengan datos los conservan en el grado donde se guardaron: cambie la integración <b>antes</b> de empezar a registrar.</div>'+
+ m.innerHTML='<div class="box"><h3>Integración de Caminar en Secundaria</h3><div class="nota">Elija, por período, con qué grado se trabaja cada Caminar. Por defecto, en todos los períodos: CS 1 con 6.º y CS 2 con 8.º. Las actas que ya tengan datos los conservan en el grado donde se guardaron: cambie la integración <b>antes</b> de empezar a registrar.</div>'+
  '<label>Período</label><select id="unP">'+UNION.periodos.map(function(x){return '<option'+(x===per?' selected':'')+'>'+x+'</option>'}).join('')+'</select>'+
  '<label>CS 1 (Caminar en Secundaria 1) se integra con</label><select id="unA"><option value="06">6.º</option><option value="07">7.º</option></select>'+
  '<label>CS 2 (Caminar en Secundaria 2) se integra con</label><select id="unB"><option value="08">8.º</option><option value="09">9.º</option></select>'+

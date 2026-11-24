@@ -1727,7 +1727,7 @@ function REAL_BOOT(){
  document.body.classList.add('jsok');
  if(!tokenGuardado()){irAlMenu();return}
  API('comisionContexto').then(function(c){
-  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='2026.11.24-d'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión 2026.11.24-d y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.24-d · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
+  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='2026.11.24-e'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión 2026.11.24-e y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.24-e · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
   GRADOS_REAL=c.grados.map(function(code){return COM_LABEL[code]}).filter(Boolean);LABEL_DE={};c.grados.forEach(function(code){LABEL_DE[COM_LABEL[code]]=code});
   var bh=$('#btnHist');if(bh&&(c.quien.rol!=='docente'||c.quien.total))bh.style.display='';var be=$('#btnEj');if(be&&c.quien.dev)be.style.display='';var p=$('#perfil');if(p){p.value=PERFIL;if(!c.quien.dev){var pf=document.querySelector('.perf');if(pf)pf.style.display='none'}}
   $('#grado').onchange=abreActa;$('#periodo').onchange=abreActa;
@@ -1894,7 +1894,7 @@ var _pe_pend=pintaEquipo;pintaEquipo=function(){_pe_pend();try{if($('#pendBox'))
 var _pc_pend=pintaCierreProp;pintaCierreProp=function(){_pc_pend();try{if($('#pendBox'))pintaPendientes()}catch(e){}};
 
 
-// ===== v2026.11.24-d: No asiste, sexo, selección múltiple, reprobados por área, promedio 4,6 =====
+// ===== v2026.11.24-c: No asiste, sexo, selección múltiple, reprobados por área, promedio 4,6 =====
 function noAsiste(id,v){var e=est(id);if(!e)return;var g=e.g,r=S.mat[S.gs.indexOf(g)];if(!r)return;
  if(v){if(e.baja)return;
   var L=['rep','rec','con','com','piar'].filter(function(c){return S[c].some(function(x){return x.id===id})});
@@ -1915,8 +1915,8 @@ function pickAgrega(){var ids=Object.keys(PICK_SEL).filter(function(k){return PI
  if(PICK_AREA){var ar=PICK_AREA.area,gi=PICK_AREA.gi,g=S.gs[gi];
   EST.forEach(function(e){if(e.g!==g||e.baja)return;var want=!!PICK_SEL[e.id],r=S.rep.filter(function(x){return x.id===e.id})[0];
    if(want){if(!r){r={id:e.id,inas:0,items:[],gen:[],otro:''};S.rep.push(r)}if(!r.items.some(function(i){return i.area===ar}))r.items.push({area:ar,mot:['Bajo rendimiento']})}
-   else if(r){r.items=r.items.filter(function(i){return i.area!==ar});if(!r.items.length&&!(r.gen&&r.gen.length)&&!r.otro&&!(+r.inas))S.rep=S.rep.filter(function(x){return x!==r})}});
-  S.rp[ar][gi]=S.rep.filter(function(r){return est(r.id).g===g&&r.items.some(function(i){return i.area===ar})}).length;
+   });
+  S.rp[ar][gi]=Math.max(+S.rp[ar][gi]||0,S.rep.filter(function(r){return est(r.id).g===g&&r.items.some(function(i){return i.area===ar})}).length);
   cierra('mPick');PICK_AREA=null;pintaTodo();return}
  var t=pickTipo,n=0;ids.forEach(function(id){if(S[t].some(function(x){return x.id===id}))return;
   var v=window.alert;window.alert=function(){};try{elige(id)}finally{window.alert=v}
@@ -1949,7 +1949,7 @@ function pintaUnion(){var per=$('#periodo')&&$('#periodo').value,box=$('#unionBo
  box.innerHTML='<b>Caminar en Secundaria · período '+esc(per)+':</b> CS 1 se trabaja con <b>'+etUnion(u.CS1)+'</b> y CS 2 con <b>'+etUnion(u.CS2)+'</b>.'+(coord?' <button class="btn s" onclick="abreUnion()">Cambiar integración</button>':'')}
 function abreUnion(){if(!UNION)return;var m=$('#mUnion');if(!m){m=document.createElement('div');m.className='modal';m.id='mUnion';document.body.appendChild(m)}
  var per=$('#periodo').value||'Final';
- m.innerHTML='<div class="box"><h3>Integración de Caminar en Secundaria</h3><div class="nota">Elija, por período, con qué grado se trabaja cada Caminar. Por defecto: períodos 1 y 2 → CS 1 con 6.º y CS 2 con 8.º; período 3 y final → CS 1 con 7.º y CS 2 con 9.º. Las actas que ya tengan datos los conservan en el grado donde se guardaron: cambie la integración <b>antes</b> de empezar a registrar.</div>'+
+ m.innerHTML='<div class="box"><h3>Integración de Caminar en Secundaria</h3><div class="nota">Elija, por período, con qué grado se trabaja cada Caminar. Por defecto, en todos los períodos: CS 1 con 6.º y CS 2 con 8.º. Las actas que ya tengan datos los conservan en el grado donde se guardaron: cambie la integración <b>antes</b> de empezar a registrar.</div>'+
  '<label>Período</label><select id="unP">'+UNION.periodos.map(function(x){return '<option'+(x===per?' selected':'')+'>'+x+'</option>'}).join('')+'</select>'+
  '<label>CS 1 (Caminar en Secundaria 1) se integra con</label><select id="unA"><option value="06">6.º</option><option value="07">7.º</option></select>'+
  '<label>CS 2 (Caminar en Secundaria 2) se integra con</label><select id="unB"><option value="08">8.º</option><option value="09">9.º</option></select>'+

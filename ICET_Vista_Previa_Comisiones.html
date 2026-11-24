@@ -4651,11 +4651,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.24-d';
+var VERSION_SISTEMA = '2026.11.24-e';
 var FECHA_VERSION = '2026-11-24';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.24-e', fecha: '2026-11-24', cambios: [
+    'Comisiones: por defecto, en todos los períodos, Caminar en Secundaria 1 se integra con 6.º y Caminar en Secundaria 2 con 8.º. Coordinación o el desarrollador pueden cambiarlo por período (CS 1 con 6.º o 7.º; CS 2 con 8.º o 9.º) con «Cambiar integración».'
+  ] },
   { version: '2026.11.24-d', fecha: '2026-11-24', cambios: [
     'Comisiones: Caminar en Secundaria se une por período: en los períodos 1 y 2, CS 1 va con 6.º y CS 2 con 8.º; en el período 3 y final, CS 1 va con 7.º y CS 2 con 9.º. En los listados, el botón «No asiste» inhibe al estudiante (queda opaco, no sale de la lista, no se promueve ni se reprueba y se descuenta de la matrícula); «Retirados» queda solo para quien se fue a otra institución, cambió de domicilio o canceló la matrícula. Los listados tienen columna Sexo editable. En promoción se ven todos los del listado inicial y los reprobados traen sus causas. La matrícula no se bloquea hasta confirmar la promoción del curso. En reconocimientos y reprobación se pueden agregar varios estudiantes a la vez; en Áreas, el botón «Seleccionar» elige los reprobados de cada área y curso. Excelencia y rendimiento académico inician con promedio 4,6 resaltado hasta confirmarlo. Con el acta cerrada solo coordinación académica o el desarrollador pueden seguir modificándola.'
   ] },
@@ -6476,7 +6479,7 @@ function comisionesVerGuardado() {
 /* ------------------------------ datos del grado para la pantalla real ------------------------------ */
 /* Decisión del coordinador (2026-11-24): los grupos de «Caminar en Secundaria» se trabajan en el acta del grado al que corresponden: CS 1 con 7.º y CS 2 con 9.º. */
 var COM_PERIODOS = ['Primero', 'Segundo', 'Tercero', 'Final'];
-function comisionUnionDefecto_(periodo) { return /^(Tercero|Final)$/.test(String(periodo || 'Final')) ? { CS1: '07', CS2: '09' } : { CS1: '06', CS2: '08' }; }
+function comisionUnionDefecto_(periodo) { return { CS1: '06', CS2: '08' }; }  // decisión 2026-11-24 (esta vez): CS 1 con 6.º y CS 2 con 8.º en todos los períodos; coordinación puede cambiarlo por período
 /* Coordinación puede cambiar la integración por período (parámetro comisiones_union): CS1 con 6.º o 7.º y CS2 con 8.º o 9.º. */
 function comisionUnionConfig_() { var c = {}; try { c = JSON.parse(parametro_('comisiones_union', '{}')) || {}; } catch (e) { c = {}; } return c; }
 function comisionUnion_(periodo) {
@@ -7883,7 +7886,7 @@ function REAL_BOOT(){
  document.body.classList.add('jsok');
  if(!tokenGuardado()){irAlMenu();return}
  API('comisionContexto').then(function(c){
-  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='2026.11.24-d'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión 2026.11.24-d y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.24-d · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
+  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='2026.11.24-e'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión 2026.11.24-e y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.24-e · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
   GRADOS_REAL=c.grados.map(function(code){return COM_LABEL[code]}).filter(Boolean);LABEL_DE={};c.grados.forEach(function(code){LABEL_DE[COM_LABEL[code]]=code});
   var bh=$('#btnHist');if(bh&&(c.quien.rol!=='docente'||c.quien.total))bh.style.display='';var be=$('#btnEj');if(be&&c.quien.dev)be.style.display='';var p=$('#perfil');if(p){p.value=PERFIL;if(!c.quien.dev){var pf=document.querySelector('.perf');if(pf)pf.style.display='none'}}
   $('#grado').onchange=abreActa;$('#periodo').onchange=abreActa;
@@ -8050,7 +8053,7 @@ var _pe_pend=pintaEquipo;pintaEquipo=function(){_pe_pend();try{if($('#pendBox'))
 var _pc_pend=pintaCierreProp;pintaCierreProp=function(){_pc_pend();try{if($('#pendBox'))pintaPendientes()}catch(e){}};
 
 
-// ===== v2026.11.24-d: No asiste, sexo, selección múltiple, reprobados por área, promedio 4,6 =====
+// ===== v2026.11.24-c: No asiste, sexo, selección múltiple, reprobados por área, promedio 4,6 =====
 function noAsiste(id,v){var e=est(id);if(!e)return;var g=e.g,r=S.mat[S.gs.indexOf(g)];if(!r)return;
  if(v){if(e.baja)return;
   var L=['rep','rec','con','com','piar'].filter(function(c){return S[c].some(function(x){return x.id===id})});
@@ -8071,8 +8074,8 @@ function pickAgrega(){var ids=Object.keys(PICK_SEL).filter(function(k){return PI
  if(PICK_AREA){var ar=PICK_AREA.area,gi=PICK_AREA.gi,g=S.gs[gi];
   EST.forEach(function(e){if(e.g!==g||e.baja)return;var want=!!PICK_SEL[e.id],r=S.rep.filter(function(x){return x.id===e.id})[0];
    if(want){if(!r){r={id:e.id,inas:0,items:[],gen:[],otro:''};S.rep.push(r)}if(!r.items.some(function(i){return i.area===ar}))r.items.push({area:ar,mot:['Bajo rendimiento']})}
-   else if(r){r.items=r.items.filter(function(i){return i.area!==ar});if(!r.items.length&&!(r.gen&&r.gen.length)&&!r.otro&&!(+r.inas))S.rep=S.rep.filter(function(x){return x!==r})}});
-  S.rp[ar][gi]=S.rep.filter(function(r){return est(r.id).g===g&&r.items.some(function(i){return i.area===ar})}).length;
+   });
+  S.rp[ar][gi]=Math.max(+S.rp[ar][gi]||0,S.rep.filter(function(r){return est(r.id).g===g&&r.items.some(function(i){return i.area===ar})}).length);
   cierra('mPick');PICK_AREA=null;pintaTodo();return}
  var t=pickTipo,n=0;ids.forEach(function(id){if(S[t].some(function(x){return x.id===id}))return;
   var v=window.alert;window.alert=function(){};try{elige(id)}finally{window.alert=v}
@@ -8105,7 +8108,7 @@ function pintaUnion(){var per=$('#periodo')&&$('#periodo').value,box=$('#unionBo
  box.innerHTML='<b>Caminar en Secundaria · período '+esc(per)+':</b> CS 1 se trabaja con <b>'+etUnion(u.CS1)+'</b> y CS 2 con <b>'+etUnion(u.CS2)+'</b>.'+(coord?' <button class="btn s" onclick="abreUnion()">Cambiar integración</button>':'')}
 function abreUnion(){if(!UNION)return;var m=$('#mUnion');if(!m){m=document.createElement('div');m.className='modal';m.id='mUnion';document.body.appendChild(m)}
  var per=$('#periodo').value||'Final';
- m.innerHTML='<div class="box"><h3>Integración de Caminar en Secundaria</h3><div class="nota">Elija, por período, con qué grado se trabaja cada Caminar. Por defecto: períodos 1 y 2 → CS 1 con 6.º y CS 2 con 8.º; período 3 y final → CS 1 con 7.º y CS 2 con 9.º. Las actas que ya tengan datos los conservan en el grado donde se guardaron: cambie la integración <b>antes</b> de empezar a registrar.</div>'+
+ m.innerHTML='<div class="box"><h3>Integración de Caminar en Secundaria</h3><div class="nota">Elija, por período, con qué grado se trabaja cada Caminar. Por defecto, en todos los períodos: CS 1 con 6.º y CS 2 con 8.º. Las actas que ya tengan datos los conservan en el grado donde se guardaron: cambie la integración <b>antes</b> de empezar a registrar.</div>'+
  '<label>Período</label><select id="unP">'+UNION.periodos.map(function(x){return '<option'+(x===per?' selected':'')+'>'+x+'</option>'}).join('')+'</select>'+
  '<label>CS 1 (Caminar en Secundaria 1) se integra con</label><select id="unA"><option value="06">6.º</option><option value="07">7.º</option></select>'+
  '<label>CS 2 (Caminar en Secundaria 2) se integra con</label><select id="unB"><option value="08">8.º</option><option value="09">9.º</option></select>'+

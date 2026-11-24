@@ -825,3 +825,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 106 (2026-11-24, versión 2026.11.24-e)
 - Por orden del coordinador («esta vez»): el defecto de `comisionUnionDefecto_` pasa a CS1→6.º y CS2→8.º en todos los períodos; se puede cambiar por período con «Cambiar integración». La regla anterior (P3/Final con 7.º/9.º) ya no es el defecto.
+
+## Ampliación 107 (2026-11-24, versión 2026.11.24-f)
+- El Horario trae una sola persona por franja aunque dos docentes alternen cada semana (Sociales/Inglés CSI, Ética/Religión ETR…). `comisionHorarioConAlternan_()` suma al equipo del acta a quienes alternan, según `COM_ALTERNAN_DEFECTO` (Quintero en 0801/0802, CSI, alterna con Adiela Ortiz) y el parámetro `comisiones_alternan` (JSON `[{docente, grupos, area}]`). Pendiente: confirmar con el coordinador los demás pares (p. ej. CS 2-1/CS 2-2 con Ortiz; Ética/Religión).

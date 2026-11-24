@@ -734,6 +734,18 @@ function comisionesVerGuardado() {
 }
 
 /* ------------------------------ datos del grado para la pantalla real ------------------------------ */
+/* Docentes que ALTERNAN cada semana con quien figura en el Horario (el Horario trae una sola persona por franja). Se suman al equipo del acta con la misma área.
+   Defecto: María del Carmen Quintero alterna Sociales/Inglés (CSI) con Adiela Ortiz en 8.º (0801 y 0802). Otros casos: parámetro comisiones_alternan = [{"docente":"...","grupos":["0801"],"area":"CSI"}]. */
+var COM_ALTERNAN_DEFECTO = [{ docente: 'Quintero Ramírez María del Carmen', grupos: ['0801', '0802'], area: 'CSI' }];
+function comisionAlternan_() {
+  var c = []; try { c = JSON.parse(parametro_('comisiones_alternan', '[]')) || []; } catch (e) { c = []; }
+  return COM_ALTERNAN_DEFECTO.concat(Array.isArray(c) ? c : []);
+}
+function comisionHorarioConAlternan_() {
+  var h = datos_('Horario').slice();
+  comisionAlternan_().forEach(function (a) { (a.grupos || []).forEach(function (g) { if (a.docente && g) h.push({ docente: String(a.docente), grupo: String(g), area: String(a.area || '') }); }); });
+  return h;
+}
 /* Decisión del coordinador (2026-11-24): los grupos de «Caminar en Secundaria» se trabajan en el acta del grado al que corresponden: CS 1 con 7.º y CS 2 con 9.º. */
 var COM_PERIODOS = ['Primero', 'Segundo', 'Tercero', 'Final'];
 function comisionUnionDefecto_(periodo) { return { CS1: '06', CS2: '08' }; }  // decisión 2026-11-24 (esta vez): CS 1 con 6.º y CS 2 con 8.º en todos los períodos; coordinación puede cambiarlo por período
@@ -837,7 +849,7 @@ function comisionGradoDatos(p) {
     [d.docente_1, d.docente_2].forEach(function (n) { if (n) dirs[comisionSinTildes_(n)] = 1; });
   });
   var areas = {}, nomAreas = {}, ap = {};
-  datos_('Horario').forEach(function (h) {
+  comisionHorarioConAlternan_().forEach(function (h) {
     if (!h.docente || comisionGradoActa_(h.grupo, p.periodo) !== cod) return;
     var a = String(h.area || '').trim(); if (/MULTIPLES/i.test(comisionSinTildes_(a))) return;
     (COM_COD_AREA[comisionSinTildes_(a)] || []).forEach(function (x) { nomAreas[x] = nomAreas[x] || {}; nomAreas[x][String(h.docente)] = 1; });

@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.24-e';
+var VERSION_SISTEMA = '2026.11.24-f';
 var FECHA_VERSION = '2026-11-24';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.24-f', fecha: '2026-11-24', cambios: [
+    'Comisiones: los docentes que alternan cada semana con quien figura en el Horario ahora aparecen en el equipo del acta. Primer caso: María del Carmen Quintero (Sociales/Inglés, alterna con Adiela Ortiz) en 8.º (grupos 0801 y 0802). Otros casos se agregan en el parámetro comisiones_alternan.'
+  ] },
   { version: '2026.11.24-e', fecha: '2026-11-24', cambios: [
     'Comisiones: por defecto, en todos los períodos, Caminar en Secundaria 1 se integra con 6.º y Caminar en Secundaria 2 con 8.º. Coordinación o el desarrollador pueden cambiarlo por período (CS 1 con 6.º o 7.º; CS 2 con 8.º o 9.º) con «Cambiar integración».'
   ] },

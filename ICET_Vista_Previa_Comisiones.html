@@ -4651,11 +4651,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.24-e';
+var VERSION_SISTEMA = '2026.11.24-f';
 var FECHA_VERSION = '2026-11-24';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.24-f', fecha: '2026-11-24', cambios: [
+    'Comisiones: los docentes que alternan cada semana con quien figura en el Horario ahora aparecen en el equipo del acta. Primer caso: María del Carmen Quintero (Sociales/Inglés, alterna con Adiela Ortiz) en 8.º (grupos 0801 y 0802). Otros casos se agregan en el parámetro comisiones_alternan.'
+  ] },
   { version: '2026.11.24-e', fecha: '2026-11-24', cambios: [
     'Comisiones: por defecto, en todos los períodos, Caminar en Secundaria 1 se integra con 6.º y Caminar en Secundaria 2 con 8.º. Coordinación o el desarrollador pueden cambiarlo por período (CS 1 con 6.º o 7.º; CS 2 con 8.º o 9.º) con «Cambiar integración».'
   ] },
@@ -6477,6 +6480,18 @@ function comisionesVerGuardado() {
 }
 
 /* ------------------------------ datos del grado para la pantalla real ------------------------------ */
+/* Docentes que ALTERNAN cada semana con quien figura en el Horario (el Horario trae una sola persona por franja). Se suman al equipo del acta con la misma área.
+   Defecto: María del Carmen Quintero alterna Sociales/Inglés (CSI) con Adiela Ortiz en 8.º (0801 y 0802). Otros casos: parámetro comisiones_alternan = [{"docente":"...","grupos":["0801"],"area":"CSI"}]. */
+var COM_ALTERNAN_DEFECTO = [{ docente: 'Quintero Ramírez María del Carmen', grupos: ['0801', '0802'], area: 'CSI' }];
+function comisionAlternan_() {
+  var c = []; try { c = JSON.parse(parametro_('comisiones_alternan', '[]')) || []; } catch (e) { c = []; }
+  return COM_ALTERNAN_DEFECTO.concat(Array.isArray(c) ? c : []);
+}
+function comisionHorarioConAlternan_() {
+  var h = datos_('Horario').slice();
+  comisionAlternan_().forEach(function (a) { (a.grupos || []).forEach(function (g) { if (a.docente && g) h.push({ docente: String(a.docente), grupo: String(g), area: String(a.area || '') }); }); });
+  return h;
+}
 /* Decisión del coordinador (2026-11-24): los grupos de «Caminar en Secundaria» se trabajan en el acta del grado al que corresponden: CS 1 con 7.º y CS 2 con 9.º. */
 var COM_PERIODOS = ['Primero', 'Segundo', 'Tercero', 'Final'];
 function comisionUnionDefecto_(periodo) { return { CS1: '06', CS2: '08' }; }  // decisión 2026-11-24 (esta vez): CS 1 con 6.º y CS 2 con 8.º en todos los períodos; coordinación puede cambiarlo por período
@@ -6580,7 +6595,7 @@ function comisionGradoDatos(p) {
     [d.docente_1, d.docente_2].forEach(function (n) { if (n) dirs[comisionSinTildes_(n)] = 1; });
   });
   var areas = {}, nomAreas = {}, ap = {};
-  datos_('Horario').forEach(function (h) {
+  comisionHorarioConAlternan_().forEach(function (h) {
     if (!h.docente || comisionGradoActa_(h.grupo, p.periodo) !== cod) return;
     var a = String(h.area || '').trim(); if (/MULTIPLES/i.test(comisionSinTildes_(a))) return;
     (COM_COD_AREA[comisionSinTildes_(a)] || []).forEach(function (x) { nomAreas[x] = nomAreas[x] || {}; nomAreas[x][String(h.docente)] = 1; });
@@ -7886,7 +7901,7 @@ function REAL_BOOT(){
  document.body.classList.add('jsok');
  if(!tokenGuardado()){irAlMenu();return}
  API('comisionContexto').then(function(c){
-  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='2026.11.24-e'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión 2026.11.24-e y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.24-e · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
+  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='2026.11.24-f'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión 2026.11.24-f y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.24-f · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
   GRADOS_REAL=c.grados.map(function(code){return COM_LABEL[code]}).filter(Boolean);LABEL_DE={};c.grados.forEach(function(code){LABEL_DE[COM_LABEL[code]]=code});
   var bh=$('#btnHist');if(bh&&(c.quien.rol!=='docente'||c.quien.total))bh.style.display='';var be=$('#btnEj');if(be&&c.quien.dev)be.style.display='';var p=$('#perfil');if(p){p.value=PERFIL;if(!c.quien.dev){var pf=document.querySelector('.perf');if(pf)pf.style.display='none'}}
   $('#grado').onchange=abreActa;$('#periodo').onchange=abreActa;

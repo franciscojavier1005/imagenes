@@ -135,6 +135,8 @@ ok(run("comisionMailPersonal_('juan@icet.edu.co')")===''&&run("comisionMailPerso
   run("comisionUnionGuardar({periodo:'Primero',CS1:'06',CS2:'08'})");
   run("comisionUnionGuardar({periodo:'Final',CS1:'06',CS2:'08'})");
   ok(run("comisionGradoDatos({grado:'06'})").gs.indexOf('CS 1-1')>=0,'por defecto CS 1 va con 6.º y CS 2 con 8.º (también en el final)');
+  { hojas.Grupos.v.push(['0801','REGULAR','8°','8°-1',null]); const d8=run("comisionGradoDatos({grado:'08',periodo:'Final'})");
+    ok(d8.ap.indexOf('Quintero Ramírez María del Carmen')>=0&&/Quintero/.test(d8.areas['Ciencias Sociales']||d8.areas['Sociales']||Object.values(d8.areas).join('|')),'quien alterna cada semana (Quintero con Ortiz) aparece en el equipo de 8.º con su área'); hojas.Grupos.v.length-=1; }
   hojas.Grupos.v.length-=4; hojas.Estudiantes.v.length-=3; }
 // ---- historial: versiones anteriores y cambios en hojas, con retroceso ----
 yo('coord@x.com');

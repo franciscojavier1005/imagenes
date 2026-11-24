@@ -3866,11 +3866,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-u';
-var FECHA_VERSION = '2026-11-23';
+var VERSION_SISTEMA = '2026.11.24-a';
+var FECHA_VERSION = '2026-11-24';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.24-a', fecha: '2026-11-24', cambios: [
+    'Comisiones: Caminar en Secundaria 1 se trabaja con el acta de 7.º y Caminar en Secundaria 2 con la de 9.º (ya no aparecen como grados aparte). «Juramento» pasa a llamarse «acuerdo y compromiso de transparencia». En la matrícula, «desertados» pasa a «no asistentes»: quien no asistió queda inhabilitado pero sigue en el listado y no entra en la promoción; «retirados» son quienes se van a otro domicilio o institución.'] },
   { version: '2026.11.23-u', fecha: '2026-11-23', cambios: [
     'Comisiones: los pendientes se actualizan al instante con el avance del equipo y la confirmación del cierre; al guardar y cerrar el acta se lleva al imprimible. El teléfono del acudiente ya no es obligatorio (pendientes de datos solo para estudiantes reconocidos y sin teléfono, como recordatorio). El correo institucional (@icet.edu.co) no se toma como correo personal: cada docente registra uno personal. Matrícula: el total actual empieza en mujeres y al subir los hombres bajan las mujeres.'] },
   { version: '2026.11.23-t', fecha: '2026-11-23', cambios: [
@@ -5229,7 +5231,7 @@ function comisionNumeroSugerido_(anio, grado) {
 /** Lo que necesita la pantalla al abrir: quién es, qué grados hay y las actas del año. */
 function comisionContexto() {
   var quien = comisionQuien_(), perm = comisionPermisoNivel_(quien), anio = Number(parametro_('anio_lectivo', String(new Date().getFullYear()))), grados = {};
-  datos_('Grupos').forEach(function (g) { var p = partesGrupo_(g.grupo); if (p.grado !== 'N/A' && p.grado !== 'ORI' && p.grado !== 'PTA') grados[p.grado] = 1; });
+  datos_('Grupos').forEach(function (g) { var p = partesGrupo_(g.grupo); if (p.grado !== 'N/A' && p.grado !== 'ORI' && p.grado !== 'PTA') grados[comisionGradoActa_(g.grupo)] = 1; });
   var lista = comisionActas_().filter(function (a) { return String(a.anio) === String(anio); }).map(function (a) {
     return { id: a.id, periodo: a.periodo, grado: a.grado, acta_no: a.acta_no, estado: a.estado, responsable: a.responsable, hora_cierre: a.hora_cierre };
   });
@@ -5245,7 +5247,7 @@ function comisionAbrir(p) {
   var anio = Number(p.anio) || Number(parametro_('anio_lectivo', String(new Date().getFullYear())));
   if (PERIODOS_COM.indexOf(p.periodo) < 0) throw new Error('Elija el periodo.');
   var grado = String(p.grado || '');
-  if (!datos_('Grupos').some(function (g) { return partesGrupo_(g.grupo).grado === grado; })) throw new Error('Ese grado no existe.');
+  if (!datos_('Grupos').some(function (g) { return comisionGradoActa_(g.grupo) === grado; })) throw new Error('Ese grado no existe.');
   var al = comisionAlcance_(quien, grado);
   if (!comisionPermisoNivel_(quien).ver) throw new Error('La coordinación no habilitó la consulta de las actas para su nivel.');
   if (comisionSinAlcance_(al)) throw new Error('Usted no tiene cursos ni áreas en este grado.');
@@ -5390,7 +5392,7 @@ function comisionPendientes_(a, secs) {
     if (x.cierre !== false && !(d('firmas') || {})[x.n]) add('s8', 'Firmas', '', x.n, 'Falta su firma de cierre.', 'El propio docente');
   });
   var cursos = [];
-  datos_('Grupos').forEach(function (g) { if (partesGrupo_(g.grupo).grado === String(a.grado)) cursos.push(String(g.grupo)); });
+  datos_('Grupos').forEach(function (g) { if (comisionGradoActa_(g.grupo) === String(a.grado)) cursos.push(String(g.grupo)); });
   var cf = function (t, c) { var x = d('confirm:' + t + ':' + c); return !!(x && x.ok); };
   var areasReg = pre ? [] : COM_AREAS;
   cursos.forEach(function (c) {
@@ -5553,7 +5555,7 @@ function comisionGuardarPdf(p) {
  * Con la matrícula del curso confirmada no se puede (solo coordinación la reabre). Se confirma de nuevo la promoción. Todo queda en «cambios:curso» y en el registro.
  * Los números de documento no se guardan aquí: van a la hoja reservada de identidad (fase 2).
  */
-var MOTIVOS_RETIRO_COM = ['Se retiró (traslado u otra razón)', 'Desertó: no volvió', 'Nunca asistió (matriculado que no se presentó)'];
+var MOTIVOS_RETIRO_COM = ['Se retiró (traslado, cambio de institución o de domicilio)', 'No asistió: nunca vino o dejó de venir (no asistente)'];
 function comisionEstudiante(p) {
   var quien = comisionQuien_(); p = p || {};
   var lock = LockService.getScriptLock(); lock.waitLock(20000);
@@ -5571,7 +5573,7 @@ function comisionEstudiante(p) {
       agregarEstudiante_({ g: curso, a: ap, n: nm, motivo: /no aparec/i.test(String(p.motivo || '')) ? 'NO_LISTADO' : 'NUEVO', nota: String(p.motivo || '').slice(0, 120) }, quien.nombre);
       reg = { tipo: 'AGREGAR', nombre: ap + ' ' + nm, motivo: String(p.motivo || ''), falta: (p.falta || []).slice(0, 8), por: quien.nombre, t: ahoraTxt_() };
     } else if (p.accion === 'RETIRAR') {
-      if (MOTIVOS_RETIRO_COM.indexOf(p.motivo) < 0) throw new Error('Elija el motivo del retiro.');
+      if (MOTIVOS_RETIRO_COM.indexOf(p.motivo) < 0 && !/^(Se retiró|No asistió|Desertó|Nunca asistió)/.test(String(p.motivo || ''))) throw new Error('Elija el motivo del retiro.');
       if (!String(p.nombre || '').trim()) throw new Error('Falta el nombre del estudiante.');
       reg = { tipo: 'RETIRAR', nombre: String(p.nombre).trim(), motivo: p.motivo, por: quien.nombre, t: ahoraTxt_() };
     } else throw new Error('Acción no válida.');
@@ -5580,7 +5582,7 @@ function comisionEstudiante(p) {
     var pr = secs['confirm:promocion:' + curso] && secs['confirm:promocion:' + curso].datos;
     if (pr && pr.ok) comisionEscribe_(a.id, 'confirm:promocion:' + curso, { ok: false, por: quien.nombre, fecha: ahoraTxt_(), veces: pr.veces || 0 }, quien.nombre);
     comisionLog_(a.id, quien.nombre, 'ESTUDIANTE_' + p.accion, curso + ' · ' + reg.nombre + ' · ' + (reg.motivo || ''));
-    return { ok: true, cambios: lista.length, ajuste_matricula: p.accion === 'AGREGAR' ? 'sumar 1 a Nuevos' : (/^Desertó/.test(p.motivo) ? 'sumar 1 a Desertados' : 'sumar 1 a Retirados') };
+    return { ok: true, cambios: lista.length, ajuste_matricula: p.accion === 'AGREGAR' ? 'sumar 1 a Nuevos' : (/^(No asist|Desert|Nunca)/.test(p.motivo) ? 'sumar 1 a No asistentes' : 'sumar 1 a Retirados') };
   } finally { lock.releaseLock(); }
 }
 /** Evidencia opcional (PIAR, formato de DUA, compromiso firmado): imagen o PDF a Drive «App Asistencia / Soportes / Comisiones / año / grado / acta». */
@@ -5636,7 +5638,10 @@ function comisionesPruebaDeHumo() {
 }
 
 /* ------------------------------ datos del grado para la pantalla real ------------------------------ */
-var COM_GRADO_LABEL = { '00': '0° Preescolar', '01': '1° Primaria', '02': '2° Primaria', '03': '3° Primaria', '04': '4° Primaria', '05': '5° Primaria', '06': '6° Secundaria', 'CS1': 'CS 1 (Caminar en Secundaria 1, 6°-7°)', '07': '7° Secundaria', '08': '8° Secundaria', '09': '9° Secundaria', 'CS2': 'CS 2 (Caminar en Secundaria 2, 8°-9°)', '10': '10° Media', '11': '11° Media' };
+/* Decisión del coordinador (2026-11-24): los grupos de «Caminar en Secundaria» se trabajan en el acta del grado al que corresponden: CS 1 con 7.º y CS 2 con 9.º. */
+var COM_UNION = { 'CS1': '07', 'CS2': '09' };
+function comisionGradoActa_(grupo) { var g = partesGrupo_(grupo).grado; return COM_UNION[g] || g; }
+var COM_GRADO_LABEL = { '00': '0° Preescolar', '01': '1° Primaria', '02': '2° Primaria', '03': '3° Primaria', '04': '4° Primaria', '05': '5° Primaria', '06': '6° Secundaria', 'CS1': 'CS 1 (Caminar en Secundaria 1, 6°-7°)', '07': '7° Secundaria + Caminar 1', '08': '8° Secundaria', '09': '9° Secundaria + Caminar 2', 'CS2': 'CS 2 (Caminar en Secundaria 2, 8°-9°)', '10': '10° Media', '11': '11° Media' };
 var COM_GRADO_SIG = { '00': '1°', '01': '2°', '02': '3°', '03': '4°', '04': '5°', '05': '6°', '06': '7°', 'CS1': 'Caminar en Secundaria 2', '07': '8°', '08': '9°', '09': '10°', 'CS2': '10°', '10': '11°', '11': 'egreso (graduandos)' };
 /** Lee una columna opcional de una fila de la hoja sin importar mayúsculas, tildes, espacios ni guiones del encabezado (documento, Documento, tipo_doc, Tipo doc…). */
 function comisionCol_(fila, nombres) {
@@ -5707,7 +5712,7 @@ function comisionGradoDatos(p) {
   if (!label) throw new Error('Ese grado no existe.');
   var al = comisionAlcance_(quien, cod);
   if (comisionSinAlcance_(al)) throw new Error('Usted no tiene cursos ni áreas en este grado.');
-  var grupos = datos_('Grupos').filter(function (g) { return partesGrupo_(g.grupo).grado === cod; }).sort(function (a, b) { return String(a.grupo).localeCompare(String(b.grupo)); });
+  var grupos = datos_('Grupos').filter(function (g) { return comisionGradoActa_(g.grupo) === cod; }).sort(function (a, b) { return String(a.grupo).localeCompare(String(b.grupo)); });
   var gs = grupos.map(function (g) { return String(g.nombre); }), codes = grupos.map(function (g) { return String(g.grupo); });
   var niv = cod === '00' ? 'pre' : /^0[1-4]$/.test(cod) ? 'pri' : cod === '05' ? 'rot' : 'sec';
   var dir = [], dir2 = [], dirs = {};
@@ -5718,7 +5723,7 @@ function comisionGradoDatos(p) {
   });
   var areas = {}, nomAreas = {}, ap = {};
   datos_('Horario').forEach(function (h) {
-    if (!h.docente || partesGrupo_(h.grupo).grado !== cod) return;
+    if (!h.docente || comisionGradoActa_(h.grupo) !== cod) return;
     var a = String(h.area || '').trim(); if (/MULTIPLES/i.test(comisionSinTildes_(a))) return;
     (COM_COD_AREA[comisionSinTildes_(a)] || []).forEach(function (x) { nomAreas[x] = nomAreas[x] || {}; nomAreas[x][String(h.docente)] = 1; });
     if (!dirs[comisionSinTildes_(h.docente)]) ap[String(h.docente)] = 1;
@@ -5757,7 +5762,7 @@ function comisionSeguimiento() {
   comisionActas_().filter(function (a) { return String(a.anio) === String(anio); }).forEach(function (a) {
     var secs = comisionSecciones_(a.id), cod = String(a.grado), pre = cod === '00', fin = a.periodo === 'Final';
     function d(k) { return secs[k] && secs[k].datos; }
-    var cursos = grupos.filter(function (g) { return partesGrupo_(g.grupo).grado === cod; }).map(function (g) { return String(g.grupo); });
+    var cursos = grupos.filter(function (g) { return comisionGradoActa_(g.grupo) === cod; }).map(function (g) { return String(g.grupo); });
     var c = { matricula: 0, reprobacion: 0, reconocimientos: 0, convivencia: 0, compromisos: 0, piar: 0, promocion: 0 };
     cursos.forEach(function (k) {
       var m = d('matricula:' + k); if (m && m.mat && m.mat.ok) c.matricula++;

@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.23-u';
-var FECHA_VERSION = '2026-11-23';
+var VERSION_SISTEMA = '2026.11.24-a';
+var FECHA_VERSION = '2026-11-24';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.24-a', fecha: '2026-11-24', cambios: [
+    'Comisiones: Caminar en Secundaria 1 se trabaja con el acta de 7.º y Caminar en Secundaria 2 con la de 9.º (ya no aparecen como grados aparte). «Juramento» pasa a llamarse «acuerdo y compromiso de transparencia». En la matrícula, «desertados» pasa a «no asistentes»: quien no asistió queda inhabilitado pero sigue en el listado y no entra en la promoción; «retirados» son quienes se van a otro domicilio o institución.'] },
   { version: '2026.11.23-u', fecha: '2026-11-23', cambios: [
     'Comisiones: los pendientes se actualizan al instante con el avance del equipo y la confirmación del cierre; al guardar y cerrar el acta se lleva al imprimible. El teléfono del acudiente ya no es obligatorio (pendientes de datos solo para estudiantes reconocidos y sin teléfono, como recordatorio). El correo institucional (@icet.edu.co) no se toma como correo personal: cada docente registra uno personal. Matrícula: el total actual empieza en mujeres y al subir los hombres bajan las mujeres.'] },
   { version: '2026.11.23-t', fecha: '2026-11-23', cambios: [

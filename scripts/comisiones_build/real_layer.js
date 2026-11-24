@@ -221,7 +221,7 @@ function REAL_BOOT(){
   else estadoSync('Elija el grado y el periodo','m');
   document.body.classList.add('jsok');try{irTab('p1')}catch(e){}
  }).catch(function(e){document.body.insertAdjacentHTML('afterbegin','<div style="background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;padding:12px;font:14px Arial">No se pudo abrir las comisiones: '+esc(msgE(e))+' <a href="javascript:irAlMenu()">Volver al menú</a></div>')})}
-var COM_LABEL={'00':'0° Preescolar','01':'1° Primaria','02':'2° Primaria','03':'3° Primaria','04':'4° Primaria','05':'5° Primaria','06':'6° Secundaria','CS1':'CS 1 (Caminar en Secundaria 1, 6°-7°)','07':'7° Secundaria','08':'8° Secundaria','09':'9° Secundaria','CS2':'CS 2 (Caminar en Secundaria 2, 8°-9°)','10':'10° Media','11':'11° Media'};
+var COM_LABEL={'00':'0° Preescolar','01':'1° Primaria','02':'2° Primaria','03':'3° Primaria','04':'4° Primaria','05':'5° Primaria','06':'6° Secundaria','CS1':'CS 1 (Caminar en Secundaria 1, 6°-7°)','07':'7° Secundaria + Caminar 1','08':'8° Secundaria','09':'9° Secundaria + Caminar 2','CS2':'CS 2 (Caminar en Secundaria 2, 8°-9°)','10':'10° Media','11':'11° Media'};
 REAL_BOOT();
 
 /* ---------- fecha y hora con control (calendario y reloj) ---------- */

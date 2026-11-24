@@ -797,3 +797,8 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 100 (2026-11-23, versión 2026.11.23-u)
 - `pintaEquipo` y `pintaCierreProp` refrescan `pintaPendientes`; al cerrar (`cierraActa`) se va a `irTab('p3')` (imprimible). Pendientes de datos de estudiantes: solo reconocidos, sin «Teléfono del acudiente» (`faltaSinTel`). `comisionMailPersonal_` descarta correos @icet.edu.co (el correo del docente debe ser personal). Matrícula: por defecto m=0, f=total; al cambiar hombres, mujeres = total − hombres.
+
+## Ampliación 101 (2026-11-24, versión 2026.11.24-a)
+- **Caminar en Secundaria**: `COM_UNION` (CS1→07, CS2→09) y `comisionGradoActa_(grupo)`: el acta de 7.º incluye los cursos CS 1 y la de 9.º los CS 2; CS1/CS2 ya no son grados aparte (etiquetas «7° Secundaria + Caminar 1», «9° Secundaria + Caminar 2» en servidor y cliente). Actas ya abiertas bajo «CS 1/CS 2» quedan huérfanas (decisión del coordinador: unir).
+- **Terminología**: «juramento» → «acuerdo y compromiso de transparencia» (texto `JURAMENTO` reescrito; las claves de datos `jur`/`declaracion_juramento` se conservan; se agrega `acuerdo_transparencia`). «Desertados» → «No asistentes» (columna, mensajes, informes; clave de exportación `desertados` se conserva y se agrega `no_asistentes`). Motivos de retiro nuevos: «Se retiró (traslado, cambio de institución o de domicilio)» y «No asistió: nunca vino o dejó de venir (no asistente)»; el servidor sigue aceptando los motivos antiguos. El estudiante no asistente queda inhabilitado (`baja`) pero visible en el listado («No asistente · inhabilitado») y fuera de la promoción; cuenta en la columna «No asistentes» de la matrícula.
+- Formatos Word/PDF regenerados con los nuevos términos.

@@ -44,7 +44,7 @@
 <body>
 <header>
   <h1>Ayuda y manual de uso</h1>
-  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.23-u</span></small>
+  <small>Control de asistencia docente · I.E. ICET, Tumaco <span class="vb">versión 2026.11.24-a</span></small>
   <a class="volver" id="irMenu" onclick="irAlMenu()">« Volver al menú</a>
   <a class="volver" onclick="window.print()">Imprimir / guardar en PDF</a>
 </header>
@@ -98,7 +98,7 @@
 <li>Como docente solo ve <b>lo suyo</b>: su informe, sus soportes y las comisiones de su grado. No ve rondas, reuniones ni nada de directivos.</li></ol>
 </section>
 <section id="comisiones"><h2>Comisiones de evaluación y promoción</h2>
-<p>Desde el menú toque <b>«Comisiones de evaluación y promoción»</b>. Elija el <b>grado</b> y el <b>periodo</b>: se abre el acta de ese grado con la lista real de estudiantes y la asignación del libro. Todo el personal puede editar el acta, pero <b>solo una persona a la vez</b> tiene la <b>edición</b> (la primera que entra). Las demás ven el acta en solo lectura, pueden declarar bajo juramento, firmar y completar datos faltantes, y ven los cambios a los pocos segundos. Quien tiene la edición puede <b>soltarla</b> o <b>pasarla</b> a otra persona; si lleva 15 minutos sin actividad, otra puede <b>tomarla</b>. Coordinación y directivos editan siempre.</p>
+<p>Desde el menú toque <b>«Comisiones de evaluación y promoción»</b>. Elija el <b>grado</b> y el <b>periodo</b>: se abre el acta de ese grado con la lista real de estudiantes y la asignación del libro. Todo el personal puede editar el acta, pero <b>solo una persona a la vez</b> tiene la <b>edición</b> (la primera que entra). Las demás ven el acta en solo lectura, pueden aceptar el acuerdo y compromiso de transparencia, firmar y completar datos faltantes, y ven los cambios a los pocos segundos. Quien tiene la edición puede <b>soltarla</b> o <b>pasarla</b> a otra persona; si lleva 15 minutos sin actividad, otra puede <b>tomarla</b>. Coordinación y directivos editan siempre.</p>
 <ol>
 <li><b>Antes de empezar</b> la pantalla pide <b>dónde está</b> y <b>a qué hora empezó</b>; le llega a coordinación en el seguimiento.</li>
 <li>Los directivos, la orientadora y la tutora que acompañan <b>no declaran ni confirman nada</b>: declaran y firman los docentes del grado. Cada casilla de declaración o revisión se desactiva al marcarla.</li>
@@ -110,11 +110,13 @@
 <li><b>Guardar borrador</b> guarda una copia de todo su avance; al volver aparece <b>Recuperar borrador</b>. En «Datos faltantes» solo se piden datos a quienes se marcaron como participantes en la asistencia.</li>
 <li>En reconocimientos, solo <b>excelencia</b> y <b>rendimiento académico</b> exigen promedio; los demás tipos (convivencia, colaboración y buen porte, otros) no piden nota.</li>
 <li>Al <b>guardar y cerrar</b> el acta, la pantalla lo lleva al <b>imprimible</b>. Los pendientes se actualizan solos mientras trabaja. Cada docente debe registrar un <b>correo personal</b> (no el institucional) y actualizar los datos de los estudiantes reconocidos; el teléfono del acudiente no es obligatorio.</li>
+<li>En la matrícula, quien <b>no asistió</b> (nunca vino o dejó de venir) se cuenta como <b>no asistente</b>, no como desertado: queda <b>inhabilitado pero sigue en el listado</b> y no entra en la promoción. <b>Retirado</b> es quien se fue a otro domicilio o institución.</li>
+<li>Los cursos de <b>Caminar en Secundaria 1</b> se trabajan en el acta de <b>7.º</b> y los de <b>Caminar en Secundaria 2</b> en la de <b>9.º</b>.</li>
 <li>Si se pierde la conexión o se recarga la página, <b>no se pierde lo escrito</b>: queda guardado en su navegador, se envía al libro cuando vuelve la conexión y la pantalla regresa al último paso. Al <b>cerrar sesión</b> con cambios sin enviar, se avisa.</li>
-<li>La declaración bajo juramento se marca docente por docente (de grupo y de área); la nacionalidad colombiana se deduce del tipo de documento.</li>
+<li>El acuerdo y compromiso de transparencia se marca docente por docente (de grupo y de área); la nacionalidad colombiana se deduce del tipo de documento.</li>
 <li>En «Listados», cada curso tiene su botón <b>+ Agregar estudiante</b> y cada estudiante sus botones <b>Modificar</b> y <b>Retirar</b>; se ven el tipo y el número de documento. Todos los docentes del grado confirman su revisión.</li>
 <li>En «Datos generales» elija la <b>fecha</b> con el calendario y la <b>hora</b> con el reloj.</li>
-<li>En el paso 1 confirme, uno por uno, los <b>documentos que deben estar listos</b> (notas cargadas, planillas, resúmenes, cuadernos, observaciones…) y haga su <b>declaración bajo juramento</b>.</li>
+<li>En el paso 1 confirme, uno por uno, los <b>documentos que deben estar listos</b> (notas cargadas, planillas, resúmenes, cuadernos, observaciones…) y haga su <b>acuerdo y compromiso de transparencia</b>.</li>
 <li>Quien tiene la edición cierra el acta cuando no queden pendientes. Después de cerrada, todos pueden consultarla y ver sus informes.</li>
 <li>Arriba tiene <b>«← Volver al menú»</b> y <b>«Cerrar sesión»</b>.</li>
 </ol>
@@ -278,7 +280,7 @@
 <p><b>ronda_horas_margen</b>: horas después de la jornada en que los demás directivos aún pueden registrar la ronda; <b>reunion_desde</b> / <b>reunion_hasta</b>: horario normal de reuniones; <b>reunion_personas_extra</b>: personas que siempre deben aparecer en las reuniones de todo el personal.</p></section>
 
 </main>
-<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.23-u</b></footer>
+<footer>Sistema de control de asistencia docente · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · <b>versión 2026.11.24-a</b></footer>
 <script>
 function irAlMenu(){
   try{ google.script.run.withSuccessHandler(function(u){ window.top.location.href=u||window.top.location.href.split('?')[0]; }).withFailureHandler(function(){ window.top.location.href=window.top.location.href.split('?')[0]; }).urlBase(); }

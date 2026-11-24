@@ -103,6 +103,15 @@ yo('ana@x.com'); run("comisionAHojas_('faltantes',{datos:{2:{mod:1,ndoc:'1234567
 ok(run("comisionMailPersonal_('juan@icet.edu.co')")===''&&run("comisionMailPersonal_('juan@gmail.com')")==='juan@gmail.com','el correo institucional no se toma como correo personal del docente');
 { const g5=run("comisionGradoDatos({grado:'08'})"); ok(g5.estudiantes.every(x=>x.g),'solo se envían los estudiantes del grado abierto (ninguno sin curso)'); }
 { const gd=run("comisionGradoDatos({grado:'08'})"); ok(gd.apoyo.every(x=>x.p===false),'los directivos acompañantes no figuran como participantes por defecto'); }
+// ---- Caminar en Secundaria: CS 1 va con 7.º y CS 2 con 9.º ----
+{ hojas.Grupos.v.push(['0701','REGULAR','7°','7°-1',null],['CS101','CAMINAR','CS1','CS 1-1',null],['0901','REGULAR','9°','9°-1',null],['CS201','CAMINAR','CS2','CS 2-1',null]);
+  hojas.Estudiantes.v.push(['0701','7°-1',1,'SEPTIMO UNO','ANA','','',''],['CS101','CS 1-1',1,'CAMINAR UNO','LUIS','','',''],['CS201','CS 2-1',1,'CAMINAR DOS','EVA','','','']);
+  yo('coord@x.com');
+  const c7=run("comisionGradoDatos({grado:'07'})"), c9=run("comisionGradoDatos({grado:'09'})"), ctx=run("comisionContexto()");
+  ok(c7.gs.indexOf('CS 1-1')>=0&&c7.gs.indexOf('7°-1')>=0&&c7.estudiantes.some(e=>e.g==='CS 1-1'),'el acta de 7.º incluye los cursos de Caminar en Secundaria 1 y sus estudiantes');
+  ok(c9.gs.indexOf('CS 2-1')>=0&&c9.gs.indexOf('9°-1')>=0&&!c9.gs.some(x=>/^CS 1/.test(x)),'el acta de 9.º incluye Caminar en Secundaria 2 (y no el 1)');
+  ok(ctx.grados.indexOf('CS1')<0&&ctx.grados.indexOf('CS2')<0&&ctx.grados.indexOf('07')>=0,'CS 1 y CS 2 ya no figuran como grados aparte');
+  hojas.Grupos.v.length-=4; hojas.Estudiantes.v.length-=3; }
 // ---- historial: versiones anteriores y cambios en hojas, con retroceso ----
 yo('coord@x.com');
 { const h0=run("comisionHistorial({acta:A1})"); ok(h0.dias===8&&Array.isArray(h0.secciones)&&h0.secciones.length>0,'historial: se guardan versiones anteriores de las secciones que se van pisando');

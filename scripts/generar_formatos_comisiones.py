@@ -38,8 +38,8 @@ REQUISITOS = ['Todas las notas del periodo están cargadas en la plataforma y el
               'Cada docente tiene su cuaderno de registro de calificaciones y asistencia al día.',
               'Cada docente tiene sus observaciones y anotaciones de seguimiento de los estudiantes.',
               'Se tiene a la mano la información faltante (documentos, cédulas, correos); si no, se pide a rectoría, a archivo o al coordinador.']
-JURAMENTO = ('Declaro, bajo la gravedad de juramento, que actúo de buena fe; que la información que registro en esta acta es veraz, completa y verificable con mis planillas, resúmenes, cuadernos y soportes; '
-             'que no suplanto ni permito que otra persona firme o registre por mí; y que respondo por ella.')
+JURAMENTO = ('Me comprometo a entregar la información con total transparencia: actúo de buena fe; lo que registro en esta acta es veraz, completo y verificable con mis planillas, resúmenes, cuadernos y soportes; '
+             'no suplanto ni permito que otra persona firme o registre por mí; y respondo por ello.')
 IMPORTANTE = ('IMPORTANTE: para su validez, el acta debe ser firmada por todos los asistentes, al finalizar. Quien no firme se entenderá que no participó ni asistió; la firma puesta por otra persona se considerará suplantación.')
 
 NIVELES = {
@@ -173,8 +173,8 @@ def seccion_asistencia(doc, nivel):
     tabla(doc, ['No.', 'Nombres y apellidos de la ' + rol, '¿Director(a) de grupo?', 'Área / rol', 'N.º de cédula', 'Celular · correo', 'Firma al finalizar (obligatoria)'],
           [[i + 1, '', '', '', '', '', ''] for i in range(8 if nivel == 'preescolar' else 12)], [9, 44, 21, 27, 23, 31, 36], 7.5, 8.5, [0, 2])
     parrafo(doc, 'Acompañan (opcional, no firman el cierre): Directivo(a) docente ______________________   Docente orientadora ______________________   Tutora PTAFI ______________________', 7.5, False, None, 3, 2)
-    parrafo(doc, 'Declaración bajo la gravedad de juramento (cada docente del grado la hace en la aplicación): ' + JURAMENTO, 7.5, False, 'j', 3, 1, None, True)
-    parrafo(doc, 'Hecha por (nombres y hora): ________________________________________________________________________________________', 7.5, False, None, 1, 3)
+    parrafo(doc, 'Acuerdo y compromiso de transparencia (cada docente del grado lo acepta en la aplicación): ' + JURAMENTO, 7.5, False, 'j', 3, 1, None, True)
+    parrafo(doc, 'Aceptado por (nombres y hora): ________________________________________________________________________________________', 7.5, False, None, 1, 3)
     parrafo(doc, 'Requisitos verificados antes de iniciar:', 8, True, None, 2, 1)
     for r in REQUISITOS: casilla(doc, r, 7.5)
     parrafo(doc, 'Docente responsable del registro y del cierre: ______________________________________________', 8.5, True, None, 4, 2)
@@ -183,10 +183,10 @@ def seccion_asistencia(doc, nivel):
 def seccion_matricula(doc, nivel, cursos):
     titulo(doc, 'INFORMACIÓN ESTADÍSTICA DE MATRÍCULA')
     fin = ['Desarrollo esperado', 'Por consolidar'] if nivel == 'preescolar' else ['Aprobación / sin pérdida', 'Reprobación']
-    enc = ['Grupo', 'Matrícula inicial', 'Nuevos', 'Retirados', 'Desertados', 'Total actual', 'M', 'F', 'VEN', 'ECU'] + fin
+    enc = ['Grupo', 'Matrícula inicial', 'Nuevos', 'Retirados', 'No asistentes', 'Total actual', 'M', 'F', 'VEN', 'ECU'] + fin
     filas = [[''] * len(enc) for _ in range(cursos)] + [['TOTAL GRADO'] + [''] * (len(enc) - 1)]
     tabla(doc, enc, filas, [18, 17, 13, 19, 21, 16, 9, 9, 10, 10, 25, 25], 7.5, 7.5, list(range(len(enc))))
-    parrafo(doc, 'Total actual = inicial + nuevos − retirados − desertados.  Hombres + mujeres = total actual.  VEN = estudiantes venezolanos; ECU = ecuatorianos.', 7, False, None, 1, 2, '595959', True)
+    parrafo(doc, 'Total actual = inicial + nuevos − retirados − no asistentes.  Hombres + mujeres = total actual.  VEN = estudiantes venezolanos; ECU = ecuatorianos.', 7, False, None, 1, 2, '595959', True)
 
 
 def seccion_rendimiento(doc, nivel):

@@ -831,3 +831,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 108 (2026-11-24, versión 2026.11.24-g)
 - «El que empezó se queda con Caminar»: `comisionUnionOcupacion_` (parámetro `comisiones_union_uso`, registrado en `comisionAbrir` por `comisionUnionRegistrar_`, más actas antiguas de 7.º/9.º con datos) prevalece sobre el defecto; `comisionUnionGuardar` rechaza mover CS al otro grado si ya fue tomado. Orden: configuración explícita > ya tomado > defecto (CS1→6.º, CS2→8.º).
+
+## Ampliación 109 (2026-11-24, versión 2026.11.24-h)
+- Defecto de rendimiento (-d a -g): `comisionUnion_` leía `Parametros` (sin caché) en cada fila de Horario y en cada acta → acta de 9.º no cargaba. Corregido con memo por solicitud (`COM_UNION_RES`, `COM_UNION_CFG`, `comisionUnionReset_`). Prueba: máx. 6 lecturas de parámetros por apertura. Verificado en el libro real: acta 9.º (Villota, Final) con 14 secciones intactas; acta heredada «CS2» (Preciado, 1 sección) se normaliza al mismo grado 09 y `comisionAbrir` elige la que más secciones tiene.

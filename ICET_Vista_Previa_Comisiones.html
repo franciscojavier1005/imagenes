@@ -4651,11 +4651,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.24-g';
+var VERSION_SISTEMA = '2026.11.24-h';
 var FECHA_VERSION = '2026-11-24';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.24-h', fecha: '2026-11-24', cambios: [
+    'URGENTE (comisiones): corrige una lentitud introducida en las versiones -d a -g: al abrir un acta el servidor leía la hoja de parámetros una vez por cada fila del horario, y el acta podía tardar minutos o no cargar (el avance guardado no se perdía). Ahora la integración de Caminar se calcula una sola vez por solicitud.'
+  ] },
   { version: '2026.11.24-g', fecha: '2026-11-24', cambios: [
     'Comisiones: el primer grado que abre un acta con Caminar en Secundaria en un período «lo toma»: el otro grado ya no lo recibe en ese período y la coordinación no puede moverlo mientras no haya acuerdo (el acta de 9.º que ya empezó con CS 2 la conserva). La ventana «Cambiar integración» avisa qué ya está tomado.'
   ] },
@@ -6500,9 +6503,10 @@ function comisionHorarioConAlternan_() {
 var COM_PERIODOS = ['Primero', 'Segundo', 'Tercero', 'Final'];
 function comisionUnionDefecto_(periodo) { return { CS1: '06', CS2: '08' }; }  // decisión 2026-11-24 (esta vez): CS 1 con 6.º y CS 2 con 8.º en todos los períodos; coordinación puede cambiarlo por período
 /* Coordinación puede cambiar la integración por período (parámetro comisiones_union): CS1 con 6.º o 7.º y CS2 con 8.º o 9.º. */
-function comisionUnionConfig_() { var c = {}; try { c = JSON.parse(parametro_('comisiones_union', '{}')) || {}; } catch (e) { c = {}; } return c; }
+function comisionUnionConfig_() { if (COM_UNION_CFG) return COM_UNION_CFG; var c = {}; try { c = JSON.parse(parametro_('comisiones_union', '{}')) || {}; } catch (e) { c = {}; } COM_UNION_CFG = c; return c; }
+function comisionUnionReset_() { COM_UNION_MEMO = null; COM_UNION_RES = {}; COM_UNION_CFG = null; }
 /* Quién ya «tomó» a Caminar en un período: (1) lo registrado al abrir un acta (parámetro comisiones_union_uso) y (2) actas antiguas de 7.º y 9.º con datos (antes de 2026.11.24-c Caminar siempre iba con 7.º y 9.º). */
-var COM_UNION_MEMO = null;
+var COM_UNION_MEMO = null, COM_UNION_RES = {}, COM_UNION_CFG = null;
 function comisionUnionUso_() { var c = {}; try { c = JSON.parse(parametro_('comisiones_union_uso', '{}')) || {}; } catch (e) { c = {}; } return c; }
 function comisionUnionOcupacion_(periodo) {
   var per = String(periodo || 'Final'); COM_UNION_MEMO = COM_UNION_MEMO || {};
@@ -6520,14 +6524,16 @@ function comisionUnionOcupacion_(periodo) {
   COM_UNION_MEMO[per] = r; return r;
 }
 function comisionUnion_(periodo) {
+  var kp = String(periodo || 'Final'); if (COM_UNION_RES[kp]) return COM_UNION_RES[kp];
   var d = comisionUnionDefecto_(periodo), o = comisionUnionConfig_()[String(periodo || 'Final')] || {}, oc = comisionUnionOcupacion_(periodo);
-  return { CS1: o.CS1 === '06' || o.CS1 === '07' ? o.CS1 : (oc.CS1 || d.CS1), CS2: o.CS2 === '08' || o.CS2 === '09' ? o.CS2 : (oc.CS2 || d.CS2) };
+  COM_UNION_RES[kp] = { CS1: o.CS1 === '06' || o.CS1 === '07' ? o.CS1 : (oc.CS1 || d.CS1), CS2: o.CS2 === '08' || o.CS2 === '09' ? o.CS2 : (oc.CS2 || d.CS2) };
+  return COM_UNION_RES[kp];
 }
 /** Al abrir un acta que recibe a Caminar, queda registrado quién lo tomó: el otro grado ya no puede trabajarlo en ese período. */
 function comisionUnionRegistrar_(periodo, grado) {
   var u = comisionUnion_(periodo), uso = comisionUnionUso_(), per = String(periodo), x = uso[per] || {}, cambio = false;
   ['CS1', 'CS2'].forEach(function (k) { if (u[k] === grado && !x[k]) { x[k] = grado; cambio = true; } });
-  if (cambio) { uso[per] = x; guardarParametro_('comisiones_union_uso', JSON.stringify(uso)); COM_UNION_MEMO = null; }
+  if (cambio) { uso[per] = x; guardarParametro_('comisiones_union_uso', JSON.stringify(uso)); comisionUnionReset_(); }
 }
 function comisionUnionLeer() {
   var r = {}; COM_PERIODOS.forEach(function (p) { r[p] = comisionUnion_(p); });
@@ -6542,7 +6548,7 @@ function comisionUnionGuardar(p) {
   if (oc.CS1 && oc.CS1 !== String(p.CS1)) throw new Error('El acta de ' + nom[oc.CS1] + ' ya empezó a trabajar con Caminar en Secundaria 1 en el período ' + per + '. Pónganse de acuerdo con esa comisión antes de cambiarlo.');
   if (oc.CS2 && oc.CS2 !== String(p.CS2)) throw new Error('El acta de ' + nom[oc.CS2] + ' ya empezó a trabajar con Caminar en Secundaria 2 en el período ' + per + '. Pónganse de acuerdo con esa comisión antes de cambiarlo.');
   var c = comisionUnionConfig_(); c[per] = { CS1: String(p.CS1), CS2: String(p.CS2) };
-  guardarParametro_('comisiones_union', JSON.stringify(c)); COM_UNION_MEMO = null;
+  guardarParametro_('comisiones_union', JSON.stringify(c)); comisionUnionReset_();
   return comisionUnionLeer();
 }
 function comisionGradoActa_(grupo, periodo) { var g = partesGrupo_(grupo).grado; return comisionUnion_(periodo)[g] || g; }
@@ -7933,7 +7939,7 @@ function REAL_BOOT(){
  document.body.classList.add('jsok');
  if(!tokenGuardado()){irAlMenu();return}
  API('comisionContexto').then(function(c){
-  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='2026.11.24-g'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión 2026.11.24-g y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.24-g · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
+  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='2026.11.24-h'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión 2026.11.24-h y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.24-h · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
   GRADOS_REAL=c.grados.map(function(code){return COM_LABEL[code]}).filter(Boolean);LABEL_DE={};c.grados.forEach(function(code){LABEL_DE[COM_LABEL[code]]=code});
   var bh=$('#btnHist');if(bh&&(c.quien.rol!=='docente'||c.quien.total))bh.style.display='';var be=$('#btnEj');if(be&&c.quien.dev)be.style.display='';var p=$('#perfil');if(p){p.value=PERFIL;if(!c.quien.dev){var pf=document.querySelector('.perf');if(pf)pf.style.display='none'}}
   $('#grado').onchange=abreActa;$('#periodo').onchange=abreActa;

@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.24-g';
+var VERSION_SISTEMA = '2026.11.24-h';
 var FECHA_VERSION = '2026-11-24';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.24-h', fecha: '2026-11-24', cambios: [
+    'URGENTE (comisiones): corrige una lentitud introducida en las versiones -d a -g: al abrir un acta el servidor leía la hoja de parámetros una vez por cada fila del horario, y el acta podía tardar minutos o no cargar (el avance guardado no se perdía). Ahora la integración de Caminar se calcula una sola vez por solicitud.'
+  ] },
   { version: '2026.11.24-g', fecha: '2026-11-24', cambios: [
     'Comisiones: el primer grado que abre un acta con Caminar en Secundaria en un período «lo toma»: el otro grado ya no lo recibe en ese período y la coordinación no puede moverlo mientras no haya acuerdo (el acta de 9.º que ya empezó con CS 2 la conserva). La ventana «Cambiar integración» avisa qué ya está tomado.'
   ] },

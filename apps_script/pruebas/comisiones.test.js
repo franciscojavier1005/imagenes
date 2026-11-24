@@ -34,7 +34,7 @@ const g={Utilities:{formatDate:fmt,getUuid:()=>'u'+Math.random().toString(36).sl
 const FIJA=new Date('2026-11-22T20:41:00Z').getTime();   // 15:41 en Bogotá
 g.Date=class extends Date{constructor(...a){a.length?super(...a):super(FIJA)} static now(){return FIJA}};
 vm.createContext(g);
-['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Reuniones.gs','Incumplimientos.gs','Horarios.gs','Novedades.gs','Estudiantes.gs','Sesion.gs','Respaldo.gs','Comisiones.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
+['Codigo.gs','Resumen.gs','Plazos.gs','Acceso.gs','Dashboard.gs','Whatsapp.gs','Soportes.gs','Patrones.gs','Notas.gs','NotasRonda.gs','Reuniones.gs','Incumplimientos.gs','Horarios.gs','Novedades.gs','Estudiantes.gs','Sesion.gs','Respaldo.gs','Comisiones.gs','Traslados.gs','Api.gs'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),g,{filename:f}));
 let fallos=0; const ok=(c,m)=>{console.log((c?'  ok   ':'  FALLA ')+m); if(!c)fallos++;};
 const run=(c)=>vm.runInContext(c,g); let TURNO_AUTO=true; const yo=(e)=>{EMAIL=e; if(TURNO_AUTO&&g.A1){try{const q=vm.runInContext('comisionQuien_()',g);if(q.rol==='docente')vm.runInContext('comisionResponsable({acta:A1,nombre:'+JSON.stringify(q.nombre)+'})',g)}catch(x){}}};
 const falla=(c)=>{try{run(c);return null}catch(e){return String(e.message)}};
@@ -144,6 +144,17 @@ ok(run("comisionMailPersonal_('juan@icet.edu.co')")===''&&run("comisionMailPerso
   { run("var __n=0, __p=parametro_; parametro_=function(a,b){__n++; return __p(a,b)}; comisionUnionReset_()"); for (let i=0;i<300;i++) hojas.Horario.v.push([0,'Prueba Docente','LUNES',1,1,1,'06:30','07:15','CLASE','0701','CSI']);
     run("comisionGradoDatos({grado:'07',periodo:'Primero'})"); const n=run("__n"); run("parametro_=__p"); hojas.Horario.v.length-=300;
     ok(n<=6,'el acta no relee la hoja de parámetros por cada fila del horario ('+n+' lecturas)'); }
+  { const hdr0=hojas.Estudiantes.v[0].slice(); hojas.Estudiantes.v[0]=['grupo','curso','no','apellidos','nombres','documento']; hojas.Grupos.v.push(['0701','REGULAR','7°','7°-1',null]);
+    hojas.Estudiantes.v.push(['0801','8°-1',1,'TRASLADO UNO','ANA','777001']); const fT=hojas.Estudiantes.v.length;
+    yo('dora@x.com'); const b=run("trasladoBuscar({q:'traslado uno'})"); ok(b.res.length===1&&b.res[0].grupo==='0801'&&b.res[0].fila===fT,'se busca un estudiante de cualquier grupo por nombre');
+    ok(falla("trasladoSolicitar({fila:"+fT+",doc:'777001',nombre:'TRASLADO UNO ANA',hacia:'0701',just:'corto'})")!==null,'un docente debe escribir una justificación');
+    const sol=run("trasladoSolicitar({fila:"+fT+",doc:'777001',nombre:'TRASLADO UNO ANA',hacia:'0701',just:'Por error de matrícula, ya cursa 7.º'})"); ok(sol.estado==='PENDIENTE'&&hojas.Estudiantes.v[fT-1][0]==='0801','un docente solo solicita: la hoja no cambia hasta que se autorice');
+    ok(falla("trasladoResolver({id:'x',aprobar:true})")!==null,'un docente no puede autorizar');
+    yo('coord@x.com'); const L=run("trasladoListar()"); ok(L.coord&&L.traslados[0].estado==='PENDIENTE','coordinación ve la solicitud pendiente');
+    run("trasladoResolver({id:'"+L.traslados[0].id+"',aprobar:true})"); ok(String(hojas.Estudiantes.v[fT-1][0])==='0701'&&hojas.Estudiantes.v[fT-1][1]==='7°-1','al aprobar se cambian grupo y curso en la hoja Estudiantes');
+    const dir=run("trasladoSolicitar({fila:"+fT+",doc:'777001',nombre:'TRASLADO UNO ANA',hacia:'0801',just:''})"); ok(dir.estado==='APLICADO'&&String(hojas.Estudiantes.v[fT-1][0])==='0801','coordinación traslada sin autorización ni justificación obligatoria');
+    ok(hojas.Bitacora_Cambios.v.some(r=>/Traslado de estudiante/.test(String(r[2]))),'queda registro en la bitácora');
+    hojas.Estudiantes.v.pop(); hojas.Grupos.v.pop(); hojas.Estudiantes.v[0]=hdr0; }
   hojas.Grupos.v.length-=4; hojas.Estudiantes.v.length-=3; }
 // ---- historial: versiones anteriores y cambios en hojas, con retroceso ----
 yo('coord@x.com');

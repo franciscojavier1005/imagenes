@@ -43,5 +43,6 @@ s=s.replace('__CLIENTVER__',VER)
 out=s.replace('__LOGOHI__',lh).replace('__LOGO__',lg).replace('/*REFDATA*/{}',json.dumps(ref,ensure_ascii=False,separators=(',',':')))
 for dato in ('Cuéllar','Valverde','1085','Puches'):
     assert dato not in out, 'dato personal en la pantalla real: '+dato
+out=re.sub(r"versión \d{4}\.\d{2}\.\d{2}-[a-z]\b",'versión <?= VERSION ?>',out)
 open('/home/user/imagenes/apps_script/Comisiones.html','w',encoding='utf-8').write(out)
 print('real ok',len(out))

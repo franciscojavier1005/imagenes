@@ -61,6 +61,8 @@ BARRA = {
 
 def generar(pagina, salida, modo):
     html = rd(os.path.join(PAQ, pagina))
+    _v = re.search(r"VERSION_SISTEMA = '([^']+)'", rd(os.path.join(RAIZ, 'apps_script', 'Leeme.gs'))).group(1)
+    html = html.replace('<?= VERSION ?>', _v)   # en el libro real la versión la pone el servidor
     puente = PUENTE.replace('__MODO__', modo).replace('__BARRA__', BARRA[modo].replace("'", "\\'"))
     datos = ('<script type="text/plain" id="srv-mocks">' + esc(servidor_js) + '</script>\n'
              '<script type="text/plain" id="srv-codigo">' + esc(codigo_gs) + '</script>\n')

@@ -5,11 +5,16 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.24-k';
-var FECHA_VERSION = '2026-11-24';
+var VERSION_SISTEMA = '2026.11.25-a';
+var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-a', fecha: '2026-11-25', cambios: [
+    'La aplicación pasa a llamarse «Control de Procesos ICET» y el menú de inicio muestra la versión en grande. DESDE AHORA LA VERSIÓN SE CAMBIA SOLO EN Leeme.gs: las pantallas la reciben del código (ya no hay que tocar los .html para subir de versión; solo cambian los .html cuando cambia su contenido).',
+    'Comisiones, traslados: en los listados, «🔀 Trasladar estudiante…» busca a un estudiante de cualquier curso o grado y lo pasa al curso elegido (cambia grupo y curso en la hoja Estudiantes y queda en Bitacora_Cambios). Coordinación o el desarrollador lo aplican de inmediato; los demás envían una solicitud con justificación (mín. 10 caracteres) que queda en la hoja Traslados_Estudiantes y se avisa por correo a coordinación; «📋 Traslados» muestra el estado y coordinación aprueba o rechaza.',
+    'Botones con color propio: «Guardar borrador» (verde), «Descargar copia» (morado), «Trasladar» (naranja) y «No asiste…» (ámbar).'
+  ] },
   { version: '2026.11.24-k', fecha: '2026-11-24', cambios: [
     'Comisiones: corrige estudiantes repetidos en los listados. Lo guardado de cada estudiante se unía al número de fila de la hoja Estudiantes; si se insertaban o cambiaban filas, el nombre guardado se copiaba a otra persona. Ahora se une por nombre (y se descarta lo guardado que ya no corresponde). Los botones «No asiste…» y «+ Agregar estudiante» pasan a una barra propia bajo el encabezado del curso (sin flotar ni parpadear al cambiar el tamaño de la ventana) y el aviso de más columnas es una sombra en el borde, sin código que parpadee.'
   ] },

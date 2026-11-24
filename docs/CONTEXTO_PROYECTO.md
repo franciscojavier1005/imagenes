@@ -843,3 +843,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 112 (2026-11-24, versión 2026.11.24-k)
 - Duplicados en listados: `faltantes.datos` y las listas por curso se unían por n.º de fila (`id`); al cambiar filas en la hoja, `a`/`n` guardados se copiaban a otra persona. Ahora `k0` (nombre normalizado) en cada dato/ítem; `aplicaUna` reubica o descarta. Barra `.lisbar` bajo el encabezado; sombras CSS en `.tw`.
+
+## Ampliación 113 (2026-11-25, versión 2026.11.25-a)
+- Versión única (`<?= VERSION ?>` + `createTemplateFromFile` en `doGet`), nombre «Control de Procesos ICET», `Traslados.gs` (+ hoja `Traslados_Estudiantes`), colores de botones. Pendientes de la solicitud completa en `docs/ESTADO_ACTUAL.md`.

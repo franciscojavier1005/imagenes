@@ -498,3 +498,25 @@ var _au_k=aplicaUna;aplicaUna=function(k,d){
   else if(/^(estudiantes|reconocimientos):/.test(k)&&d){['rep','con','com','piar','rec'].forEach(function(c){if(d[c])d[c]=d[c].filter(reubica)})}
  }catch(x){}
  return _au_k.call(this,k,d)};
+
+
+// ===== traslados de estudiantes entre cursos o grados (con autorización de coordinación) =====
+var TRAS=null;
+function abreTraslado(g){var m=$('#mTras');if(!m){m=document.createElement('div');m.className='modal';m.id='mTras';document.body.appendChild(m)}
+ var coord=CTXR&&CTXR.quien&&(CTXR.quien.coord||CTXR.quien.dev);TRAS={sel:null,grupos:[],g:g};
+ m.innerHTML='<div class="box"><h3>Trasladar estudiante</h3><div class="nota"><b>Atención:</b> esto cambia el curso o grado del estudiante en la hoja <b>Estudiantes</b> y queda registrado a su nombre. '+(coord?'Usted tiene control total: se aplica de inmediato.':'Su solicitud queda <b>pendiente</b> y se avisa a coordinación académica; solo se aplica cuando se autorice.')+'</div>'+
+ '<label>Buscar por apellido, nombre o documento</label><div class="row"><input type="text" id="trQ" placeholder="Mínimo 3 letras" onkeydown="if(event.key===\'Enter\')trBusca()"><button class="btn s p" onclick="trBusca()">Buscar</button></div><div class="lista" id="trL" style="max-height:30vh;overflow:auto"></div>'+
+ '<label>Trasladar a</label><select id="trG"><option value="">— primero busque y elija al estudiante —</option></select><label>Justificación'+(coord?' (opcional)':' (obligatoria, mínimo 10 caracteres)')+'</label><textarea id="trJ" rows="3" placeholder="¿Por qué debe estar en ese curso o grado?"></textarea>'+
+ '<div class="row"><button class="btn" onclick="cierra(\'mTras\')">Cancelar</button><button class="btn tr" onclick="trEnvia()">'+(coord?'Trasladar ahora':'Enviar solicitud')+'</button></div></div>';
+ m.classList.add('on')}
+function trBusca(){var q=$('#trQ').value;API('trasladoBuscar',{q:q}).then(function(r){TRAS.grupos=r.grupos;TRAS.res=r.res;
+  $('#trL').innerHTML=r.res.length?r.res.map(function(e,i){return '<label style="display:flex;gap:8px;align-items:center;padding:5px 2px"><input type="radio" name="trR" value="'+i+'" onchange="trElige('+i+')"> '+esc(e.nombre)+' <span class="chip m">'+esc(e.curso||e.grupo)+'</span> <small class="g">'+esc(e.doc)+'</small></label>'}).join(''):'<small class="g">Sin resultados.</small>'}).catch(function(e){alert(msgE(e))})}
+function trElige(i){TRAS.sel=TRAS.res[i];$('#trG').innerHTML='<option value="">— elija el curso de destino —</option>'+TRAS.grupos.filter(function(x){return x.grupo!==TRAS.sel.grupo}).map(function(x){return '<option value="'+esc(x.grupo)+'">'+esc(x.curso)+' ('+esc(x.grupo)+')</option>'}).join('')}
+function trEnvia(){var s=TRAS&&TRAS.sel,h=$('#trG').value,j=$('#trJ').value;if(!s){alert('Busque y elija al estudiante.');return}if(!h){alert('Elija el curso de destino.');return}
+ var coord=CTXR&&CTXR.quien&&(CTXR.quien.coord||CTXR.quien.dev);
+ if(!confirm('¿'+(coord?'Trasladar ahora':'Solicitar el traslado de')+' a '+s.nombre+' de '+(s.curso||s.grupo)+' a '+$('#trG').selectedOptions[0].textContent+'?\n\nEsta maniobra modifica la hoja Estudiantes'+(coord?'.':' solo si coordinación la autoriza.')+' Queda registrada a su nombre.'))return;
+ API('trasladoSolicitar',{fila:s.fila,doc:s.doc,nombre:s.nombre,hacia:h,just:j}).then(function(r){cierra('mTras');alert(r.estado==='APLICADO'?'Traslado aplicado. Se recarga el acta para que el listado quede al día.':'Solicitud enviada: coordinación recibirá un aviso. El estudiante se traslada cuando la autorice.');if(r.estado==='APLICADO'&&$('#grado').value)abreActa()}).catch(function(e){alert(msgE(e))})}
+function abreTraslados(){var m=$('#mTrs');if(!m){m=document.createElement('div');m.className='modal';m.id='mTrs';document.body.appendChild(m)}
+ m.innerHTML='<div class="box"><h3>Traslados de estudiantes</h3><div id="trsL"><small class="g">Cargando…</small></div><div class="row"><button class="btn" onclick="cierra(\'mTrs\')">Cerrar</button></div></div>';m.classList.add('on');
+ API('trasladoListar').then(function(r){$('#trsL').innerHTML=r.traslados.length?'<div class="tw"><table class="plain"><tr><th>Estudiante</th><th>De → a</th><th>Quién · por qué</th><th>Estado</th><th></th></tr>'+r.traslados.map(function(x){return '<tr><td>'+esc(x.estudiante)+'</td><td>'+esc(x.desde)+' → '+esc(x.hacia)+'</td><td>'+esc(x.solicitante)+'<br><small class="g">'+esc(x.justificacion)+'</small></td><td><span class="chip '+(x.estado==='APLICADO'?'v':x.estado==='PENDIENTE'?'a':'f')+'">'+esc(x.estado)+'</span></td><td>'+(r.coord&&x.estado==='PENDIENTE'?'<button class="btn s g" onclick="trResuelve(\''+x.id+'\',true)">Aprobar</button> <button class="btn s r" onclick="trResuelve(\''+x.id+'\',false)">Rechazar</button>':'')+'</td></tr>'}).join('')+'</table></div>':'<small class="g">No hay traslados registrados.</small>'}).catch(function(e){$('#trsL').innerHTML='<small>'+esc(msgE(e))+'</small>'})}
+function trResuelve(id,ap){var n=ap?'':(prompt('Motivo del rechazo (opcional):')||'');API('trasladoResolver',{id:id,aprobar:ap,nota:n}).then(function(){abreTraslados();if(ap&&$('#grado').value)abreActa()}).catch(function(e){alert(msgE(e))})}

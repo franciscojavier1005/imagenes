@@ -21,7 +21,8 @@ celdas[2]='Versión 2026.01.01-a x'; vm.runInContext('leemeAlDia_()',g); ok(celd
 const antes=JSON.stringify(celdas); vm.runInContext('leemeAlDia_()',g); ok(JSON.stringify(celdas)===antes,'si ya está al día no la toca');
 // el sello de versión de las pantallas coincide con la del código
 const htmls=fs.readdirSync(dir).filter(f=>f.endsWith('.html'));
-const malos=htmls.filter(f=>{const t=fs.readFileSync(path.join(dir,f),'utf8');const m=t.match(/versión (\d{4}\.\d{2}\.\d{2}-[a-z])/);return m&&m[1]!==V});
+const malos=htmls.filter(f=>{const t=fs.readFileSync(path.join(dir,f),'utf8');const m=t.match(/versión (\d{4}\.\d{2}\.\d{2}-[a-z]|<\?= VERSION \?>)/);return m&&m[1]!==V&&m[1]!=='<?= VERSION ?>'});
+ok(fs.readFileSync(path.join(dir,'Codigo.gs'),'utf8').includes('plantilla.VERSION = VERSION_SISTEMA'),'las pantallas reciben la versión del .gs (solo Leeme.gs cambia al subir de versión)');
 ok(malos.length===0,'todas las pantallas muestran la versión '+V+(malos.length?' (distintas: '+malos.join(', ')+')':''));
 ok(fs.readFileSync(path.join(dir,'Codigo.gs'),'utf8').includes("'actualizarLeeme'"),'menú del libro: «Actualizar hoja LEEME»');
 console.log(process.exitCode?'HAY FALLAS':'Todo bien');

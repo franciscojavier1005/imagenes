@@ -31,5 +31,8 @@ Libro de Google Sheets + Apps Script: (1) asistencia docente (ronda, novedades, 
 - Pares de docentes que alternan (ver arriba). Capturas del manual de comisiones desactualizadas. Auditoría PDF de Caminar describe la regla vieja (solo .md actualizado).
 - Safari/WebKit sin probar. El usuario debe: publicar «Nueva versión», ejecutar «unificar actas duplicadas» (menú) y corregir `grupo` de los estudiantes promovidos (p. ej. Valencia Ibarra Keyla Johana → 1001).
 
+## Documento de contexto para otros proyectos/chats
+https://claude.ai/artifact/4eqpmkvtdV5WMmjQG4KkTp (reglas de ahorro de tokens, perfil y reglas de este sistema). Mantenerlo en sincronía con este archivo cuando cambie algo importante.
+
 ## Historial detallado
 `docs/CONTEXTO_PROYECTO.md` es un ARCHIVO de ~185 KB: NO leerlo entero. Buscar con grep lo que haga falta (`grep -n "palabra" docs/CONTEXTO_PROYECTO.md`) y leer solo esas secciones.

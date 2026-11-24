@@ -47,7 +47,7 @@ function particiona(){
  var o={},pre=S.niv==='pre';
  o.general={ac:S.ac,dif:S.dif,prev:S.prev,txt:S.txt,tiposRec:S.tiposRec,sol:S.sol,reab:S.reab,prom:S.prom||{},pend:S.pend||{},pendMan:S.pendMan||{},obs:S.obs||{},obsG:S.obsG||[],convExtra:S.convExtra||[],promObs:S.promObs||{},scAreas:(S.sc&&S.sc.areas)||{},shAreas:(S.sh&&S.sh.areas)||{},hAp:hAp||'',fecha:($('#fecha')||{}).value||''};
  var per={};S.int.forEach(function(x){per[x.n]=persDe(x.n)});
- o.presencia={pers:PRES};o.integrantes={int:S.int};o.requisitos=S.pre||{};o.firmas={firm:S.firm||{},pers:per};o.listos={listo:S.listo||{},jur:S.jur||{},revL:S.revL||{}};
+ o.presencia={pers:PRES};o.integrantes={int:S.int};o.requisitos=S.pre||{};o.firmas={firm:S.firm||{},pers:per};o.listos={listo:S.listo||{},jur:S.jur||{},revL:S.revL||{},sxOk:S.sxOk||{}};
  var f={datos:{},ing:[],cambios:S.cambiosEst||[]};
  EST.forEach(function(e){if(e.ing){f.ing.push({id:e.id,g:e.g,a:e.a,n:e.n,doc:e.doc,sx:e.sx,falta:e.falta,tel:e.tel,gest:e.gest,ndoc:e.ndoc,tdoc:e.tdoc,lex:e.lex,nac:e.nac,acu:e.acu,nuevo:1,ing:1,baja:e.baja||false,bajaMotivo:e.bajaMotivo||'',real:1})}
   else if(e.baja||e.tel||e.gest||e.sx||(e.falta&&e.falta.length!==(e.f0||5))||e.doc==='ok'||e.mod){f.datos[e.id]={falta:e.falta,tel:e.tel,gest:e.gest,sx:e.sx,doc:e.doc,baja:e.baja||false,bajaMotivo:e.bajaMotivo||''};if(e.mod){var q=f.datos[e.id];q.mod=1;q.ndoc=e.ndoc||'';q.tdoc=e.tdoc||'';q.lex=e.lex||'';q.nac=e.nac||'';q.acu=e.acu||'';q.a=e.a;q.n=e.n}}});
@@ -93,7 +93,7 @@ function aplicaUna(k,d){
  if(k==='integrantes'){if(d.int)S.int=d.int;return}
  if(k==='presencia'){Object.keys(d.pers||{}).forEach(function(n){if(n!==USR||!PRES[USR])PRES[n]=d.pers[n]});return}
  if(k==='requisitos'){S.pre=d;return}if(k==='firmas'){S.firm=d.firm||{};Object.keys(d.pers||{}).forEach(function(n){PERS[n]=Object.assign(PERS[n]||{},d.pers[n])});return}
- if(k==='listos'){S.listo=d.listo||{};S.jur=d.jur||{};S.revL=d.revL||{};return}
+ if(k==='listos'){S.listo=d.listo||{};S.jur=d.jur||{};S.revL=d.revL||{};S.sxOk=d.sxOk||{};return}
  if(k==='faltantes'){(d.ing||[]).forEach(function(x){var e=EST.filter(function(y){return y.id===x.id})[0];if(e)Object.assign(e,x);else EST.push(x)});
   Object.keys(d.datos||{}).forEach(function(id){var e=EST.filter(function(y){return String(y.id)===String(id)})[0];if(e)Object.assign(e,d.datos[id])});S.cambiosEst=d.cambios||[];
   EST.forEach(function(e){if(!e.baja)delete e.baja});return}
@@ -532,3 +532,36 @@ var _pu_m=pintaUnion;pintaUnion=function(){_pu_m();try{var box=$('#unionBox');if
   box.insertAdjacentHTML('beforeend','<div style="margin-top:6px"><b>Modo de trabajo:</b> '+(MODO==='EQUIPO'?'en <b>equipo</b> (cada docente edita solo su curso o su área)':'<b>una sola persona</b> edita a la vez')+(coord?' <button class="btn s" onclick="cambiaModo()">'+(MODO==='EQUIPO'?'Volver a una sola persona':'Permitir trabajo en equipo')+'</button>':'')+'</div>')}catch(e){}};
 function cambiaModo(){var n=MODO==='EQUIPO'?'UNO':'EQUIPO';if(!confirm(n==='EQUIPO'?'¿Permitir que varios docentes trabajen a la vez? Cada uno editará solo su curso (director de grupo) o sus áreas. Se aplica a todas las actas.':'¿Volver a que una sola persona edite a la vez en cada acta?'))return;
  API('comisionModoGuardar',{modo:n}).then(function(r){MODO=r.modo;pintaUnion();alert('Listo: '+(r.modo==='EQUIPO'?'trabajo en equipo activado. Los docentes deben recargar la pantalla.':'una sola persona edita a la vez. Los docentes deben recargar la pantalla.'))}).catch(function(e){alert(msgE(e))})}
+
+
+// ===== sexo de los estudiantes: cada director de grupo lo actualiza o confirma; datos obligatorios de reconocidos; recordatorios =====
+function sxFalta(g){return EST.filter(function(e){return e.g===g&&!e.baja&&!e.sx}).length}
+function sxBtn(g){var n=sxFalta(g),ok=S.sxOk&&S.sxOk[g];
+ if(ok&&!n)return '<button class="btn s sx" title="Sexo confirmado por '+esc(ok.por||'')+'. Pulse para volver a revisarlo." onclick="confirmaSexo(\''+g+'\',false)">✔ Sexo confirmado</button>';
+ return '<button class="btn s sxf" onclick="confirmaSexo(\''+g+'\',true)">⚠ Confirmar sexo del curso'+(n?' (faltan '+n+')':'')+'</button>'}
+function confirmaSexo(g,v){S.sxOk=S.sxOk||{};if(v){var n=sxFalta(g);if(n){alert('Faltan '+n+' estudiante'+(n===1?'':'s')+' sin sexo en '+g+'. Elíjalo en la columna «Sexo» de cada uno y vuelva a confirmar.');return}
+  if(!confirm('¿Confirma que el sexo de TODOS los estudiantes de '+g+' está revisado y es correcto?'))return;S.sxOk[g]={por:USR||'(sin elegir)',t:ahora()}}else delete S.sxOk[g];pintaLis();pintaPasos();pintaPendientes()}
+function misCursos(){var g=G[GK]||{},gs=S.gs,r=[];(g.dir||[]).forEach(function(n,i){if(n===USR&&gs[i])r.push(gs[i])});(g.dir2||[]).forEach(function(d){if(d.n===USR&&r.indexOf(d.gr)<0)r.push(d.gr)});return r}
+var _srl_s=setRevL;setRevL=function(v){if(v){var mal=misCursos().filter(function(g){return sxFalta(g)||!(S.sxOk&&S.sxOk[g])});
+  if(mal.length){alert('Antes de confirmar su revisión debe actualizar o confirmar el sexo de los estudiantes de: '+mal.join(', ')+'.\n\nEn cada curso use «Confirmar sexo del curso».');pintaLis();return}}return _srl_s(v)};
+var _pcc=pendientesCierre;pendientesCierre=function(){var L=_pcc();try{
+ L.forEach(function(x){if(x.comp==='Datos de estudiantes (reconocidos)'&&x.id){var e=est(x.id),f=(e&&e.falta||[]).filter(function(y){return y==='Tipo y número de documento'||y==='Sexo'});if(f.length){x.adv=false;x.msg='Obligatorio por el reconocimiento: complete '+f.join(' y ')+'. '+x.msg}}});
+ S.gs.forEach(function(g){var n=sxFalta(g);if(n)L.push({paso:'sL',comp:'Listados',curso:g,persona:'',msg:'Faltan '+n+' estudiante'+(n===1?'':'s')+' sin sexo: actualícelo en el listado.',donde:'Director/a de grupo',adv:false});
+  else if(!(S.sxOk&&S.sxOk[g]))L.push({paso:'sL',comp:'Listados',curso:g,persona:'',msg:'Falta confirmar el sexo de los estudiantes del curso (botón «Confirmar sexo del curso»).',donde:'Director/a de grupo',adv:false})});
+ var ord=PKEYS.concat(['p2']);L.forEach(function(x){x.o=ord.indexOf(x.paso)});L.sort(function(a,b){return a.o-b.o})}catch(e){}return L};
+// Datos faltantes: los demás estudiantes sin tipo o número de documento (no obligatorio)
+var _pf_o=pintaFalt;pintaFalt=function(){_pf_o();try{var old=document.getElementById('faltOtros');if(old)old.remove();var el=$('#falt');if(!el||!S||!S.gs)return;var us=usados(),por={};
+ EST.forEach(function(e){if(e.baja||S.gs.indexOf(e.g)<0||us.indexOf(e.id)>=0)return;if(!e.tdoc||!e.ndoc)(por[e.g]=por[e.g]||[]).push(e)});
+ var gs=Object.keys(por);if(!gs.length)return;var tot=gs.reduce(function(a,g){return a+por[g].length},0);
+ var d=document.createElement('details');d.id='faltOtros';d.className='card';d.innerHTML='<summary><b>Otros estudiantes sin tipo o número de documento</b> <span class="chip a">'+tot+'</span> <small class="g">(no es obligatorio: solo se exige a quienes reciben reconocimiento)</small></summary><div class="tw"><table class="plain"><tr><th>Curso</th><th>Sin tipo o número</th><th></th></tr>'+gs.map(function(g){return '<tr><td>'+esc(g)+'</td><td>'+por[g].length+'</td><td><button class="btn s" onclick="lisFiltro(\''+g+'\');irK(\'sL\')">Ver y completar en el listado</button></td></tr>'}).join('')+'</table></div>';el.appendChild(d)}catch(e){}};
+// recordatorios con globos de notificación
+var REC_T=0,REC_F='';
+function misPendientes(){var mine=misCursos();return pendientesCierre().filter(function(x){return !x.adv&&(x.persona===USR||(x.curso&&mine.indexOf(x.curso)>=0)||(x.persona===''&&x.curso===''&&mine.length&&/Falta confirmar|Falta verificar/.test(x.msg)))})}
+function globoRec(html,seg){var b=document.getElementById('recGlobos');if(!b){b=document.createElement('div');b.id='recGlobos';b.style.cssText='position:fixed;left:10px;bottom:10px;z-index:9999;display:flex;flex-direction:column;gap:6px;max-width:340px';document.body.appendChild(b)}
+ var d=document.createElement('div');d.style.cssText='background:#7a4a00;color:#fff;border-radius:12px;padding:10px 12px;font:13px Arial,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.3)';d.innerHTML=html+' <button style="margin-left:6px;border:0;border-radius:8px;padding:3px 9px;cursor:pointer" onclick="this.parentNode.remove()">Cerrar</button>';b.appendChild(d);setTimeout(function(){if(d.parentNode)d.remove()},(seg||14)*1000)}
+function verPend(){var pb=document.getElementById('pendBox'),p=pb&&pb.closest('.paso');if(p&&p.id){NAVLIBRE=true;irK(p.id);NAVLIBRE=false;setTimeout(function(){pb.scrollIntoView({block:'start'})},200)}}
+function recuerda(min){try{if(!S||!ACTA||S.cerrada||!USR||EN_PRUEBA())return;var L=misPendientes();if(!L.length)return;var f=L.map(function(x){return x.comp+x.curso+x.persona}).join('|'),ahora=Date.now();
+  if(ahora-REC_T<(min||240000)&&f===REC_F)return;if(ahora-REC_T<45000)return;REC_T=ahora;REC_F=f;
+  globoRec('🔔 <b>Le falta'+(L.length===1?'':'n')+' '+L.length+' cosa'+(L.length===1?'':'s')+' por completar:</b><br>'+L.slice(0,4).map(function(x){return '• '+esc((x.curso?x.curso+': ':'')+(x.persona&&x.persona!==USR?x.persona+': ':'')+x.msg.slice(0,90))}).join('<br>')+(L.length>4?'<br>… y '+(L.length-4)+' más':'')+'<br><button style="margin-top:6px;border:0;border-radius:8px;padding:4px 10px;cursor:pointer;background:#ffd27a" onclick="verPend();this.parentNode.remove()">Ver pendientes</button>',16)}catch(e){}}
+setInterval(function(){recuerda(240000)},60000);
+var _ir_r=ir;ir=function(i){var r=_ir_r.apply(this,arguments);setTimeout(function(){recuerda(90000)},400);return r};

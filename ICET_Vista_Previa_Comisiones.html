@@ -56,7 +56,7 @@ th{text-align:center;vertical-align:middle}
 .leyenda{font-size:12px;color:#556;margin:4px 0}.leyenda i{display:inline-block;width:10px;height:10px;border-radius:3px;margin:0 4px 0 8px}
 .lect{background:#f1f6ff;border-left:4px solid #1b4a8f;border-radius:6px;padding:6px 10px;margin:8px 0 2px;font-size:13px;color:#10233f;text-align:left}
 .cc{text-align:center}.cc svg{margin:auto}
-#areaInf{position:relative}#areaInf .nlink{color:#1f4fa3;text-decoration:underline dotted;cursor:pointer}.btn.bor{background:#1f9d6a;border-color:#1f9d6a;color:#fff}.btn.cop{background:#6a4fc4;border-color:#6a4fc4;color:#fff}.btn.tr{background:#e0872b;border-color:#e0872b;color:#fff}.btn.no{background:#fff3e0;border-color:#e0872b;color:#8a4b00}.lisbar{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.tw{background:linear-gradient(to right,#fff 30%,rgba(255,255,255,0)) left center/36px 100% no-repeat local,linear-gradient(to left,#fff 30%,rgba(255,255,255,0)) right center/36px 100% no-repeat local,radial-gradient(farthest-side at 0 50%,rgba(30,50,90,.35),rgba(30,50,90,0)) left center/12px 100% no-repeat scroll,radial-gradient(farthest-side at 100% 50%,rgba(30,50,90,.35),rgba(30,50,90,0)) right center/12px 100% no-repeat scroll}table.lis select{width:auto;max-width:118px;padding:3px}.bj{opacity:.55}.bj td{background:#f1f3f6!important}input.pdef{background:#ffd9d9!important;border-color:#e57373!important}.marca{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);width:30%;opacity:.07;pointer-events:none;z-index:0}
+#areaInf{position:relative}#areaInf .nlink{color:#1f4fa3;text-decoration:underline dotted;cursor:pointer}.btn.bor{background:#1f9d6a;border-color:#1f9d6a;color:#fff}.btn.cop{background:#6a4fc4;border-color:#6a4fc4;color:#fff}.btn.tr{background:#e0872b;border-color:#e0872b;color:#fff}.btn.no{background:#fff3e0;border-color:#e0872b;color:#8a4b00}.btn.sx{background:#e8f6ee;border-color:#1f9d6a;color:#14663f}.btn.sxf{background:#fde8e8;border-color:#c0392b;color:#7a1c12}.lisbar{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.tw{background:linear-gradient(to right,#fff 30%,rgba(255,255,255,0)) left center/36px 100% no-repeat local,linear-gradient(to left,#fff 30%,rgba(255,255,255,0)) right center/36px 100% no-repeat local,radial-gradient(farthest-side at 0 50%,rgba(30,50,90,.35),rgba(30,50,90,0)) left center/12px 100% no-repeat scroll,radial-gradient(farthest-side at 100% 50%,rgba(30,50,90,.35),rgba(30,50,90,0)) right center/12px 100% no-repeat scroll}table.lis select{width:auto;max-width:118px;padding:3px}.bj{opacity:.55}.bj td{background:#f1f3f6!important}input.pdef{background:#ffd9d9!important;border-color:#e57373!important}.marca{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);width:30%;opacity:.07;pointer-events:none;z-index:0}
 #areaInf .enc{margin:0 0 8px}
 .ehead{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:-12px -14px 8px;padding:7px 14px;border-radius:12px 12px 0 0;font-weight:700;color:#0f2a5c}
 .e0{background:#d6e4fa;border-left:7px solid #1b4a8f}.e1{background:#d9efe0;border-left:7px solid #2e7d32}
@@ -963,7 +963,7 @@ function doGet(e) {
     return ContentService.createTextOutput('ICET API').setMimeType(ContentService.MimeType.TEXT);
   }
   var pag = (e && e.parameter && e.parameter.p) || 'menu';   // sin parámetros abre el menú de entrada
-  var PAGINAS = { menu: ['Menu', 'Control de Procesos ICET'], novedad: ['Novedad', 'ICET - Registrar novedades'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y actividades'], horarios: ['Horarios', 'ICET - Horarios y listados'], ayuda: ['Ayuda', 'ICET - Ayuda y manual de uso'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'], comisiones: ['Comisiones', 'ICET - Comisiones de evaluación y promoción'] };
+  var PAGINAS = { menu: ['Menu', 'Control de Procesos ICET'], novedad: ['Novedad', 'ICET - Registrar novedades'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y actividades'], horarios: ['Horarios', 'ICET - Horarios y listados'], ayuda: ['Ayuda', 'ICET - Ayuda y manual de uso'], manuales: ['Manuales', 'ICET - Manuales en PDF'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'], comisiones: ['Comisiones', 'ICET - Comisiones de evaluación y promoción'] };
   var pg = PAGINAS[pag] || PAGINAS.menu;
   // La versión sale SOLO de VERSION_SISTEMA (Leeme.gs): las pantallas la reciben con <?= VERSION ?>, no hay que tocar los .html para subir de versión.
   var plantilla = HtmlService.createTemplateFromFile(pg[0]); plantilla.VERSION = VERSION_SISTEMA;
@@ -4659,11 +4659,16 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-b';
+var VERSION_SISTEMA = '2026.11.25-c';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-c', fecha: '2026-11-25', cambios: [
+    'Comisiones, listados: cada director de grupo debe actualizar o CONFIRMAR el sexo de los estudiantes de su curso («Confirmar sexo del curso»); sin eso no puede confirmar su revisión de listados ni cerrar el acta. Para los estudiantes con reconocimiento, el tipo y número de documento y el sexo son obligatorios; para los demás no (en Datos faltantes aparece el resumen por curso). Los datos de los docentes (correo personal, celular y cédula) siguen siendo obligatorios para guardar y cerrar. Cada pocos minutos, y al cambiar de paso, un globo recuerda a cada persona lo que le falta, con el botón «Ver pendientes».',
+    'Menú de directivos: «Estudiantes y docentes: traslados y cambios masivos» (trasladar varios estudiantes, cambiar un dato a varios estudiantes o docentes e importar datos desde otro libro de Hojas de cálculo con vista previa). Coordinación y el desarrollador aplican en la hoja; los demás solo solicitan traslados. Todo queda en Bitacora_Cambios.',
+    'Nuevo: «Manuales en PDF» en el menú (manual del sistema y manual de comisiones, para abrir o descargar). Copia de revisión: al entrar coordinación o el desarrollador se hace una copia del libro en «App Asistencia / Respaldos / Revisiones» (como mucho cada 6 horas, conserva las últimas 6). Compatibilidad con Safari: se protegió la lectura del almacenamiento local.'
+  ] },
   { version: '2026.11.25-b', fecha: '2026-11-25', cambios: [
     'Comisiones, modo de trabajo: por defecto una sola persona edita a la vez en cada acta. Coordinación o el desarrollador pueden activar el TRABAJO EN EQUIPO (botón bajo el selector de período): cada docente edita solo lo suyo; el director de grupo, los datos y confirmaciones de su curso; el docente de área, sus áreas; y quien dirige un curso pero no dicta en el grado, solo su curso. Lo demás lo ve. Los datos generales y la asistencia siguen con quien tiene el turno. El servidor verifica el alcance de cada guardado.',
     'Seguimiento de las comisiones (menú de directivos): arriba las 4 con cambios más recientes y las que ya llevan un avance importante (40 % o más); las demás en una tabla compacta por fecha o por avance.'
@@ -6800,7 +6805,7 @@ function trasladoCorreosCoord_() {
 }
 
 /** Solicita (o, con control total, aplica) el traslado de un estudiante. p = { fila, doc, nombre, hacia, just }. */
-function trasladoSolicitar(p) {
+function trasladoSolicitar(p, sinCorreo) {
   var quien = comisionQuien_(); p = p || {};
   var just = String(p.just || '').trim(); if (!quien.coord && just.length < 10) throw new Error('Escriba la justificación del traslado (mínimo 10 caracteres).');
   var hacia = trasladoCodigo_(p.hacia), fila = Number(p.fila);
@@ -6816,7 +6821,7 @@ function trasladoSolicitar(p) {
   var desde = trasladoCodigo_(row[c.grupo]);
   sh.appendRow([id, ahoraTxt_(), quien.nombre, quien.rol, fila, txtForzado_(String(p.doc || '')), p.nombre, txtForzado_(desde), txtForzado_(hacia), just, 'PENDIENTE', '', '', '']);
   bitacora_('Traslado solicitado', p.nombre + ' (' + p.doc + '): ' + desde + ' → ' + hacia + ' · por ' + quien.nombre + ' · ' + just.slice(0, 200));
-  var para = trasladoCorreosCoord_();
+  var para = sinCorreo ? [] : trasladoCorreosCoord_();
   if (para.length) { try { MailApp.sendEmail({ to: para.join(','), subject: 'ICET · Traslado de estudiante por autorizar: ' + p.nombre, htmlBody: '<p><b>' + quien.nombre + '</b> solicita trasladar a <b>' + p.nombre + '</b> (' + p.doc + ') de <b>' + desde + '</b> a <b>' + hacia + '</b>.</p><p>Justificación: ' + just.replace(/</g, '&lt;') + '</p><p>Apruébelo o recházelo en Comisiones → Listados → «Traslados».</p>', name: 'Control de Procesos ICET' }); } catch (e) { /* el aviso es opcional */ } }
   return { estado: 'PENDIENTE', desde: desde, hacia: hacia };
 }
@@ -6842,6 +6847,104 @@ function trasladoResolver(p) {
   sh.getRange(fila, h.estado + 1).setValue(estado); sh.getRange(fila, h.resuelto_por + 1).setValue(quien.nombre); sh.getRange(fila, h.fecha_resolucion + 1).setValue(ahoraTxt_()); sh.getRange(fila, h.nota + 1).setValue(String((p || {}).nota || ''));
   return { estado: estado };
 }
+
+
+/* ------------------------------ cambios masivos (menú de directivos) ------------------------------ */
+/** Estudiantes de un grupo para elegir varios. p = { grupo }. */
+function estudiantesDelGrupo(p) {
+  comisionQuien_(); var g = trasladoCodigo_((p || {}).grupo), v = hoja_('Estudiantes').getDataRange().getValues(), c = trasladoCols_(v[0]), r = [];
+  for (var i = 1; i < v.length; i++) if (trasladoCodigo_(v[i][c.grupo]) === g) r.push({ fila: i + 1, nombre: (String(v[i][c.apellidos] || '') + ' ' + String(v[i][c.nombres] || '')).trim(), doc: String(v[i][c.documento] || ''), sexo: String(v[i][c.sexo] == null ? '' : v[i][c.sexo]) });
+  return { estudiantes: r, grupos: trasladoGrupos_() };
+}
+/** Traslada varios estudiantes al mismo curso. p = { estudiantes:[{fila,doc,nombre}], hacia, just }. Coordinación aplica; los demás solicitan (un solo aviso). */
+function trasladoMasivo(p) {
+  var quien = comisionQuien_(); p = p || {}; var L = (p.estudiantes || []).slice(0, 60);
+  if (!L.length) throw new Error('Elija al menos un estudiante.');
+  var res = { aplicados: 0, pendientes: 0, errores: [] };
+  L.forEach(function (e) { try { var r = trasladoSolicitar({ fila: e.fila, doc: e.doc, nombre: e.nombre, hacia: p.hacia, just: p.just }, true); if (r.estado === 'APLICADO') res.aplicados++; else res.pendientes++; } catch (x) { res.errores.push(e.nombre + ': ' + String(x.message || x)); } });
+  if (res.pendientes) { var para = trasladoCorreosCoord_(); if (para.length) { try { MailApp.sendEmail({ to: para.join(','), subject: 'ICET · ' + res.pendientes + ' traslados de estudiantes por autorizar', htmlBody: '<p><b>' + quien.nombre + '</b> solicitó trasladar a ' + res.pendientes + ' estudiantes al grupo ' + trasladoCodigo_(p.hacia) + '.</p><p>Justificación: ' + String(p.just || '').replace(/</g, '&lt;') + '</p><p>Revíselos en Comisiones → Listados → «Traslados».</p>', name: 'Control de Procesos ICET' }); } catch (e) { /* aviso opcional */ } } }
+  return res;
+}
+var CAMPOS_ESTUDIANTE = { sexo: 'sexo', tipo_doc: 'tipo_doc', nacionalidad: 'nacionalidad', lugar_expedicion: 'lugar_expedicion', tel_acudiente: 'tel_acudiente' };
+/** Cambia UN dato de varios estudiantes (solo coordinación o desarrollador). p = { estudiantes:[{fila,doc,nombre}], campo, valor }. */
+function estudiantesCampoMasivo(p) {
+  var quien = comisionQuien_(); if (!quien.coord) throw new Error('Solo coordinación académica o el desarrollador modifican datos de estudiantes en la hoja.');
+  p = p || {}; var campo = CAMPOS_ESTUDIANTE[p.campo]; if (!campo) throw new Error('Dato no permitido.');
+  var valor = String(p.valor == null ? '' : p.valor).trim(); if (campo === 'sexo' && !/^[FM]$/.test(valor)) throw new Error('El sexo debe ser F o M.');
+  var sh = hoja_('Estudiantes'), v = sh.getDataRange().getValues(), c = trasladoCols_(v[0]); if (c[campo] === undefined) throw new Error('La hoja Estudiantes no tiene la columna «' + campo + '».');
+  var n = 0, err = [];
+  (p.estudiantes || []).slice(0, 300).forEach(function (e) {
+    var row = v[e.fila - 1]; if (!row) { err.push(e.nombre); return; }
+    var nom = comisionSinTildes_(String(row[c.apellidos] || '') + ' ' + String(row[c.nombres] || ''));
+    if (nom !== comisionSinTildes_(e.nombre) || String(row[c.documento] || '').trim() !== String(e.doc || '').trim()) { err.push(e.nombre + ' (la fila cambió)'); return; }
+    sh.getRange(e.fila, c[campo] + 1).setValue(valor); n++;
+  });
+  bitacora_('Cambio masivo de estudiantes', campo + ' = ' + valor + ' en ' + n + ' estudiantes · por ' + quien.nombre);
+  return { cambiados: n, errores: err };
+}
+var CAMPOS_DOCENTE = { nivel: 'nivel', direccion_grupo: 'direccion_grupo', areas: 'areas', nota: 'nota', correo: 'correo' };
+/** Cambia UN dato de varios docentes (solo coordinación o desarrollador). p = { nombres:[nombre_completo], campo, valor }. */
+function docentesCampoMasivo(p) {
+  var quien = comisionQuien_(); if (!quien.coord) throw new Error('Solo coordinación académica o el desarrollador modifican datos de docentes.');
+  p = p || {}; var campo = CAMPOS_DOCENTE[p.campo]; if (!campo) throw new Error('Dato no permitido.');
+  var valor = String(p.valor == null ? '' : p.valor).trim();
+  if (campo === 'nivel' && ['SECUNDARIA', 'PRIMARIA', 'PREESCOLAR', 'ORIENTACIÓN', 'TUTORA PTAFI', 'REEMPLAZADO'].indexOf(valor) < 0) throw new Error('Nivel no válido.');
+  var sh = hoja_('Docentes'), v = sh.getDataRange().getValues(), c = trasladoCols_(v[0]), n = 0, quiere = {};
+  (p.nombres || []).forEach(function (x) { quiere[comisionSinTildes_(x)] = 1; });
+  for (var i = 1; i < v.length; i++) if (quiere[comisionSinTildes_(v[i][c.nombre_completo])]) { sh.getRange(i + 1, c[campo] + 1).setValue(valor); n++; }
+  try { invalidarCache_('Docentes'); } catch (e) { /* sin caché */ }
+  bitacora_('Cambio masivo de docentes', campo + ' = ' + valor + ' en ' + n + ' docentes · por ' + quien.nombre);
+  return { cambiados: n };
+}
+
+/* ------------------------------ importar datos desde otro libro ------------------------------ */
+function importNorm_(x) { return comisionSinTildes_(x).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, ''); }
+var IMPORT_SINONIMOS = { tipo_de_documento: 'tipo_doc', tipo_documento: 'tipo_doc', tipo: 'tipo_doc', numero_de_documento: 'documento', numero_documento: 'documento', identificacion: 'documento', cedula: 'documento', genero: 'sexo', telefono: 'tel_acudiente', celular: 'tel_acudiente', telefono_acudiente: 'tel_acudiente', celular_acudiente: 'tel_acudiente', lugar_de_expedicion: 'lugar_expedicion', expedicion: 'lugar_expedicion', correo_electronico: 'correo', email: 'correo' };
+/** Lee otro libro y calcula (o aplica) qué datos cambiarían. p = { id (o enlace), hoja, tipo:'estudiantes'|'docentes', aplicar }. Solo coordinación o desarrollador. */
+function importarLibro(p) {
+  var quien = comisionQuien_(); if (!quien.coord) throw new Error('Solo coordinación académica o el desarrollador importan datos.');
+  p = p || {}; var m = /\/d\/([A-Za-z0-9_-]{20,})/.exec(String(p.id || '')), id = m ? m[1] : String(p.id || '').trim();
+  if (!/^[A-Za-z0-9_-]{20,}$/.test(id)) throw new Error('Pegue el enlace o el identificador del libro.');
+  var ss; try { ss = SpreadsheetApp.openById(id); } catch (e) { throw new Error('No se pudo abrir ese libro: compártalo con su cuenta o revise el enlace.'); }
+  var orig = (p.hoja ? ss.getSheetByName(String(p.hoja)) : null) || ss.getSheets()[0]; if (!orig) throw new Error('El libro no tiene hojas.');
+  var ov = orig.getDataRange().getValues(); if (ov.length < 2) throw new Error('La hoja no tiene datos.');
+  var oc = {}; ov[0].forEach(function (h, i) { var k = importNorm_(h); oc[IMPORT_SINONIMOS[k] || k] = i; });
+  var est = p.tipo !== 'docentes', hoja = hoja_(est ? 'Estudiantes' : 'Docentes'), dv = hoja.getDataRange().getValues(), dc = trasladoCols_(dv[0]);
+  var campos = est ? ['sexo', 'tipo_doc', 'nacionalidad', 'lugar_expedicion', 'tel_acudiente', 'apellidos', 'nombres'] : ['correo', 'nivel', 'areas', 'direccion_grupo', 'nota'];
+  var usar = campos.filter(function (k) { return oc[k] !== undefined && dc[k] !== undefined; });
+  if (!usar.length) throw new Error('No hay columnas en común. Use títulos como: ' + (est ? 'documento, sexo, tipo_doc, nacionalidad, lugar_expedicion, tel_acudiente' : 'nombre_completo, correo, nivel, areas, direccion_grupo') + '.');
+  var llave = est ? function (r, c) { return String(r[c.documento] == null ? '' : r[c.documento]).replace(/\D/g, ''); } : function (r, c) { return comisionSinTildes_(r[c.nombre_completo]); };
+  if (est && oc.documento === undefined) throw new Error('La hoja debe traer la columna «documento» para reconocer a cada estudiante.');
+  if (!est && oc.nombre_completo === undefined) throw new Error('La hoja debe traer la columna «nombre_completo» para reconocer a cada docente.');
+  var indice = {}; for (var i = 1; i < dv.length; i++) { var k = llave(dv[i], dc); if (k) indice[k] = i; }
+  var cambios = [], sin = 0, coinciden = 0;
+  for (var j = 1; j < ov.length; j++) {
+    var kk = llave(ov[j], oc); if (!kk) continue; var fila = indice[kk]; if (fila === undefined) { sin++; continue; } coinciden++;
+    usar.forEach(function (campo) { var nv = String(ov[j][oc[campo]] == null ? '' : ov[j][oc[campo]]).trim(), an = String(dv[fila][dc[campo]] == null ? '' : dv[fila][dc[campo]]).trim(); if (nv && nv !== an) cambios.push({ fila: fila + 1, campo: campo, antes: an, despues: nv, quien: est ? (String(dv[fila][dc.apellidos] || '') + ' ' + String(dv[fila][dc.nombres] || '')).trim() : String(dv[fila][dc.nombre_completo]) }); });
+  }
+  if (p.aplicar) {
+    if (cambios.length > 1500) throw new Error('Son demasiados cambios (' + cambios.length + '). Divida el libro en partes.');
+    cambios.forEach(function (x) { var rg = hoja.getRange(x.fila, dc[x.campo] + 1); rg.setValue(x.despues); });
+    if (!est) { try { invalidarCache_('Docentes'); } catch (e) { /* sin caché */ } }
+    bitacora_('Importación de datos', (est ? 'Estudiantes' : 'Docentes') + ': ' + cambios.length + ' cambios desde otro libro · por ' + quien.nombre);
+  }
+  return { aplicado: !!p.aplicar, campos: usar, coinciden: coinciden, sinCoincidencia: sin, total: cambios.length, muestra: cambios.slice(0, 40) };
+}
+
+/* ------------------------------ copia de revisión al entrar coordinación o desarrollador ------------------------------ */
+/** Copia compacta del libro en «App Asistencia / Respaldos / Revisiones» como mucho cada 6 horas; conserva las últimas 6. */
+function respaldoRevision_() {
+  var ult = Number(parametro_('respaldo_revision_ts', '0')) || 0, ahora = Date.now(); if (ahora - ult < 6 * 3600 * 1000) return false;
+  guardarParametro_('respaldo_revision_ts', String(ahora));
+  var carpeta = carpetaHija_(carpetaRespaldos_(), 'Revisiones'), libro = SpreadsheetApp.getActive();
+  DriveApp.getFileById(libro.getId()).makeCopy(libro.getName() + ' · revisión ' + Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd HH:mm'), carpeta);
+  var fs = [], it = carpeta.getFiles(); while (it.hasNext()) fs.push(it.next());
+  fs.sort(function (a, b) { return b.getDateCreated() - a.getDateCreated(); }); fs.slice(6).forEach(function (f) { f.setTrashed(true); });
+  return true;
+}
+
+/** Lo llama la pantalla en segundo plano al entrar coordinación o el desarrollador (no retrasa la carga). */
+function respaldoRevisionAhora() { var q = comisionQuien_(); if (!q.coord) return { copiado: false }; try { return { copiado: !!respaldoRevision_() }; } catch (e) { return { copiado: false, error: String(e && e.message || e).slice(0, 100) }; } }
 
 // ===================== Api.gs =====================
 /**
@@ -6913,6 +7016,12 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   trasladoSolicitar: ['directivo', 'docente'],
   trasladoListar: ['directivo', 'docente'],
   trasladoResolver: ['directivo'],
+  estudiantesDelGrupo: ['directivo'],
+  trasladoMasivo: ['directivo'],
+  estudiantesCampoMasivo: ['directivo'],
+  docentesCampoMasivo: ['directivo'],
+  importarLibro: ['directivo'],
+  respaldoRevisionAhora: ['directivo'],
   comisionUnionLeer: ['directivo', 'docente'],
   comisionUnionGuardar: ['directivo'],
   comisionHistorial: ['directivo', 'docente'],
@@ -6958,7 +7067,7 @@ function apiFunciones_() {
     levantarMarcasEstudiante: levantarMarcasEstudiante,
     informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
     editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, cerrarReunion: cerrarReunion, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas,
-    comisionContexto: comisionContexto, comisionGradoDatos: comisionGradoDatos, comisionSeguimiento: comisionSeguimiento, comisionPermisosLeer: comisionPermisosLeer, comisionModoLeer: comisionModoLeer, comisionModoGuardar: comisionModoGuardar, trasladoBuscar: trasladoBuscar, trasladoSolicitar: trasladoSolicitar, trasladoListar: trasladoListar, trasladoResolver: trasladoResolver, comisionUnionLeer: comisionUnionLeer, comisionUnionGuardar: comisionUnionGuardar, comisionHistorial: comisionHistorial, comisionRestaurar: comisionRestaurar, comisionHojaDeshacer: comisionHojaDeshacer, comisionPermisosGuardar: comisionPermisosGuardar, comisionCierreSimple: comisionCierreSimple, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
+    comisionContexto: comisionContexto, comisionGradoDatos: comisionGradoDatos, comisionSeguimiento: comisionSeguimiento, comisionPermisosLeer: comisionPermisosLeer, comisionModoLeer: comisionModoLeer, comisionModoGuardar: comisionModoGuardar, trasladoBuscar: trasladoBuscar, trasladoSolicitar: trasladoSolicitar, trasladoListar: trasladoListar, trasladoResolver: trasladoResolver, estudiantesDelGrupo: estudiantesDelGrupo, trasladoMasivo: trasladoMasivo, estudiantesCampoMasivo: estudiantesCampoMasivo, docentesCampoMasivo: docentesCampoMasivo, importarLibro: importarLibro, respaldoRevisionAhora: respaldoRevisionAhora, comisionUnionLeer: comisionUnionLeer, comisionUnionGuardar: comisionUnionGuardar, comisionHistorial: comisionHistorial, comisionRestaurar: comisionRestaurar, comisionHojaDeshacer: comisionHojaDeshacer, comisionPermisosGuardar: comisionPermisosGuardar, comisionCierreSimple: comisionCierreSimple, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
     comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte, comisionBorrador: comisionBorrador, comisionPendientes: comisionPendientes, comisionGuardarPdf: comisionGuardarPdf, comisionEstudiante: comisionEstudiante
   };
 }
@@ -7747,7 +7856,7 @@ function pintaLis(){var el=$('#lisBox');if(!el||!S||!S.gs)return;S.revL=S.revL||
  '<div class="lcont"><div><b>'+tt+'</b><span>estudiantes en la matrícula actual</span></div><div><b>'+ag+'</b><span>agregados en esta comisión</span></div><div><b>'+rt+'</b><span>deshabilitados en esta comisión</span></div><div><b>'+P.filter(function(x){return S.revL[x.n]}).length+'/'+P.length+'</b><span>docentes que ya revisaron</span></div></div>'+
  '<div class="row" style="align-items:center;margin:8px 0"><label style="margin:0">Curso</label><select onchange="lisFiltro(this.value)"><option value="">Todos los cursos</option>'+S.gs.map(function(g){return '<option'+(g===LISF?' selected':'')+'>'+esc(g)+'</option>'}).join('')+'</select><button class="btn s" onclick="imprimeLis()">⬇ PDF temporal de los listados</button></div>'+
  '<table class="ctab lista"><tr><th>Curso</th><th>Listado actual</th><th>Agregados</th><th>Retirados</th><th>Acción</th></tr>'+gs.map(function(g){var i=S.gs.indexOf(g),r=S.mat[i],bl=ingBloq(g);return '<tr data-g="'+esc(g)+'"><td class="cg"><b>'+esc(g)+'</b></td><td>'+tot(r)+'</td><td>'+cuentaCambios(g,'AGREGAR')+'</td><td>'+cuentaCambios(g,'RETIRAR')+'</td><td class="ck">'+(bl?'<span class="chip v" title="'+esc(bl)+'">🔒 Matrícula oficial</span>':'<button class="btn s" onclick="abrirIng(\''+g+'\',\'a\')">+ Agregar</button> <button class="btn s" onclick="abrirIng(\''+g+'\',\'r\')">− Deshabilitar</button>')+'</td></tr>'}).join('')+'</table>'+
- gs.map(function(g){var L=EST.filter(function(e){return e.g===g}).sort(function(a,b){return nom(a).localeCompare(nom(b),'es')}),n=0,act=L.filter(function(e){return !e.baja}).length,tg=tot(S.mat[S.gs.indexOf(g)]);return '<details class="lisd" data-c="'+esc(g)+'" '+(LISF?'open':'')+'><summary><b>'+esc(g)+'</b> · '+act+' en el listado · <small class="g">agregados '+cuentaCambios(g,'AGREGAR')+' · retirados '+cuentaCambios(g,'RETIRAR')+(act<tg?' · vista previa: lista de ejemplo parcial':'')+'</small> '+''+'</summary>'+(ingBloq(g)?'':'<div class="lisbar"><button class="btn s no" title="Marcar quién no asiste" onclick="abreNoAsiste(\''+g+'\')">🚫 No asiste…</button><button class="btn s p" onclick="abrirIng(\''+g+'\',\'a\')">+ Agregar estudiante</button><button class="btn s tr" title="Buscar un estudiante de otro curso o grado y trasladarlo" onclick="abreTraslado(\''+g+'\')">🔀 Trasladar estudiante…</button><button class="btn s" onclick="abreTraslados()">📋 Traslados</button></div>')+'<div class="tw"><table class="lt lis"><tr><th>N.º</th><th>Apellidos y nombres</th><th>Sexo</th><th>Tipo</th><th>Documento</th><th>Estado</th></tr>'+L.map(function(e){if(!e.baja)n++;var c=e.baja?(/^(No asist|Desert|Nunca)/.test(e.bajaMotivo||'')?'<span class="chip a">No asiste (inhibido)</span>':'<span class="chip f">Retirado · '+esc(e.bajaMotivo||'')+'</span>'):(e.ing?'<span class="chip a">Agregado</span>':'<span class="chip v">Activo</span>');return '<tr'+(e.baja?' class="bj"':'')+'><td>'+(e.baja?'—':n)+'</td><td>'+(e.baja||ingBloq(g)?esc(nom(e)):'<a href="javascript:void(0)" class="nlink" title="Modificar los datos de este estudiante" onclick="modEst('+e.id+')">'+esc(nom(e))+'</a>')+'</td><td>'+(e.baja?esc(e.sx==='F'?'F':e.sx==='M'?'M':'—'):sxCelda(e))+'</td><td>'+(e.tdoc?esc(e.tdoc):'<span class="chip a">falta</span>')+'</td><td>'+(e.ndoc?esc(e.ndoc):'<span class="chip a">falta</span>')+'</td><td>'+c+'</td></tr>'}).join('')+'</table></div></details>'}).join('')+
+ gs.map(function(g){var L=EST.filter(function(e){return e.g===g}).sort(function(a,b){return nom(a).localeCompare(nom(b),'es')}),n=0,act=L.filter(function(e){return !e.baja}).length,tg=tot(S.mat[S.gs.indexOf(g)]);return '<details class="lisd" data-c="'+esc(g)+'" '+(LISF?'open':'')+'><summary><b>'+esc(g)+'</b> · '+act+' en el listado · <small class="g">agregados '+cuentaCambios(g,'AGREGAR')+' · retirados '+cuentaCambios(g,'RETIRAR')+(act<tg?' · vista previa: lista de ejemplo parcial':'')+'</small> '+''+'</summary>'+(ingBloq(g)?'':'<div class="lisbar"><button class="btn s no" title="Marcar quién no asiste" onclick="abreNoAsiste(\''+g+'\')">🚫 No asiste…</button><button class="btn s p" onclick="abrirIng(\''+g+'\',\'a\')">+ Agregar estudiante</button><button class="btn s tr" title="Buscar un estudiante de otro curso o grado y trasladarlo" onclick="abreTraslado(\''+g+'\')">🔀 Trasladar estudiante…</button><button class="btn s" onclick="abreTraslados()">📋 Traslados</button>'+sxBtn(g)+'</div>')+'<div class="tw"><table class="lt lis"><tr><th>N.º</th><th>Apellidos y nombres</th><th>Sexo</th><th>Tipo</th><th>Documento</th><th>Estado</th></tr>'+L.map(function(e){if(!e.baja)n++;var c=e.baja?(/^(No asist|Desert|Nunca)/.test(e.bajaMotivo||'')?'<span class="chip a">No asiste (inhibido)</span>':'<span class="chip f">Retirado · '+esc(e.bajaMotivo||'')+'</span>'):(e.ing?'<span class="chip a">Agregado</span>':'<span class="chip v">Activo</span>');return '<tr'+(e.baja?' class="bj"':'')+'><td>'+(e.baja?'—':n)+'</td><td>'+(e.baja||ingBloq(g)?esc(nom(e)):'<a href="javascript:void(0)" class="nlink" title="Modificar los datos de este estudiante" onclick="modEst('+e.id+')">'+esc(nom(e))+'</a>')+'</td><td>'+(e.baja?esc(e.sx==='F'?'F':e.sx==='M'?'M':'—'):sxCelda(e))+'</td><td>'+(e.tdoc?esc(e.tdoc):'<span class="chip a">falta</span>')+'</td><td>'+(e.ndoc?esc(e.ndoc):'<span class="chip a">falta</span>')+'</td><td>'+c+'</td></tr>'}).join('')+'</table></div></details>'}).join('')+
  '<div class="jur"><h4>Confirmación de la revisión <span class="chip '+(hay?'v':'f')+'">'+(hay?'todos revisaron':'pendiente')+'</span></h4><label class="sw prer"><input type="checkbox" '+(yo?'checked disabled ':'')+(S.cerrada||!USR||!oblDe(USR)?'disabled ':'')+'onchange="setRevL(this.checked)"><span></span><em>'+(USR?'Yo, '+esc(USR)+', revisé los listados de mis cursos y están correctos (agregué o retiré a quien correspondía y marqué «No asiste» a quien no asiste)':'Elija arriba quién entró («Entré como») para confirmar')+'</em></label><div class="jurq">Han revisado: '+(P.filter(function(x){return S.revL[x.n]}).map(function(x){return '<span class="chip v">'+esc(x.n)+' · '+esc(S.revL[x.n])+'</span>'}).join(' ')||'<small class="g">nadie todavía</small>')+'</div>'+'<div class="jurq"><b>Revisión de cada docente</b> <small class="g">(quien tiene la edición puede marcar a quien ya revisó)</small></div>'+P.map(function(x,i){return '<label class="sw prer"><input type="checkbox" '+(S.revL[x.n]?'checked disabled ':'')+(S.cerrada?'disabled ':'')+'onchange="setRevDe('+i+',this.checked)"><span></span><em>'+esc(x.n)+(S.revL[x.n]?' <small class="g">· '+esc(S.revL[x.n])+'</small>':'')+'</em></label>'}).join('')+'</div>'}
 var pintaLis0=pintaLis;pintaLis=function(){var op={};$$('#lisBox details.lisd').forEach(function(d){op[d.getAttribute('data-c')]=d.open});pintaLis0();$$('#lisBox details.lisd').forEach(function(d){if(op[d.getAttribute('data-c')])d.open=true})};
 function imprimeLis(){var pt=$('#periodo').value,gs=LISF?[LISF]:S.gs;$('#areaPend').innerHTML='<div class="hoja pend"><img class="marca" src="'+LOGO+'" alt=""><div class="enc"><img src="'+LOGO+'" alt=""><div>MINISTERIO DE EDUCACIÓN NACIONAL<br>SAN ANDRÉS DE TUMACO<br><b>INSTITUCIÓN CIUDADELA EDUCATIVA TUMAC-ICET</b><br><b>LISTADOS PARA REVISIÓN · '+esc(GK).toUpperCase()+' · '+esc(pt).toUpperCase()+'</b></div></div><p class="sub"><b>Documento temporal de trabajo</b>: no es el acta ni un listado oficial. Revíselo con sus planillas; si falta o sobra alguien, repórtelo en el paso «Listados» del acta. Generado a las '+ahora()+'.</p>'+
@@ -7926,7 +8035,7 @@ function particiona(){
  var o={},pre=S.niv==='pre';
  o.general={ac:S.ac,dif:S.dif,prev:S.prev,txt:S.txt,tiposRec:S.tiposRec,sol:S.sol,reab:S.reab,prom:S.prom||{},pend:S.pend||{},pendMan:S.pendMan||{},obs:S.obs||{},obsG:S.obsG||[],convExtra:S.convExtra||[],promObs:S.promObs||{},scAreas:(S.sc&&S.sc.areas)||{},shAreas:(S.sh&&S.sh.areas)||{},hAp:hAp||'',fecha:($('#fecha')||{}).value||''};
  var per={};S.int.forEach(function(x){per[x.n]=persDe(x.n)});
- o.presencia={pers:PRES};o.integrantes={int:S.int};o.requisitos=S.pre||{};o.firmas={firm:S.firm||{},pers:per};o.listos={listo:S.listo||{},jur:S.jur||{},revL:S.revL||{}};
+ o.presencia={pers:PRES};o.integrantes={int:S.int};o.requisitos=S.pre||{};o.firmas={firm:S.firm||{},pers:per};o.listos={listo:S.listo||{},jur:S.jur||{},revL:S.revL||{},sxOk:S.sxOk||{}};
  var f={datos:{},ing:[],cambios:S.cambiosEst||[]};
  EST.forEach(function(e){if(e.ing){f.ing.push({id:e.id,g:e.g,a:e.a,n:e.n,doc:e.doc,sx:e.sx,falta:e.falta,tel:e.tel,gest:e.gest,ndoc:e.ndoc,tdoc:e.tdoc,lex:e.lex,nac:e.nac,acu:e.acu,nuevo:1,ing:1,baja:e.baja||false,bajaMotivo:e.bajaMotivo||'',real:1})}
   else if(e.baja||e.tel||e.gest||e.sx||(e.falta&&e.falta.length!==(e.f0||5))||e.doc==='ok'||e.mod){f.datos[e.id]={falta:e.falta,tel:e.tel,gest:e.gest,sx:e.sx,doc:e.doc,baja:e.baja||false,bajaMotivo:e.bajaMotivo||''};if(e.mod){var q=f.datos[e.id];q.mod=1;q.ndoc=e.ndoc||'';q.tdoc=e.tdoc||'';q.lex=e.lex||'';q.nac=e.nac||'';q.acu=e.acu||'';q.a=e.a;q.n=e.n}}});
@@ -7972,7 +8081,7 @@ function aplicaUna(k,d){
  if(k==='integrantes'){if(d.int)S.int=d.int;return}
  if(k==='presencia'){Object.keys(d.pers||{}).forEach(function(n){if(n!==USR||!PRES[USR])PRES[n]=d.pers[n]});return}
  if(k==='requisitos'){S.pre=d;return}if(k==='firmas'){S.firm=d.firm||{};Object.keys(d.pers||{}).forEach(function(n){PERS[n]=Object.assign(PERS[n]||{},d.pers[n])});return}
- if(k==='listos'){S.listo=d.listo||{};S.jur=d.jur||{};S.revL=d.revL||{};return}
+ if(k==='listos'){S.listo=d.listo||{};S.jur=d.jur||{};S.revL=d.revL||{};S.sxOk=d.sxOk||{};return}
  if(k==='faltantes'){(d.ing||[]).forEach(function(x){var e=EST.filter(function(y){return y.id===x.id})[0];if(e)Object.assign(e,x);else EST.push(x)});
   Object.keys(d.datos||{}).forEach(function(id){var e=EST.filter(function(y){return String(y.id)===String(id)})[0];if(e)Object.assign(e,d.datos[id])});S.cambiosEst=d.cambios||[];
   EST.forEach(function(e){if(!e.baja)delete e.baja});return}
@@ -8093,7 +8202,7 @@ function REAL_BOOT(){
  document.body.classList.add('jsok');
  if(!tokenGuardado()){irAlMenu();return}
  API('comisionContexto').then(function(c){
-  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='2026.11.25-a'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión 2026.11.25-b y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.25-a · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
+  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='2026.11.25-b'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión 2026.11.25-c y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.25-b · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
   GRADOS_REAL=c.grados.map(function(code){return COM_LABEL[code]}).filter(Boolean);LABEL_DE={};c.grados.forEach(function(code){LABEL_DE[COM_LABEL[code]]=code});
   var bh=$('#btnHist');if(bh&&(c.quien.rol!=='docente'||c.quien.total))bh.style.display='';var be=$('#btnEj');if(be&&c.quien.dev)be.style.display='';var p=$('#perfil');if(p){p.value=PERFIL;if(!c.quien.dev){var pf=document.querySelector('.perf');if(pf)pf.style.display='none'}}
   $('#grado').onchange=abreActa;$('#periodo').onchange=abreActa;
@@ -8411,5 +8520,38 @@ var _pu_m=pintaUnion;pintaUnion=function(){_pu_m();try{var box=$('#unionBox');if
   box.insertAdjacentHTML('beforeend','<div style="margin-top:6px"><b>Modo de trabajo:</b> '+(MODO==='EQUIPO'?'en <b>equipo</b> (cada docente edita solo su curso o su área)':'<b>una sola persona</b> edita a la vez')+(coord?' <button class="btn s" onclick="cambiaModo()">'+(MODO==='EQUIPO'?'Volver a una sola persona':'Permitir trabajo en equipo')+'</button>':'')+'</div>')}catch(e){}};
 function cambiaModo(){var n=MODO==='EQUIPO'?'UNO':'EQUIPO';if(!confirm(n==='EQUIPO'?'¿Permitir que varios docentes trabajen a la vez? Cada uno editará solo su curso (director de grupo) o sus áreas. Se aplica a todas las actas.':'¿Volver a que una sola persona edite a la vez en cada acta?'))return;
  API('comisionModoGuardar',{modo:n}).then(function(r){MODO=r.modo;pintaUnion();alert('Listo: '+(r.modo==='EQUIPO'?'trabajo en equipo activado. Los docentes deben recargar la pantalla.':'una sola persona edita a la vez. Los docentes deben recargar la pantalla.'))}).catch(function(e){alert(msgE(e))})}
+
+
+// ===== sexo de los estudiantes: cada director de grupo lo actualiza o confirma; datos obligatorios de reconocidos; recordatorios =====
+function sxFalta(g){return EST.filter(function(e){return e.g===g&&!e.baja&&!e.sx}).length}
+function sxBtn(g){var n=sxFalta(g),ok=S.sxOk&&S.sxOk[g];
+ if(ok&&!n)return '<button class="btn s sx" title="Sexo confirmado por '+esc(ok.por||'')+'. Pulse para volver a revisarlo." onclick="confirmaSexo(\''+g+'\',false)">✔ Sexo confirmado</button>';
+ return '<button class="btn s sxf" onclick="confirmaSexo(\''+g+'\',true)">⚠ Confirmar sexo del curso'+(n?' (faltan '+n+')':'')+'</button>'}
+function confirmaSexo(g,v){S.sxOk=S.sxOk||{};if(v){var n=sxFalta(g);if(n){alert('Faltan '+n+' estudiante'+(n===1?'':'s')+' sin sexo en '+g+'. Elíjalo en la columna «Sexo» de cada uno y vuelva a confirmar.');return}
+  if(!confirm('¿Confirma que el sexo de TODOS los estudiantes de '+g+' está revisado y es correcto?'))return;S.sxOk[g]={por:USR||'(sin elegir)',t:ahora()}}else delete S.sxOk[g];pintaLis();pintaPasos();pintaPendientes()}
+function misCursos(){var g=G[GK]||{},gs=S.gs,r=[];(g.dir||[]).forEach(function(n,i){if(n===USR&&gs[i])r.push(gs[i])});(g.dir2||[]).forEach(function(d){if(d.n===USR&&r.indexOf(d.gr)<0)r.push(d.gr)});return r}
+var _srl_s=setRevL;setRevL=function(v){if(v){var mal=misCursos().filter(function(g){return sxFalta(g)||!(S.sxOk&&S.sxOk[g])});
+  if(mal.length){alert('Antes de confirmar su revisión debe actualizar o confirmar el sexo de los estudiantes de: '+mal.join(', ')+'.\n\nEn cada curso use «Confirmar sexo del curso».');pintaLis();return}}return _srl_s(v)};
+var _pcc=pendientesCierre;pendientesCierre=function(){var L=_pcc();try{
+ L.forEach(function(x){if(x.comp==='Datos de estudiantes (reconocidos)'&&x.id){var e=est(x.id),f=(e&&e.falta||[]).filter(function(y){return y==='Tipo y número de documento'||y==='Sexo'});if(f.length){x.adv=false;x.msg='Obligatorio por el reconocimiento: complete '+f.join(' y ')+'. '+x.msg}}});
+ S.gs.forEach(function(g){var n=sxFalta(g);if(n)L.push({paso:'sL',comp:'Listados',curso:g,persona:'',msg:'Faltan '+n+' estudiante'+(n===1?'':'s')+' sin sexo: actualícelo en el listado.',donde:'Director/a de grupo',adv:false});
+  else if(!(S.sxOk&&S.sxOk[g]))L.push({paso:'sL',comp:'Listados',curso:g,persona:'',msg:'Falta confirmar el sexo de los estudiantes del curso (botón «Confirmar sexo del curso»).',donde:'Director/a de grupo',adv:false})});
+ var ord=PKEYS.concat(['p2']);L.forEach(function(x){x.o=ord.indexOf(x.paso)});L.sort(function(a,b){return a.o-b.o})}catch(e){}return L};
+// Datos faltantes: los demás estudiantes sin tipo o número de documento (no obligatorio)
+var _pf_o=pintaFalt;pintaFalt=function(){_pf_o();try{var old=document.getElementById('faltOtros');if(old)old.remove();var el=$('#falt');if(!el||!S||!S.gs)return;var us=usados(),por={};
+ EST.forEach(function(e){if(e.baja||S.gs.indexOf(e.g)<0||us.indexOf(e.id)>=0)return;if(!e.tdoc||!e.ndoc)(por[e.g]=por[e.g]||[]).push(e)});
+ var gs=Object.keys(por);if(!gs.length)return;var tot=gs.reduce(function(a,g){return a+por[g].length},0);
+ var d=document.createElement('details');d.id='faltOtros';d.className='card';d.innerHTML='<summary><b>Otros estudiantes sin tipo o número de documento</b> <span class="chip a">'+tot+'</span> <small class="g">(no es obligatorio: solo se exige a quienes reciben reconocimiento)</small></summary><div class="tw"><table class="plain"><tr><th>Curso</th><th>Sin tipo o número</th><th></th></tr>'+gs.map(function(g){return '<tr><td>'+esc(g)+'</td><td>'+por[g].length+'</td><td><button class="btn s" onclick="lisFiltro(\''+g+'\');irK(\'sL\')">Ver y completar en el listado</button></td></tr>'}).join('')+'</table></div>';el.appendChild(d)}catch(e){}};
+// recordatorios con globos de notificación
+var REC_T=0,REC_F='';
+function misPendientes(){var mine=misCursos();return pendientesCierre().filter(function(x){return !x.adv&&(x.persona===USR||(x.curso&&mine.indexOf(x.curso)>=0)||(x.persona===''&&x.curso===''&&mine.length&&/Falta confirmar|Falta verificar/.test(x.msg)))})}
+function globoRec(html,seg){var b=document.getElementById('recGlobos');if(!b){b=document.createElement('div');b.id='recGlobos';b.style.cssText='position:fixed;left:10px;bottom:10px;z-index:9999;display:flex;flex-direction:column;gap:6px;max-width:340px';document.body.appendChild(b)}
+ var d=document.createElement('div');d.style.cssText='background:#7a4a00;color:#fff;border-radius:12px;padding:10px 12px;font:13px Arial,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.3)';d.innerHTML=html+' <button style="margin-left:6px;border:0;border-radius:8px;padding:3px 9px;cursor:pointer" onclick="this.parentNode.remove()">Cerrar</button>';b.appendChild(d);setTimeout(function(){if(d.parentNode)d.remove()},(seg||14)*1000)}
+function verPend(){var pb=document.getElementById('pendBox'),p=pb&&pb.closest('.paso');if(p&&p.id){NAVLIBRE=true;irK(p.id);NAVLIBRE=false;setTimeout(function(){pb.scrollIntoView({block:'start'})},200)}}
+function recuerda(min){try{if(!S||!ACTA||S.cerrada||!USR||EN_PRUEBA())return;var L=misPendientes();if(!L.length)return;var f=L.map(function(x){return x.comp+x.curso+x.persona}).join('|'),ahora=Date.now();
+  if(ahora-REC_T<(min||240000)&&f===REC_F)return;if(ahora-REC_T<45000)return;REC_T=ahora;REC_F=f;
+  globoRec('🔔 <b>Le falta'+(L.length===1?'':'n')+' '+L.length+' cosa'+(L.length===1?'':'s')+' por completar:</b><br>'+L.slice(0,4).map(function(x){return '• '+esc((x.curso?x.curso+': ':'')+(x.persona&&x.persona!==USR?x.persona+': ':'')+x.msg.slice(0,90))}).join('<br>')+(L.length>4?'<br>… y '+(L.length-4)+' más':'')+'<br><button style="margin-top:6px;border:0;border-radius:8px;padding:4px 10px;cursor:pointer;background:#ffd27a" onclick="verPend();this.parentNode.remove()">Ver pendientes</button>',16)}catch(e){}}
+setInterval(function(){recuerda(240000)},60000);
+var _ir_r=ir;ir=function(i){var r=_ir_r.apply(this,arguments);setTimeout(function(){recuerda(90000)},400);return r};
 
 </script></body></html>

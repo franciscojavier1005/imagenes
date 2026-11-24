@@ -849,3 +849,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 114 (2026-11-25, versión 2026.11.25-b)
 - Modo UNO/EQUIPO (`comisionModo_`, `comisionModoGuardar`, `comisionAlcance_` con alcance real por docente: cursos que dirige, `cursosEst`, áreas, multiáreas) y seguimiento con `segGrupos`/`segTabla` en `Menu.html`.
+
+## Ampliación 115 (2026-11-25, versión 2026.11.25-c)
+- Sexo confirmado por curso, obligatorios documento/sexo de reconocidos, globos de recordatorio; `Traslados.gs`: masivos, `importarLibro`, `respaldoRevision_`; `Manuales.html`; Menu: `abrirMasivo`. Mac Safari: pantalla de error de Google al abrir el enlace (ver ESTADO_ACTUAL).

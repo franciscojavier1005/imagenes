@@ -179,7 +179,7 @@ function doGet(e) {
     return ContentService.createTextOutput('ICET API').setMimeType(ContentService.MimeType.TEXT);
   }
   var pag = (e && e.parameter && e.parameter.p) || 'menu';   // sin parámetros abre el menú de entrada
-  var PAGINAS = { menu: ['Menu', 'Control de Procesos ICET'], novedad: ['Novedad', 'ICET - Registrar novedades'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y actividades'], horarios: ['Horarios', 'ICET - Horarios y listados'], ayuda: ['Ayuda', 'ICET - Ayuda y manual de uso'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'], comisiones: ['Comisiones', 'ICET - Comisiones de evaluación y promoción'] };
+  var PAGINAS = { menu: ['Menu', 'Control de Procesos ICET'], novedad: ['Novedad', 'ICET - Registrar novedades'], ronda: ['Consulta', 'ICET - Ronda de asistencia docente'], reunion: ['Reunion', 'ICET - Reuniones y actividades'], horarios: ['Horarios', 'ICET - Horarios y listados'], ayuda: ['Ayuda', 'ICET - Ayuda y manual de uso'], manuales: ['Manuales', 'ICET - Manuales en PDF'], panel: ['Dashboard', 'ICET - Panel de asistencia docente'], comisiones: ['Comisiones', 'ICET - Comisiones de evaluación y promoción'] };
   var pg = PAGINAS[pag] || PAGINAS.menu;
   // La versión sale SOLO de VERSION_SISTEMA (Leeme.gs): las pantallas la reciben con <?= VERSION ?>, no hay que tocar los .html para subir de versión.
   var plantilla = HtmlService.createTemplateFromFile(pg[0]); plantilla.VERSION = VERSION_SISTEMA;

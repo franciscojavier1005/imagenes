@@ -4,7 +4,7 @@
 function avisoDia(forzar){
   try{
     if(!(window.PREVIEW||(typeof tokenGuardado==='function'&&tokenGuardado()))) return;
-    if(!forzar){ var t=Number(localStorage.getItem('icet_aviso_t')||0); if(Date.now()-t<180000) return; }   // como máximo una vez cada 3 minutos en este teléfono
+    if(!forzar){ var t=Number((function(){try{return localStorage.getItem('icet_aviso_t');}catch(e){return 0;}})()||0); if(Date.now()-t<180000) return; }   // como máximo una vez cada 3 minutos en este teléfono
   }catch(e){}
   if(typeof srv!=='function') return;
   srv().withSuccessHandler(function(r){ try{ avisoDiaPintar(r,false); }catch(e){} }).withFailureHandler(function(){}).avisosHoy();

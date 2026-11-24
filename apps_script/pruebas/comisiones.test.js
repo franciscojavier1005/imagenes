@@ -171,6 +171,21 @@ ok(run("comisionMailPersonal_('juan@icet.edu.co')")===''&&run("comisionMailPerso
     ok(sec(Q('Dora Mate'),'matricula:0801')!==null,'la docente de área no escribe la matrícula');
     ok(sec(Q('Ana Director'),'areas:Matemáticas')!==null&&sec(Q('Ana Director'),'matricula:0801')===null,'quien solo dirige un curso trabaja su curso, no las áreas');
     hojas.Horario.v.length-=2; run("comisionModoGuardar({modo:'UNO'})"); }
+  { const hdr0=hojas.Estudiantes.v[0].slice(); const n0=hojas.Estudiantes.v.length; hojas.Estudiantes.v[0]=['grupo','curso','no','apellidos','nombres','documento','sexo','tipo_doc']; hojas.Grupos.v.push(['0701','REGULAR','7°','7°-1',null]);
+    hojas.Estudiantes.v.push(['0801','8°-1',1,'MASIVO UNO','ANA','880001','',''],['0801','8°-1',2,'MASIVO DOS','LUIS','880002','','']);
+    yo('coord@x.com'); const L=run("estudiantesDelGrupo({grupo:'0801'})").estudiantes.filter(e=>/^MASIVO/.test(e.nombre));
+    ok(L.length===2,'se listan los estudiantes de un grupo para elegir varios');
+    const m=run("trasladoMasivo("+JSON.stringify({estudiantes:L.map(e=>({fila:e.fila,doc:e.doc,nombre:e.nombre})),hacia:'0701',just:''})+")"); ok(m.aplicados===2&&String(hojas.Estudiantes.v[n0][0])==='0701','coordinación traslada a varios de una vez');
+    run("trasladoMasivo("+JSON.stringify({estudiantes:L.map(e=>({fila:e.fila,doc:e.doc,nombre:e.nombre})),hacia:'0801',just:'x'})+")");
+    const c=run("estudiantesCampoMasivo("+JSON.stringify({estudiantes:L.map(e=>({fila:e.fila,doc:e.doc,nombre:e.nombre})),campo:'sexo',valor:'F'})+")"); ok(c.cambiados===2&&hojas.Estudiantes.v[n0][6]==='F','se cambia un dato a varios estudiantes');
+    ok(falla("estudiantesCampoMasivo("+JSON.stringify({estudiantes:L,campo:'sexo',valor:'Z'})+")")!==null,'valor de sexo no válido: rechazado');
+    yo('dora@x.com'); ok(falla("estudiantesCampoMasivo("+JSON.stringify({estudiantes:L,campo:'sexo',valor:'M'})+")")!==null,'un docente no cambia datos de la hoja de forma masiva');
+    yo('coord@x.com');
+    g.__OTRO={getSheetByName:()=>null,getSheets:()=>[{getDataRange:()=>({getValues:()=>[['Documento','Género','Tipo de documento'],['880001','M','TI'],['880002','F','RC'],['999999','F','CC']]})}]}; run("SpreadsheetApp.openById=function(){return __OTRO}");
+    const vp=run("importarLibro({id:'https://docs.google.com/spreadsheets/d/ABCDEFGHIJKLMNOPQRSTUV/edit',tipo:'estudiantes',aplicar:false})"); ok(vp.coinciden===2&&vp.sinCoincidencia===1&&vp.total===3&&hojas.Estudiantes.v[n0][6]==='F','la vista previa de la importación cuenta cambios sin aplicarlos');
+    const ap=run("importarLibro({id:'ABCDEFGHIJKLMNOPQRSTUV',tipo:'estudiantes',aplicar:true})"); ok(ap.aplicado&&hojas.Estudiantes.v[n0][6]==='M'&&hojas.Estudiantes.v[n0][7]==='TI','al aplicar se actualizan sexo y tipo de documento desde el otro libro');
+    yo('dora@x.com'); ok(falla("importarLibro({id:'ABCDEFGHIJKLMNOPQRSTUV',tipo:'estudiantes'})")!==null,'un docente no importa datos');
+    hojas.Estudiantes.v.length=n0; hojas.Grupos.v.pop(); hojas.Estudiantes.v[0]=hdr0; }
   hojas.Grupos.v.length-=4; hojas.Estudiantes.v.length-=3; }
 // ---- historial: versiones anteriores y cambios en hojas, con retroceso ----
 yo('coord@x.com');

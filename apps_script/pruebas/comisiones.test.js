@@ -3,7 +3,7 @@
 const fs=require('fs'), vm=require('vm'), path=require('path');
 class Hoja{constructor(v){this.v=v}
   getDataRange(){return {getValues:()=>JSON.parse(JSON.stringify(this.v))}}
-  appendRow(r){this.v.push(r)}
+  appendRow(r){this.v.push(r.map(x=>typeof x==='string'?(x[0]==="'"?x.slice(1):/^\d+$/.test(x)?Number(x):x):x))}   // como Hojas de cálculo: «05»→5, y el apóstrofo fuerza texto
   getName(){return this.nombre||''}
   getLastColumn(){return Math.max(0,...this.v.map(r=>r.length))}
   getRange(r,c,nr,nc){const s=this;return {getValue(){return ((s.v[r-1]||[])[c-1])===undefined?'':(s.v[r-1]||[])[c-1]},getValues(){const o=[];for(let i=0;i<(nr||1);i++){const row=[];for(let j=0;j<(nc||1);j++){const x=(s.v[r-1+i]||[])[c-1+j];row.push(x===undefined?'':x)}o.push(row)}return o},setValue(x){while(s.v.length<r)s.v.push([]);while(s.v[r-1].length<c)s.v[r-1].push('');s.v[r-1][c-1]=x},
@@ -29,7 +29,7 @@ const carpeta=(ruta)=>({ruta,moveTo(f){movidos.push(ruta+' -> '+f.ruta)},getFile
 carpeta.hechos=new Set();
 const g={Utilities:{formatDate:fmt,getUuid:()=>'u'+Math.random().toString(36).slice(2,10),base64Decode:s=>Array.from(Buffer.from(s,'base64')),newBlob:(b,m,n)=>({b,m,n})},
   Logger:{log(){}},LockService:{getScriptLock:()=>({waitLock(){},releaseLock(){}})},Session:{getActiveUser:()=>({getEmail:()=>EMAIL})},
-  SpreadsheetApp:{getActive:()=>({getId:()=>'LIBRO1',getName:()=>'Libro ICET',getEditors:()=>[{getEmail:()=>'dueno@gmail.com'}],getOwner:()=>({getEmail:()=>'dueno@gmail.com'}),getSheetByName:n=>{if(hojas[n])hojas[n].nombre=n;return hojas[n]||null},insertSheet:n=>(hojas[n]=new Hoja([]))}),getUi:()=>({alert(){}})},
+  SpreadsheetApp:{getActive:()=>({getId:()=>'LIBRO1',getName:()=>'Libro ICET',getEditors:()=>[{getEmail:()=>'dueno@gmail.com'}],getOwner:()=>({getEmail:()=>'dueno@gmail.com'}),getSheetByName:n=>{if(hojas[n])hojas[n].nombre=n;return hojas[n]||null},insertSheet:n=>(hojas[n]=new Hoja([]))}),getUi:()=>({alert(){return 'YES'},ButtonSet:{OK:1,YES_NO:1},Button:{YES:'YES'}})},
   DriveApp:{Access:{PRIVATE:1},Permission:{NONE:1},getRootFolder:()=>carpeta('RAIZ'),getFolderById:id=>carpeta('SUELTA_'+id),getFileById:id=>carpeta('ARCHIVO_'+id)},console};
 const FIJA=new Date('2026-11-22T20:41:00Z').getTime();   // 15:41 en Bogotá
 g.Date=class extends Date{constructor(...a){a.length?super(...a):super(FIJA)} static now(){return FIJA}};
@@ -103,6 +103,18 @@ yo('ana@x.com'); run("comisionAHojas_('faltantes',{datos:{2:{mod:1,ndoc:'1234567
 ok(run("comisionMailPersonal_('juan@icet.edu.co')")===''&&run("comisionMailPersonal_('juan@gmail.com')")==='juan@gmail.com','el correo institucional no se toma como correo personal del docente');
 { const g5=run("comisionGradoDatos({grado:'08'})"); ok(g5.estudiantes.every(x=>x.g),'solo se envían los estudiantes del grado abierto (ninguno sin curso)'); }
 { const gd=run("comisionGradoDatos({grado:'08'})"); ok(gd.apoyo.every(x=>x.p===false),'los directivos acompañantes no figuran como participantes por defecto'); }
+// ---- grado «05» guardado como 5 y actas duplicadas ----
+{ yo('dueno@gmail.com');
+  const A=hojas.Comision_Actas.v, S=hojas.Comision_Secciones.v;
+  A.push(['dup-vacia','2026','Final',5,1,'ABIERTA','','x','2026-11-22 10:00','','','',0],['dup-llena','2026','Final',5,1,'ABIERTA','Ana','x','2026-11-22 11:00','','','',0]);
+  S.push(['dup-llena','general',1,'{}','x','2026-11-22 11:01'],['dup-llena','matricula:0501',1,'{}','x','2026-11-22 11:02']);
+  const act=run("comisionActas_().filter(function(a){return a.id==='dup-llena'})[0].grado"); ok(act==='05','el grado guardado como número 5 se lee como «05»');
+  ok(run("comisionGradoKey_('CS2')")==='09'&&run("comisionGradoKey_('CS1')")==='07'&&run("comisionGradoKey_(5)")==='05','las actas abiertas antes bajo CS 1 o CS 2 pasan a 7.º y 9.º');
+  const n=run("comisionesUnificarDuplicadas()"); ok(n>=1,'unificar: se ocultan las actas duplicadas (quedan con estado DUPLICADA)');
+  ok(A.some(r=>r[0]==='dup-vacia'&&r[5]==='DUPLICADA')&&A.some(r=>r[0]==='dup-llena'&&r[5]==='ABIERTA'),'unificar: queda vigente la que más trabajo tiene y no se borra nada');
+  A.splice(A.findIndex(r=>r[0]==='dup-vacia'),1); A.splice(A.findIndex(r=>r[0]==='dup-llena'),1); S.splice(S.findIndex(r=>r[0]==='dup-llena'),2); }
+// ---- menú «ver qué hay guardado» ----
+{ yo('dueno@gmail.com'); let r; try{ r=run("comisionesVerGuardado()"); }catch(e){ r=null; console.log('  (aviso) '+e.message); } ok(Array.isArray(r)&&r.length>0&&/partes guardadas/.test(r[0]),'el menú resume por acta cuántas partes hay guardadas'); }
 // ---- Caminar en Secundaria: CS 1 va con 7.º y CS 2 con 9.º ----
 { hojas.Grupos.v.push(['0701','REGULAR','7°','7°-1',null],['CS101','CAMINAR','CS1','CS 1-1',null],['0901','REGULAR','9°','9°-1',null],['CS201','CAMINAR','CS2','CS 2-1',null]);
   hojas.Estudiantes.v.push(['0701','7°-1',1,'SEPTIMO UNO','ANA','','',''],['CS101','CS 1-1',1,'CAMINAR UNO','LUIS','','',''],['CS201','CS 2-1',1,'CAMINAR DOS','EVA','','','']);

@@ -5,11 +5,13 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.24-a';
+var VERSION_SISTEMA = '2026.11.24-b';
 var FECHA_VERSION = '2026-11-24';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.24-b', fecha: '2026-11-24', cambios: [
+    'IMPORTANTE (comisiones): Hojas de cálculo guardaba el grado «05» como el número 5 y por eso, al volver a abrir el grado, se creaba un acta nueva y vacía cada vez (los datos quedaban repartidos en varias actas). Ahora el código de grado se guarda como texto y se lee siempre de dos cifras; si hay varias actas del mismo grado y periodo se abre la que más trabajo tiene. Menú nuevo «Comisiones: unificar actas duplicadas» (oculta las vacías, no borra nada) y «Comisiones: ver qué hay guardado (y en qué hoja)». Las actas abiertas antes bajo CS 1 o CS 2 pasan a 7.º y 9.º. Estudiantes: «Retirar» pasa a «Deshabilitar» (siguen en el listado, cuentan en la matrícula como retirados o no asistentes y no entran en la promoción).'] },
   { version: '2026.11.24-a', fecha: '2026-11-24', cambios: [
     'Comisiones: Caminar en Secundaria 1 se trabaja con el acta de 7.º y Caminar en Secundaria 2 con la de 9.º (ya no aparecen como grados aparte). «Juramento» pasa a llamarse «acuerdo y compromiso de transparencia». En la matrícula, «desertados» pasa a «no asistentes»: quien no asistió queda inhabilitado pero sigue en el listado y no entra en la promoción; «retirados» son quienes se van a otro domicilio o institución.'] },
   { version: '2026.11.23-u', fecha: '2026-11-23', cambios: [

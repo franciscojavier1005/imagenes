@@ -47,7 +47,7 @@
 <main>
   <div class="saludo" id="saludo"></div>
   <div id="botones"><div class="espera">Cargando…</div></div>
-  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.24-a</div>
+  <div class="autoria">Sistema de control de asistencia docente · Autor: <b>Francisco Javier Cortés Cabezas</b><br>Coordinador académico · Especialista en Informática y Telemática · Magíster en Educación · Doctorando en Desarrollo de la Educación<br>I.E. ICET, San Andrés de Tumaco (Nariño, Colombia) · © 2026 · versión 2026.11.24-b</div>
 </main>
 <script type="text/plain" id="srv-mocks">/* Servidor de demostración que corre DENTRO del navegador (iframe oculto): el código real de ICET_completo.gs con una hoja de cálculo simulada y
    datos INVENTADOS. Sirve para ver y probar las pantallas en cualquier computador (Mac, Windows) sin Google ni servidor.
@@ -198,6 +198,8 @@ function onOpen() {
     .addItem('Docentes: restablecer la clave de un docente', 'restablecerClaveDocente')
     .addItem('Docentes: ver quién ya activó su acceso', 'verDocentesActivos')
     .addItem('Ver sesiones abiertas (quién está usando el sistema)', 'verSesionesAbiertas')
+    .addItem('Comisiones: ver qué hay guardado (y en qué hoja)', 'comisionesVerGuardado')
+    .addItem('Comisiones: unificar actas duplicadas', 'comisionesUnificarDuplicadas')
     .addItem('Comisiones: prueba de funcionamiento (guarda y borra un acta de prueba)', 'comisionesPruebaDeHumo')
     .addItem('Acerca de este sistema', 'acercaDe')
     .addItem('Actualizar hoja LEEME (versión y cambios)', 'actualizarLeeme')
@@ -4030,11 +4032,13 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.24-a';
+var VERSION_SISTEMA = '2026.11.24-b';
 var FECHA_VERSION = '2026-11-24';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.24-b', fecha: '2026-11-24', cambios: [
+    'IMPORTANTE (comisiones): Hojas de cálculo guardaba el grado «05» como el número 5 y por eso, al volver a abrir el grado, se creaba un acta nueva y vacía cada vez (los datos quedaban repartidos en varias actas). Ahora el código de grado se guarda como texto y se lee siempre de dos cifras; si hay varias actas del mismo grado y periodo se abre la que más trabajo tiene. Menú nuevo «Comisiones: unificar actas duplicadas» (oculta las vacías, no borra nada) y «Comisiones: ver qué hay guardado (y en qué hoja)». Las actas abiertas antes bajo CS 1 o CS 2 pasan a 7.º y 9.º. Estudiantes: «Retirar» pasa a «Deshabilitar» (siguen en el listado, cuentan en la matrícula como retirados o no asistentes y no entran en la promoción).'] },
   { version: '2026.11.24-a', fecha: '2026-11-24', cambios: [
     'Comisiones: Caminar en Secundaria 1 se trabaja con el acta de 7.º y Caminar en Secundaria 2 con la de 9.º (ya no aparecen como grados aparte). «Juramento» pasa a llamarse «acuerdo y compromiso de transparencia». En la matrícula, «desertados» pasa a «no asistentes»: quien no asistió queda inhabilitado pero sigue en el listado y no entra en la promoción; «retirados» son quienes se van a otro domicilio o institución.'] },
   { version: '2026.11.23-u', fecha: '2026-11-23', cambios: [
@@ -5153,7 +5157,12 @@ function comisionPrepararHojas() {
 function comisionLog_(acta, usuario, accion, detalle) {
   hojaOCrea_('Comision_Log', COL_CLOG).appendRow([ahoraTxt_(), acta, usuario, accion, String(detalle || '').slice(0, 500)]);
 }
-function comisionActas_() { return datosOCrea_('Comision_Actas', COL_CACTAS); }
+/** Hojas de cálculo convierte «05» en el número 5 al guardar: el código de grado se normaliza siempre a dos cifras (00-11) o CS1/CS2. */
+function comisionGradoKey_(v) { var s = String(v == null ? '' : v).trim(); s = /^\d$/.test(s) ? '0' + s : s; return (typeof COM_UNION !== 'undefined' && COM_UNION[s]) || s; }
+/** Actas vigentes (las marcadas DUPLICADA por la unificación no se muestran). */
+function comisionActas_() { return datosOCrea_('Comision_Actas', COL_CACTAS).map(function (a) { a.grado = comisionGradoKey_(a.grado); return a; }).filter(function (a) { return a.estado !== 'DUPLICADA'; }); }
+/** Cuántas partes (secciones) tiene guardadas cada acta. */
+function comisionContarSecciones_() { var c = {}; datosOCrea_('Comision_Secciones', COL_CSEC).forEach(function (s) { c[String(s.acta_id)] = (c[String(s.acta_id)] || 0) + 1; }); return c; }
 function comisionActa_(id) {
   var a = comisionActas_().filter(function (x) { return String(x.id) === String(id); })[0];
   if (!a) throw new Error('No existe esa acta.');
@@ -5417,10 +5426,12 @@ function comisionAbrir(p) {
   if (comisionSinAlcance_(al)) throw new Error('Usted no tiene cursos ni áreas en este grado.');
   var lock = LockService.getScriptLock(); lock.waitLock(15000);
   try {
-    var ex = comisionActas_().filter(function (a) { return String(a.anio) === String(anio) && a.periodo === p.periodo && String(a.grado) === grado; })[0];
+    var cont = comisionContarSecciones_();
+    var ex = comisionActas_().filter(function (a) { return String(a.anio) === String(anio) && a.periodo === p.periodo && comisionGradoKey_(a.grado) === grado; })
+      .sort(function (x, y) { return (cont[String(y.id)] || 0) - (cont[String(x.id)] || 0); })[0];   // si hay varias, la que más trabajo tiene
     if (!ex) {
       var id = Utilities.getUuid(), no = comisionNumeroSugerido_(anio, grado);
-      hojaOCrea_('Comision_Actas', COL_CACTAS).appendRow([id, anio, p.periodo, grado, no, 'ABIERTA', (quien.rol === 'docente' ? quien.nombre : ''), quien.nombre, ahoraTxt_(), '', '', '', 0]);
+      hojaOCrea_('Comision_Actas', COL_CACTAS).appendRow([id, anio, p.periodo, txtForzado_(grado), no, 'ABIERTA', (quien.rol === 'docente' ? quien.nombre : ''), quien.nombre, ahoraTxt_(), '', '', '', 0]);
       comisionLog_(id, quien.nombre, 'ABRIR', p.periodo + ' · grado ' + grado + ' · acta ' + no);
       ex = comisionActa_(id);
     }
@@ -5799,6 +5810,45 @@ function comisionesPruebaDeHumo() {
   var r = comisionesPruebaDeHumo_(), malos = r.filter(function (x) { return !x.ok; });
   SpreadsheetApp.getUi().alert('Prueba de comisiones: ' + (malos.length ? malos.length + ' paso(s) con problema' : 'TODO BIEN'),
     r.map(function (x) { return (x.ok ? '✔ ' : '✖ ') + x.paso + (x.msg ? ' → ' + x.msg : ''); }).join('\n') + '\n\nLa prueba usa un acta del año 2099 y la borra al terminar.', SpreadsheetApp.getUi().ButtonSet.OK);
+}
+
+/** Menú: resumen de lo que hay guardado en las hojas de comisiones (sin abrir el JSON): por acta, cuántas partes y cuándo se guardó por última vez. */
+/** Menú: cuando por el defecto del «05→5» se crearon varias actas del mismo grado y periodo, deja vigente la que más trabajo tiene y marca las demás DUPLICADA (no borra nada). */
+function comisionesUnificarDuplicadas() {
+  exigirEditor_();
+  var sh = hojaOCrea_('Comision_Actas', COL_CACTAS), v = sh.getDataRange().getValues(), cont = comisionContarSecciones_(), grupos = {};
+  for (var i = 1; i < v.length; i++) {
+    if (!v[i][0] || v[i][5] === 'DUPLICADA') continue;
+    var k = v[i][1] + '|' + v[i][2] + '|' + comisionGradoKey_(v[i][3]);
+    (grupos[k] = grupos[k] || []).push({ fila: i + 1, id: String(v[i][0]), n: cont[String(v[i][0])] || 0, fecha: String(v[i][8]), resp: String(v[i][6]), estado: String(v[i][5]) });
+  }
+  var plan = [], lineas = [];
+  Object.keys(grupos).forEach(function (k) {
+    var L = grupos[k]; if (L.length < 2) return;
+    L.sort(function (a, b) { return b.n - a.n || (a.fecha < b.fecha ? 1 : -1); });
+    var d = k.split('|'), et = COM_GRADO_LABEL[d[2]] || d[2];
+    lineas.push('• ' + et + ' · ' + d[1] + ': se queda la del ' + L[0].fecha + ' (' + L[0].n + ' partes' + (L[0].resp ? ', edita ' + L[0].resp : '') + ') y se ocultan ' + (L.length - 1) + ' más (' + L.slice(1).map(function (x) { return x.n; }).join(', ') + ' partes).');
+    L.slice(1).forEach(function (x) { plan.push(x); });
+  });
+  var ui = SpreadsheetApp.getUi();
+  if (!plan.length) { ui.alert('Actas duplicadas', 'No hay actas duplicadas.', ui.ButtonSet.OK); return 0; }
+  var r = ui.alert('Unificar actas duplicadas', lineas.join('\n') + '\n\nNo se borra nada: las ocultas quedan en la hoja con estado DUPLICADA. ¿Continuar?', ui.ButtonSet.YES_NO);
+  if (r !== ui.Button.YES) return 0;
+  plan.forEach(function (x) { sh.getRange(x.fila, 6).setValue('DUPLICADA'); comisionLog_(x.id, 'menú', 'DUPLICADA', 'Acta duplicada oculta (quedó vigente otra con más trabajo)'); });
+  return plan.length;
+}
+function comisionesVerGuardado() {
+  exigirEditor_();
+  var actas = comisionActas_(), secs = datosOCrea_('Comision_Secciones', COL_CSEC), lineas = [];
+  actas.forEach(function (a) {
+    var mias = secs.filter(function (s) { return String(s.acta_id) === String(a.id); }), ult = mias.reduce(function (m, s) { return String(s.fecha) > m.f ? { f: String(s.fecha), p: String(s.actualizado_por) } : m; }, { f: '', p: '' });
+    var cod = String(a.grado), et = COM_GRADO_LABEL[cod] || ('grado ' + cod), mat = mias.filter(function (s) { return /^matricula:/.test(s.seccion); }).length, est = mias.filter(function (s) { return /^estudiantes:/.test(s.seccion); }).length, rec = mias.filter(function (s) { return /^reconocimientos:/.test(s.seccion); }).length;
+    lineas.push('• Acta ' + a.acta_no + ' · ' + et + ' · ' + a.periodo + ' · ' + a.estado + (a.responsable ? ' · edita: ' + a.responsable : '') + '\n   ' + mias.length + ' partes guardadas (matrícula de ' + mat + ' cursos, listas de ' + est + ' cursos, reconocimientos de ' + rec + ' cursos) · último guardado: ' + (ult.f || '—') + (ult.p ? ' por ' + ult.p : ''));
+  });
+  var msg = lineas.length ? lineas.join('\n') : 'Todavía no hay actas guardadas.';
+  msg += '\n\nDónde está cada cosa:\n· Comision_Actas: una fila por acta.\n· Comision_Secciones: cada parte del acta (columna json) con su versión, quién y cuándo.\n· Comision_Historial y Comision_CambiosHojas: versiones anteriores y cambios en las hojas (una semana).\n· Estudiantes e Identidad_Docentes: los datos que se completaron (documento, tipo, lugar de expedición, sexo, nacionalidad, celular, correo).\n· Drive: APP ASISTENCIA DOCENTE / COMISIONES / Borradores (copia legible).';
+  SpreadsheetApp.getUi().alert('Comisiones guardadas', msg, SpreadsheetApp.getUi().ButtonSet.OK);
+  return lineas;
 }
 
 /* ------------------------------ datos del grado para la pantalla real ------------------------------ */

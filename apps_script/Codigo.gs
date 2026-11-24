@@ -33,6 +33,8 @@ function onOpen() {
     .addItem('Docentes: restablecer la clave de un docente', 'restablecerClaveDocente')
     .addItem('Docentes: ver quién ya activó su acceso', 'verDocentesActivos')
     .addItem('Ver sesiones abiertas (quién está usando el sistema)', 'verSesionesAbiertas')
+    .addItem('Comisiones: ver qué hay guardado (y en qué hoja)', 'comisionesVerGuardado')
+    .addItem('Comisiones: unificar actas duplicadas', 'comisionesUnificarDuplicadas')
     .addItem('Comisiones: prueba de funcionamiento (guarda y borra un acta de prueba)', 'comisionesPruebaDeHumo')
     .addItem('Acerca de este sistema', 'acercaDe')
     .addItem('Actualizar hoja LEEME (versión y cambios)', 'actualizarLeeme')

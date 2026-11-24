@@ -837,3 +837,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 110 (2026-11-24, versión 2026.11.24-i)
 - Carga lenta del acta: `valores_` admite caché por solicitud (`VAL_REQ`), activada en `comisionContexto` y `comisionGradoDatos` (solo lectura). Medido con el libro real descargado (arnés `integR.js`, fuera del repo): `comisionGradoDatos` 97→28 lecturas de hoja. La captura del usuario mostró pantalla y servidor en -g (aún sin la corrección -h).
+
+## Ampliación 111 (2026-11-24, versión 2026.11.24-j)
+- Listados: sin columna «Acciones»; `abreNoAsiste(g)`/`naAplica` (marcar o revertir varios) junto al encabezado del curso; nombre pulsable → `modEst`. `marcaMas()`: sombra y aviso cuando una `.tw` se desborda. Pendiente por aclarar con el coordinador: «necesitamos para los reconocimientos poder elegir…» (mensaje cortado).

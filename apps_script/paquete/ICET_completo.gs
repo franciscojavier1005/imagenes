@@ -3874,11 +3874,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.24-i';
+var VERSION_SISTEMA = '2026.11.24-j';
 var FECHA_VERSION = '2026-11-24';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.24-j', fecha: '2026-11-24', cambios: [
+    'Comisiones, listados: se quitó la columna de botones de cada estudiante (quedaba fuera de la pantalla). Ahora «No asiste…» y «+ Agregar estudiante» están junto al encabezado de cada curso («No asiste…» permite marcar o revertir a varios a la vez) y para modificar los datos de un estudiante se pulsa su nombre. Las tablas que se salen del ancho muestran una sombra en el borde y el aviso «Hay más columnas a la derecha». El selector de sexo es más angosto.'
+  ] },
   { version: '2026.11.24-i', fecha: '2026-11-24', cambios: [
     'URGENTE (comisiones): el acta tardaba mucho en cargar (se quedaba en «Cargando el acta…»). Al abrir el grado el servidor releía las mismas hojas decenas de veces (identidades, docentes, claves, directivos). Ahora cada hoja se lee una sola vez por solicitud: de 97 a 28 lecturas en el acta de 9.º con los datos reales. Incluye la corrección de la versión -h.'
   ] },

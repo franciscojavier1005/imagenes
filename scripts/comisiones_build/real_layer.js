@@ -379,18 +379,18 @@ var _pc_pend=pintaCierreProp;pintaCierreProp=function(){_pc_pend();try{if($('#pe
 
 
 // ===== v2026.11.24-c: No asiste, sexo, selección múltiple, reprobados por área, promedio 4,6 =====
-function noAsiste(id,v){var e=est(id);if(!e)return;var g=e.g,r=S.mat[S.gs.indexOf(g)];if(!r)return;
+function noAsiste(id,v,quiet){var e=est(id);if(!e)return;var g=e.g,r=S.mat[S.gs.indexOf(g)];if(!r)return;
  if(v){if(e.baja)return;
   var L=['rep','rec','con','com','piar'].filter(function(c){return S[c].some(function(x){return x.id===id})});
   if(L.indexOf('rec')>=0&&recOkDe(g)&&!esCoord()){alert('Tiene un reconocimiento confirmado: pida a coordinación académica que reabra los reconocimientos de '+g+'.');return}
-  if(!confirm('¿Marcar «No asiste» a '+nom(e)+'?\n\nQueda inhibido (opaco) en los listados, no se promueve ni se reprueba y se descuenta de la matrícula actual. Puede revertirlo con «Sí asiste».'+(L.length?'\nTambién se quitará de: '+L.join(', ')+'.':'')))return;
+  if(!quiet&&!confirm('¿Marcar «No asiste» a '+nom(e)+'?\n\nQueda inhibido (opaco) en los listados, no se promueve ni se reprueba y se descuenta de la matrícula actual. Puede revertirlo con «Sí asiste».'+(L.length?'\nTambién se quitará de: '+L.join(', ')+'.':'')))return;
   L.forEach(function(c){S[c]=S[c].filter(function(x){return x.id!==id})});
   e.baja=true;e.bajaMotivo='No asiste';r.de=(+r.de||0)+1;if(e.sx==='M')r.m=Math.max(0,r.m-1);if(e.sx==='F')r.f=Math.max(0,r.f-1);
   delete S.promOk[g];if(S.prom)delete S.prom[id];
   S.cambiosEst=S.cambiosEst||[];S.cambiosEst.push({tipo:'NO_ASISTE',id:id,g:g,nombre:nom(e),motivo:'No asiste',por:USR||'(sin elegir)',t:ahora()});
  }else{if(!e.baja)return;e.baja=false;e.bajaMotivo='';r.de=Math.max(0,(+r.de||0)-1);if(e.sx==='M')r.m+=1;if(e.sx==='F')r.f+=1;delete S.promOk[g];
   S.cambiosEst=S.cambiosEst||[];S.cambiosEst.push({tipo:'SI_ASISTE',id:id,g:g,nombre:nom(e),motivo:'',por:USR||'(sin elegir)',t:ahora()});}
- pintaTodo();}
+ if(!quiet)pintaTodo();}
 var _setSx0=setSx;setSx=function(id,v){var e=est(id);if(e&&e.sx!==v)e.mod=1;_setSx0(id,v)};
 
 // selección múltiple (reconocimientos, reprobación, convivencia, comisión, PIAR) y reprobados por área
@@ -464,3 +464,21 @@ function barraRepArea(){var old=document.getElementById('barRepA');if(old)old.re
  d.innerHTML='<b>Seleccionar reprobados por área:</b> <select id="brA" style="width:auto;max-width:100%">'+areasLista().map(function(a){return '<option>'+esc(a)+'</option>'}).join('')+'</select> <select id="brG" style="width:auto">'+S.gs.map(function(g,i){return '<option value="'+i+'">'+esc(g)+'</option>'}).join('')+'</select> <button class="btn s p" onclick="abrePickArea($(\'#brA\').value,+$(\'#brG\').value)">Seleccionar desde el listado</button>';
  $('#repL').insertAdjacentElement('beforebegin',d)}
 var _pl_b=pintaListas;pintaListas=function(){var r=_pl_b.apply(this,arguments);try{barraRepArea()}catch(e){}return r};
+
+
+// «No asiste…» junto al encabezado del grado: marcar varios a la vez (sin cargar de botones cada fila)
+function abreNoAsiste(g){var m=$('#mNoA');if(!m){m=document.createElement('div');m.className='modal';m.id='mNoA';document.body.appendChild(m)}
+ var L=EST.filter(function(e){return e.g===g&&(!e.baja||/^(No asist|Desert|Nunca)/.test(e.bajaMotivo||''))}).sort(function(a,b){return nom(a).localeCompare(nom(b),'es')});
+ m.innerHTML='<div class="box"><h3>No asiste · '+esc(g)+'</h3><div class="nota">Marque a quien <b>no asiste</b>. Queda inhibido (opaco) en los listados, no se promueve ni se reprueba y se descuenta de la matrícula actual. Desmarque para revertirlo («Sí asiste»).</div><input type="text" id="naQ" placeholder="Buscar por apellido o nombre" oninput="naFiltra()"><div class="lista" id="naL" style="max-height:50vh;overflow:auto">'+L.map(function(e){return '<label class="naf" data-t="'+esc(nom(e).toLowerCase())+'" style="display:flex;gap:8px;align-items:center;padding:5px 2px"><input type="checkbox" data-id="'+e.id+'" '+(e.baja?'checked ':'')+'> '+esc(nom(e))+'</label>'}).join('')+'</div><div class="row"><button class="btn" onclick="cierra(\'mNoA\')">Cancelar</button><button class="btn p" onclick="naAplica(\''+g.replace(/'/g,"\\'")+'\')">Aplicar</button></div></div>';
+ m.classList.add('on')}
+function naFiltra(){var q=($('#naQ').value||'').toLowerCase();document.querySelectorAll('#naL .naf').forEach(function(l){l.style.display=!q||l.getAttribute('data-t').indexOf(q)>=0?'flex':'none'})}
+function naAplica(g){var cambios=[];document.querySelectorAll('#naL input[type=checkbox]').forEach(function(c){var id=+c.getAttribute('data-id'),e=est(id);if(e&&!!e.baja!==c.checked)cambios.push([id,c.checked])});
+ if(!cambios.length){cierra('mNoA');return}
+ if(!confirm('Se aplicarán '+cambios.length+' cambio'+(cambios.length===1?'':'s')+' («No asiste» / «Sí asiste») en '+g+'. ¿Continuar?'))return;
+ cambios.forEach(function(x){noAsiste(x[0],x[1],true)});cierra('mNoA');pintaTodo()}
+
+// indicador de «hay más columnas»: sombra al borde y aviso cuando una tabla se sale del ancho
+function marcaMas(){document.querySelectorAll('.tw').forEach(function(w){var der=w.scrollWidth>w.clientWidth+4&&w.scrollLeft+w.clientWidth<w.scrollWidth-4,izq=w.scrollLeft>4;w.classList.toggle('mas-der',!!der);w.classList.toggle('mas-izq',!!izq);
+  var h=w.previousElementSibling;if(!h||!h.classList||!h.classList.contains('hintmas')){h=document.createElement('div');h.className='hintmas';h.textContent='→ Hay más columnas a la derecha: deslice la tabla';w.parentNode.insertBefore(h,w)}
+  h.classList.toggle('on',!!der);if(!w.__mas){w.__mas=1;w.addEventListener('scroll',marcaMas,{passive:true})}})}
+setInterval(function(){try{marcaMas()}catch(e){}},900);window.addEventListener('resize',function(){try{marcaMas()}catch(e){}});

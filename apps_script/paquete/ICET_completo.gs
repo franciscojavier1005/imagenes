@@ -96,7 +96,13 @@ function invalidarCache_(n) {
 }
 /** Se ejecuta sola al editar la hoja a mano: si es una hoja en caché, la borra para que el cambio se vea de inmediato. */
 function onEdit(e) { try { var nom = e && e.range && e.range.getSheet().getName(); if (nom && HOJAS_CACHE[nom]) invalidarCache_(nom); } catch (x) { /* nada */ } }
+/* Lecturas repetidas dentro de UNA solicitud de solo lectura (p. ej. abrir el acta): se leen una vez y se entregan copias. Se activa con VAL_REQ = {}. */
+var VAL_REQ = null;
 function valores_(n) {
+  if (VAL_REQ) { if (!VAL_REQ[n]) VAL_REQ[n] = valoresDirecto_(n); return VAL_REQ[n].map(function (r) { return r.slice(); }); }
+  return valoresDirecto_(n);
+}
+function valoresDirecto_(n) {
   if (HOJAS_CACHE[n] && cacheOk_()) {
     var c = cacheLee_(n); if (c) return c;
     var v = hoja_(n).getDataRange().getValues(); cacheEscribe_(n, v); return v;
@@ -3868,11 +3874,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.24-h';
+var VERSION_SISTEMA = '2026.11.24-i';
 var FECHA_VERSION = '2026-11-24';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.24-i', fecha: '2026-11-24', cambios: [
+    'URGENTE (comisiones): el acta tardaba mucho en cargar (se quedaba en «Cargando el acta…»). Al abrir el grado el servidor releía las mismas hojas decenas de veces (identidades, docentes, claves, directivos). Ahora cada hoja se lee una sola vez por solicitud: de 97 a 28 lecturas en el acta de 9.º con los datos reales. Incluye la corrección de la versión -h.'
+  ] },
   { version: '2026.11.24-h', fecha: '2026-11-24', cambios: [
     'URGENTE (comisiones): corrige una lentitud introducida en las versiones -d a -g: al abrir un acta el servidor leía la hoja de parámetros una vez por cada fila del horario, y el acta podía tardar minutos o no cargar (el avance guardado no se perdía). Ahora la integración de Caminar se calcula una sola vez por solicitud.'
   ] },
@@ -5253,7 +5262,8 @@ function comisionNumeroSugerido_(anio, grado) {
 
 /* ------------------------------ API ------------------------------ */
 /** Lo que necesita la pantalla al abrir: quién es, qué grados hay y las actas del año. */
-function comisionContexto() {
+function comisionContexto() { VAL_REQ = {}; try { return comisionContextoImpl_(); } finally { VAL_REQ = null; } }
+function comisionContextoImpl_() {
   var quien = comisionQuien_(), perm = comisionPermisoNivel_(quien), anio = Number(parametro_('anio_lectivo', String(new Date().getFullYear()))), grados = {};
   datos_('Grupos').forEach(function (g) { var p = partesGrupo_(g.grupo); if (p.grado !== 'N/A' && p.grado !== 'ORI' && p.grado !== 'PTA') grados[comisionGradoActa_(g.grupo, 'Final')] = 1; });
   var lista = comisionActas_().filter(function (a) { return String(a.anio) === String(anio); }).map(function (a) {
@@ -5834,7 +5844,8 @@ function comisionCorreoDe_(nombre) {
   return d && d.correo ? String(d.correo).trim() : '';
 }
 /** Todo lo que la pantalla necesita de UN grado: cursos, directores, áreas y sus docentes, estudiantes y datos de los integrantes. */
-function comisionGradoDatos(p) {
+function comisionGradoDatos(p) { VAL_REQ = {}; try { return comisionGradoDatosImpl_(p); } finally { VAL_REQ = null; } }
+function comisionGradoDatosImpl_(p) {
   var quien = comisionQuien_(); p = p || {};
   var cod = String(p.grado || ''), label = COM_GRADO_LABEL[cod];
   if (!label) throw new Error('Ese grado no existe.');

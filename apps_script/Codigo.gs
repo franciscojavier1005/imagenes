@@ -95,7 +95,13 @@ function invalidarCache_(n) {
 }
 /** Se ejecuta sola al editar la hoja a mano: si es una hoja en caché, la borra para que el cambio se vea de inmediato. */
 function onEdit(e) { try { var nom = e && e.range && e.range.getSheet().getName(); if (nom && HOJAS_CACHE[nom]) invalidarCache_(nom); } catch (x) { /* nada */ } }
+/* Lecturas repetidas dentro de UNA solicitud de solo lectura (p. ej. abrir el acta): se leen una vez y se entregan copias. Se activa con VAL_REQ = {}. */
+var VAL_REQ = null;
 function valores_(n) {
+  if (VAL_REQ) { if (!VAL_REQ[n]) VAL_REQ[n] = valoresDirecto_(n); return VAL_REQ[n].map(function (r) { return r.slice(); }); }
+  return valoresDirecto_(n);
+}
+function valoresDirecto_(n) {
   if (HOJAS_CACHE[n] && cacheOk_()) {
     var c = cacheLee_(n); if (c) return c;
     var v = hoja_(n).getDataRange().getValues(); cacheEscribe_(n, v); return v;

@@ -834,3 +834,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 109 (2026-11-24, versión 2026.11.24-h)
 - Defecto de rendimiento (-d a -g): `comisionUnion_` leía `Parametros` (sin caché) en cada fila de Horario y en cada acta → acta de 9.º no cargaba. Corregido con memo por solicitud (`COM_UNION_RES`, `COM_UNION_CFG`, `comisionUnionReset_`). Prueba: máx. 6 lecturas de parámetros por apertura. Verificado en el libro real: acta 9.º (Villota, Final) con 14 secciones intactas; acta heredada «CS2» (Preciado, 1 sección) se normaliza al mismo grado 09 y `comisionAbrir` elige la que más secciones tiene.
+
+## Ampliación 110 (2026-11-24, versión 2026.11.24-i)
+- Carga lenta del acta: `valores_` admite caché por solicitud (`VAL_REQ`), activada en `comisionContexto` y `comisionGradoDatos` (solo lectura). Medido con el libro real descargado (arnés `integR.js`, fuera del repo): `comisionGradoDatos` 97→28 lecturas de hoja. La captura del usuario mostró pantalla y servidor en -g (aún sin la corrección -h).

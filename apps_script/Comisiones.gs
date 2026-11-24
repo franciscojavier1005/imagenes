@@ -284,7 +284,8 @@ function comisionNumeroSugerido_(anio, grado) {
 
 /* ------------------------------ API ------------------------------ */
 /** Lo que necesita la pantalla al abrir: quién es, qué grados hay y las actas del año. */
-function comisionContexto() {
+function comisionContexto() { VAL_REQ = {}; try { return comisionContextoImpl_(); } finally { VAL_REQ = null; } }
+function comisionContextoImpl_() {
   var quien = comisionQuien_(), perm = comisionPermisoNivel_(quien), anio = Number(parametro_('anio_lectivo', String(new Date().getFullYear()))), grados = {};
   datos_('Grupos').forEach(function (g) { var p = partesGrupo_(g.grupo); if (p.grado !== 'N/A' && p.grado !== 'ORI' && p.grado !== 'PTA') grados[comisionGradoActa_(g.grupo, 'Final')] = 1; });
   var lista = comisionActas_().filter(function (a) { return String(a.anio) === String(anio); }).map(function (a) {
@@ -865,7 +866,8 @@ function comisionCorreoDe_(nombre) {
   return d && d.correo ? String(d.correo).trim() : '';
 }
 /** Todo lo que la pantalla necesita de UN grado: cursos, directores, áreas y sus docentes, estudiantes y datos de los integrantes. */
-function comisionGradoDatos(p) {
+function comisionGradoDatos(p) { VAL_REQ = {}; try { return comisionGradoDatosImpl_(p); } finally { VAL_REQ = null; } }
+function comisionGradoDatosImpl_(p) {
   var quien = comisionQuien_(); p = p || {};
   var cod = String(p.grado || ''), label = COM_GRADO_LABEL[cod];
   if (!label) throw new Error('Ese grado no existe.');

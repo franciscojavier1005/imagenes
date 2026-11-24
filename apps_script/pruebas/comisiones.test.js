@@ -155,6 +155,22 @@ ok(run("comisionMailPersonal_('juan@icet.edu.co')")===''&&run("comisionMailPerso
     const dir=run("trasladoSolicitar({fila:"+fT+",doc:'777001',nombre:'TRASLADO UNO ANA',hacia:'0801',just:''})"); ok(dir.estado==='APLICADO'&&String(hojas.Estudiantes.v[fT-1][0])==='0801','coordinación traslada sin autorización ni justificación obligatoria');
     ok(hojas.Bitacora_Cambios.v.some(r=>/Traslado de estudiante/.test(String(r[2]))),'queda registro en la bitácora');
     hojas.Estudiantes.v.pop(); hojas.Grupos.v.pop(); hojas.Estudiantes.v[0]=hdr0; }
+  { yo('coord@x.com'); ok(run("comisionModoLeer().modo")==='UNO','por defecto trabaja una sola persona a la vez');
+    yo('dora@x.com'); ok(falla("comisionModoGuardar({modo:'EQUIPO'})")!==null,'un docente no cambia el modo de trabajo');
+    yo('coord@x.com'); run("comisionModoGuardar({modo:'EQUIPO'})"); ok(run("comisionContexto().modo")==='EQUIPO','coordinación activa el trabajo en equipo');
+    hojas.Horario.v.push(['Dora Mate','LUNES',4,'0801','MAT'],['Dora Mate','LUNES',5,'0802','MAT']);
+    const aC=run("comisionAlcance_({rol:'docente',nombre:'Carla Director'},'08','Primero')"), aD=run("comisionAlcance_({rol:'docente',nombre:'Dora Mate'},'08','Primero')"), aA=run("comisionAlcance_({rol:'docente',nombre:'Ana Director'},'08','Primero')");
+    ok(!aC.todo&&aC.cursos.join()==='0802'&&aC.areas.indexOf('Matemáticas')>=0,'en equipo: la directora del curso 0802 solo ve su curso y las áreas que dicta');
+    ok(aD.cursos.length===0&&aD.areas.indexOf('Matemáticas')>=0&&aD.cursosEst.length===2,'en equipo: la docente de área solo tiene su área (no dirige curso)');
+    ok(aA.cursos.join()==='0801'&&aA.areas.length===0,'en equipo: quien dirige un curso pero no dicta en el grado solo tiene su curso');
+    const sec=(q,sc)=>run("comisionPermisoSeccion_("+JSON.stringify(q)+",comisionAlcance_("+JSON.stringify(q)+",'08','Primero'),'"+sc+"',{}, {responsable:'Otra Persona'})");
+    const Q=(n)=>({rol:'docente',nombre:n,coord:false});
+    ok(sec(Q('Carla Director'),'matricula:0802')===null,'la directora escribe la matrícula de su curso aunque otra persona tenga el turno');
+    ok(sec(Q('Carla Director'),'matricula:0801')!==null,'la directora no escribe la matrícula de otro curso');
+    ok(sec(Q('Dora Mate'),'areas:Matemáticas')===null&&sec(Q('Dora Mate'),'areas:Inglés')!==null,'la docente de área escribe solo su área');
+    ok(sec(Q('Dora Mate'),'matricula:0801')!==null,'la docente de área no escribe la matrícula');
+    ok(sec(Q('Ana Director'),'areas:Matemáticas')!==null&&sec(Q('Ana Director'),'matricula:0801')===null,'quien solo dirige un curso trabaja su curso, no las áreas');
+    hojas.Horario.v.length-=2; run("comisionModoGuardar({modo:'UNO'})"); }
   hojas.Grupos.v.length-=4; hojas.Estudiantes.v.length-=3; }
 // ---- historial: versiones anteriores y cambios en hojas, con retroceso ----
 yo('coord@x.com');

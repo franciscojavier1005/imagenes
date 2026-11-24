@@ -244,17 +244,26 @@ function revisaSeguimiento(avisar){
   }).withFailureHandler(function(){}).comisionSeguimiento();
 }
 function iniciaSeguimiento(){ if(SEG_T) return; revisaSeguimiento(false); SEG_T=setInterval(function(){ revisaSeguimiento(true); },120000); }
+var SEG_ORD='fecha';
+/* Destacadas: las 4 con cambios más recientes y las que ya llevan un avance importante (≥ 40 %); las demás van en una tabla compacta. */
+function segGrupos(L){ var o=L.slice().sort(function(x,y){return String(y.ultima&&y.ultima.fecha||'').localeCompare(String(x.ultima&&x.ultima.fecha||''));}), dest=[], resto=[];
+  o.forEach(function(a,i){ if((i<4||a.porcentaje>=40)&&dest.length<10) dest.push(a); else resto.push(a); }); return {dest:dest,resto:resto}; }
+function segTabla(R){ if(!R.length) return '';
+  R=R.slice().sort(function(x,y){ return SEG_ORD==='avance' ? (y.porcentaje-x.porcentaje) : String(y.ultima&&y.ultima.fecha||'').localeCompare(String(x.ultima&&x.ultima.fecha||'')); });
+  return '<div class="caja"><b>Las demás comisiones ('+R.length+')</b> <span style="float:right"><button class="btn" onclick="SEG_ORD=\'fecha\';abrirSeguimiento()">Por fecha</button> <button class="btn" onclick="SEG_ORD=\'avance\';abrirSeguimiento()">Por avance</button></span>'+
+   '<div style="overflow:auto;margin-top:6px"><table style="border-collapse:collapse;width:100%;font-size:13px"><tr style="background:#eef2f9;text-align:left"><th style="padding:5px">Grado · período</th><th>Avance</th><th>Responsable</th><th>Último cambio</th><th>Estado</th></tr>'+
+   R.map(function(a){ return '<tr style="border-bottom:1px solid #e5e8ee"><td style="padding:5px"><b>'+esc(a.label)+'</b> · '+esc(a.periodo)+'</td><td><div style="display:inline-block;width:70px;height:8px;background:#e5e8ee;border-radius:5px;vertical-align:middle"><div style="height:100%;width:'+a.porcentaje+'%;background:#3b82f6;border-radius:5px"></div></div> '+a.porcentaje+' %</td><td>'+esc(a.responsable||'—')+'</td><td>'+esc((a.ultima&&a.ultima.fecha)||'—')+'</td><td>'+(a.estado==='CERRADA'?'cerrada':'abierta')+'</td></tr>'; }).join('')+'</table></div></div>'; }
 function abrirSeguimiento(){
   el('saludo').textContent='Seguimiento de las comisiones';
   el('botones').innerHTML='<div class="espera">Cargando…</div>';
   srv().withSuccessHandler(function(L){
     L=L||[]; var v=segVistas(); L.forEach(function(a){ v[a.id]=String(a.ultima&&a.ultima.fecha||''); }); segGuarda(v);
     el('botones').innerHTML='<div class="caja"><button class="btn" onclick="iniciar()">Volver al menú</button> <button class="btn" onclick="abrirSeguimiento()">Actualizar</button> <button class="btn" onclick="pedirNotif()">Avisos en el navegador</button><div class="msg" style="color:#555">Se actualiza solo cada 2 minutos mientras esté en la aplicación. Avisa cada vez que alguien avanza y, cada media hora, un resumen.</div></div>'+
-     (L.length?L.map(function(a){return '<div class="caja"><b>'+esc(a.label)+' · '+esc(a.periodo)+'</b> <span style="float:right"><b>'+a.porcentaje+' %</b> '+(a.estado==='CERRADA'?'· cerrada':'')+'</span>'+
+     (L.length?segGrupos(L).dest.map(function(a){return '<div class="caja"><b>'+esc(a.label)+' · '+esc(a.periodo)+'</b> <span style="float:right"><b>'+a.porcentaje+' %</b> '+(a.estado==='CERRADA'?'· cerrada':'')+'</span>'+
        '<div style="height:10px;background:#e5e8ee;border-radius:6px;margin:6px 0"><div style="height:100%;width:'+a.porcentaje+'%;background:'+(a.estado==='CERRADA'?'#2f8f5b':'#3b82f6')+';border-radius:6px"></div></div>'+
        '<small>Responsable: '+esc(a.responsable||'—')+' · Último cambio: '+esc(a.ultima.por||'—')+' '+esc(a.ultima.fecha||'')+' · Asistentes: '+a.asistentes+' · Declaraciones: '+a.declaraciones+' · Firmas: '+a.firmas+'</small>'+
        '<div style="margin-top:6px"><b>Redactando:</b> '+((a.redactando||[]).length?(a.redactando||[]).map(function(r){return '<span style="font-size:12px;padding:2px 8px;border-radius:10px;background:'+(r.activo?'#dff3e7':'#eceff4')+'">'+(r.activo?'🟢 ':'⚪ ')+esc(r.n)+(r.rol&&r.rol!=='Docente'?' <b>('+esc(r.rol)+')</b>':'')+' · '+esc(r.lugar)+(r.detalle?' ('+esc(r.detalle)+')':'')+' · desde '+esc(r.desde)+' · visto '+esc(r.visto)+'</span> ';}).join(''):'<small>nadie hoy</small>')+'</div>'+
-       '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">'+a.componentes.map(function(c){var ok=c.total&&c.hecho>=c.total;return '<span style="font-size:11.5px;padding:2px 8px;border-radius:10px;background:'+(ok?'#dff3e7':c.hecho?'#fff3cf':'#f1f3f7')+'">'+(ok?'✔ ':'')+esc(c.nombre)+' '+c.hecho+'/'+c.total+'</span>';}).join('')+'</div></div>';}).join(''):'<div class="caja">Todavía no hay comisiones abiertas este año.</div>');
+       '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">'+a.componentes.map(function(c){var ok=c.total&&c.hecho>=c.total;return '<span style="font-size:11.5px;padding:2px 8px;border-radius:10px;background:'+(ok?'#dff3e7':c.hecho?'#fff3cf':'#f1f3f7')+'">'+(ok?'✔ ':'')+esc(c.nombre)+' '+c.hecho+'/'+c.total+'</span>';}).join('')+'</div></div>';}).join('')+segTabla(segGrupos(L).resto):'<div class="caja">Todavía no hay comisiones abiertas este año.</div>');
   }).withFailureHandler(function(e){ el('botones').innerHTML='<div class="msg">'+esc(String(e&&e.message||e).replace(/^Error: /,''))+'</div><button class="btn" onclick="iniciar()">Volver</button>'; }).comisionSeguimiento();
 }
 function pedirNotif(){ try{ Notification.requestPermission().then(function(p){ alert(p==='granted'?'Listo: recibirá avisos del navegador cuando tenga otra pestaña abierta.':'El navegador no permitió los avisos.'); }); }catch(e){ alert('Este navegador no permite avisos.'); } }

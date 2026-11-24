@@ -2,7 +2,7 @@
 
 Autor y dueño: Francisco Javier Cortés Cabezas (coordinador académico, I.E. ICET, Tumaco). Responder en español, corto, sin bloques de código en el chat; los archivos se entregan con SendUserFile. Rama: `claude/teacher-attendance-system-fso0tf` (sin PR salvo que lo pida). No escribir "OPS". No versionar datos reales (libro xlsx, plantilla con datos).
 
-**Versión vigente: 2026.11.25-a** (solo se cambia en `Leeme.gs`: las pantallas la reciben por `<?= VERSION ?>`; ya no hay que hacer `sed` en los .html) (ver `VERSION_SISTEMA` en `apps_script/Leeme.gs`).
+**Versión vigente: 2026.11.25-b** (solo se cambia en `Leeme.gs`: las pantallas la reciben por `<?= VERSION ?>`; ya no hay que hacer `sed` en los .html) (ver `VERSION_SISTEMA` en `apps_script/Leeme.gs`).
 
 ## Qué es
 Libro de Google Sheets + Apps Script: (1) asistencia docente (ronda, novedades, reuniones, paneles) y (2) **Comisiones de evaluación y promoción** (acta por grado y período, varios docentes a la vez, versionado optimista, turno de edición, historial 8 días, borradores locales).
@@ -30,7 +30,7 @@ Libro de Google Sheets + Apps Script: (1) asistencia docente (ronda, novedades, 
 
 ## Solicitud del usuario del 2026-11-25 (archivo CLAUDE_SOLICITUD_APP_CONTROL.txt) — lo HECHO y lo PENDIENTE
 Hecho: nombre «Control de Procesos ICET» + versión visible en el menú; versión única en `Leeme.gs`; traslado individual con autorización/log/aviso; colores de botones; docentes no ven el selector de rol (el servidor decide `coord`).
-Pendiente (priorizar con el usuario): (1) traslados/modificaciones MASIVOS de estudiantes y docentes en el menú de directivos; (2) importar/actualizar estudiantes y docentes desde otros libros; (3) un solo editor por comisión por defecto + opción de coordinación para trabajo simultáneo limitado al rol/áreas (director de grupo solo con sus áreas; directores que no dictan el grado); (4) seguimiento de comisiones: destacar las últimas y las avanzadas, el resto en tabla por fecha y progreso; (5) respaldo compacto en Drive y carpeta local al ingresar coord/desarrollador, y subir manuales PDF a Drive + descargarlos desde la app (aquí NO se escribe en Drive/OneDrive/C:\; usar el zip `archivar_versiones.py`); (6) compatibilidad MacBook M1/iOS «no los abre» (necesita reproducir: pedir captura/mensaje de error); (7) más velocidad de carga/guardado; (8) auditoría de programador al final.
+Hecho 2026-11-25 (-b): modo de trabajo `comisiones_modo` UNO/EQUIPO (alcance por docente en `comisionAlcance_`; botón de coordinación) y seguimiento con destacadas + tabla. Pendiente (priorizar con el usuario): (1) traslados/modificaciones MASIVOS de estudiantes y docentes en el menú de directivos; (2) importar/actualizar estudiantes y docentes desde otros libros; (5) respaldo compacto en Drive y carpeta local al ingresar coord/desarrollador, y subir manuales PDF a Drive + descargarlos desde la app (aquí NO se escribe en Drive/OneDrive/C:\; usar el zip `archivar_versiones.py`); (6) compatibilidad MacBook M1/iOS «no los abre» (necesita reproducir: pedir captura/mensaje de error); (7) más velocidad de carga/guardado; (8) auditoría de programador al final.
 
 ## Pendientes conocidos
 - Mensaje cortado del usuario: «necesitamos para los reconocimientos poder elegir…» (preguntar qué).

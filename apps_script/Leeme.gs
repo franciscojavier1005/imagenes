@@ -5,11 +5,15 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-a';
+var VERSION_SISTEMA = '2026.11.25-b';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-b', fecha: '2026-11-25', cambios: [
+    'Comisiones, modo de trabajo: por defecto una sola persona edita a la vez en cada acta. Coordinación o el desarrollador pueden activar el TRABAJO EN EQUIPO (botón bajo el selector de período): cada docente edita solo lo suyo; el director de grupo, los datos y confirmaciones de su curso; el docente de área, sus áreas; y quien dirige un curso pero no dicta en el grado, solo su curso. Lo demás lo ve. Los datos generales y la asistencia siguen con quien tiene el turno. El servidor verifica el alcance de cada guardado.',
+    'Seguimiento de las comisiones (menú de directivos): arriba las 4 con cambios más recientes y las que ya llevan un avance importante (40 % o más); las demás en una tabla compacta por fecha o por avance.'
+  ] },
   { version: '2026.11.25-a', fecha: '2026-11-25', cambios: [
     'La aplicación pasa a llamarse «Control de Procesos ICET» y el menú de inicio muestra la versión en grande. DESDE AHORA LA VERSIÓN SE CAMBIA SOLO EN Leeme.gs: las pantallas la reciben del código (ya no hay que tocar los .html para subir de versión; solo cambian los .html cuando cambia su contenido).',
     'Comisiones, traslados: en los listados, «🔀 Trasladar estudiante…» busca a un estudiante de cualquier curso o grado y lo pasa al curso elegido (cambia grupo y curso en la hoja Estudiantes y queda en Bitacora_Cambios). Coordinación o el desarrollador lo aplican de inmediato; los demás envían una solicitud con justificación (mín. 10 caracteres) que queda en la hoja Traslados_Estudiantes y se avisa por correo a coordinación; «📋 Traslados» muestra el estado y coordinación aprueba o rechaza.',

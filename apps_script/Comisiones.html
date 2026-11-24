@@ -1580,18 +1580,21 @@ function particiona(){
 function esResp(){return !S.resp||S.resp===USR}
 function esEditor(){return S.int.some(function(x){return x.n===USR&&(x.roles||[]).indexOf('Editor del acta')>=0})}
 function puedeGeneral(){return turnoLibre()}
+var MODO='UNO',ALC=null;
+function enEquipo(){return MODO==='EQUIPO'&&CTXR&&CTXR.quien&&CTXR.quien.rol==='docente'&&!esTotal()&&ALC&&!ALC.todo}
 function puedeEscribir(sec){
  if(S&&S.cerrada)return false;
  if(SECG.indexOf(sec)>=0)return true;
- return turnoLibre();
- if(PERFIL!=='d')return true;
- if(SECR.indexOf(sec)>=0)return puedeGeneral();
+ if(!enEquipo())return turnoLibre();
+ // modo EQUIPO: cada docente trabaja solo su alcance (el servidor lo vuelve a verificar)
+ if(sinEdicion())return false;
+ if(SECR.indexOf(sec)>=0)return turnoLibre();
  if(esEditor())return true;
- var t=sec.split(':')[0],cl=sec.slice(t.length+1),P=perm()||{cursos:[],areas:[]};
- if(SECG.indexOf(sec)>=0)return true;
- if(['matricula','estudiantes','reconocimientos','promocion','obs'].indexOf(t)>=0){return P.cursos.some(function(c){return kc(c)===cl})}
- if(t==='areas'){if(cl==='propositos')return P.cursos.length>0;return P.areas.indexOf(cl)>=0}
- if(t==='recomendaciones'){var real=(S.recKeys||[]).filter(function(a){return a.slice(0,70)===cl})[0]||cl;return S.niv==='pre'?P.cursos.length>0:P.areas.indexOf(real)>=0}
+ var t=sec.split(':')[0],cl=sec.slice(t.length+1),A=ALC,estC=(A.cursosEst||[]).concat(A.cursos||[]);
+ if(['matricula','reconocimientos','promocion','obs'].indexOf(t)>=0)return A.cursos.indexOf(cl)>=0;
+ if(t==='estudiantes')return estC.indexOf(cl)>=0;
+ if(t==='areas'){if(cl==='propositos')return estC.length>0;return A.multiareas||A.areas.indexOf(cl)>=0}
+ if(t==='recomendaciones'){var real=(S.recKeys||[]).filter(function(a){return a.slice(0,70)===cl})[0]||cl;return S.niv==='pre'?estC.length>0:(A.multiareas||A.areas.indexOf(real)>=0)}
  return false}
 
 /* ---------- secciones -> el acta ---------- */
@@ -1697,7 +1700,7 @@ function abreActa(){
  var SNAP=false;
  API('comisionGradoDatos',{grado:code,periodo:per}).then(function(d){return API('comisionAbrir',{periodo:per,grado:code}).then(function(r){try{guardaSnap(code,per,d,r)}catch(e){}return [d,r]})})
  .catch(function(e){var sn=leeSnap(code,per);if(sn){SNAP=true;return [sn.d,sn.r]}throw e})
- .then(function(dr){var r=dr[1];construyeGrado(dr[0]);
+ .then(function(dr){var r=dr[1];MODO=r.modo||'UNO';ALC=r.alcance||null;construyeGrado(dr[0]);
   ACTA=r.acta;init(GK=Object.keys(G)[0]);$('#grado').value=GK;$('#periodo').value=per;$('#acta').value=ACTA.acta_no;
   Object.keys(r.secciones).forEach(function(k){SYNC.ver[k]=r.secciones[k].version});
   aplicaSecciones(r.secciones);S.resp=ACTA.responsable||'';SYNC.resp=S.resp;
@@ -1727,11 +1730,11 @@ function REAL_BOOT(){
  document.body.classList.add('jsok');
  if(!tokenGuardado()){irAlMenu();return}
  API('comisionContexto').then(function(c){
-  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='2026.11.24-k'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión <?= VERSION ?> y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.24-k · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
+  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='2026.11.25-a'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión <?= VERSION ?> y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla 2026.11.25-a · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
   GRADOS_REAL=c.grados.map(function(code){return COM_LABEL[code]}).filter(Boolean);LABEL_DE={};c.grados.forEach(function(code){LABEL_DE[COM_LABEL[code]]=code});
   var bh=$('#btnHist');if(bh&&(c.quien.rol!=='docente'||c.quien.total))bh.style.display='';var be=$('#btnEj');if(be&&c.quien.dev)be.style.display='';var p=$('#perfil');if(p){p.value=PERFIL;if(!c.quien.dev){var pf=document.querySelector('.perf');if(pf)pf.style.display='none'}}
   $('#grado').onchange=abreActa;$('#periodo').onchange=abreActa;
-  cargaUnion();
+  cargaUnion();cargaModo();
   pintaGrados();try{setPerfil(PERFIL)}catch(e){}
   var pos0=leePos();if(pos0&&pos0.grado&&GRADOS_REAL.indexOf(pos0.grado)>=0&&pos0.periodo){$('#grado').value=pos0.grado;$('#periodo').value=pos0.periodo;POS_PEND=pos0;abreActa()}
   else if(GRADOS_REAL.length===1){$('#grado').value=GRADOS_REAL[0];abreActa()}
@@ -1790,6 +1793,7 @@ function pintaTurno(){var el=$('#turno');if(!el||!S||!ACTA)return;var h;
  else if(!S.resp){h='<div class="ojo" style="margin:0"><b>Nadie tiene la edición.</b> <button class="btn s p" onclick="tomarTurno()">Tomar la edición</button></div>'}
  else if(PERFIL!=='d'){h='<div class="ojo" style="margin:0"><b>Usted tiene acceso total</b> (coordinación). La edición del registro la tiene '+esc(S.resp)+'; puede trabajar igualmente. <button class="btn s" onclick="tomarTurno()">Quedarme con la edición</button></div>'}
  else{var act=editorActivo();h='<div class="mal" style="margin:0"><b>Solo lectura:</b> '+esc(S.resp)+' tiene la edición ahora (una sola persona a la vez). Usted puede declarar, firmar y completar datos faltantes. '+(act?'<button class="btn s" disabled title="Disponible si '+esc(S.resp)+' la suelta o lleva 15 minutos sin actividad">Tomar la edición</button><small class="g"> disponible cuando la suelte o pasen 15 min sin actividad</small>':'<button class="btn s p" onclick="tomarTurno()">Tomar la edición</button> <small class="g">(sin actividad reciente)</small>')+'</div>'}
+ if(enEquipo()&&!S.cerrada){h='<div class="ojo" style="margin:0"><b>Trabajo en equipo:</b> cada docente edita solo lo suyo. '+(ALC.cursos.length?'<b>Director/a del curso</b> '+esc(ALC.cursos.join(', '))+'. ':'')+(ALC.areas.length?'<b>Sus áreas:</b> '+esc(ALC.areas.join(', '))+'. ':'')+(ALC.multiareas?'Todas las áreas de su grupo. ':'')+'Lo demás lo puede ver. Los datos generales y la asistencia los edita quien tiene el turno ('+esc(S.resp||'nadie')+').</div>'}
  if(h!==TURNO_HTML){TURNO_HTML=h;el.innerHTML=h}}
 function aplicaLectura(){var on=!!(S&&ACTA&&!S.cerrada&&!turnoLibre());document.body.classList.toggle('lectura',on)}
 
@@ -2036,5 +2040,13 @@ function abreTraslados(){var m=$('#mTrs');if(!m){m=document.createElement('div')
  m.innerHTML='<div class="box"><h3>Traslados de estudiantes</h3><div id="trsL"><small class="g">Cargando…</small></div><div class="row"><button class="btn" onclick="cierra(\'mTrs\')">Cerrar</button></div></div>';m.classList.add('on');
  API('trasladoListar').then(function(r){$('#trsL').innerHTML=r.traslados.length?'<div class="tw"><table class="plain"><tr><th>Estudiante</th><th>De → a</th><th>Quién · por qué</th><th>Estado</th><th></th></tr>'+r.traslados.map(function(x){return '<tr><td>'+esc(x.estudiante)+'</td><td>'+esc(x.desde)+' → '+esc(x.hacia)+'</td><td>'+esc(x.solicitante)+'<br><small class="g">'+esc(x.justificacion)+'</small></td><td><span class="chip '+(x.estado==='APLICADO'?'v':x.estado==='PENDIENTE'?'a':'f')+'">'+esc(x.estado)+'</span></td><td>'+(r.coord&&x.estado==='PENDIENTE'?'<button class="btn s g" onclick="trResuelve(\''+x.id+'\',true)">Aprobar</button> <button class="btn s r" onclick="trResuelve(\''+x.id+'\',false)">Rechazar</button>':'')+'</td></tr>'}).join('')+'</table></div>':'<small class="g">No hay traslados registrados.</small>'}).catch(function(e){$('#trsL').innerHTML='<small>'+esc(msgE(e))+'</small>'})}
 function trResuelve(id,ap){var n=ap?'':(prompt('Motivo del rechazo (opcional):')||'');API('trasladoResolver',{id:id,aprobar:ap,nota:n}).then(function(){abreTraslados();if(ap&&$('#grado').value)abreActa()}).catch(function(e){alert(msgE(e))})}
+
+
+// ===== modo de trabajo de las actas (coordinación / desarrollador) =====
+function cargaModo(){API('comisionModoLeer').then(function(r){MODO=r.modo;if(CTXR)CTXR.modo=r.modo;pintaUnion()}).catch(function(){})}
+var _pu_m=pintaUnion;pintaUnion=function(){_pu_m();try{var box=$('#unionBox');if(!box)return;var coord=CTXR&&CTXR.quien&&(CTXR.quien.coord||CTXR.quien.dev);
+  box.insertAdjacentHTML('beforeend','<div style="margin-top:6px"><b>Modo de trabajo:</b> '+(MODO==='EQUIPO'?'en <b>equipo</b> (cada docente edita solo su curso o su área)':'<b>una sola persona</b> edita a la vez')+(coord?' <button class="btn s" onclick="cambiaModo()">'+(MODO==='EQUIPO'?'Volver a una sola persona':'Permitir trabajo en equipo')+'</button>':'')+'</div>')}catch(e){}};
+function cambiaModo(){var n=MODO==='EQUIPO'?'UNO':'EQUIPO';if(!confirm(n==='EQUIPO'?'¿Permitir que varios docentes trabajen a la vez? Cada uno editará solo su curso (director de grupo) o sus áreas. Se aplica a todas las actas.':'¿Volver a que una sola persona edite a la vez en cada acta?'))return;
+ API('comisionModoGuardar',{modo:n}).then(function(r){MODO=r.modo;pintaUnion();alert('Listo: '+(r.modo==='EQUIPO'?'trabajo en equipo activado. Los docentes deben recargar la pantalla.':'una sola persona edita a la vez. Los docentes deben recargar la pantalla.'))}).catch(function(e){alert(msgE(e))})}
 
 </script></body></html>

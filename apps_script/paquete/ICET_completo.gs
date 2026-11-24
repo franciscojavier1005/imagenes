@@ -3876,11 +3876,15 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-a';
+var VERSION_SISTEMA = '2026.11.25-b';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-b', fecha: '2026-11-25', cambios: [
+    'Comisiones, modo de trabajo: por defecto una sola persona edita a la vez en cada acta. Coordinación o el desarrollador pueden activar el TRABAJO EN EQUIPO (botón bajo el selector de período): cada docente edita solo lo suyo; el director de grupo, los datos y confirmaciones de su curso; el docente de área, sus áreas; y quien dirige un curso pero no dicta en el grado, solo su curso. Lo demás lo ve. Los datos generales y la asistencia siguen con quien tiene el turno. El servidor verifica el alcance de cada guardado.',
+    'Seguimiento de las comisiones (menú de directivos): arriba las 4 con cambios más recientes y las que ya llevan un avance importante (40 % o más); las demás en una tabla compacta por fecha o por avance.'
+  ] },
   { version: '2026.11.25-a', fecha: '2026-11-25', cambios: [
     'La aplicación pasa a llamarse «Control de Procesos ICET» y el menú de inicio muestra la versión en grande. DESDE AHORA LA VERSIÓN SE CAMBIA SOLO EN Leeme.gs: las pantallas la reciben del código (ya no hay que tocar los .html para subir de versión; solo cambian los .html cuando cambia su contenido).',
     'Comisiones, traslados: en los listados, «🔀 Trasladar estudiante…» busca a un estudiante de cualquier curso o grado y lo pasa al curso elegido (cambia grupo y curso en la hoja Estudiantes y queda en Bitacora_Cambios). Coordinación o el desarrollador lo aplican de inmediato; los demás envían una solicitud con justificación (mín. 10 caracteres) que queda en la hoja Traslados_Estudiantes y se avisa por correo a coordinación; «📋 Traslados» muestra el estado y coordinación aprueba o rechaza.',
@@ -5196,10 +5200,32 @@ function comisionTurno_(quien, acta) {
   return 'Ahora tiene la edición ' + r + ' (solo una persona edita a la vez). Pídale que la suelte o la pase, o use «Tomar la edición» si lleva más de ' + COM_INACTIVO_MIN + ' minutos sin actividad.';
 }
 function comisionSinAlcance_(al) { return !al.todo && !al.cursos.length && !al.areas.length && !al.multiareas && !al.acompana; }
-function comisionAlcance_(quien, grado) {
-  /* Decisión del coordinador (2026-11-23): todo el personal (docentes, orientación, tutoría PTAFI y directivos) puede trabajar el acta completa,
-     para que una sola persona haga el ejercicio. Las firmas, declaraciones y presencia siguen siendo de cada quien. */
-  return { todo: true, cursos: [], areas: [], multiareas: true };
+/* Modo de trabajo de las actas (lo fija coordinación o el desarrollador): UNO = una sola persona edita a la vez (por defecto);
+   EQUIPO = cada docente trabaja SOLO su alcance: el director de grupo, los datos de su curso; el docente de área, su área; y quien dirige un curso
+   pero no dicta en el grado, solo su curso. Parámetro comisiones_modo. */
+var COM_MODO = null;
+function comisionModo_() { if (COM_MODO) return COM_MODO; COM_MODO = parametro_('comisiones_modo', 'UNO') === 'EQUIPO' ? 'EQUIPO' : 'UNO'; return COM_MODO; }
+function comisionModoLeer() { comisionQuien_(); return { modo: comisionModo_() }; }
+function comisionModoGuardar(p) {
+  var quien = comisionQuien_(); if (!quien.coord) throw new Error('Solo coordinación académica o el desarrollador cambian el modo de trabajo.');
+  var m = (p || {}).modo === 'EQUIPO' ? 'EQUIPO' : 'UNO'; guardarParametro_('comisiones_modo', m); COM_MODO = null;
+  comisionLog_('', quien.nombre, 'MODO_TRABAJO', m); return { modo: m };
+}
+function comisionAlcance_(quien, grado, periodo) {
+  var todo = { todo: true, cursos: [], areas: [], multiareas: true };
+  if (quien.rol !== 'docente' || quien.total || comisionModo_() !== 'EQUIPO') return todo;
+  var N = comisionSinTildes_(quien.nombre), grupos = {};
+  datos_('Grupos').forEach(function (g) { if (comisionGradoActa_(g.grupo, periodo) === String(grado)) grupos[trasladoCodigo_(g.grupo)] = 1; });
+  var cursos = [], est = [], areas = {}, multi = false;
+  datos_('Direccion_Grupo').forEach(function (d) { var c = trasladoCodigo_(d.grupo); if (grupos[c] && [d.docente_1, d.docente_2].some(function (n) { return n && comisionSinTildes_(n) === N; })) cursos.push(c); });
+  comisionHorarioConAlternan_().forEach(function (h) {
+    var c = trasladoCodigo_(h.grupo); if (!h.docente || !grupos[c] || comisionSinTildes_(h.docente) !== N) return;
+    if (est.indexOf(c) < 0) est.push(c);
+    var ar = String(h.area || '').trim(); if (/MULTIPLES/i.test(comisionSinTildes_(ar))) { multi = true; return; }
+    (COM_COD_AREA[comisionSinTildes_(ar)] || []).forEach(function (x) { areas[x] = 1; });
+  });
+  cursos.forEach(function (c) { if (est.indexOf(c) < 0) est.push(c); });
+  return { todo: false, cursos: cursos, cursosEst: est, areas: Object.keys(areas), multiareas: multi, acompana: false };
 }
 /** ¿Puede escribir esta sección? Devuelve null si puede o el motivo si no. */
 function comisionEsEditor_(quien, secciones) {
@@ -5211,13 +5237,16 @@ function comisionPermisoSeccion_(quien, alcance, seccion, secciones, acta) {
   var p = seccion.split(':'), tipo = p[0], clave = p.slice(1).join(':');
   var editor = comisionEsEditor_(quien, secciones);
   if (tipo === 'firmas' || tipo === 'faltantes' || tipo === 'listos' || tipo === 'presencia') return null;
-  var turno = comisionTurno_(quien, acta); if (turno) return turno;   // cada persona pone lo suyo (firma, declaración, revisión) y los datos faltantes
-  if (tipo === 'general' || tipo === 'integrantes' || tipo === 'requisitos') {   // asistencia, etiquetas y datos generales: el responsable del registro, quien tenga la etiqueta «Editor del acta» o coordinación
+  var enEquipo = !alcance.todo && quien.rol === 'docente';   // modo EQUIPO: cada docente trabaja solo su alcance, sin esperar el turno único
+  var general = tipo === 'general' || tipo === 'integrantes' || tipo === 'requisitos';
+  if (enEquipo && !general) { if (!comisionPermisoNivel_(quien).editar) return 'La coordinación no habilitó la edición de las actas para su nivel (solo lectura).'; }
+  else { var turno = comisionTurno_(quien, acta); if (turno) return turno; }   // cada persona pone lo suyo (firma, declaración, revisión) y los datos faltantes
+  if (general) {   // asistencia, etiquetas y datos generales: el responsable del registro, quien tenga la etiqueta «Editor del acta» o coordinación
     var resp = acta && acta.responsable;
     return null;
   }
   if (alcance.todo || editor) { /* coordinación, rectoría y quien tenga la etiqueta «Editor del acta» pueden corregir cualquier curso o área */ } else if (['matricula', 'estudiantes', 'reconocimientos', 'promocion', 'obs'].indexOf(tipo) >= 0) {
-    if (alcance.cursos.indexOf(clave) < 0) return 'Solo el director o directora del curso puede editar esta sección.';
+    if (alcance.cursos.indexOf(clave) < 0 && !(tipo === 'estudiantes' && (alcance.cursosEst || []).indexOf(clave) >= 0)) return 'Solo el director o directora del curso puede editar esta sección' + (tipo === 'estudiantes' ? ' (o quien dicta en él).' : '.');
   } else if (alcance.areas.indexOf(clave) < 0 && !alcance.multiareas && !(clave === 'Convivencia' && alcance.cursos.length)) {
     return 'Solo el docente de esta área puede editarla.';
   }
@@ -5284,9 +5313,9 @@ function comisionContextoImpl_() {
   });
   var visibles = lista, gr = Object.keys(grados).sort();
   if (!quien.coord && quien.rol === 'docente') gr = gr.filter(function (c) { var al = comisionAlcance_(quien, c); return al.cursos.length || al.areas.length || al.multiareas || al.acompana; });
-  if (!quien.coord && quien.rol === 'docente') visibles = lista.filter(function (a) { var al = comisionAlcance_(quien, String(a.grado)); return al.cursos.length || al.areas.length || al.multiareas || al.acompana; });
+  if (!quien.coord && quien.rol === 'docente') visibles = lista.filter(function (a) { var al = comisionAlcance_(quien, String(a.grado), a.periodo); return al.cursos.length || al.areas.length || al.multiareas || al.acompana; });
   if (!perm.ver) return { version: (typeof VERSION_SISTEMA !== 'undefined' ? VERSION_SISTEMA : ''), anio: anio, quien: { nombre: quien.nombre, rol: quien.rol, coord: false, dev: false, ver: false, editar: false }, periodos: PERIODOS_COM, grados: [], actas: [], bloqueado: 'La coordinación no habilitó la consulta de las actas para su nivel.' };
-  return { version: (typeof VERSION_SISTEMA !== 'undefined' ? VERSION_SISTEMA : ''), anio: anio, quien: { total: !!quien.total, ver: true, editar: perm.editar, nombre: quien.nombre, rol: quien.rol, coord: quien.coord, dev: !!(quien.coord && quien.email && editoresLibro_().indexOf(String(quien.email).toLowerCase()) >= 0) }, periodos: PERIODOS_COM, grados: gr, actas: visibles };
+  return { modo: comisionModo_(), version: (typeof VERSION_SISTEMA !== 'undefined' ? VERSION_SISTEMA : ''), anio: anio, quien: { total: !!quien.total, ver: true, editar: perm.editar, nombre: quien.nombre, rol: quien.rol, coord: quien.coord, dev: !!(quien.coord && quien.email && editoresLibro_().indexOf(String(quien.email).toLowerCase()) >= 0) }, periodos: PERIODOS_COM, grados: gr, actas: visibles };
 }
 /** Abre el acta del grado y periodo (la crea si no existe; fecha, hora y grado empiezan en blanco: los llena el equipo). */
 function comisionAbrir(p) {
@@ -5295,7 +5324,7 @@ function comisionAbrir(p) {
   if (PERIODOS_COM.indexOf(p.periodo) < 0) throw new Error('Elija el periodo.');
   var grado = String(p.grado || '');
   if (!datos_('Grupos').some(function (g) { return comisionGradoActa_(g.grupo, p.periodo) === grado; })) throw new Error('Ese grado no existe.');
-  var al = comisionAlcance_(quien, grado);
+  var al = comisionAlcance_(quien, grado, p.periodo);
   if (!comisionPermisoNivel_(quien).ver) throw new Error('La coordinación no habilitó la consulta de las actas para su nivel.');
   if (comisionSinAlcance_(al)) throw new Error('Usted no tiene cursos ni áreas en este grado.');
   var lock = LockService.getScriptLock(); lock.waitLock(15000);
@@ -5314,10 +5343,10 @@ function comisionAbrir(p) {
 }
 function comisionCargar(p) {
   var quien = comisionQuien_(); if (!comisionPermisoNivel_(quien).ver) throw new Error('La coordinación no habilitó la consulta de las actas para su nivel.');
-  var  a = comisionActa_((p || {}).acta), al = comisionAlcance_(quien, String(a.grado));
+  var  a = comisionActa_((p || {}).acta), al = comisionAlcance_(quien, String(a.grado), a.periodo);
   if (comisionSinAlcance_(al)) throw new Error('Usted no tiene cursos ni áreas en este grado.');
   try { comisionUnionRegistrar_(a.periodo, a.grado); } catch (e) { }
-  return { acta: a, alcance: al, quien: { nombre: quien.nombre, rol: quien.rol, coord: quien.coord }, secciones: comisionSecciones_(a.id) };
+  return { modo: comisionModo_(), acta: a, alcance: al, quien: { nombre: quien.nombre, rol: quien.rol, coord: quien.coord }, secciones: comisionSecciones_(a.id) };
 }
 /** Solo lo que cambió desde la versión que ya tiene la pantalla (para refrescar cada pocos segundos sin traer todo). */
 function comisionCambios(p) {
@@ -5333,7 +5362,7 @@ function comisionGuardar(p) {
   try {
     var a = comisionActa_(p.acta);
     if (a.estado !== 'ABIERTA' && !quien.coord) throw new Error('El acta está cerrada (solo lectura). Solo coordinación académica o el desarrollador pueden modificarla.');
-    var al = comisionAlcance_(quien, String(a.grado)), secs = comisionSecciones_(a.id);
+    var al = comisionAlcance_(quien, String(a.grado), a.periodo), secs = comisionSecciones_(a.id);
     var no = comisionPermisoSeccion_(quien, al, String(p.seccion || ''), secs, a);
     if (no) throw new Error(no);
     var dup = comisionDuplicados_(String(p.seccion || ''), p.datos); if (dup) throw new Error(dup);
@@ -5382,8 +5411,9 @@ function comisionConfirmar(p) {
   var lock = LockService.getScriptLock(); lock.waitLock(15000);
   try {
     var a = comisionActa_(p.acta); if (a.estado !== 'ABIERTA') throw new Error('El acta está cerrada.');
-    var turnoE = comisionTurno_(quien, a); if (turnoE) throw new Error(turnoE);
-    var al = comisionAlcance_(quien, String(a.grado)), secs = comisionSecciones_(a.id), clave = 'confirm:' + p.tipo + ':' + curso;
+    var al = comisionAlcance_(quien, String(a.grado), a.periodo);
+    if (al.todo || al.cursos.indexOf(curso) < 0) { var turnoE = comisionTurno_(quien, a); if (turnoE) throw new Error(turnoE); }   // en modo EQUIPO el director confirma su curso sin esperar turno
+    var secs = comisionSecciones_(a.id), clave = 'confirm:' + p.tipo + ':' + curso;
     var ya = secs[clave] && secs[clave].datos || { ok: false, veces: 0 };
     if (p.on) {
       if (!al.todo && al.cursos.indexOf(curso) < 0) throw new Error('Solo el director o directora del curso confirma.');
@@ -5571,7 +5601,7 @@ function comisionBorradorDrive_(a) {
 }
 /** Botón «Guardar borrador en Drive»: cualquier integrante del acta. */
 function comisionBorrador(p) {
-  var quien = comisionQuien_(), a = comisionActa_((p || {}).acta), al = comisionAlcance_(quien, String(a.grado));
+  var quien = comisionQuien_(), a = comisionActa_((p || {}).acta), al = comisionAlcance_(quien, String(a.grado), a.periodo);
   if (comisionSinAlcance_(al)) throw new Error('Usted no tiene cursos ni áreas en este grado.');
   comisionBorradorDrive_(a); comisionLog_(a.id, quien.nombre, 'BORRADOR_DRIVE', '');
   return { ok: true };
@@ -5588,7 +5618,7 @@ function comisionRespaldarActas_() {
  */
 function comisionGuardarPdf(p) {
   var quien = comisionQuien_(); p = p || {};
-  var a = comisionActa_(p.acta), al = comisionAlcance_(quien, String(a.grado));
+  var a = comisionActa_(p.acta), al = comisionAlcance_(quien, String(a.grado), a.periodo);
   if (comisionSinAlcance_(al)) throw new Error('Usted no tiene cursos ni áreas en este grado.');
   var html = String(p.html || ''); if (html.length < 200) throw new Error('El acta está vacía.'); if (html.length > 3000000) throw new Error('El acta es demasiado grande para convertirla.');
   var nombre = 'Acta ' + a.acta_no + ' ' + a.periodo + (a.estado === 'CERRADA' ? ' · cerrada' : ' · borrador') + '.pdf';
@@ -5612,7 +5642,7 @@ function comisionEstudiante(p) {
   try {
     var a = comisionActa_(p.acta); if (a.estado !== 'ABIERTA') throw new Error('El acta está cerrada.');
     var turnoE = comisionTurno_(quien, a); if (turnoE) throw new Error(turnoE);
-    var curso = String(p.curso || ''), al = comisionAlcance_(quien, String(a.grado)), secs = comisionSecciones_(a.id);
+    var curso = String(p.curso || ''), al = comisionAlcance_(quien, String(a.grado), a.periodo), secs = comisionSecciones_(a.id);
     if (!al.todo && al.cursos.indexOf(curso) < 0) throw new Error('Solo el director o directora del curso agrega o retira estudiantes.');
     var conf = secs['confirm:matricula:' + curso] && secs['confirm:matricula:' + curso].datos;
     if (conf && conf.ok && !quien.coord) throw new Error('La matrícula del curso está confirmada y es oficial: pida a coordinación académica que la reabra.');
@@ -5638,7 +5668,7 @@ function comisionEstudiante(p) {
 /** Evidencia opcional (PIAR, formato de DUA, compromiso firmado): imagen o PDF a Drive «App Asistencia / Soportes / Comisiones / año / grado / acta». */
 function comisionSubirSoporte(p) {
   var quien = comisionQuien_(); p = p || {};
-  var a = comisionActa_(p.acta), al = comisionAlcance_(quien, String(a.grado));
+  var a = comisionActa_(p.acta), al = comisionAlcance_(quien, String(a.grado), a.periodo);
   var turnoS = comisionTurno_(quien, a); if (turnoS) throw new Error(turnoS);
   if (!al.todo && !al.cursos.length) throw new Error('Solo el director o directora de grupo carga evidencias.');
   var ext = MIME_COM[p.mime]; if (!ext) throw new Error('Formato no permitido. Use foto (JPG, PNG) o PDF.');
@@ -5862,7 +5892,7 @@ function comisionGradoDatosImpl_(p) {
   var quien = comisionQuien_(); p = p || {};
   var cod = String(p.grado || ''), label = COM_GRADO_LABEL[cod];
   if (!label) throw new Error('Ese grado no existe.');
-  var al = comisionAlcance_(quien, cod);
+  var al = comisionAlcance_(quien, cod, p.periodo);
   if (comisionSinAlcance_(al)) throw new Error('Usted no tiene cursos ni áreas en este grado.');
   var grupos = datos_('Grupos').filter(function (g) { return comisionGradoActa_(g.grupo, p.periodo) === cod; }).sort(function (a, b) { return String(a.grupo).localeCompare(String(b.grupo)); });
   var gs = grupos.map(function (g) { return String(g.nombre); }), codes = grupos.map(function (g) { return String(g.grupo); });
@@ -6094,6 +6124,8 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   comisionGradoDatos: ['directivo', 'docente'],
   comisionSeguimiento: ['directivo'],
   comisionPermisosLeer: ['directivo'],
+  comisionModoLeer: ['directivo', 'docente'],
+  comisionModoGuardar: ['directivo'],
   trasladoBuscar: ['directivo', 'docente'],
   trasladoSolicitar: ['directivo', 'docente'],
   trasladoListar: ['directivo', 'docente'],
@@ -6143,7 +6175,7 @@ function apiFunciones_() {
     levantarMarcasEstudiante: levantarMarcasEstudiante,
     informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
     editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, cerrarReunion: cerrarReunion, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas,
-    comisionContexto: comisionContexto, comisionGradoDatos: comisionGradoDatos, comisionSeguimiento: comisionSeguimiento, comisionPermisosLeer: comisionPermisosLeer, trasladoBuscar: trasladoBuscar, trasladoSolicitar: trasladoSolicitar, trasladoListar: trasladoListar, trasladoResolver: trasladoResolver, comisionUnionLeer: comisionUnionLeer, comisionUnionGuardar: comisionUnionGuardar, comisionHistorial: comisionHistorial, comisionRestaurar: comisionRestaurar, comisionHojaDeshacer: comisionHojaDeshacer, comisionPermisosGuardar: comisionPermisosGuardar, comisionCierreSimple: comisionCierreSimple, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
+    comisionContexto: comisionContexto, comisionGradoDatos: comisionGradoDatos, comisionSeguimiento: comisionSeguimiento, comisionPermisosLeer: comisionPermisosLeer, comisionModoLeer: comisionModoLeer, comisionModoGuardar: comisionModoGuardar, trasladoBuscar: trasladoBuscar, trasladoSolicitar: trasladoSolicitar, trasladoListar: trasladoListar, trasladoResolver: trasladoResolver, comisionUnionLeer: comisionUnionLeer, comisionUnionGuardar: comisionUnionGuardar, comisionHistorial: comisionHistorial, comisionRestaurar: comisionRestaurar, comisionHojaDeshacer: comisionHojaDeshacer, comisionPermisosGuardar: comisionPermisosGuardar, comisionCierreSimple: comisionCierreSimple, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
     comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte, comisionBorrador: comisionBorrador, comisionPendientes: comisionPendientes, comisionGuardarPdf: comisionGuardarPdf, comisionEstudiante: comisionEstudiante
   };
 }

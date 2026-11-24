@@ -846,3 +846,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 113 (2026-11-25, versión 2026.11.25-a)
 - Versión única (`<?= VERSION ?>` + `createTemplateFromFile` en `doGet`), nombre «Control de Procesos ICET», `Traslados.gs` (+ hoja `Traslados_Estudiantes`), colores de botones. Pendientes de la solicitud completa en `docs/ESTADO_ACTUAL.md`.
+
+## Ampliación 114 (2026-11-25, versión 2026.11.25-b)
+- Modo UNO/EQUIPO (`comisionModo_`, `comisionModoGuardar`, `comisionAlcance_` con alcance real por docente: cursos que dirige, `cursosEst`, áreas, multiáreas) y seguimiento con `segGrupos`/`segTabla` en `Menu.html`.

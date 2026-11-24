@@ -179,7 +179,7 @@ function abreActa(){
  var label=$('#grado').value,per=$('#periodo').value,code=LABEL_DE[label];if(!code||!per)return;
  SYNC.activo=false;clearInterval(SYNC.t1);clearInterval(SYNC.t2);clearInterval(SYNC.t3);SYNC.ver={};SYNC.last={};avisoSync('');estadoSync('Cargando el acta…','a');
  var SNAP=false;
- API('comisionGradoDatos',{grado:code}).then(function(d){return API('comisionAbrir',{periodo:per,grado:code}).then(function(r){try{guardaSnap(code,per,d,r)}catch(e){}return [d,r]})})
+ API('comisionGradoDatos',{grado:code,periodo:per}).then(function(d){return API('comisionAbrir',{periodo:per,grado:code}).then(function(r){try{guardaSnap(code,per,d,r)}catch(e){}return [d,r]})})
  .catch(function(e){var sn=leeSnap(code,per);if(sn){SNAP=true;return [sn.d,sn.r]}throw e})
  .then(function(dr){var r=dr[1];construyeGrado(dr[0]);
   ACTA=r.acta;init(GK=Object.keys(G)[0]);$('#grado').value=GK;$('#periodo').value=per;$('#acta').value=ACTA.acta_no;
@@ -221,7 +221,7 @@ function REAL_BOOT(){
   else estadoSync('Elija el grado y el periodo','m');
   document.body.classList.add('jsok');try{irTab('p1')}catch(e){}
  }).catch(function(e){document.body.insertAdjacentHTML('afterbegin','<div style="background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;padding:12px;font:14px Arial">No se pudo abrir las comisiones: '+esc(msgE(e))+' <a href="javascript:irAlMenu()">Volver al menú</a></div>')})}
-var COM_LABEL={'00':'0° Preescolar','01':'1° Primaria','02':'2° Primaria','03':'3° Primaria','04':'4° Primaria','05':'5° Primaria','06':'6° Secundaria','CS1':'CS 1 (Caminar en Secundaria 1, 6°-7°)','07':'7° Secundaria + Caminar 1','08':'8° Secundaria','09':'9° Secundaria + Caminar 2','CS2':'CS 2 (Caminar en Secundaria 2, 8°-9°)','10':'10° Media','11':'11° Media'};
+var COM_LABEL={'00':'0° Preescolar','01':'1° Primaria','02':'2° Primaria','03':'3° Primaria','04':'4° Primaria','05':'5° Primaria','06':'6° Secundaria (+ Caminar 1: períodos 1 y 2)','CS1':'CS 1 (Caminar en Secundaria 1)','07':'7° Secundaria (+ Caminar 1: período 3 y final)','08':'8° Secundaria (+ Caminar 2: períodos 1 y 2)','09':'9° Secundaria (+ Caminar 2: período 3 y final)','CS2':'CS 2 (Caminar en Secundaria 2)','10':'10° Media','11':'11° Media'};
 REAL_BOOT();
 
 /* ---------- fecha y hora con control (calendario y reloj) ---------- */
@@ -375,3 +375,47 @@ function descartaBor(){try{localStorage.removeItem(borKey())}catch(e){}avisoSync
 
 var _pe_pend=pintaEquipo;pintaEquipo=function(){_pe_pend();try{if($('#pendBox'))pintaPendientes()}catch(e){}};
 var _pc_pend=pintaCierreProp;pintaCierreProp=function(){_pc_pend();try{if($('#pendBox'))pintaPendientes()}catch(e){}};
+
+
+// ===== v2026.11.24-c: No asiste, sexo, selección múltiple, reprobados por área, promedio 4,6 =====
+function noAsiste(id,v){var e=est(id);if(!e)return;var g=e.g,r=S.mat[S.gs.indexOf(g)];if(!r)return;
+ if(v){if(e.baja)return;
+  var L=['rep','rec','con','com','piar'].filter(function(c){return S[c].some(function(x){return x.id===id})});
+  if(L.indexOf('rec')>=0&&recOkDe(g)&&!esCoord()){alert('Tiene un reconocimiento confirmado: pida a coordinación académica que reabra los reconocimientos de '+g+'.');return}
+  if(!confirm('¿Marcar «No asiste» a '+nom(e)+'?\n\nQueda inhibido (opaco) en los listados, no se promueve ni se reprueba y se descuenta de la matrícula actual. Puede revertirlo con «Sí asiste».'+(L.length?'\nTambién se quitará de: '+L.join(', ')+'.':'')))return;
+  L.forEach(function(c){S[c]=S[c].filter(function(x){return x.id!==id})});
+  e.baja=true;e.bajaMotivo='No asiste';r.de=(+r.de||0)+1;if(e.sx==='M')r.m=Math.max(0,r.m-1);if(e.sx==='F')r.f=Math.max(0,r.f-1);
+  delete S.promOk[g];if(S.prom)delete S.prom[id];
+  S.cambiosEst=S.cambiosEst||[];S.cambiosEst.push({tipo:'NO_ASISTE',id:id,g:g,nombre:nom(e),motivo:'No asiste',por:USR||'(sin elegir)',t:ahora()});
+ }else{if(!e.baja)return;e.baja=false;e.bajaMotivo='';r.de=Math.max(0,(+r.de||0)-1);if(e.sx==='M')r.m+=1;if(e.sx==='F')r.f+=1;delete S.promOk[g];
+  S.cambiosEst=S.cambiosEst||[];S.cambiosEst.push({tipo:'SI_ASISTE',id:id,g:g,nombre:nom(e),motivo:'',por:USR||'(sin elegir)',t:ahora()});}
+ pintaTodo();}
+var _setSx0=setSx;setSx=function(id,v){var e=est(id);if(e&&e.sx!==v)e.mod=1;_setSx0(id,v)};
+
+// selección múltiple (reconocimientos, reprobación, convivencia, comisión, PIAR) y reprobados por área
+var PICK_SEL={},PICK_AREA=null;
+function pickAgrega(){var ids=Object.keys(PICK_SEL).filter(function(k){return PICK_SEL[k]}).map(Number);
+ if(PICK_AREA){var ar=PICK_AREA.area,gi=PICK_AREA.gi,g=S.gs[gi];
+  EST.forEach(function(e){if(e.g!==g||e.baja)return;var want=!!PICK_SEL[e.id],r=S.rep.filter(function(x){return x.id===e.id})[0];
+   if(want){if(!r){r={id:e.id,inas:0,items:[],gen:[],otro:''};S.rep.push(r)}if(!r.items.some(function(i){return i.area===ar}))r.items.push({area:ar,mot:['Bajo rendimiento']})}
+   else if(r){r.items=r.items.filter(function(i){return i.area!==ar});if(!r.items.length&&!(r.gen&&r.gen.length)&&!r.otro&&!(+r.inas))S.rep=S.rep.filter(function(x){return x!==r})}});
+  S.rp[ar][gi]=S.rep.filter(function(r){return est(r.id).g===g&&r.items.some(function(i){return i.area===ar})}).length;
+  cierra('mPick');PICK_AREA=null;pintaTodo();return}
+ var t=pickTipo,n=0;ids.forEach(function(id){if(S[t].some(function(x){return x.id===id}))return;
+  var v=window.alert;window.alert=function(){};try{elige(id)}finally{window.alert=v}
+  var o=S[t][S[t].length-1];if(o&&o.id===id){n++;if(t==='rec'&&S.tiposRec.indexOf(o.tipo)<=1){o.prom='4,6';o.promDef=true}}});
+ cierra('mPick');PICK_SEL={};pintaTodo();if(n)alert('Se agregaron '+n+' estudiante'+(n===1?'':'s')+'. Complete o revise los datos de cada uno'+(t==='rec'?' (el promedio aparece en 4,6 resaltado: confírmelo o corríjalo)':'')+'.')}
+abrirPick=function(t){pickTipo=t;PICK_AREA=null;PICK_SEL={};pickPrepara()};
+function pickPrepara(){$('#mpG').innerHTML=(PICK_AREA?'':'<option>Todos los grupos</option>')+S.gs.filter(function(g){return PICK_AREA?g===S.gs[PICK_AREA.gi]:permP(g)}).map(function(g){return '<option>'+g+'</option>'}).join('');
+ $('#mpQ').value='';$('#mPick').classList.add('on');$('#mpG').onchange=pintaPick;
+ $('#mPick h3').textContent=PICK_AREA?'Reprobados de '+PICK_AREA.area+' · '+S.gs[PICK_AREA.gi]:'Agregar estudiantes (marque uno o varios)';
+ $('#mpNo').style.display=PICK_AREA?'none':'';$('#mpNo').onclick=function(){cierra('mPick');abrirNuevo(pickTipo)};
+ if(!$('#mpOk')){var b=document.createElement('button');b.className='btn p';b.id='mpOk';b.onclick=pickAgrega;$('#mpNo').parentNode.insertBefore(b,$('#mpNo'))}
+ $('#mpOk').textContent='Agregar seleccionados';pintaPick()}
+pintaPick=function(){var g=$('#mpG').value,q=$('#mpQ').value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ var l=EST.filter(function(e){return !e.baja&&S.gs.indexOf(e.g)>=0&&(PICK_AREA?e.g===S.gs[PICK_AREA.gi]:permP(e.g))&&(g==='Todos los grupos'||e.g===g)&&nom(e).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').indexOf(q)>=0});
+ $('#mpL').innerHTML=l.length?l.map(function(e){var ya=!PICK_AREA&&S[pickTipo].some(function(x){return x.id===e.id});
+  return '<label style="display:flex;gap:8px;align-items:center;padding:5px 2px;'+(ya?'opacity:.5':'')+'"><input type="checkbox" '+(ya?'disabled ':'')+(PICK_SEL[e.id]?'checked ':'')+'onchange="PICK_SEL['+e.id+']=this.checked"> '+esc(nom(e))+' <span class="chip m">'+e.g+'</span>'+(ya?' <span class="chip a">ya registrado</span>':'')+'</label>'}).join(''):'<div><small class="g">Sin coincidencias.</small></div>'};
+function abrePickArea(area,gi){PICK_AREA={area:area,gi:gi};pickTipo='rep';PICK_SEL={};EST.forEach(function(e){if(e.g===S.gs[gi]&&S.rep.some(function(r){return r.id===e.id&&r.items.some(function(i){return i.area===area})}))PICK_SEL[e.id]=true});pickPrepara()}
+var _pa0=pintaAreas;pintaAreas=function(){_pa0();try{if(S.niv==='pre')return;document.querySelectorAll('#areasT tr[data-area], #areas tr[data-area], tr[data-area]').forEach(function(tr){if(tr.querySelector('.selRep'))return;var card=tr.closest('.card'),gi=card?S.gs.indexOf(card.querySelector('.ehead').firstChild.textContent.trim()):-1;if(gi<0)return;var td=document.createElement('td');td.innerHTML='<button class="btn s selRep" onclick="abrePickArea(\''+tr.getAttribute('data-area').replace(/'/g,"\\'")+'\','+gi+')">Seleccionar</button>';tr.appendChild(td)});
+  document.querySelectorAll('.card .tw table.plain').forEach(function(t){var h=t.rows[0];if(h&&h.cells[0].textContent==='Área'&&h.cells.length===4)h.appendChild(document.createElement('th')).textContent='Reprobados'})}catch(e){}};

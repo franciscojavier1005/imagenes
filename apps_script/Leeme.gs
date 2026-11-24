@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.24-b';
+var VERSION_SISTEMA = '2026.11.24-c';
 var FECHA_VERSION = '2026-11-24';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.24-c', fecha: '2026-11-24', cambios: [
+    'Comisiones: Caminar en Secundaria se une por período: en los períodos 1 y 2, CS 1 va con 6.º y CS 2 con 8.º; en el período 3 y final, CS 1 va con 7.º y CS 2 con 9.º. En los listados, el botón «No asiste» inhibe al estudiante (queda opaco, no sale de la lista, no se promueve ni se reprueba y se descuenta de la matrícula); «Retirados» queda solo para quien se fue a otra institución, cambió de domicilio o canceló la matrícula. Los listados tienen columna Sexo editable. En promoción se ven todos los del listado inicial y los reprobados traen sus causas. La matrícula no se bloquea hasta confirmar la promoción del curso. En reconocimientos y reprobación se pueden agregar varios estudiantes a la vez; en Áreas, el botón «Seleccionar» elige los reprobados de cada área y curso. Excelencia y rendimiento académico inician con promedio 4,6 resaltado hasta confirmarlo. Con el acta cerrada solo coordinación académica o el desarrollador pueden seguir modificándola.'
+  ] },
   { version: '2026.11.24-b', fecha: '2026-11-24', cambios: [
     'IMPORTANTE (comisiones): Hojas de cálculo guardaba el grado «05» como el número 5 y por eso, al volver a abrir el grado, se creaba un acta nueva y vacía cada vez (los datos quedaban repartidos en varias actas). Ahora el código de grado se guarda como texto y se lee siempre de dos cifras; si hay varias actas del mismo grado y periodo se abre la que más trabajo tiene. Menú nuevo «Comisiones: unificar actas duplicadas» (oculta las vacías, no borra nada) y «Comisiones: ver qué hay guardado (y en qué hoja)». Las actas abiertas antes bajo CS 1 o CS 2 pasan a 7.º y 9.º. Estudiantes: «Retirar» pasa a «Deshabilitar» (siguen en el listado, cuentan en la matrícula como retirados o no asistentes y no entran en la promoción).'] },
   { version: '2026.11.24-a', fecha: '2026-11-24', cambios: [

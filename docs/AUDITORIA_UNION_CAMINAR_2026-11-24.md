@@ -69,3 +69,6 @@ Revisión hecha sobre los grupos y la dirección de grupo **reales del libro** (
 | Drive · APP ASISTENCIA DOCENTE / COMISIONES / Borradores | copia legible (JSON) del acta |
 
 Menú del libro: **Comisiones: ver qué hay guardado (y en qué hoja)** resume por acta cuántas partes hay y cuándo se guardó por última vez.
+
+
+> **Actualización 2026.11.24-c:** la unión ahora depende del período. En los períodos 1 y 2, CS 1 se integra con 6.º y CS 2 con 8.º; en el período 3 y final, CS 1 con 7.º y CS 2 con 9.º (lo descrito arriba corresponde al período 3 y final).

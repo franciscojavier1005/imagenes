@@ -3868,12 +3868,12 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.24-c';
+var VERSION_SISTEMA = '2026.11.24-d';
 var FECHA_VERSION = '2026-11-24';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
-  { version: '2026.11.24-c', fecha: '2026-11-24', cambios: [
+  { version: '2026.11.24-d', fecha: '2026-11-24', cambios: [
     'Comisiones: Caminar en Secundaria se une por período: en los períodos 1 y 2, CS 1 va con 6.º y CS 2 con 8.º; en el período 3 y final, CS 1 va con 7.º y CS 2 con 9.º. En los listados, el botón «No asiste» inhibe al estudiante (queda opaco, no sale de la lista, no se promueve ni se reprueba y se descuenta de la matrícula); «Retirados» queda solo para quien se fue a otra institución, cambió de domicilio o canceló la matrícula. Los listados tienen columna Sexo editable. En promoción se ven todos los del listado inicial y los reprobados traen sus causas. La matrícula no se bloquea hasta confirmar la promoción del curso. En reconocimientos y reprobación se pueden agregar varios estudiantes a la vez; en Áreas, el botón «Seleccionar» elige los reprobados de cada área y curso. Excelencia y rendimiento académico inician con promedio 4,6 resaltado hasta confirmarlo. Con el acta cerrada solo coordinación académica o el desarrollador pueden seguir modificándola.'
   ] },
   { version: '2026.11.24-b', fecha: '2026-11-24', cambios: [
@@ -5692,9 +5692,28 @@ function comisionesVerGuardado() {
 
 /* ------------------------------ datos del grado para la pantalla real ------------------------------ */
 /* Decisión del coordinador (2026-11-24): los grupos de «Caminar en Secundaria» se trabajan en el acta del grado al que corresponden: CS 1 con 7.º y CS 2 con 9.º. */
-function comisionUnion_(periodo) { return /^(Tercero|Final)$/.test(String(periodo || 'Final')) ? { CS1: '07', CS2: '09' } : { CS1: '06', CS2: '08' }; }
+var COM_PERIODOS = ['Primero', 'Segundo', 'Tercero', 'Final'];
+function comisionUnionDefecto_(periodo) { return /^(Tercero|Final)$/.test(String(periodo || 'Final')) ? { CS1: '07', CS2: '09' } : { CS1: '06', CS2: '08' }; }
+/* Coordinación puede cambiar la integración por período (parámetro comisiones_union): CS1 con 6.º o 7.º y CS2 con 8.º o 9.º. */
+function comisionUnionConfig_() { var c = {}; try { c = JSON.parse(parametro_('comisiones_union', '{}')) || {}; } catch (e) { c = {}; } return c; }
+function comisionUnion_(periodo) {
+  var d = comisionUnionDefecto_(periodo), o = comisionUnionConfig_()[String(periodo || 'Final')] || {};
+  return { CS1: o.CS1 === '06' || o.CS1 === '07' ? o.CS1 : d.CS1, CS2: o.CS2 === '08' || o.CS2 === '09' ? o.CS2 : d.CS2 };
+}
+function comisionUnionLeer() {
+  var r = {}; COM_PERIODOS.forEach(function (p) { r[p] = comisionUnion_(p); });
+  return { periodos: COM_PERIODOS, union: r, defecto: { Primero: comisionUnionDefecto_('Primero'), Segundo: comisionUnionDefecto_('Segundo'), Tercero: comisionUnionDefecto_('Tercero'), Final: comisionUnionDefecto_('Final') } };
+}
+function comisionUnionGuardar(p) {
+  var quien = comisionQuien_(); if (!quien.coord) throw new Error('Solo coordinación académica o el desarrollador cambian la integración de Caminar en Secundaria.');
+  p = p || {}; var per = String(p.periodo || ''); if (COM_PERIODOS.indexOf(per) < 0) throw new Error('Período no válido.');
+  if (['06', '07'].indexOf(String(p.CS1)) < 0 || ['08', '09'].indexOf(String(p.CS2)) < 0) throw new Error('CS 1 se integra con 6.º o 7.º; CS 2 con 8.º o 9.º.');
+  var c = comisionUnionConfig_(); c[per] = { CS1: String(p.CS1), CS2: String(p.CS2) };
+  guardarParametro_('comisiones_union', JSON.stringify(c));
+  return comisionUnionLeer();
+}
 function comisionGradoActa_(grupo, periodo) { var g = partesGrupo_(grupo).grado; return comisionUnion_(periodo)[g] || g; }
-var COM_GRADO_LABEL = { '00': '0° Preescolar', '01': '1° Primaria', '02': '2° Primaria', '03': '3° Primaria', '04': '4° Primaria', '05': '5° Primaria', '06': '6° Secundaria (+ Caminar 1: períodos 1 y 2)', 'CS1': 'CS 1 (Caminar en Secundaria 1, 6°-7°)', '07': '7° Secundaria (+ Caminar 1: período 3 y final)', '08': '8° Secundaria (+ Caminar 2: períodos 1 y 2)', '09': '9° Secundaria (+ Caminar 2: período 3 y final)', 'CS2': 'CS 2 (Caminar en Secundaria 2, 8°-9°)', '10': '10° Media', '11': '11° Media' };
+var COM_GRADO_LABEL = { '00': '0° Preescolar', '01': '1° Primaria', '02': '2° Primaria', '03': '3° Primaria', '04': '4° Primaria', '05': '5° Primaria', '06': '6° Secundaria', 'CS1': 'CS 1 (Caminar en Secundaria 1, 6°-7°)', '07': '7° Secundaria', '08': '8° Secundaria', '09': '9° Secundaria', 'CS2': 'CS 2 (Caminar en Secundaria 2, 8°-9°)', '10': '10° Media', '11': '11° Media' };
 var COM_GRADO_SIG = { '00': '1°', '01': '2°', '02': '3°', '03': '4°', '04': '5°', '05': '6°', '06': '7°', 'CS1': 'Caminar en Secundaria 2', '07': '8°', '08': '9°', '09': '10°', 'CS2': '10°', '10': '11°', '11': 'egreso (graduandos)' };
 /** Lee una columna opcional de una fila de la hoja sin importar mayúsculas, tildes, espacios ni guiones del encabezado (documento, Documento, tipo_doc, Tipo doc…). */
 function comisionCol_(fila, nombres) {
@@ -5904,6 +5923,8 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   comisionGradoDatos: ['directivo', 'docente'],
   comisionSeguimiento: ['directivo'],
   comisionPermisosLeer: ['directivo'],
+  comisionUnionLeer: ['directivo', 'docente'],
+  comisionUnionGuardar: ['directivo'],
   comisionHistorial: ['directivo', 'docente'],
   comisionRestaurar: ['directivo', 'docente'],
   comisionHojaDeshacer: ['directivo'],
@@ -5947,7 +5968,7 @@ function apiFunciones_() {
     levantarMarcasEstudiante: levantarMarcasEstudiante,
     informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
     editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, cerrarReunion: cerrarReunion, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas,
-    comisionContexto: comisionContexto, comisionGradoDatos: comisionGradoDatos, comisionSeguimiento: comisionSeguimiento, comisionPermisosLeer: comisionPermisosLeer, comisionHistorial: comisionHistorial, comisionRestaurar: comisionRestaurar, comisionHojaDeshacer: comisionHojaDeshacer, comisionPermisosGuardar: comisionPermisosGuardar, comisionCierreSimple: comisionCierreSimple, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
+    comisionContexto: comisionContexto, comisionGradoDatos: comisionGradoDatos, comisionSeguimiento: comisionSeguimiento, comisionPermisosLeer: comisionPermisosLeer, comisionUnionLeer: comisionUnionLeer, comisionUnionGuardar: comisionUnionGuardar, comisionHistorial: comisionHistorial, comisionRestaurar: comisionRestaurar, comisionHojaDeshacer: comisionHojaDeshacer, comisionPermisosGuardar: comisionPermisosGuardar, comisionCierreSimple: comisionCierreSimple, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
     comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte, comisionBorrador: comisionBorrador, comisionPendientes: comisionPendientes, comisionGuardarPdf: comisionGuardarPdf, comisionEstudiante: comisionEstudiante
   };
 }

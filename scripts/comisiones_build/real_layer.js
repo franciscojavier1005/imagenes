@@ -215,13 +215,14 @@ function REAL_BOOT(){
   GRADOS_REAL=c.grados.map(function(code){return COM_LABEL[code]}).filter(Boolean);LABEL_DE={};c.grados.forEach(function(code){LABEL_DE[COM_LABEL[code]]=code});
   var bh=$('#btnHist');if(bh&&(c.quien.rol!=='docente'||c.quien.total))bh.style.display='';var be=$('#btnEj');if(be&&c.quien.dev)be.style.display='';var p=$('#perfil');if(p){p.value=PERFIL;if(!c.quien.dev){var pf=document.querySelector('.perf');if(pf)pf.style.display='none'}}
   $('#grado').onchange=abreActa;$('#periodo').onchange=abreActa;
+  cargaUnion();
   pintaGrados();try{setPerfil(PERFIL)}catch(e){}
   var pos0=leePos();if(pos0&&pos0.grado&&GRADOS_REAL.indexOf(pos0.grado)>=0&&pos0.periodo){$('#grado').value=pos0.grado;$('#periodo').value=pos0.periodo;POS_PEND=pos0;abreActa()}
   else if(GRADOS_REAL.length===1){$('#grado').value=GRADOS_REAL[0];abreActa()}
   else estadoSync('Elija el grado y el periodo','m');
   document.body.classList.add('jsok');try{irTab('p1')}catch(e){}
  }).catch(function(e){document.body.insertAdjacentHTML('afterbegin','<div style="background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;padding:12px;font:14px Arial">No se pudo abrir las comisiones: '+esc(msgE(e))+' <a href="javascript:irAlMenu()">Volver al menú</a></div>')})}
-var COM_LABEL={'00':'0° Preescolar','01':'1° Primaria','02':'2° Primaria','03':'3° Primaria','04':'4° Primaria','05':'5° Primaria','06':'6° Secundaria (+ Caminar 1: períodos 1 y 2)','CS1':'CS 1 (Caminar en Secundaria 1)','07':'7° Secundaria (+ Caminar 1: período 3 y final)','08':'8° Secundaria (+ Caminar 2: períodos 1 y 2)','09':'9° Secundaria (+ Caminar 2: período 3 y final)','CS2':'CS 2 (Caminar en Secundaria 2)','10':'10° Media','11':'11° Media'};
+var COM_LABEL={'00':'0° Preescolar','01':'1° Primaria','02':'2° Primaria','03':'3° Primaria','04':'4° Primaria','05':'5° Primaria','06':'6° Secundaria','CS1':'CS 1 (Caminar en Secundaria 1)','07':'7° Secundaria','08':'8° Secundaria','09':'9° Secundaria','CS2':'CS 2 (Caminar en Secundaria 2)','10':'10° Media','11':'11° Media'};
 REAL_BOOT();
 
 /* ---------- fecha y hora con control (calendario y reloj) ---------- */
@@ -398,8 +399,8 @@ function pickAgrega(){var ids=Object.keys(PICK_SEL).filter(function(k){return PI
  if(PICK_AREA){var ar=PICK_AREA.area,gi=PICK_AREA.gi,g=S.gs[gi];
   EST.forEach(function(e){if(e.g!==g||e.baja)return;var want=!!PICK_SEL[e.id],r=S.rep.filter(function(x){return x.id===e.id})[0];
    if(want){if(!r){r={id:e.id,inas:0,items:[],gen:[],otro:''};S.rep.push(r)}if(!r.items.some(function(i){return i.area===ar}))r.items.push({area:ar,mot:['Bajo rendimiento']})}
-   else if(r){r.items=r.items.filter(function(i){return i.area!==ar});if(!r.items.length&&!(r.gen&&r.gen.length)&&!r.otro&&!(+r.inas))S.rep=S.rep.filter(function(x){return x!==r})}});
-  S.rp[ar][gi]=S.rep.filter(function(r){return est(r.id).g===g&&r.items.some(function(i){return i.area===ar})}).length;
+   });
+  S.rp[ar][gi]=Math.max(+S.rp[ar][gi]||0,S.rep.filter(function(r){return est(r.id).g===g&&r.items.some(function(i){return i.area===ar})}).length);
   cierra('mPick');PICK_AREA=null;pintaTodo();return}
  var t=pickTipo,n=0;ids.forEach(function(id){if(S[t].some(function(x){return x.id===id}))return;
   var v=window.alert;window.alert=function(){};try{elige(id)}finally{window.alert=v}
@@ -419,3 +420,47 @@ pintaPick=function(){var g=$('#mpG').value,q=$('#mpQ').value.toLowerCase().norma
 function abrePickArea(area,gi){PICK_AREA={area:area,gi:gi};pickTipo='rep';PICK_SEL={};EST.forEach(function(e){if(e.g===S.gs[gi]&&S.rep.some(function(r){return r.id===e.id&&r.items.some(function(i){return i.area===area})}))PICK_SEL[e.id]=true});pickPrepara()}
 var _pa0=pintaAreas;pintaAreas=function(){_pa0();try{if(S.niv==='pre')return;document.querySelectorAll('#areasT tr[data-area], #areas tr[data-area], tr[data-area]').forEach(function(tr){if(tr.querySelector('.selRep'))return;var card=tr.closest('.card'),gi=card?S.gs.indexOf(card.querySelector('.ehead').firstChild.textContent.trim()):-1;if(gi<0)return;var td=document.createElement('td');td.innerHTML='<button class="btn s selRep" onclick="abrePickArea(\''+tr.getAttribute('data-area').replace(/'/g,"\\'")+'\','+gi+')">Seleccionar</button>';tr.appendChild(td)});
   document.querySelectorAll('.card .tw table.plain').forEach(function(t){var h=t.rows[0];if(h&&h.cells[0].textContent==='Área'&&h.cells.length===4)h.appendChild(document.createElement('th')).textContent='Reprobados'})}catch(e){}};
+
+
+// ===== integración de Caminar en Secundaria (control para coordinación / desarrollador) y «Habilitar de nuevo» en cada componente =====
+var UNION=null;
+function etUnion(c){return c==='06'?'6.º':c==='07'?'7.º':c==='08'?'8.º':'9.º'}
+function cargaUnion(){API('comisionUnionLeer').then(function(u){UNION=u;pintaUnion()}).catch(function(){})}
+function pintaUnion(){var per=$('#periodo')&&$('#periodo').value,box=$('#unionBox');
+ if(!box){var row=$('#periodo').closest('.grow');box=document.createElement('div');box.id='unionBox';box.className='nota';box.style.cssText='margin:6px 0';(row&&row.parentNode?row.parentNode:document.body).insertAdjacentElement('afterend',box)}
+ var u=UNION&&UNION.union&&UNION.union[per];if(!u){box.innerHTML='';return}
+ var coord=CTXR&&CTXR.quien&&(CTXR.quien.coord||CTXR.quien.dev);
+ box.innerHTML='<b>Caminar en Secundaria · período '+esc(per)+':</b> CS 1 se trabaja con <b>'+etUnion(u.CS1)+'</b> y CS 2 con <b>'+etUnion(u.CS2)+'</b>.'+(coord?' <button class="btn s" onclick="abreUnion()">Cambiar integración</button>':'')}
+function abreUnion(){if(!UNION)return;var m=$('#mUnion');if(!m){m=document.createElement('div');m.className='modal';m.id='mUnion';document.body.appendChild(m)}
+ var per=$('#periodo').value||'Final';
+ m.innerHTML='<div class="box"><h3>Integración de Caminar en Secundaria</h3><div class="nota">Elija, por período, con qué grado se trabaja cada Caminar. Por defecto: períodos 1 y 2 → CS 1 con 6.º y CS 2 con 8.º; período 3 y final → CS 1 con 7.º y CS 2 con 9.º. Las actas que ya tengan datos los conservan en el grado donde se guardaron: cambie la integración <b>antes</b> de empezar a registrar.</div>'+
+ '<label>Período</label><select id="unP">'+UNION.periodos.map(function(x){return '<option'+(x===per?' selected':'')+'>'+x+'</option>'}).join('')+'</select>'+
+ '<label>CS 1 (Caminar en Secundaria 1) se integra con</label><select id="unA"><option value="06">6.º</option><option value="07">7.º</option></select>'+
+ '<label>CS 2 (Caminar en Secundaria 2) se integra con</label><select id="unB"><option value="08">8.º</option><option value="09">9.º</option></select>'+
+ '<div class="row"><button class="btn" onclick="cierra(\'mUnion\')">Cancelar</button><button class="btn p" onclick="guardaUnion()">Guardar</button></div></div>';
+ function pon(){var u=UNION.union[$('#unP').value];$('#unA').value=u.CS1;$('#unB').value=u.CS2}
+ $('#unP').onchange=pon;pon();m.classList.add('on')}
+function guardaUnion(){var per=$('#unP').value,a=$('#unA').value,b=$('#unB').value;
+ API('comisionUnionGuardar',{periodo:per,CS1:a,CS2:b}).then(function(u){UNION=u;cierra('mUnion');pintaUnion();alert('Listo. En el período '+per+': CS 1 con '+etUnion(a)+' y CS 2 con '+etUnion(b)+'.');if($('#grado').value&&$('#periodo').value)abreActa()}).catch(function(e){alert(msgE(e))})}
+var _pe_u=$('#periodo');if(_pe_u)_pe_u.addEventListener('change',function(){try{pintaUnion()}catch(e){}});
+
+function habInline(id,anchor,tit,items){var old=document.getElementById(id);if(old)old.remove();if(!esCoord()||!anchor||!items.length)return;
+ var d=document.createElement('div');d.id=id;d.className='nota';d.style.cssText='margin:6px 0;border-left:4px solid #5b8def';
+ d.innerHTML='<b>'+tit+'</b> <small class="g">(coordinación / desarrollador)</small><div class="row" style="flex-wrap:wrap;gap:6px;margin-top:4px">'+items.map(function(x){return '<button class="btn s" onclick="habilita(\''+x[0]+'\',\''+String(x[1]).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">Habilitar de nuevo · '+esc(x[2])+'</button>'}).join('')+'</div>';
+ anchor.insertAdjacentElement('beforebegin',d)}
+function habInlineTodo(){if(!S||!S.gs)return;try{OG();
+ habInline('habI_rev',$('#lisBox'),'Revisión de listados confirmada',revLista().filter(function(x){return S.revL&&S.revL[x.n]}).map(function(x){return ['rev',x.n,x.n]}));
+ habInline('habI_jur',$('#preInicio'),'Acuerdos y compromisos de transparencia aceptados',S.int.filter(function(x){return S.jur&&S.jur[x.n]}).map(function(x){return ['jur',x.n,x.n]}));
+ var tr=$('#tRec'),an=tr&&tr.closest?tr.closest('.tw'):null;
+ habInline('habI_rec',an||$('#repL'),'Reconocimientos confirmados por los directores de grupo',S.gs.filter(function(g){return recOkDe(g)}).map(function(g){return ['rec',g,g]}));
+ habInline('habI_prom',$('#promBox'),'Promoción confirmada',FIN()&&S.niv!=='pre'?S.gs.filter(function(g){return S.promOk&&S.promOk[g]}).map(function(g){return ['prom',g,g]}):[]);
+ habInline('habI_mat',($('#tMat')&&$('#tMat').closest('.tw')),'Matrícula confirmada',S.gs.filter(function(g,i){return S.mat[i]&&S.mat[i].ok}).map(function(g){return ['mat',g,g]}))}catch(e){}}
+['pintaLis','pintaListas','pintaProm','pintaPre','pintaMat'].forEach(function(n){var f=window[n];if(typeof f!=='function')return;window[n]=function(){var r=f.apply(this,arguments);habInlineTodo();return r}});
+var _ab_u=abreActa;abreActa=function(){try{pintaUnion()}catch(e){}return _ab_u.apply(this,arguments)};
+
+// barra en la lista de reprobación: elegir área y curso y seleccionar desde el listado de estudiantes
+function barraRepArea(){var old=document.getElementById('barRepA');if(old)old.remove();if(!S||!S.gs||S.niv==='pre'||!$('#repL'))return;
+ var d=document.createElement('div');d.id='barRepA';d.className='nota';
+ d.innerHTML='<b>Seleccionar reprobados por área:</b> <select id="brA" style="width:auto;max-width:100%">'+areasLista().map(function(a){return '<option>'+esc(a)+'</option>'}).join('')+'</select> <select id="brG" style="width:auto">'+S.gs.map(function(g,i){return '<option value="'+i+'">'+esc(g)+'</option>'}).join('')+'</select> <button class="btn s p" onclick="abrePickArea($(\'#brA\').value,+$(\'#brG\').value)">Seleccionar desde el listado</button>';
+ $('#repL').insertAdjacentElement('beforebegin',d)}
+var _pl_b=pintaListas;pintaListas=function(){var r=_pl_b.apply(this,arguments);try{barraRepArea()}catch(e){}return r};

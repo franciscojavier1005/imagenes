@@ -817,3 +817,8 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Matrícula no se bloquea hasta confirmar la promoción (`matBloqProm`). Listados con columna Sexo editable (marca modificado).
 - Selección múltiple (`PICK_SEL`, `pickAgrega`) en reconocimientos/reprobación/convivencia/comisión/PIAR; botón «Seleccionar» por área y curso en Áreas (`abrePickArea`) sincroniza `S.rp` con la lista; promoción muestra las causas heredadas. Excelencia y rendimiento: promedio 4,6 por defecto (`promDef`, resaltado y pendiente hasta confirmar).
 - Acta cerrada: solo coordinación o desarrollador pueden escribir (servidor) y el resto consulta en solo lectura. Pruebas: `integ7.js` (No asiste, sexo, multiselección, áreas).
+
+## Ampliación 105 (2026-11-24, versión 2026.11.24-d)
+- Integración de Caminar configurable por período (parámetro `comisiones_union`; `comisionUnionLeer`/`comisionUnionGuardar`, solo coordinación/desarrollador guardan). `comisionUnion_(periodo)` usa la configuración y, si no hay, el defecto (P1-P2: 6.º/8.º; P3-Final: 7.º/9.º). Etiquetas de grado neutras; el banner `#unionBox` muestra la integración vigente y el botón «Cambiar integración» (coord/dev).
+- «Habilitar de nuevo» en línea (`habInline`) junto a revisión de listados, acuerdo, reconocimientos, promoción y matrícula (usa `habilita`, con justificación y registro).
+- Barra `#barRepA` en reprobación para seleccionar por área y curso; el selector de área solo agrega y la cifra de `S.rp` no baja.

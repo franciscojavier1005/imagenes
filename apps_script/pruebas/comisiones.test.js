@@ -123,6 +123,15 @@ ok(run("comisionMailPersonal_('juan@icet.edu.co')")===''&&run("comisionMailPerso
   ok(c7.gs.indexOf('CS 1-1')>=0&&c7.gs.indexOf('7°-1')>=0&&c7.estudiantes.some(e=>e.g==='CS 1-1'),'el acta de 7.º incluye los cursos de Caminar en Secundaria 1 y sus estudiantes');
   ok(c9.gs.indexOf('CS 2-1')>=0&&c9.gs.indexOf('9°-1')>=0&&!c9.gs.some(x=>/^CS 1/.test(x)),'el acta de 9.º incluye Caminar en Secundaria 2 (y no el 1)');
   ok(ctx.grados.indexOf('CS1')<0&&ctx.grados.indexOf('CS2')<0&&ctx.grados.indexOf('07')>=0,'CS 1 y CS 2 ya no figuran como grados aparte');
+  const c6=run("comisionGradoDatos({grado:'06',periodo:'Primero'})"), c8=run("comisionGradoDatos({grado:'08',periodo:'Segundo'})");
+  ok(c6.gs.indexOf('CS 1-1')>=0&&c8.gs.indexOf('CS 2-1')>=0,'en los períodos 1 y 2, CS 1 va con 6.º y CS 2 con 8.º');
+  ok(run("comisionGradoDatos({grado:'07',periodo:'Primero'})").gs.indexOf('CS 1-1')<0,'en el período 1, 7.º no incluye CS 1');
+  yo('dora@x.com'); ok(falla("comisionUnionGuardar({periodo:'Primero',CS1:'07',CS2:'09'})")!==null,'un docente no cambia la integración');
+  yo('coord@x.com'); run("comisionUnionGuardar({periodo:'Primero',CS1:'07',CS2:'09'})");
+  ok(run("comisionGradoDatos({grado:'07',periodo:'Primero'})").gs.indexOf('CS 1-1')>=0&&run("comisionGradoDatos({grado:'09',periodo:'Primero'})").gs.indexOf('CS 2-1')>=0,'coordinación puede integrar CS 1 con 7.º y CS 2 con 9.º en el período 1');
+  ok(run("comisionGradoDatos({grado:'06',periodo:'Segundo'})").gs.indexOf('CS 1-1')>=0,'el cambio de un período no afecta a los demás');
+  ok(falla("comisionUnionGuardar({periodo:'Primero',CS1:'08',CS2:'09'})")!==null,'CS 1 solo con 6.º o 7.º');
+  run("comisionUnionGuardar({periodo:'Primero',CS1:'06',CS2:'08'})");
   hojas.Grupos.v.length-=4; hojas.Estudiantes.v.length-=3; }
 // ---- historial: versiones anteriores y cambios en hojas, con retroceso ----
 yo('coord@x.com');

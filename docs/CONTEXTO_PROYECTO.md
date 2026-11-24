@@ -828,3 +828,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 107 (2026-11-24, versión 2026.11.24-f)
 - El Horario trae una sola persona por franja aunque dos docentes alternen cada semana (Sociales/Inglés CSI, Ética/Religión ETR…). `comisionHorarioConAlternan_()` suma al equipo del acta a quienes alternan, según `COM_ALTERNAN_DEFECTO` (Quintero en 0801/0802, CSI, alterna con Adiela Ortiz) y el parámetro `comisiones_alternan` (JSON `[{docente, grupos, area}]`). Pendiente: confirmar con el coordinador los demás pares (p. ej. CS 2-1/CS 2-2 con Ortiz; Ética/Religión).
+
+## Ampliación 108 (2026-11-24, versión 2026.11.24-g)
+- «El que empezó se queda con Caminar»: `comisionUnionOcupacion_` (parámetro `comisiones_union_uso`, registrado en `comisionAbrir` por `comisionUnionRegistrar_`, más actas antiguas de 7.º/9.º con datos) prevalece sobre el defecto; `comisionUnionGuardar` rechaza mover CS al otro grado si ya fue tomado. Orden: configuración explícita > ya tomado > defecto (CS1→6.º, CS2→8.º).

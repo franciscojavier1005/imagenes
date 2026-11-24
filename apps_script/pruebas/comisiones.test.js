@@ -119,7 +119,7 @@ ok(run("comisionMailPersonal_('juan@icet.edu.co')")===''&&run("comisionMailPerso
 { hojas.Grupos.v.push(['0701','REGULAR','7°','7°-1',null],['CS101','CAMINAR','CS1','CS 1-1',null],['0901','REGULAR','9°','9°-1',null],['CS201','CAMINAR','CS2','CS 2-1',null]);
   hojas.Estudiantes.v.push(['0701','7°-1',1,'SEPTIMO UNO','ANA','','',''],['CS101','CS 1-1',1,'CAMINAR UNO','LUIS','','',''],['CS201','CS 2-1',1,'CAMINAR DOS','EVA','','','']);
   yo('coord@x.com');
-  yo('coord@x.com'); run("comisionUnionGuardar({periodo:'Final',CS1:'07',CS2:'09'})");
+  yo('coord@x.com'); run("guardarParametro_('comisiones_union_uso','{}'); COM_UNION_MEMO=null"); run("comisionUnionGuardar({periodo:'Final',CS1:'07',CS2:'09'})");
   const c7=run("comisionGradoDatos({grado:'07'})"), c9=run("comisionGradoDatos({grado:'09'})"), ctx=run("comisionContexto()");
   ok(c7.gs.indexOf('CS 1-1')>=0&&c7.gs.indexOf('7°-1')>=0&&c7.estudiantes.some(e=>e.g==='CS 1-1'),'el acta de 7.º incluye los cursos de Caminar en Secundaria 1 y sus estudiantes');
   ok(c9.gs.indexOf('CS 2-1')>=0&&c9.gs.indexOf('9°-1')>=0&&!c9.gs.some(x=>/^CS 1/.test(x)),'el acta de 9.º incluye Caminar en Secundaria 2 (y no el 1)');
@@ -128,15 +128,19 @@ ok(run("comisionMailPersonal_('juan@icet.edu.co')")===''&&run("comisionMailPerso
   ok(c6.gs.indexOf('CS 1-1')>=0&&c8.gs.indexOf('CS 2-1')>=0,'en los períodos 1 y 2, CS 1 va con 6.º y CS 2 con 8.º');
   ok(run("comisionGradoDatos({grado:'07',periodo:'Primero'})").gs.indexOf('CS 1-1')<0,'en el período 1, 7.º no incluye CS 1');
   yo('dora@x.com'); ok(falla("comisionUnionGuardar({periodo:'Primero',CS1:'07',CS2:'09'})")!==null,'un docente no cambia la integración');
-  yo('coord@x.com'); run("comisionUnionGuardar({periodo:'Primero',CS1:'07',CS2:'09'})");
+  yo('coord@x.com'); run("guardarParametro_('comisiones_union_uso','{}'); COM_UNION_MEMO=null"); run("comisionUnionGuardar({periodo:'Primero',CS1:'07',CS2:'09'})");
   ok(run("comisionGradoDatos({grado:'07',periodo:'Primero'})").gs.indexOf('CS 1-1')>=0&&run("comisionGradoDatos({grado:'09',periodo:'Primero'})").gs.indexOf('CS 2-1')>=0,'coordinación puede integrar CS 1 con 7.º y CS 2 con 9.º en el período 1');
   ok(run("comisionGradoDatos({grado:'06',periodo:'Segundo'})").gs.indexOf('CS 1-1')>=0,'el cambio de un período no afecta a los demás');
   ok(falla("comisionUnionGuardar({periodo:'Primero',CS1:'08',CS2:'09'})")!==null,'CS 1 solo con 6.º o 7.º');
-  run("comisionUnionGuardar({periodo:'Primero',CS1:'06',CS2:'08'})");
-  run("comisionUnionGuardar({periodo:'Final',CS1:'06',CS2:'08'})");
+  run("guardarParametro_('comisiones_union_uso','{}'); COM_UNION_MEMO=null"); run("comisionUnionGuardar({periodo:'Primero',CS1:'06',CS2:'08'})");
+  run("guardarParametro_('comisiones_union_uso','{}'); COM_UNION_MEMO=null"); run("comisionUnionGuardar({periodo:'Final',CS1:'06',CS2:'08'})");
   ok(run("comisionGradoDatos({grado:'06'})").gs.indexOf('CS 1-1')>=0,'por defecto CS 1 va con 6.º y CS 2 con 8.º (también en el final)');
   { hojas.Grupos.v.push(['0801','REGULAR','8°','8°-1',null]); const d8=run("comisionGradoDatos({grado:'08',periodo:'Final'})");
     ok(d8.ap.indexOf('Quintero Ramírez María del Carmen')>=0&&/Quintero/.test(d8.areas['Ciencias Sociales']||d8.areas['Sociales']||Object.values(d8.areas).join('|')),'quien alterna cada semana (Quintero con Ortiz) aparece en el equipo de 8.º con su área'); hojas.Grupos.v.length-=1; }
+  { hojas.Comision_Actas.v.push(['ac-9','2026','Tercero','09',1,'ABIERTA','Ana','x','2026-11-24 08:00','','','',0]); hojas.Comision_Secciones.v.push(['ac-9','general',1,'{}','x','2026-11-24 08:01']);
+    run("COM_UNION_MEMO=null"); ok(run("comisionUnion_('Tercero').CS2")==='09','si 9.º ya empezó con CS 2, sigue con 9.º aunque el defecto sea 8.º');
+    ok(/ya empezó/.test(falla("comisionUnionGuardar({periodo:'Tercero',CS1:'06',CS2:'08'})")||''),'no se puede mover CS 2 a 8.º si 9.º ya lo tomó');
+    hojas.Comision_Actas.v.pop(); hojas.Comision_Secciones.v.pop(); run("COM_UNION_MEMO=null"); }
   hojas.Grupos.v.length-=4; hojas.Estudiantes.v.length-=3; }
 // ---- historial: versiones anteriores y cambios en hojas, con retroceso ----
 yo('coord@x.com');

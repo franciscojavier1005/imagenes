@@ -434,11 +434,11 @@ function pintaUnion(){var per=$('#periodo')&&$('#periodo').value,box=$('#unionBo
 function abreUnion(){if(!UNION)return;var m=$('#mUnion');if(!m){m=document.createElement('div');m.className='modal';m.id='mUnion';document.body.appendChild(m)}
  var per=$('#periodo').value||'Final';
  m.innerHTML='<div class="box"><h3>Integración de Caminar en Secundaria</h3><div class="nota">Elija, por período, con qué grado se trabaja cada Caminar. Por defecto, en todos los períodos: CS 1 con 6.º y CS 2 con 8.º. Las actas que ya tengan datos los conservan en el grado donde se guardaron: cambie la integración <b>antes</b> de empezar a registrar.</div>'+
- '<label>Período</label><select id="unP">'+UNION.periodos.map(function(x){return '<option'+(x===per?' selected':'')+'>'+x+'</option>'}).join('')+'</select>'+
+ '<div class="nota" id="unN"></div><label>Período</label><select id="unP">'+UNION.periodos.map(function(x){return '<option'+(x===per?' selected':'')+'>'+x+'</option>'}).join('')+'</select>'+
  '<label>CS 1 (Caminar en Secundaria 1) se integra con</label><select id="unA"><option value="06">6.º</option><option value="07">7.º</option></select>'+
  '<label>CS 2 (Caminar en Secundaria 2) se integra con</label><select id="unB"><option value="08">8.º</option><option value="09">9.º</option></select>'+
  '<div class="row"><button class="btn" onclick="cierra(\'mUnion\')">Cancelar</button><button class="btn p" onclick="guardaUnion()">Guardar</button></div></div>';
- function pon(){var u=UNION.union[$('#unP').value];$('#unA').value=u.CS1;$('#unB').value=u.CS2}
+ function pon(){var pr=$('#unP').value,u=UNION.union[pr],t=(UNION.tomado||{})[pr]||{},m=[];$('#unA').value=u.CS1;$('#unB').value=u.CS2;if(t.CS1)m.push('CS 1 ya lo trabaja el acta de '+etUnion(t.CS1));if(t.CS2)m.push('CS 2 ya lo trabaja el acta de '+etUnion(t.CS2));$('#unN').innerHTML=m.length?'<b>Ya tomado en este período:</b> '+m.join('; ')+'. Para cambiarlo, esa comisión debe estar de acuerdo (el sistema no deja moverlo).':''}
  $('#unP').onchange=pon;pon();m.classList.add('on')}
 function guardaUnion(){var per=$('#unP').value,a=$('#unA').value,b=$('#unB').value;
  API('comisionUnionGuardar',{periodo:per,CS1:a,CS2:b}).then(function(u){UNION=u;cierra('mUnion');pintaUnion();alert('Listo. En el período '+per+': CS 1 con '+etUnion(a)+' y CS 2 con '+etUnion(b)+'.');if($('#grado').value&&$('#periodo').value)abreActa()}).catch(function(e){alert(msgE(e))})}

@@ -324,6 +324,7 @@ function comisionCargar(p) {
   var quien = comisionQuien_(); if (!comisionPermisoNivel_(quien).ver) throw new Error('La coordinación no habilitó la consulta de las actas para su nivel.');
   var  a = comisionActa_((p || {}).acta), al = comisionAlcance_(quien, String(a.grado));
   if (comisionSinAlcance_(al)) throw new Error('Usted no tiene cursos ni áreas en este grado.');
+  try { comisionUnionRegistrar_(a.periodo, a.grado); } catch (e) { }
   return { acta: a, alcance: al, quien: { nombre: quien.nombre, rol: quien.rol, coord: quien.coord }, secciones: comisionSecciones_(a.id) };
 }
 /** Solo lo que cambió desde la versión que ya tiene la pantalla (para refrescar cada pocos segundos sin traer todo). */
@@ -751,20 +752,48 @@ var COM_PERIODOS = ['Primero', 'Segundo', 'Tercero', 'Final'];
 function comisionUnionDefecto_(periodo) { return { CS1: '06', CS2: '08' }; }  // decisión 2026-11-24 (esta vez): CS 1 con 6.º y CS 2 con 8.º en todos los períodos; coordinación puede cambiarlo por período
 /* Coordinación puede cambiar la integración por período (parámetro comisiones_union): CS1 con 6.º o 7.º y CS2 con 8.º o 9.º. */
 function comisionUnionConfig_() { var c = {}; try { c = JSON.parse(parametro_('comisiones_union', '{}')) || {}; } catch (e) { c = {}; } return c; }
+/* Quién ya «tomó» a Caminar en un período: (1) lo registrado al abrir un acta (parámetro comisiones_union_uso) y (2) actas antiguas de 7.º y 9.º con datos (antes de 2026.11.24-c Caminar siempre iba con 7.º y 9.º). */
+var COM_UNION_MEMO = null;
+function comisionUnionUso_() { var c = {}; try { c = JSON.parse(parametro_('comisiones_union_uso', '{}')) || {}; } catch (e) { c = {}; } return c; }
+function comisionUnionOcupacion_(periodo) {
+  var per = String(periodo || 'Final'); COM_UNION_MEMO = COM_UNION_MEMO || {};
+  if (COM_UNION_MEMO[per]) return COM_UNION_MEMO[per];
+  var r = { CS1: null, CS2: null }, uso = comisionUnionUso_()[per] || {};
+  if (uso.CS1) r.CS1 = uso.CS1; if (uso.CS2) r.CS2 = uso.CS2;
+  if (!r.CS1 || !r.CS2) {
+    var cnt = comisionContarSecciones_();
+    datosOCrea_('Comision_Actas', COL_CACTAS).forEach(function (x) {
+      if (x.estado === 'DUPLICADA' || String(x.periodo) !== per || !cnt[String(x.id)]) return;
+      var g = String(x.grado == null ? '' : x.grado).trim(); g = /^\d$/.test(g) ? '0' + g : g;
+      if (g === '07' && !r.CS1) r.CS1 = '07'; if (g === '09' && !r.CS2) r.CS2 = '09';
+    });
+  }
+  COM_UNION_MEMO[per] = r; return r;
+}
 function comisionUnion_(periodo) {
-  var d = comisionUnionDefecto_(periodo), o = comisionUnionConfig_()[String(periodo || 'Final')] || {};
-  return { CS1: o.CS1 === '06' || o.CS1 === '07' ? o.CS1 : d.CS1, CS2: o.CS2 === '08' || o.CS2 === '09' ? o.CS2 : d.CS2 };
+  var d = comisionUnionDefecto_(periodo), o = comisionUnionConfig_()[String(periodo || 'Final')] || {}, oc = comisionUnionOcupacion_(periodo);
+  return { CS1: o.CS1 === '06' || o.CS1 === '07' ? o.CS1 : (oc.CS1 || d.CS1), CS2: o.CS2 === '08' || o.CS2 === '09' ? o.CS2 : (oc.CS2 || d.CS2) };
+}
+/** Al abrir un acta que recibe a Caminar, queda registrado quién lo tomó: el otro grado ya no puede trabajarlo en ese período. */
+function comisionUnionRegistrar_(periodo, grado) {
+  var u = comisionUnion_(periodo), uso = comisionUnionUso_(), per = String(periodo), x = uso[per] || {}, cambio = false;
+  ['CS1', 'CS2'].forEach(function (k) { if (u[k] === grado && !x[k]) { x[k] = grado; cambio = true; } });
+  if (cambio) { uso[per] = x; guardarParametro_('comisiones_union_uso', JSON.stringify(uso)); COM_UNION_MEMO = null; }
 }
 function comisionUnionLeer() {
   var r = {}; COM_PERIODOS.forEach(function (p) { r[p] = comisionUnion_(p); });
-  return { periodos: COM_PERIODOS, union: r, defecto: { Primero: comisionUnionDefecto_('Primero'), Segundo: comisionUnionDefecto_('Segundo'), Tercero: comisionUnionDefecto_('Tercero'), Final: comisionUnionDefecto_('Final') } };
+  var oc = {}; COM_PERIODOS.forEach(function (p) { oc[p] = comisionUnionOcupacion_(p); });
+  return { periodos: COM_PERIODOS, union: r, tomado: oc, defecto: { Primero: comisionUnionDefecto_('Primero'), Segundo: comisionUnionDefecto_('Segundo'), Tercero: comisionUnionDefecto_('Tercero'), Final: comisionUnionDefecto_('Final') } };
 }
 function comisionUnionGuardar(p) {
   var quien = comisionQuien_(); if (!quien.coord) throw new Error('Solo coordinación académica o el desarrollador cambian la integración de Caminar en Secundaria.');
   p = p || {}; var per = String(p.periodo || ''); if (COM_PERIODOS.indexOf(per) < 0) throw new Error('Período no válido.');
   if (['06', '07'].indexOf(String(p.CS1)) < 0 || ['08', '09'].indexOf(String(p.CS2)) < 0) throw new Error('CS 1 se integra con 6.º o 7.º; CS 2 con 8.º o 9.º.');
+  var oc = comisionUnionOcupacion_(per), nom = { '06': '6.º', '07': '7.º', '08': '8.º', '09': '9.º' };
+  if (oc.CS1 && oc.CS1 !== String(p.CS1)) throw new Error('El acta de ' + nom[oc.CS1] + ' ya empezó a trabajar con Caminar en Secundaria 1 en el período ' + per + '. Pónganse de acuerdo con esa comisión antes de cambiarlo.');
+  if (oc.CS2 && oc.CS2 !== String(p.CS2)) throw new Error('El acta de ' + nom[oc.CS2] + ' ya empezó a trabajar con Caminar en Secundaria 2 en el período ' + per + '. Pónganse de acuerdo con esa comisión antes de cambiarlo.');
   var c = comisionUnionConfig_(); c[per] = { CS1: String(p.CS1), CS2: String(p.CS2) };
-  guardarParametro_('comisiones_union', JSON.stringify(c));
+  guardarParametro_('comisiones_union', JSON.stringify(c)); COM_UNION_MEMO = null;
   return comisionUnionLeer();
 }
 function comisionGradoActa_(grupo, periodo) { var g = partesGrupo_(grupo).grado; return comisionUnion_(periodo)[g] || g; }

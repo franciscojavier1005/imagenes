@@ -1,6 +1,6 @@
 # Instrucciones para Claude en este repositorio
 
-Lee primero `docs/CONTEXTO_PROYECTO.md` (arquitectura, reglas de negocio acordadas, forma de trabajar y estado). **Actualízalo en cada cambio** y haz commit con el resto.
+Lee primero **solo** `docs/ESTADO_ACTUAL.md` (corto: estado, reglas vigentes, pendientes). **Actualízalo en cada cambio** (mantenlo corto; reemplaza lo viejo, no lo acumules) y agrega solo una línea de historial en `docs/CONTEXTO_PROYECTO.md`, que es un archivo de ~185 KB: **no lo leas entero**, búscalo con grep cuando necesites un detalle.
 
 Resumen de la forma de trabajar:
 1. Cambios en `data/`, `scripts/` y `apps_script/`; regenerar con los scripts; correr `apps_script/pruebas/*.test.js` y `scripts/pruebas_whatsapp.py`.

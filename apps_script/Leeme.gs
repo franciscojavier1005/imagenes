@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.24-j';
+var VERSION_SISTEMA = '2026.11.24-k';
 var FECHA_VERSION = '2026-11-24';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.24-k', fecha: '2026-11-24', cambios: [
+    'Comisiones: corrige estudiantes repetidos en los listados. Lo guardado de cada estudiante se unía al número de fila de la hoja Estudiantes; si se insertaban o cambiaban filas, el nombre guardado se copiaba a otra persona. Ahora se une por nombre (y se descarta lo guardado que ya no corresponde). Los botones «No asiste…» y «+ Agregar estudiante» pasan a una barra propia bajo el encabezado del curso (sin flotar ni parpadear al cambiar el tamaño de la ventana) y el aviso de más columnas es una sombra en el borde, sin código que parpadee.'
+  ] },
   { version: '2026.11.24-j', fecha: '2026-11-24', cambios: [
     'Comisiones, listados: se quitó la columna de botones de cada estudiante (quedaba fuera de la pantalla). Ahora «No asiste…» y «+ Agregar estudiante» están junto al encabezado de cada curso («No asiste…» permite marcar o revertir a varios a la vez) y para modificar los datos de un estudiante se pulsa su nombre. Las tablas que se salen del ancho muestran una sombra en el borde y el aviso «Hay más columnas a la derecha». El selector de sexo es más angosto.'
   ] },

@@ -477,8 +477,24 @@ function naAplica(g){var cambios=[];document.querySelectorAll('#naL input[type=c
  if(!confirm('Se aplicarán '+cambios.length+' cambio'+(cambios.length===1?'':'s')+' («No asiste» / «Sí asiste») en '+g+'. ¿Continuar?'))return;
  cambios.forEach(function(x){noAsiste(x[0],x[1],true)});cierra('mNoA');pintaTodo()}
 
-// indicador de «hay más columnas»: sombra al borde y aviso cuando una tabla se sale del ancho
-function marcaMas(){document.querySelectorAll('.tw').forEach(function(w){var der=w.scrollWidth>w.clientWidth+4&&w.scrollLeft+w.clientWidth<w.scrollWidth-4,izq=w.scrollLeft>4;w.classList.toggle('mas-der',!!der);w.classList.toggle('mas-izq',!!izq);
-  var h=w.previousElementSibling;if(!h||!h.classList||!h.classList.contains('hintmas')){h=document.createElement('div');h.className='hintmas';h.textContent='→ Hay más columnas a la derecha: deslice la tabla';w.parentNode.insertBefore(h,w)}
-  h.classList.toggle('on',!!der);if(!w.__mas){w.__mas=1;w.addEventListener('scroll',marcaMas,{passive:true})}})}
-setInterval(function(){try{marcaMas()}catch(e){}},900);window.addEventListener('resize',function(){try{marcaMas()}catch(e){}});
+// ===== identidad de cada estudiante: lo guardado en el acta se une por NOMBRE, no solo por el número de fila de la hoja =====
+// (si en la hoja «Estudiantes» se insertan, borran o cambian filas, el número de fila cambia y lo guardado quedaba en otra persona: nombres repetidos)
+function nrm(x){return String(x||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()}
+function ek(e){return nrm(e.a)+'|'+nrm(e.n)}
+function ek1(a,n){return nrm(a).split(' ')[0]+'|'+nrm(n).split(' ')[0]}
+function marcaK0(){(EST||[]).forEach(function(e){if(!e.k0)e.k0=ek(e)})}
+var _cg_k=construyeGrado;construyeGrado=function(d){var r=_cg_k.apply(this,arguments);try{marcaK0()}catch(e){}return r};
+var _pt_k=particiona;particiona=function(){try{marcaK0()}catch(x){}var o=_pt_k.apply(this,arguments);
+ try{if(o.faltantes&&o.faltantes.datos)Object.keys(o.faltantes.datos).forEach(function(id){var e=est(+id);if(e&&e.k0)o.faltantes.datos[id].k0=e.k0});
+  Object.keys(o).forEach(function(k){if(!/^(estudiantes|reconocimientos):/.test(k))return;['rep','con','com','piar','rec'].forEach(function(c){(o[k][c]||[]).forEach(function(it){var e=est(it.id);if(e&&e.k0)it.k0=e.k0})})})}catch(x){}
+ return o};
+function reubica(it){if(!it||it.k0===undefined)return true;var e=est(it.id);if(e&&e.k0===it.k0)return true;var o=EST.filter(function(y){return y.k0===it.k0})[0];if(o){it.id=o.id;return true}return false}
+var _au_k=aplicaUna;aplicaUna=function(k,d){
+ try{marcaK0();
+  if(k==='faltantes'&&d&&d.datos){var nd={};Object.keys(d.datos).forEach(function(id){var v=d.datos[id],e=est(+id),ok=true,dest=id;
+    if(v.k0!==undefined){if(!(e&&e.k0===v.k0)){var o=EST.filter(function(y){return y.k0===v.k0})[0];if(o)dest=String(o.id);else ok=false}}
+    else if(v.a&&e&&!e.ing&&ek1(v.a,v.n||'')!==ek1(e.a,e.n))ok=false;   // dato antiguo de otra persona: se descarta
+    if(ok)nd[dest]=v});d.datos=nd}
+  else if(/^(estudiantes|reconocimientos):/.test(k)&&d){['rep','con','com','piar','rec'].forEach(function(c){if(d[c])d[c]=d[c].filter(reubica)})}
+ }catch(x){}
+ return _au_k.call(this,k,d)};

@@ -840,3 +840,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 111 (2026-11-24, versión 2026.11.24-j)
 - Listados: sin columna «Acciones»; `abreNoAsiste(g)`/`naAplica` (marcar o revertir varios) junto al encabezado del curso; nombre pulsable → `modEst`. `marcaMas()`: sombra y aviso cuando una `.tw` se desborda. Pendiente por aclarar con el coordinador: «necesitamos para los reconocimientos poder elegir…» (mensaje cortado).
+
+## Ampliación 112 (2026-11-24, versión 2026.11.24-k)
+- Duplicados en listados: `faltantes.datos` y las listas por curso se unían por n.º de fila (`id`); al cambiar filas en la hoja, `a`/`n` guardados se copiaban a otra persona. Ahora `k0` (nombre normalizado) en cada dato/ítem; `aplicaUna` reubica o descarta. Barra `.lisbar` bajo el encabezado; sombras CSS en `.tw`.

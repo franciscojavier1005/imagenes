@@ -2,7 +2,7 @@
 
 Autor y dueño: Francisco Javier Cortés Cabezas (coordinador académico, I.E. ICET, Tumaco). Responder en español, corto, sin bloques de código en el chat; los archivos se entregan con SendUserFile. Rama: `claude/teacher-attendance-system-fso0tf` (sin PR salvo que lo pida). No escribir "OPS". No versionar datos reales (libro xlsx, plantilla con datos).
 
-**Versión vigente: 2026.11.24-j** (ver `VERSION_SISTEMA` en `apps_script/Leeme.gs`).
+**Versión vigente: 2026.11.24-k** (ver `VERSION_SISTEMA` en `apps_script/Leeme.gs`).
 
 ## Qué es
 Libro de Google Sheets + Apps Script: (1) asistencia docente (ronda, novedades, reuniones, paneles) y (2) **Comisiones de evaluación y promoción** (acta por grado y período, varios docentes a la vez, versionado optimista, turno de edición, historial 8 días, borradores locales).
@@ -23,6 +23,8 @@ Libro de Google Sheets + Apps Script: (1) asistencia docente (ronda, novedades, 
 - Reconocimientos y reprobación: selección múltiple; excelencia/rendimiento con promedio 4,6 por defecto resaltado; barra de reprobados por área y curso (solo agrega). Acta cerrada: solo coord/desarrollador escriben.
 - Docentes que alternan semanalmente con quien aparece en el Horario: `COM_ALTERNAN_DEFECTO` (Quintero en 0801/0802, CSI) + parámetro `comisiones_alternan`. **Faltan** los demás pares (Ética/Religión, CS2…): pedirlos al coordinador.
 - Rendimiento: leer cada hoja una vez por solicitud (`VAL_REQ` en `comisionContexto` y `comisionGradoDatos`); no leer `Parametros` en bucles (memo `COM_UNION_RES`).
+
+- Identidad de estudiantes: lo guardado por estudiante lleva `k0` (nombre normalizado) y se reubica/descarta si la fila de `Estudiantes` cambió (los ids son el n.º de fila). No insertar/ordenar filas de `Estudiantes` con actas abiertas sin necesidad; mejor cambiar solo `grupo`. Hojas de las comisiones: `Comision_Actas`, `Comision_Secciones`, `Comision_Log`, `Comision_Historial`, `Comision_CambiosHojas` (no se editan a mano).
 
 ## Pendientes conocidos
 - Mensaje cortado del usuario: «necesitamos para los reconocimientos poder elegir…» (preguntar qué).

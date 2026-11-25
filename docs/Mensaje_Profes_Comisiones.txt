@@ -1,0 +1,39 @@
+COMISIONES DE EVALUACIÓN Y PROMOCIÓN — INSTRUCCIÓN PARA LOS DOCENTES
+(Francisco Javier Cortés Cabezas · Coordinación académica · I.E. ICET)
+
+Colegas, buen día. Este es el paso a paso para el acta de la comisión. Les tomará entre 40 y 60 minutos si los listados están bien. La clave es depurar los listados primero.
+
+1. ANTES DE EMPEZAR
+Entre a la aplicación, escoja el grado y el período y diga dónde está y desde qué hora. En la asistencia marque a quienes participan; siempre debe haber al menos un directivo u otra persona distinta al cuerpo docente. Puede agregar más personas.
+
+2. LISTADOS (obligatorio y lo más importante)
+Director/a de grupo: revise a cada estudiante y confirme sexo, nacionalidad, tipo de documento y número de documento. Complete lo que falte. Luego pulse «Confirmar sexo y documento del curso». Sin eso no se puede cerrar.
+- «Retirado»: solo si está completamente seguro (se fue a otra institución o ciudad, canceló la matrícula o falleció).
+- Si no está seguro: «No asiste». Así lo definió el rector.
+- Quien queda inhabilitado desaparece del resto del acta.
+
+3. MATRÍCULA
+Es solo informativa: se calcula sola con los listados. No se escribe nada. Si una cifra no cuadra, corrija el sexo o la nacionalidad en el listado.
+
+4. ÁREAS
+Para cada área, pulse «Seleccionar» y marque de una vez a todos los estudiantes que la reprobaron (puede marcar varios a la vez). Reprueba quien queda por debajo de 2,91.
+
+5. REPROBACIÓN
+Se llena sola con lo que marcó en Áreas. Aquí solo escriba las causas (no las notas), la inasistencia y una anotación.
+
+6. PROMOCIÓN (solo en el acta final)
+Todos aparecen promovidos por defecto. Amarillo: 1 o 2 áreas pendientes. Rosado: más de 2 áreas, no promovidos. No ponga candados hasta que los listados estén revisados.
+
+7. CONVIVENCIA Y COMPROMISOS
+Solo si hubo casos. Si no hubo, marque «No hubo casos».
+
+8. RECONOCIMIENTOS
+Puede marcar varios estudiantes a la vez. Excelencia y Rendimiento: el promedio sale en 4,6 por defecto y SIEMPRE hay que revisarlo y cambiarlo (acepta decimales); puesto de 1.º a 10.º. Convivencia: sin puesto, nota opcional. Colaboración y Otros: sin nota ni puesto. Los reconocidos deben tener documento y sexo completos.
+
+9. CIERRE
+Revise la lista de pendientes y corríjalos; complete «Datos faltantes». Luego pulse «Mi parte lista», firme y cierre. Después de firmar no se firma otra vez.
+
+SI ALGO SALE MAL
+«Nueva acta / archivar / recuperar» permite empezar de nuevo o recuperar una anterior; no se pierde nada. Más adelante se podrá trabajar en equipo, cada docente desde su área o su curso.
+
+Guía de una página y manual completo: menú «Manuales» de la aplicación.

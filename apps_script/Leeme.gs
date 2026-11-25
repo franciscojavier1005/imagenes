@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-m';
+var VERSION_SISTEMA = '2026.11.25-n';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-n', fecha: '2026-11-25', cambios: [
+    'Comisiones: la matrícula es toda informativa (inicial, nuevos, retirados, no asisten, hombres, mujeres, venezolanos y ecuatorianos salen de los listados; ya no hay casillas para cambiarla). Para corregir una cifra se corrige el sexo, la nacionalidad o la situación del estudiante en el listado. «Confirmar sexo y documento del curso» ahora exige también el número de documento de cada estudiante activo.'
+  ] },
   { version: '2026.11.25-m', fecha: '2026-11-25', cambios: [
     'Manuales: nueva Guía rápida de comisiones (una página, para compartir con los docentes) y el manual de comisiones trae al inicio el capítulo «Guía rápida: la comisión en 9 pasos» (depurar listados, matrícula, áreas, reprobación, promoción, reconocimientos y cierre). Ambos están en el menú de manuales.'
   ] },

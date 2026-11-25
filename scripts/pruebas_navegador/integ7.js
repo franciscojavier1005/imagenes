@@ -146,8 +146,8 @@ const TN=ses('Nom17 Nom18 Nom19','666666666');
  const ops=await N.evaluate(()=>{pintaUnion();pintaListas();return [!!document.getElementById('btnActaOps'),!!document.getElementById('recPdfBar'),typeof abreActaOps]});
  ok(ops[0]&&ops[1]&&ops[2]==='function','botones de nueva acta/archivar y PDF de reconocimientos '+JSON.stringify(ops));
 
- const mm2=await N.evaluate(()=>{pintaMat();const a=[...document.querySelectorAll('#tMat input[type=number]')].map(x=>x.getAttribute('onchange')||'');const ed=a.filter(x=>/setMatMan\(0,'(m|f|ve|ec)'/.test(x)).length;setMatMan(0,'m',3);const r=S.mat[0],t=tot(r);return [ed,r.m===3,r.f===t-3,document.querySelectorAll('#tMat .roMat').length>=4,(()=>{S.mat[0].man={};matDeriva();return true})()]});
- ok(mm2[0]===4&&mm2[1]&&mm2[2]&&mm2[3],'hombres, mujeres, venezolanos y ecuatorianos se pueden ajustar; hombres+mujeres = matrícula final '+JSON.stringify(mm2));
+ const mm2=await N.evaluate(()=>{pintaMat();const a=[...document.querySelectorAll('#tMat input[type=number]')].map(x=>x.getAttribute('onchange')||'');const ed=a.filter(x=>/(setMatMan|matSet)\(0,'(m|f|ve|ec)'/.test(x)).length;return [ed,document.querySelectorAll('#tMat .roMat').length>=8]});
+ ok(mm2[0]===0&&mm2[1],'toda la matrícula (incluidos sexo y nacionalidad) es solo lectura y sale de los listados '+JSON.stringify(mm2));
 
  const mg=await N.evaluate(()=>{const g=S.gs[0],L=EST.filter(e=>e.g===g&&!e.baja);S.rec=[{id:L[1].id,prom:'4,9',tipo:'EXCELENCIA',puesto:1},{id:L[2].id,prom:'4,8',tipo:'Excelencia',puesto:2},{id:L[3].id,prom:'',tipo:'Convivencia escolar',puesto:0}];matDeriva();pintaMerge();const f=[...document.querySelectorAll('#recMerge table tr')].slice(1).map(r=>r.cells[0].textContent.trim());S.rec=[];return f});
  ok(mg.length===3&&mg.every(x=>x&&x!=='—'),'el listado para combinar correspondencia muestra el tipo en todas las filas '+JSON.stringify(mg));

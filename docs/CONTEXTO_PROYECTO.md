@@ -852,3 +852,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 115 (2026-11-25, versión 2026.11.25-c)
 - Sexo confirmado por curso, obligatorios documento/sexo de reconocidos, globos de recordatorio; `Traslados.gs`: masivos, `importarLibro`, `respaldoRevision_`; `Manuales.html`; Menu: `abrirMasivo`. Mac Safari: pantalla de error de Google al abrir el enlace (ver ESTADO_ACTUAL).
+
+## Ampliación 116 (2026-11-25, versión 2026.11.25-d)
+- Matrícula y áreas derivadas de los listados; nacionalidad; retirados; modales arriba; reconocimientos (nombres, puesto, promedio confirmado); promoción sin inhibidos; «Habilitar de nuevo» en desplegable; sin aviso de versiones.

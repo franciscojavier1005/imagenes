@@ -214,7 +214,7 @@ function REAL_BOOT(){
  document.body.classList.add('jsok');
  if(!tokenGuardado()){irAlMenu();return}
  API('comisionContexto').then(function(c){
-  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if((c.version||'')!=='__CLIENTVER__'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión __CLIENTVER__ y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla __CLIENTVER__ · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
+  CTXR=c;USR=c.quien.nombre;if(c.bloqueado)setTimeout(function(){alert(c.bloqueado)},400);if(false&&(c.version||'')!=='__CLIENTVER__'){setTimeout(function(){var d=document.createElement('div');d.className='mal';d.style.cssText='margin:8px 12px;padding:10px;border-radius:10px;background:#fdeaea;border:2px solid #c0392b;color:#7a1c12;font:14px Arial,sans-serif';d.innerHTML='<b>Versiones distintas.</b> Esta pantalla es la versión __CLIENTVER__ y el servidor responde la versión '+(c.version||'anterior')+'. Por eso algunos controles no guardan o no actualizan. En Apps Script: pegue el código completo (ICET_completo.gs) y use Implementar → Administrar implementaciones → editar → Nueva versión.';var b=document.querySelector('header.top');if(b&&b.parentNode)b.parentNode.insertBefore(d,b.nextSibling)},600)}try{$('#quienSes').textContent=USR+' · pantalla __CLIENTVER__ · servidor '+(c.version||'anterior')}catch(e){}PERFIL=c.quien.rol==='docente'?'d':'c';
   GRADOS_REAL=c.grados.map(function(code){return COM_LABEL[code]}).filter(Boolean);LABEL_DE={};c.grados.forEach(function(code){LABEL_DE[COM_LABEL[code]]=code});
   var bh=$('#btnHist');if(bh&&(c.quien.rol!=='docente'||c.quien.total))bh.style.display='';var be=$('#btnEj');if(be&&c.quien.dev)be.style.display='';var p=$('#perfil');if(p){p.value=PERFIL;if(!c.quien.dev){var pf=document.querySelector('.perf');if(pf)pf.style.display='none'}}
   $('#grado').onchange=abreActa;$('#periodo').onchange=abreActa;
@@ -450,7 +450,7 @@ var _pe_u=$('#periodo');if(_pe_u)_pe_u.addEventListener('change',function(){try{
 
 function habInline(id,anchor,tit,items){var old=document.getElementById(id);if(old)old.remove();if(!esCoord()||!anchor||!items.length)return;
  var d=document.createElement('div');d.id=id;d.className='nota';d.style.cssText='margin:6px 0;border-left:4px solid #5b8def';
- d.innerHTML='<b>'+tit+'</b> <small class="g">(coordinación / desarrollador)</small><div class="row" style="flex-wrap:wrap;gap:6px;margin-top:4px">'+items.map(function(x){return '<button class="btn s" onclick="habilita(\''+x[0]+'\',\''+String(x[1]).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">Habilitar de nuevo · '+esc(x[2])+'</button>'}).join('')+'</div>';
+ d.innerHTML='<details><summary><b>🔓 '+tit+'</b> <small class="g">(coordinación / desarrollador: reabrir con justificación)</small></summary><div class="row" style="flex-wrap:wrap;gap:6px;margin-top:4px">'+items.map(function(x){return '<button class="btn s" onclick="habilita(\''+x[0]+'\',\''+String(x[1]).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">Habilitar de nuevo · '+esc(x[2])+'</button>'}).join('')+'</div></details>';
  anchor.insertAdjacentElement('beforebegin',d)}
 function habInlineTodo(){if(!S||!S.gs)return;try{OG();
  habInline('habI_rev',$('#lisBox'),'Revisión de listados confirmada',revLista().filter(function(x){return S.revL&&S.revL[x.n]}).map(function(x){return ['rev',x.n,x.n]}));
@@ -565,3 +565,38 @@ function recuerda(min){try{if(!S||!ACTA||S.cerrada||!USR||EN_PRUEBA())return;var
   globoRec('🔔 <b>Le falta'+(L.length===1?'':'n')+' '+L.length+' cosa'+(L.length===1?'':'s')+' por completar:</b><br>'+L.slice(0,4).map(function(x){return '• '+esc((x.curso?x.curso+': ':'')+(x.persona&&x.persona!==USR?x.persona+': ':'')+x.msg.slice(0,90))}).join('<br>')+(L.length>4?'<br>… y '+(L.length-4)+' más':'')+'<br><button style="margin-top:6px;border:0;border-radius:8px;padding:4px 10px;cursor:pointer;background:#ffd27a" onclick="verPend();this.parentNode.remove()">Ver pendientes</button>',16)}catch(e){}}
 setInterval(function(){recuerda(240000)},60000);
 var _ir_r=ir;ir=function(i){var r=_ir_r.apply(this,arguments);setTimeout(function(){recuerda(90000)},400);return r};
+
+
+// ===== listados → matrícula → áreas → reprobación → promoción: todo sale de los listados (solo cuentan quienes asisten) =====
+var NACS=['Colombiana','Venezolana','Ecuatoriana','Peruana','Otra…'];
+function nacCelda(e){if(e.baja)return esc(e.nac||'—');var v=e.nac||'Colombiana',op=NACS.slice();if(op.indexOf(v)<0)op.splice(op.length-1,0,v);
+ return '<select style="width:auto;max-width:130px;padding:3px" onchange="setNac('+e.id+',this.value)">'+op.map(function(o){return '<option'+(o===v?' selected':'')+'>'+esc(o)+'</option>'}).join('')+'</select>'}
+function setNac(id,v){var e=est(id);if(!e)return;if(v==='Otra…'){v=(prompt('¿Cuál es la nacionalidad de '+nom(e)+'?')||'').trim();if(!v){pintaLis();return}}
+ e.nac=v;e.mod=1;e.falta=(e.falta||[]).filter(function(x){return x!=='Nacionalidad'});pintaTodo()}
+function nacPorDefecto(){(EST||[]).forEach(function(e){if(!e.nac){e.nac='Colombiana';e.falta=(e.falta||[]).filter(function(x){return x!=='Nacionalidad'})}})}
+function matDeriva(){if(!S||!S.gs||!S.mat)return;nacPorDefecto();S.gs.forEach(function(g,i){var r=S.mat[i];if(!r)return;var L=EST.filter(function(e){return e.g===g}),act=L.filter(function(e){return !e.baja}),ret=/^(No asist|Desert|Nunca)/;
+  r.ini=L.filter(function(e){return !e.ing}).length;r.nu=L.filter(function(e){return e.ing&&!e.baja}).length;
+  r.re=L.filter(function(e){return !e.ing&&e.baja&&!ret.test(e.bajaMotivo||'')}).length;r.de=L.filter(function(e){return !e.ing&&e.baja&&ret.test(e.bajaMotivo||'')}).length;
+  var ve=act.filter(function(e){return /venez/i.test(e.nac||'')}).length,ec=act.filter(function(e){return /ecuator/i.test(e.nac||'')}).length;
+  if(r.veDecl===undefined)r.veDecl=(+r.ve||0)>ve?(+r.ve||0):0;if(r.ecDecl===undefined)r.ecDecl=(+r.ec||0)>ec?(+r.ec||0):0;if(r.veDecl&&ve>=r.veDecl)r.veDecl=0;if(r.ecDecl&&ec>=r.ecDecl)r.ecDecl=0;
+  r.ve=ve;r.ec=ec;r.m=act.filter(function(e){return e.sx==='M'}).length;r.f=act.filter(function(e){return e.sx==='F'}).length});try{rpDeriva()}catch(e){}}
+['pintaMat','pintaLis','pintaAreas','pintaProm','pendientesCierre','particiona','pintaListas'].forEach(function(n){var f=window[n];if(typeof f!=='function')return;window[n]=function(){try{matDeriva()}catch(e){}return f.apply(this,arguments)}});
+// matrícula: las cifras salen de los listados (solo lectura)
+var _pm_d=pintaMat;pintaMat=function(){var r=_pm_d.apply(this,arguments);try{document.querySelectorAll('#tMat input[type=number]').forEach(function(i){var oc=i.getAttribute('onchange')||'';if(/\.(ini|nu|re|de|m|f|ve|ec)=/.test(oc)){i.disabled=true;i.title='Sale de los listados: corríjalo allí (No asiste, Retiró, Agregar, Sexo, Nacionalidad)'}});
+  document.querySelectorAll('#tMat button').forEach(function(b){if(/usaMarcas/.test(b.getAttribute('onclick')||''))b.style.display='none'});
+  var nota=document.getElementById('matDeriv');if(!nota&&$('#tMat')){var d=document.createElement('div');d.id='matDeriv';d.className='nota';d.innerHTML='<b>La matrícula sale de los listados.</b> Inicial = estudiantes del listado original; nuevos = agregados; retirados = quienes se fueron a otra institución o domicilio o cancelaron; no asisten = los marcados «No asiste»; hombres, mujeres, venezolanos y ecuatorianos = lo que se marcó en el listado. Si algo no cuadra, <b>corríjalo en Listados</b>. <button class="btn s" onclick="irK(\'sL\')">Ir a Listados</button>';$('#tMat').closest('.tw').insertAdjacentElement('beforebegin',d)}}catch(e){}return r};
+// áreas: los reprobados son los estudiantes seleccionados; aprobados = matrícula final − reprobados
+function rpDeriva(){if(!S||!S.rep||S.niv==='pre')return;AREAS.forEach(function(a){S.rp[a]=S.gs.map(function(g){return S.rep.filter(function(r){var e=est(r.id);return e&&e.g===g&&!e.baja&&r.items.some(function(i){return i.area===a})}).length})})}
+var _pa_d=pintaAreas;pintaAreas=function(){try{rpDeriva()}catch(e){}var r=_pa_d.apply(this,arguments);try{document.querySelectorAll('#areasBox input[type=number], .card .tw table.plain input[type=number]').forEach(function(i){if(/S\.rp\[/.test(i.getAttribute('onchange')||'')){i.disabled=true;i.title='Se cuenta con los estudiantes que seleccione en «Seleccionar»'}});
+  var n=document.getElementById('notaRp');if(!n&&$('#notaAr')){var d=document.createElement('div');d.id='notaRp';d.className='nota';d.innerHTML='<b>Matrícula final</b> = solo quienes asisten (sin «No asiste» ni retirados). Los <b>reprobados</b> se cuentan con los estudiantes que usted elija en «Seleccionar» de cada área; los <b>aprobados</b> son la matrícula final menos los reprobados.';$('#notaAr').insertAdjacentElement('afterend',d)}}catch(e){}return r};
+// reconocimientos: confirmar el promedio sugerido y nombres con inicial mayúscula
+function confirmaProm(i){if(S.rec[i]){S.rec[i].promDef=false;pintaListas();pintaPendientes()}}
+var TIPOS_LEG={'EXCELENCIA':0,'RENDIMIENTO ACADÉMICO':1,'CONVIVENCIA ESCOLAR':2,'COLABORACIÓN Y BUEN PORTE DEL UNIFORME (ALTERNATIVO, SIN MEDALLA NI MENCIÓN)':3,'COLABORACIÓN Y BUEN PORTE DEL UNIFORME':3,'OTROS':4};
+var TIPOS_NUEVOS=['Excelencia','Rendimiento académico','Convivencia escolar','Colaboración y buen porte del uniforme','Otros'];
+function tipoNorm(t){var k=String(t||'').toUpperCase().trim();return TIPOS_LEG[k]!==undefined?TIPOS_NUEVOS[TIPOS_LEG[k]]:t}
+var _au_t=aplicaUna;aplicaUna=function(k,d){var r=_au_t.call(this,k,d);try{if(k==='general')S.tiposRec=TIPOS_NUEVOS.slice();if(/^reconocimientos:/.test(k))S.rec.forEach(function(x){x.tipo=tipoNorm(x.tipo)})}catch(e){}return r};
+var _pcd=pendientesCierre;pendientesCierre=function(){var L=_pcd();try{
+ L.forEach(function(x){if(/Confirme o corrija el promedio/.test(x.msg||''))x.adv=false});
+ (S.mat||[]).forEach(function(r){if(r.veDecl)L.push({paso:'sL',comp:'Listados',curso:r.g,persona:'',msg:'La matrícula registró '+r.veDecl+' venezolano'+(r.veDecl===1?'':'s')+' y en el listado solo hay '+r.ve+' marcado'+(r.ve===1?'':'s')+': indique en la columna «Nacionalidad» quiénes son.',donde:'Director/a de grupo',adv:false});
+  if(r.ecDecl)L.push({paso:'sL',comp:'Listados',curso:r.g,persona:'',msg:'La matrícula registró '+r.ecDecl+' ecuatoriano'+(r.ecDecl===1?'':'s')+' y en el listado solo hay '+r.ec+' marcado'+(r.ec===1?'':'s')+': indique en la columna «Nacionalidad» quiénes son.',donde:'Director/a de grupo',adv:false})});
+ var ord=PKEYS.concat(['p2']);L.forEach(function(x){x.o=ord.indexOf(x.paso)});L.sort(function(a,b){return a.o-b.o})}catch(e){}return L};

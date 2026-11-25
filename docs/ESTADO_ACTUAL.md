@@ -2,7 +2,7 @@
 
 Autor y dueño: Francisco Javier Cortés Cabezas (coordinador académico, I.E. ICET, Tumaco). Responder en español, corto, sin bloques de código en el chat; los archivos se entregan con SendUserFile. Rama: `claude/teacher-attendance-system-fso0tf` (sin PR salvo que lo pida). No escribir "OPS". No versionar datos reales (libro xlsx, plantilla con datos).
 
-**Versión vigente: 2026.11.25-c** (solo se cambia en `Leeme.gs`: las pantallas la reciben por `<?= VERSION ?>`; ya no hay que hacer `sed` en los .html) (ver `VERSION_SISTEMA` en `apps_script/Leeme.gs`).
+**Versión vigente: 2026.11.25-d** (solo se cambia en `Leeme.gs`: las pantallas la reciben por `<?= VERSION ?>`; ya no hay que hacer `sed` en los .html) (ver `VERSION_SISTEMA` en `apps_script/Leeme.gs`).
 
 ## Qué es
 Libro de Google Sheets + Apps Script: (1) asistencia docente (ronda, novedades, reuniones, paneles) y (2) **Comisiones de evaluación y promoción** (acta por grado y período, varios docentes a la vez, versionado optimista, turno de edición, historial 8 días, borradores locales).
@@ -31,6 +31,8 @@ Libro de Google Sheets + Apps Script: (1) asistencia docente (ronda, novedades, 
 ## Solicitud del usuario del 2026-11-25 (archivo CLAUDE_SOLICITUD_APP_CONTROL.txt) — lo HECHO y lo PENDIENTE
 Hecho: nombre «Control de Procesos ICET» + versión visible en el menú; versión única en `Leeme.gs`; traslado individual con autorización/log/aviso; colores de botones; docentes no ven el selector de rol (el servidor decide `coord`).
 Hecho 2026-11-25 (-c): sexo confirmado por curso (`S.sxOk`), documento/sexo obligatorios para reconocidos, globos de recordatorio (`recuerda`), menú «Estudiantes y docentes: traslados y cambios masivos» + importación desde otro libro (`importarLibro`), `Manuales.html` (PDF incrustados; regenerar con `scripts/generar_manuales_html.py` tras los PDF), copia de revisión `respaldoRevision_`. Mac/Safari: error de Google «No se pudo abrir el archivo» al abrir el enlace (pedir URL completa y probar en Chrome/ventana privada). Hecho (-b): modo de trabajo `comisiones_modo` UNO/EQUIPO (alcance por docente en `comisionAlcance_`; botón de coordinación) y seguimiento con destacadas + tabla. Pendiente (priorizar con el usuario):  (5) respaldo compacto en Drive y carpeta local al ingresar coord/desarrollador, y subir manuales PDF a Drive + descargarlos desde la app (aquí NO se escribe en Drive/OneDrive/C:\; usar el zip `archivar_versiones.py`); (6) compatibilidad MacBook M1/iOS «no los abre» (necesita reproducir: pedir captura/mensaje de error); (7) más velocidad de carga/guardado; (8) auditoría de programador al final.
+
+- LA MATRÍCULA SALE DE LOS LISTADOS (`matDeriva` en `real_layer.js`): ini/nu/re/de/m/f/ve/ec derivados de `EST` y de solo lectura; reprobados por área derivados de `S.rep` (`rpDeriva`); nacionalidad por defecto «Colombiana»; tipos de reconocimiento en minúscula (`TIPOS_NUEVOS`, `tipoNorm` convierte los guardados en mayúscula); puesto 1–10 solo para excelencia y rendimiento; modales arriba (`.modal{align-items:flex-start}`); sin aviso de «versiones distintas».
 
 ## Pendientes conocidos
 - Mensaje cortado del usuario: «necesitamos para los reconocimientos poder elegir…» (preguntar qué).

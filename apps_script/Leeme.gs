@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-s';
+var VERSION_SISTEMA = '2026.11.25-t';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-t', fecha: '2026-11-25', cambios: [
+    'Comisiones: Áreas, Reprobación y Promoción quedan sincronizadas en los dos sentidos. Si en Promoción se agrega un área a un estudiante, aparece de inmediato en Reprobación (con el aviso «Falta la causa» y un pendiente de cierre para escribirla) y en las cifras de Áreas; y al quitarla desaparece de las tres. En Áreas los aprobados y reprobados ya no son casillas sino etiquetas grandes de solo lectura (lo que cambia es «Seleccionar»). En Reprobación y en Recomendaciones las cifras de reprobación van en rosado y más grandes. Los botones DBA y Estándares y orientaciones, y los de integración, modo de trabajo y nueva acta, tienen colores distintos. En Reconocimientos, el tipo «Otros» permite elegir o crear el reconocimiento adicional (porte del uniforme, puntualidad, sentido de pertenencia…), que sale en el acta y en el listado.'
+  ] },
   { version: '2026.11.25-s', fecha: '2026-11-25', cambios: [
     'Comisiones: en Matrícula ya no queda ninguna casilla numérica (tampoco «Por verificar»): todas las cifras son etiquetas que salen de los listados. Se comprobó con una prueba automática que lo marcado en Áreas aparece en Reprobación (y al desmarcar desaparece) y que las cifras de Áreas se actualizan.'
   ] },

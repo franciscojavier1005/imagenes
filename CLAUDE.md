@@ -2,6 +2,8 @@
 
 Lee primero **solo** `docs/ESTADO_ACTUAL.md` (corto: estado, reglas vigentes, pendientes). **Actualízalo en cada cambio** (mantenlo corto; reemplaza lo viejo, no lo acumules) y agrega solo una línea de historial en `docs/CONTEXTO_PROYECTO.md`, que es un archivo de ~185 KB: **no lo leas entero**, búscalo con grep cuando necesites un detalle.
 
+**Comisiones.html ahora es la fuente** (la plantilla con datos que lo generaba ya no existe: editarlo directamente). Pruebas de navegador en `scripts/pruebas_navegador/`.
+
 Resumen de la forma de trabajar:
 1. Cambios en `data/`, `scripts/` y `apps_script/`; regenerar con los scripts; correr `apps_script/pruebas/*.test.js` y `scripts/pruebas_whatsapp.py`.
 2. Empaquetar con `python3 scripts/empaquetar_apps_script.py` y entregar al usuario los archivos de `apps_script/paquete/` y una lista corta de qué sustituir. **No mostrar bloques de código en el chat** salvo que lo pida (lo dijo el 2026-10-06).

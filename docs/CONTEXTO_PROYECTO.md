@@ -879,3 +879,4 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - 2026-11-25: imágenes WhatsApp de comisiones (docs/whatsapp, scripts/generar_imagenes_whatsapp.js); texto revisado contra la app (firma/imprimible antes de cerrar, Caminar, recuperar borrador). 
 - 2026-11-25 (-p): anotación opcional por área en Reprobación (it.nota; sale en acta impresa); «Cómo funciona» alineado con la circular; circular corregida docs/Circular_Profes_Comisiones (txt/pdf); institución: Institución Ciudadela Educativa Tumaco (ICET).
 - 2026-11-25 (-q): manual de comisiones, guía y Ayuda.html alineados con la app (matrícula solo lectura, depuración, asistencia con directivo, reprobación desde Áreas, impresión antes de cerrar).
+- Limpieza: eliminado Mensaje_Profes_Comisiones (reemplazado por Circular_Profes_Comisiones).

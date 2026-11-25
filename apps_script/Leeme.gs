@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-d';
+var VERSION_SISTEMA = '2026.11.25-e';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-e', fecha: '2026-11-25', cambios: [
+    'Comisiones: el botón «Retiró…» pasa a llamarse «Retirado…». En la promoción, dentro de cada curso los estudiantes van en orden alfabético por apellido: primero quienes se promueven, luego (franja amarilla) quienes pasan con áreas pendientes y al final (franja rosada) quienes no se promueven; quienes no asisten o están retirados no aparecen.'
+  ] },
   { version: '2026.11.25-d', fecha: '2026-11-25', cambios: [
     'Comisiones, listados: cada director de grupo debe actualizar o CONFIRMAR el sexo de los estudiantes de su curso («Confirmar sexo del curso»); sin eso no puede confirmar su revisión de listados ni cerrar el acta. Para los estudiantes con reconocimiento, el tipo y número de documento y el sexo son obligatorios; para los demás no (en Datos faltantes aparece el resumen por curso). Los datos de los docentes (correo personal, celular y cédula) siguen siendo obligatorios para guardar y cerrar. Cada pocos minutos, y al cambiar de paso, un globo recuerda a cada persona lo que le falta, con el botón «Ver pendientes».',
     'Menú de directivos: «Estudiantes y docentes: traslados y cambios masivos» (trasladar varios estudiantes, cambiar un dato a varios estudiantes o docentes e importar datos desde otro libro de Hojas de cálculo con vista previa). Coordinación y el desarrollador aplican en la hoja; los demás solo solicitan traslados. Todo queda en Bitacora_Cambios.',

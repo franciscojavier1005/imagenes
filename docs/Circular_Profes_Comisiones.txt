@@ -94,7 +94,7 @@ En este apartado se debe seleccionar, para cada área, a todos los estudiantes q
 - Se debe repetir el procedimiento en cada una de las áreas.
 - Se considera reprobada un área cuando la calificación es inferior a 2,91 (el SIEE aprueba de 3,0 a 5,0 y, por criterio del rector, de 2,91 a 3,0 se redondea a 3,0).
 
-La información seleccionada en este apartado alimenta automáticamente la sección de «Reprobación».
+Las cifras de aprobados y reprobados son de solo lectura (etiquetas): cambian únicamente al seleccionar estudiantes. La información seleccionada en este apartado alimenta automáticamente la sección de «Reprobación».
 
 Es importante verificar que los estudiantes seleccionados correspondan efectivamente a quienes reprobaron cada área.
 
@@ -105,6 +105,8 @@ Este apartado se alimenta automáticamente con los estudiantes seleccionados pre
 El docente debe registrar la causa o las causas de reprobación correspondientes en cada área, además de las situaciones de inasistencia y las observaciones pertinentes.
 
 Es importante que las causas queden asociadas al área respectiva y no se registren de manera general cuando correspondan a situaciones diferentes. Se pueden registrar varias causas cuando sea necesario.
+
+Todo está sincronizado: si en Promoción se agrega un área a un estudiante, aparece también aquí con el aviso «Falta la causa» y en las cifras de Áreas; el docente debe escribir la causa. Al quitarla, desaparece de las tres partes.
 
 Opcionalmente, junto a cada área está el botón «+ Anotación», que permite escribir una nota para justificar mejor el caso del estudiante en esa área. La anotación general del estudiante sigue disponible en «Anotación y motivos generales». Las anotaciones salen en el acta impresa.
 
@@ -118,6 +120,7 @@ Se identifican los siguientes grupos:
 
 - Sin áreas pendientes: estudiantes que cumplen las condiciones de promoción.
 - En grado undécimo, quien pierde un área no participa en la ceremonia de graduación.
+- Si de emergencia se agrega un área a un estudiante en este apartado, se refleja en Reprobación y en Áreas.
 - Una o dos áreas pendientes: estudiantes que presentan una o dos áreas reprobadas.
 - Más de dos áreas reprobadas: estudiantes que, en el acta final, aparecen como no promovidos.
 
@@ -160,7 +163,7 @@ Reconocimiento de Convivencia
 
 Otros reconocimientos
 
-En «Colaboración y buen porte del uniforme» y en «Otros», no es necesario registrar calificación ni puesto.
+En «Colaboración y buen porte del uniforme» y en «Otros» (donde se elige o se crea el reconocimiento adicional: porte del uniforme, puntualidad, sentido de pertenencia, etc.), no es necesario registrar calificación ni puesto.
 
 Recomendación: antes de finalizar, revisar nuevamente los nombres y documentos de los estudiantes seleccionados. Esta verificación es especialmente importante para evitar errores en las menciones, certificados y entregas de reconocimientos.
 

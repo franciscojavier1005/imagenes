@@ -881,3 +881,4 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - 2026-11-25 (-q): manual de comisiones, guía y Ayuda.html alineados con la app (matrícula solo lectura, depuración, asistencia con directivo, reprobación desde Áreas, impresión antes de cerrar).
 - Limpieza: eliminado Mensaje_Profes_Comisiones (reemplazado por Circular_Profes_Comisiones).
 - 2026-11-25: infografía vertical de la guía rápida (docs/whatsapp/Infografia_Comisiones_ICET.png, scripts/generar_infografia.js; leer versión de Leeme.gs).
+- 2026-11-25 (-r): seguimiento: orden por clic en el encabezado de la tabla (sin botones flotantes) y fecha corta.

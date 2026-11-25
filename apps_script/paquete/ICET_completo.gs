@@ -3882,11 +3882,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-q';
+var VERSION_SISTEMA = '2026.11.25-r';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-r', fecha: '2026-11-25', cambios: [
+    'Seguimiento de las comisiones: los botones «Por fecha» y «Por avance» ya no ocupan espacio ni tapan la tabla; ahora se ordena tocando el título de cada columna (grado, avance, responsable, último cambio, estado; otro toque invierte el orden). El «Último cambio» se muestra corto (día/mes/año hora:minuto) en lugar del texto largo de la fecha.'
+  ] },
   { version: '2026.11.25-q', fecha: '2026-11-25', cambios: [
     'Manuales y ayuda de comisiones puestos al día con la aplicación: la matrícula es informativa (sale de los listados), depurar los listados es obligatorio (sexo, nacionalidad, tipo y número de documento), la asistencia exige un directivo docente, Reprobación se llena desde Áreas (con anotación opcional por área) y el acta se imprime antes de cerrar.'
   ] },

@@ -3882,11 +3882,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-t';
+var VERSION_SISTEMA = '2026.11.25-u';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-u', fecha: '2026-11-25', cambios: [
+    'Comisiones: paleta más suave. En Áreas, los aprobados van en verde suave y los reprobados en rosado suave. En Reprobación, los estudiantes con 1 o 2 áreas (promovidos con áreas pendientes) salen en amarillo suave, como en Promoción, y quienes pierden más de 2 áreas en rosado suave.'
+  ] },
   { version: '2026.11.25-t', fecha: '2026-11-25', cambios: [
     'Comisiones: Áreas, Reprobación y Promoción quedan sincronizadas en los dos sentidos. Si en Promoción se agrega un área a un estudiante, aparece de inmediato en Reprobación (con el aviso «Falta la causa» y un pendiente de cierre para escribirla) y en las cifras de Áreas; y al quitarla desaparece de las tres. En Áreas los aprobados y reprobados ya no son casillas sino etiquetas grandes de solo lectura (lo que cambia es «Seleccionar»). En Reprobación y en Recomendaciones las cifras de reprobación van en rosado y más grandes. Los botones DBA y Estándares y orientaciones, y los de integración, modo de trabajo y nueva acta, tienen colores distintos. En Reconocimientos, el tipo «Otros» permite elegir o crear el reconocimiento adicional (porte del uniforme, puntualidad, sentido de pertenencia…), que sale en el acta y en el listado.'
   ] },

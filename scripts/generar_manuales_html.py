@@ -4,7 +4,8 @@ Ejecutar después de regenerar los PDF (node scripts/generar_manual_pdf.js y nod
 Autor del sistema: Francisco Javier Cortés Cabezas · I.E. ICET, Tumaco."""
 import base64, os
 R = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
-MANUALES = [('asistencia', 'Manual del sistema (asistencia docente, reuniones, novedades)', 'Manual_ICET_Asistencia_Docente.pdf'),
+MANUALES = [('guia', 'Guía rápida de comisiones (1 página, para docentes)', 'Guia_Rapida_Comisiones_ICET.pdf'),
+            ('asistencia', 'Manual del sistema (asistencia docente, reuniones, novedades)', 'Manual_ICET_Asistencia_Docente.pdf'),
             ('comisiones', 'Manual de las comisiones de evaluación y promoción', 'Manual_Comisiones_ICET.pdf')]
 filas, datos = [], []
 for k, titulo, f in MANUALES:

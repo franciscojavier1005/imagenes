@@ -873,3 +873,4 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 122 (2026-11-25, versión 2026.11.25-l)
 - Reprobación solo lectura (reflejo de Áreas), vaciar reprobados por curso, matrícula final como chip grande.
+- 2026-11-25 (-m): Guía rápida de comisiones (PDF 1 pág., scripts/generar_guia_rapida.js) + capítulo R en el manual de comisiones; ambos en Manuales.html.

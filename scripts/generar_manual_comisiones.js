@@ -5,9 +5,9 @@
 const path = require('path'), fs = require('fs'), { execFileSync } = require('child_process');
 const { chromium } = require('playwright');
 const RAIZ = path.join(__dirname, '..');
-const VERSION = 'vista previa v45', FECHA = '22 de noviembre de 2026';
+const VERSION = (/VERSION_SISTEMA = '([^']+)'/.exec(fs.readFileSync(path.join(RAIZ, 'apps_script', 'Leeme.gs'), 'utf8')) || [0, ''])[1], FECHA = new Date().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
 const IMG = path.join(__dirname, 'manual', 'img_comisiones');
-const fuente = fs.readFileSync(path.join(RAIZ, 'scripts', 'manual', 'comisiones.html'), 'utf8').replace(/\{\{VERSION\}\}/g, VERSION).replace(/\{\{FECHA\}\}/g, FECHA).replace(/\{\{IMG:(\w+)\}\}/g, (m, n) => 'data:image/png;base64,' + fs.readFileSync(path.join(IMG, n + '.png')).toString('base64'));
+const fuente = fs.readFileSync(path.join(RAIZ, 'scripts', 'manual', 'comisiones.html'), 'utf8').replace(/\{\{GUIA_RAPIDA\}\}/g, () => fs.readFileSync(path.join(RAIZ, 'scripts', 'manual', 'guia_rapida.html'), 'utf8')).replace(/\{\{VERSION\}\}/g, VERSION).replace(/\{\{FECHA\}\}/g, FECHA).replace(/\{\{IMG:(\w+)\}\}/g, (m, n) => 'data:image/png;base64,' + fs.readFileSync(path.join(IMG, n + '.png')).toString('base64'));
 const salida = path.join(RAIZ, 'docs', 'Manual_Comisiones_ICET.pdf');
 const pie = '<div style="width:100%;font-size:8px;color:#678;padding:0 16mm;display:flex;justify-content:space-between"><span>Manual de la comisión de evaluación y promoción · I.E. ICET · ' + VERSION + '</span><span>Página <span class="pageNumber"></span> de <span class="totalPages"></span></span></div>';
 async function pdf(html) {

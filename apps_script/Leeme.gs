@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-l';
+var VERSION_SISTEMA = '2026.11.25-m';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-m', fecha: '2026-11-25', cambios: [
+    'Manuales: nueva Guía rápida de comisiones (una página, para compartir con los docentes) y el manual de comisiones trae al inicio el capítulo «Guía rápida: la comisión en 9 pasos» (depurar listados, matrícula, áreas, reprobación, promoción, reconocimientos y cierre). Ambos están en el menú de manuales.'
+  ] },
   { version: '2026.11.25-l', fecha: '2026-11-25', cambios: [
     'Comisiones: la lista de Reprobación es ahora un REFLEJO de Áreas (solo lectura): los reprobados se agregan o quitan únicamente con «Seleccionar» en cada área (desmarcar quita) y en Reprobación solo se escriben las causas de cada área, la inasistencia y una anotación. En Áreas cada curso trae «Vaciar reprobados» para empezar de cero (útil con datos antiguos de grado 11). La matrícula final y el total del grado se destacan con el mismo fondo redondeado de la matrícula tentativa, con el número más grande. En Áreas, bajo cada área aparecen etiquetas con los estudiantes reprobados (con ✕ para quitarlos) y lo mismo se refleja en Reprobación. En el listado para combinar correspondencia el tipo de reconocimiento aparece en TODAS las filas (antes solo en la primera de cada tipo y por eso parecía faltar a algunos estudiantes).'
   ] },

@@ -1,0 +1,7 @@
+// Autor: Francisco Javier Cortés Cabezas · I.E. ICET. Convierte docs/Mensaje_Profes_Comisiones.txt en PDF.
+const {chromium}=require('playwright'),fs=require('fs');
+(async()=>{const t=fs.readFileSync('docs/Mensaje_Profes_Comisiones.txt','utf8').split('\n');
+const h=t.map((l,i)=>{const e=l.replace(/&/g,'&amp;').replace(/</g,'&lt;');if(i===0)return '<h1>'+e+'</h1>';if(i===1)return '<div class="au">'+e+'</div>';if(/^[0-9]\. /.test(l))return '<h2>'+e+'</h2>';if(/^LO MÁS/.test(l))return '<div class="im">'+e+'</div>';if(!l.trim())return '<br>';return '<p>'+e+'</p>'}).join('\n');
+const b=await chromium.launch(),p=await b.newPage();
+await p.setContent('<html><head><meta charset="utf-8"><style>body{font:12.6px/1.35 Arial;color:#222}h1{font-size:19px;color:#0b4f8a;margin:0}.au{color:#666;font-size:11px;margin-bottom:8px}h2{font-size:14px;background:#e8f1fa;color:#0b4f8a;padding:3px 8px;margin:9px 0 2px;border-left:4px solid #0b4f8a}.im{background:#fff3cf;border:1px solid #e0872b;padding:6px 10px;margin:8px 0;font-weight:bold}p{margin:1px 0}br{line-height:4px}</style></head><body>'+h+'</body></html>');
+await p.pdf({path:'docs/Mensaje_Profes_Comisiones.pdf',format:'Letter',margin:{top:'11mm',bottom:'12mm',left:'15mm',right:'15mm'},displayHeaderFooter:true,headerTemplate:'<span></span>',footerTemplate:'<div style="font-size:8px;width:100%;text-align:center;color:#888">Control de Procesos ICET · Autor: Francisco Javier Cortés Cabezas · I.E. ICET, Tumaco</div>'});await b.close()})();

@@ -3882,11 +3882,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-n';
+var VERSION_SISTEMA = '2026.11.25-o';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-o', fecha: '2026-11-25', cambios: [
+    'Comisiones: al confirmar el curso, el director de grupo declara revisados sexo, nacionalidad, tipo y número de documento (obligatorio para continuar). El aviso explica qué hacer si falta un documento: consultar el archivo o al estudiante/acudiente, o usar el número asignado por el rector o la Secretaría de Educación.'
+  ] },
   { version: '2026.11.25-n', fecha: '2026-11-25', cambios: [
     'Comisiones: la matrícula es toda informativa (inicial, nuevos, retirados, no asisten, hombres, mujeres, venezolanos y ecuatorianos salen de los listados; ya no hay casillas para cambiarla). Para corregir una cifra se corrige el sexo, la nacionalidad o la situación del estudiante en el listado. «Confirmar sexo y documento del curso» ahora exige también el número de documento de cada estudiante activo.'
   ] },

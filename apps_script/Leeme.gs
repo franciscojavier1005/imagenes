@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-p';
+var VERSION_SISTEMA = '2026.11.25-q';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-q', fecha: '2026-11-25', cambios: [
+    'Manuales y ayuda de comisiones puestos al día con la aplicación: la matrícula es informativa (sale de los listados), depurar los listados es obligatorio (sexo, nacionalidad, tipo y número de documento), la asistencia exige un directivo docente, Reprobación se llena desde Áreas (con anotación opcional por área) y el acta se imprime antes de cerrar.'
+  ] },
   { version: '2026.11.25-p', fecha: '2026-11-25', cambios: [
     'Comisiones: en Reprobación, junto a cada área hay un botón opcional «+ Anotación» para justificar mejor el caso de cada estudiante en esa área; la anotación se guarda con el acta y sale en el acta impresa. La pestaña «Cómo funciona» se ajustó para coincidir con las orientaciones a los docentes: siempre un directivo en la asistencia, depurar los listados (obligatorio), imprimir el acta antes de cerrar y la retroalimentación a cargo de Coordinación Académica.'
   ] },

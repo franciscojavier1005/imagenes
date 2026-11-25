@@ -3876,11 +3876,15 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-f';
+var VERSION_SISTEMA = '2026.11.25-g';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-g', fecha: '2026-11-25', cambios: [
+    'Nuevo en el menú de directivos: «Informe de reconocimientos (Excel)»: todos los estudiantes con reconocimiento o mérito del período, con tipo y número de documento, sexo, lugar de expedición, nacionalidad, promedio, puesto y qué datos faltan; agrupados por tipo (excelencia, rendimiento académico, convivencia y los demás), luego por curso (de preescolar a 11.º) y en orden alfabético por apellidos. Se descarga para Excel (.csv) o se crea como hoja de Google en «App Asistencia / Informes».',
+    'Revisión general: manuales actualizados (sistema y comisiones) y comprobación de todas las funciones.'
+  ] },
   { version: '2026.11.25-f', fecha: '2026-11-25', cambios: [
     'Comisiones, listados: el tipo de documento se sugiere como «TI · Tarjeta de identidad» cuando está vacío (casilla amarilla «sugerido») y el docente lo confirma con «Confirmar sexo y documento del curso» o lo cambia (RC, TI, CC, cédula de extranjería, pasaporte, PEP, PPT o permiso de la Secretaría de Educación), igual que el sexo y la nacionalidad (Colombiana por defecto). En Reprobación se avisa que cada estudiante agregado con sus áreas se cuenta solo en los reprobados de esas áreas.'
   ] },
@@ -6169,6 +6173,56 @@ function respaldoRevision_() {
 /** Lo llama la pantalla en segundo plano al entrar coordinación o el desarrollador (no retrasa la carga). */
 function respaldoRevisionAhora() { var q = comisionQuien_(); if (!q.coord) return { copiado: false }; try { return { copiado: !!respaldoRevision_() }; } catch (e) { return { copiado: false, error: String(e && e.message || e).slice(0, 100) }; } }
 
+/* ------------------------------ informe de reconocimientos (Excel / Hojas de cálculo) ------------------------------ */
+var REC_ORDEN = ['excelencia', 'rendimiento academico', 'convivencia escolar', 'colaboracion y buen porte del uniforme', 'otros'];
+var REC_NOMBRE = { 'excelencia': 'Excelencia', 'rendimiento academico': 'Rendimiento académico', 'convivencia escolar': 'Convivencia escolar', 'colaboracion y buen porte del uniforme': 'Colaboración y buen porte del uniforme', 'otros': 'Otros' };
+function recTipoClave_(t) { var k = comisionSinTildes_(String(t || '')).toLowerCase().replace(/\s*\(.*\)\s*$/, '').trim(); return k; }
+/** Todos los estudiantes con reconocimiento del período, con sus datos, ordenados por tipo, curso (preescolar a 11.º) y apellidos. p = { periodo }. */
+function reconocimientosFilas_(periodo) {
+  var per = String(periodo || 'Final'); if (PERIODOS_COM.indexOf(per) < 0) throw new Error('Período no válido.');
+  var est = datos_('Estudiantes'), grupos = {}; datos_('Grupos').forEach(function (g) { grupos[trasladoCodigo_(g.grupo)] = String(g.nombre || g.grupo); });
+  var cnt = comisionContarSecciones_(), mejor = {};
+  comisionActas_().forEach(function (a) { if (String(a.periodo) !== per) return; var n = cnt[String(a.id)] || 0; if (!mejor[a.grado] || n > mejor[a.grado].n) mejor[a.grado] = { a: a, n: n }; });
+  var filas = [];
+  Object.keys(mejor).forEach(function (cod) {
+    var secs = comisionSecciones_(mejor[cod].a.id), f = (secs.faltantes && secs.faltantes.datos) || {}, datos = f.datos || {}, ing = {};
+    (f.ing || []).forEach(function (x) { ing[String(x.id)] = x; });
+    Object.keys(secs).forEach(function (k) {
+      if (!/^reconocimientos:/.test(k) || !secs[k].datos) return;
+      (secs[k].datos.rec || []).forEach(function (r) {
+        var e = ing[String(r.id)], base = est[Number(r.id) - 1], o = datos[String(r.id)] || {}, nombre, grupo, ape, nom;
+        if (e) { ape = e.a; nom = e.n; grupo = e.g; } else if (base) { ape = o.mod ? o.a : base.apellidos; nom = o.mod ? o.n : base.nombres; grupo = base.grupo; } else return;
+        var tdoc = (e ? e.tdoc : o.tdoc) || (base && base.tipo_doc) || '', ndoc = (e ? e.ndoc : o.ndoc) || (base && base.documento) || '', lex = (e ? e.lex : o.lex) || (base && base.lugar_expedicion) || '', nac = (e ? e.nac : o.nac) || (base && base.nacionalidad) || 'Colombiana', sx = (e ? e.sx : o.sx) || (base && base.sexo) || '';
+        var falta = []; if (!tdoc) falta.push('tipo de documento'); if (!ndoc) falta.push('número de documento'); if (!sx) falta.push('sexo'); if (!lex) falta.push('lugar de expedición');
+        var tk = recTipoClave_(r.tipo), gc = trasladoCodigo_(grupo);
+        filas.push({ tk: tk, tipo: REC_NOMBRE[tk] || String(r.tipo || ''), gc: gc, curso: grupos[gc] || gc, ape: comisionTitulo_(ape), nom: comisionTitulo_(nom), sexo: sx, tdoc: tdoc, ndoc: String(ndoc), lex: lex, nac: nac, prom: r.prom == null ? '' : String(r.prom), puesto: r.puesto ? String(r.puesto) : '', datos: falta.length ? 'Faltan: ' + falta.join(', ') : 'Completos' });
+      });
+    });
+  });
+  filas.sort(function (x, y) {
+    var i = REC_ORDEN.indexOf(x.tk), j = REC_ORDEN.indexOf(y.tk); i = i < 0 ? 99 : i; j = j < 0 ? 99 : j;
+    return (i - j) || x.tk.localeCompare(y.tk) || x.gc.localeCompare(y.gc) || x.ape.localeCompare(y.ape, 'es') || x.nom.localeCompare(y.nom, 'es');
+  });
+  return filas;
+}
+var REC_COLUMNAS = ['Tipo de reconocimiento', 'Curso', 'Apellidos', 'Nombres', 'Sexo', 'Tipo de documento', 'Número de documento', 'Lugar de expedición', 'Nacionalidad', 'Promedio', 'Puesto', 'Estado de los datos'];
+function reconocimientosInforme(p) {
+  var q = comisionQuien_(); if (q.rol !== 'directivo') throw new Error('Solo directivos generan este informe.');
+  var f = reconocimientosFilas_((p || {}).periodo);
+  return { periodo: String((p || {}).periodo || 'Final'), columnas: REC_COLUMNAS, filas: f.map(function (x) { return [x.tipo, x.curso, x.ape, x.nom, x.sexo, x.tdoc, x.ndoc, x.lex, x.nac, x.prom, x.puesto, x.datos]; }), total: f.length };
+}
+/** Crea una hoja de cálculo nueva en «App Asistencia / Informes» con el informe y devuelve su enlace. */
+function reconocimientosHoja(p) {
+  var q = comisionQuien_(); if (q.rol !== 'directivo') throw new Error('Solo directivos generan este informe.');
+  var r = reconocimientosInforme(p), ss = SpreadsheetApp.create('Reconocimientos ICET ' + (new Date().getFullYear()) + ' · ' + r.periodo + ' · ' + ahoraTxt_()), sh = ss.getSheets()[0];
+  sh.setName('Reconocimientos'); var datos = [r.columnas].concat(r.filas);
+  var rg = sh.getRange(1, 1, datos.length, r.columnas.length); if (rg.setNumberFormat) rg.setNumberFormat('@'); rg.setValues(datos);
+  try { sh.getRange(1, 1, 1, r.columnas.length).setFontWeight('bold').setBackground('#dde7f7'); sh.setFrozenRows(1); } catch (e) { /* formato opcional */ }
+  try { var f = DriveApp.getFileById(ss.getId()); f.moveTo(carpetaHija_(carpetaApp_(), 'Informes')); } catch (e) { /* si no se puede mover, queda en Mi unidad */ }
+  bitacora_('Informe de reconocimientos', r.total + ' filas · ' + r.periodo + ' · por ' + q.nombre);
+  return { url: ss.getUrl(), total: r.total };
+}
+
 // ===================== Api.gs =====================
 /**
  * API del "back": el proyecto vinculado al libro, desplegado como aplicación web que se ejecuta COMO EL PROPIETARIO
@@ -6245,6 +6299,8 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   docentesCampoMasivo: ['directivo'],
   importarLibro: ['directivo'],
   respaldoRevisionAhora: ['directivo'],
+  reconocimientosInforme: ['directivo'],
+  reconocimientosHoja: ['directivo'],
   comisionUnionLeer: ['directivo', 'docente'],
   comisionUnionGuardar: ['directivo'],
   comisionHistorial: ['directivo', 'docente'],
@@ -6290,7 +6346,7 @@ function apiFunciones_() {
     levantarMarcasEstudiante: levantarMarcasEstudiante,
     informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
     editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, cerrarReunion: cerrarReunion, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas,
-    comisionContexto: comisionContexto, comisionGradoDatos: comisionGradoDatos, comisionSeguimiento: comisionSeguimiento, comisionPermisosLeer: comisionPermisosLeer, comisionModoLeer: comisionModoLeer, comisionModoGuardar: comisionModoGuardar, trasladoBuscar: trasladoBuscar, trasladoSolicitar: trasladoSolicitar, trasladoListar: trasladoListar, trasladoResolver: trasladoResolver, estudiantesDelGrupo: estudiantesDelGrupo, trasladoMasivo: trasladoMasivo, estudiantesCampoMasivo: estudiantesCampoMasivo, docentesCampoMasivo: docentesCampoMasivo, importarLibro: importarLibro, respaldoRevisionAhora: respaldoRevisionAhora, comisionUnionLeer: comisionUnionLeer, comisionUnionGuardar: comisionUnionGuardar, comisionHistorial: comisionHistorial, comisionRestaurar: comisionRestaurar, comisionHojaDeshacer: comisionHojaDeshacer, comisionPermisosGuardar: comisionPermisosGuardar, comisionCierreSimple: comisionCierreSimple, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
+    comisionContexto: comisionContexto, comisionGradoDatos: comisionGradoDatos, comisionSeguimiento: comisionSeguimiento, comisionPermisosLeer: comisionPermisosLeer, comisionModoLeer: comisionModoLeer, comisionModoGuardar: comisionModoGuardar, trasladoBuscar: trasladoBuscar, trasladoSolicitar: trasladoSolicitar, trasladoListar: trasladoListar, trasladoResolver: trasladoResolver, estudiantesDelGrupo: estudiantesDelGrupo, trasladoMasivo: trasladoMasivo, estudiantesCampoMasivo: estudiantesCampoMasivo, docentesCampoMasivo: docentesCampoMasivo, importarLibro: importarLibro, respaldoRevisionAhora: respaldoRevisionAhora, reconocimientosInforme: reconocimientosInforme, reconocimientosHoja: reconocimientosHoja, comisionUnionLeer: comisionUnionLeer, comisionUnionGuardar: comisionUnionGuardar, comisionHistorial: comisionHistorial, comisionRestaurar: comisionRestaurar, comisionHojaDeshacer: comisionHojaDeshacer, comisionPermisosGuardar: comisionPermisosGuardar, comisionCierreSimple: comisionCierreSimple, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
     comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte, comisionBorrador: comisionBorrador, comisionPendientes: comisionPendientes, comisionGuardarPdf: comisionGuardarPdf, comisionEstudiante: comisionEstudiante
   };
 }

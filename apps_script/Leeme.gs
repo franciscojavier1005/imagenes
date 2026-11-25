@@ -5,11 +5,15 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-f';
+var VERSION_SISTEMA = '2026.11.25-g';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-g', fecha: '2026-11-25', cambios: [
+    'Nuevo en el menú de directivos: «Informe de reconocimientos (Excel)»: todos los estudiantes con reconocimiento o mérito del período, con tipo y número de documento, sexo, lugar de expedición, nacionalidad, promedio, puesto y qué datos faltan; agrupados por tipo (excelencia, rendimiento académico, convivencia y los demás), luego por curso (de preescolar a 11.º) y en orden alfabético por apellidos. Se descarga para Excel (.csv) o se crea como hoja de Google en «App Asistencia / Informes».',
+    'Revisión general: manuales actualizados (sistema y comisiones) y comprobación de todas las funciones.'
+  ] },
   { version: '2026.11.25-f', fecha: '2026-11-25', cambios: [
     'Comisiones, listados: el tipo de documento se sugiere como «TI · Tarjeta de identidad» cuando está vacío (casilla amarilla «sugerido») y el docente lo confirma con «Confirmar sexo y documento del curso» o lo cambia (RC, TI, CC, cédula de extranjería, pasaporte, PEP, PPT o permiso de la Secretaría de Educación), igual que el sexo y la nacionalidad (Colombiana por defecto). En Reprobación se avisa que cada estudiante agregado con sus áreas se cuenta solo en los reprobados de esas áreas.'
   ] },

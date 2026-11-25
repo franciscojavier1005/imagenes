@@ -279,6 +279,31 @@ function masImpGo(ap){ var p={id:el('impId').value,hoja:el('impH').value,tipo:el
     el('impRes').innerHTML='<div class="msg">Coinciden: <b>'+r.coinciden+'</b> · sin coincidencia: <b>'+r.sinCoincidencia+'</b> · datos que cambian: <b>'+r.total+'</b> · columnas usadas: '+esc(r.campos.join(', '))+'</div>'+(r.muestra.length?'<div style="overflow:auto;max-height:40vh"><table style="border-collapse:collapse;font-size:12.5px;width:100%"><tr style="background:#eef2f9"><th>Persona</th><th>Dato</th><th>Antes</th><th>Después</th></tr>'+r.muestra.map(function(x){return '<tr style="border-bottom:1px solid #e5e8ee"><td>'+esc(x.quien)+'</td><td>'+esc(x.campo)+'</td><td>'+esc(x.antes||'—')+'</td><td><b>'+esc(x.despues)+'</b></td></tr>';}).join('')+'</table></div>'+(r.total>r.muestra.length?'<small>Se muestran los primeros '+r.muestra.length+'.</small>':''):'');
   }).withFailureHandler(function(e){ masMsg(String(e&&e.message||e).replace(/^Error: /,'')); }).importarLibro(p); }
 
+
+/* ---------- informe de reconocimientos para administración (Excel / Hojas de cálculo) ---------- */
+function abrirInfRec(){
+  el('saludo').textContent='Informe de reconocimientos';
+  el('botones').innerHTML='<div class="caja"><button class="btn" onclick="iniciar()">Volver al menú</button></div>'+
+   '<div class="caja"><b>Estudiantes con reconocimiento o mérito, con sus datos completos</b><div class="msg" style="color:#555">Agrupado por tipo (excelencia, rendimiento académico, convivencia y los demás), luego por curso (de preescolar a 11.º) y en orden alfabético por apellidos. Muestra además qué datos faltan de cada estudiante.</div>'+
+   '<label>Período<select id="irP"><option>Final</option><option>Tercero</option><option>Segundo</option><option>Primero</option></select></label>'+
+   '<button class="btn" onclick="irExcel()">⬇ Descargar para Excel (.csv)</button> <button class="btn" onclick="irHoja()">📄 Crear en Hojas de cálculo de Google</button><div class="msg" id="irM"></div><div id="irV"></div></div>';
+}
+function irMsg(t,ok){ var m=el('irM'); if(m){ m.style.color=ok?'#1b6b4a':'#a33'; m.innerHTML=t||''; } }
+function irCsv(r){ var q=function(x){ x=String(x==null?'':x); return '"'+x.replace(/"/g,'""')+'"'; };
+  return '﻿'+[r.columnas].concat(r.filas).map(function(f){ return f.map(q).join(';'); }).join('\r\n'); }
+function irExcel(){ irMsg('Preparando…',true);
+  srv().withSuccessHandler(function(r){
+    if(!r.total){ irMsg('No hay reconocimientos guardados en ese período.'); return; }
+    var b=new Blob([irCsv(r)],{type:'text/csv;charset=utf-8'}), u=URL.createObjectURL(b), a=document.createElement('a');
+    a.href=u; a.download='Reconocimientos_ICET_'+r.periodo+'.csv'; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); },4000);
+    irMsg('Listo: '+r.total+' estudiantes. Se abre con Excel (si ve símbolos raros, use «Datos → Desde texto» con codificación UTF-8).',true);
+    var c={}; r.filas.forEach(function(f){ c[f[0]]=(c[f[0]]||0)+1; });
+    el('irV').innerHTML='<table style="border-collapse:collapse;font-size:13px">'+Object.keys(c).map(function(k){ return '<tr><td style="padding:3px 10px 3px 0"><b>'+esc(k)+'</b></td><td>'+c[k]+'</td></tr>'; }).join('')+'</table>';
+  }).withFailureHandler(function(e){ irMsg(esc(String(e&&e.message||e).replace(/^Error: /,''))); }).reconocimientosInforme({periodo:el('irP').value}); }
+function irHoja(){ irMsg('Creando la hoja en su Drive…',true);
+  srv().withSuccessHandler(function(r){ irMsg('Hoja creada con '+r.total+' estudiantes: <a target="_blank" href="'+esc(r.url)+'">abrir en Hojas de cálculo</a> (está en «App Asistencia / Informes»).',true); })
+   .withFailureHandler(function(e){ irMsg(esc(String(e&&e.message||e).replace(/^Error: /,''))); }).reconocimientosHoja({periodo:el('irP').value}); }
+
 /* ---------- seguimiento de las comisiones (directivos): ventana de avance y avisos ---------- */
 var SEG_T=null, SEG_ULT=0;
 function segVistas(){ try{ return JSON.parse(localStorage.getItem('icet_seg')||'{}'); }catch(e){ return {}; } }
@@ -341,6 +366,7 @@ function pintar(rol,nombre,c){
     setTimeout(iniciaSeguimiento,1500);
     setTimeout(function(){ srv().withSuccessHandler(function(){}).withFailureHandler(function(){}).respaldoRevisionAhora(); },6000);
     if(CTX.administra) h+='<a class="boton" style="--c:'+COLORES.comisiones+'" href="#" onclick="abrirPermisosCom();return false"><span class="ic">🔐</span><div><b>Permisos de las comisiones</b><span>Quién puede ver y quién puede editar las actas, por nivel.</span></div></a>';
+    h+='<a class="boton" style="--c:'+COLORES.comisiones+'" href="#" onclick="abrirInfRec();return false"><span class="ic">🏅</span><div><b>Informe de reconocimientos (Excel)</b><span>Todos los estudiantes con reconocimiento o mérito, con sus datos, por tipo, curso y apellidos.</span></div></a>';
     h+='<a class="boton" style="--c:'+COLORES.docentes+'" href="#" onclick="abrirMasivo();return false"><span class="ic">🔀</span><div><b>Estudiantes y docentes: traslados y cambios masivos</b><span>Trasladar varios estudiantes, cambiar un dato a varios e importar datos desde otro libro.</span></div></a>';
     if(CTX.administra) h+='<a class="boton" style="--c:'+COLORES.docentes+'" href="#" onclick="abrirDocentes();return false"><span class="ic">🧑‍🏫</span><div><b>Docentes: agregar o editar datos</b><span>Nuevos docentes, cédula y correo de contacto.</span></div></a>';
     h+=boton('ayuda','❓','Ayuda y manual de uso','Cómo se usa cada pantalla, paso a paso (se puede imprimir en PDF).');

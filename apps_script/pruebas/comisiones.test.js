@@ -186,6 +186,18 @@ ok(run("comisionMailPersonal_('juan@icet.edu.co')")===''&&run("comisionMailPerso
     const ap=run("importarLibro({id:'ABCDEFGHIJKLMNOPQRSTUV',tipo:'estudiantes',aplicar:true})"); ok(ap.aplicado&&hojas.Estudiantes.v[n0][6]==='M'&&hojas.Estudiantes.v[n0][7]==='TI','al aplicar se actualizan sexo y tipo de documento desde el otro libro');
     yo('dora@x.com'); ok(falla("importarLibro({id:'ABCDEFGHIJKLMNOPQRSTUV',tipo:'estudiantes'})")!==null,'un docente no importa datos');
     hojas.Estudiantes.v.length=n0; hojas.Grupos.v.pop(); hojas.Estudiantes.v[0]=hdr0; }
+  { const hdr0=hojas.Estudiantes.v[0].slice(), n0=hojas.Estudiantes.v.length; hojas.Estudiantes.v[0]=['grupo','curso','no','apellidos','nombres','documento','tipo_doc','sexo'];
+    hojas.Estudiantes.v.push(['0802','8°-2',1,'ZULUAGA PEREZ','LUIS','990002','TI','M'],['0801','8°-1',2,'ARCE LOPEZ','ANA','990001','','F'],['0801','8°-1',3,'BETANCOURT RUIZ','EVA','990003','TI','F']);
+    const idA=n0, idB=n0+1, idC=n0+2; // id = fila de datos (1 = primera fila de datos)
+    hojas.Comision_Actas.v.push(['ac-rec','2026','Final','08',9,'ABIERTA','x','x','2026-11-25 08:00','','','',0]);
+    const sec=(k,o)=>hojas.Comision_Secciones.v.push(['ac-rec',k,1,JSON.stringify(o),'x','2026-11-25 08:05']);
+    sec('reconocimientos:0801',{rec:[{id:idB,prom:'4,8',tipo:'Rendimiento académico',puesto:2},{id:idC,prom:'4,9',tipo:'EXCELENCIA',puesto:1}]}); sec('reconocimientos:0802',{rec:[{id:idA,prom:'4,7',tipo:'Excelencia',puesto:1},{id:idA,prom:'',tipo:'Convivencia escolar',puesto:0}]});
+    yo('coord@x.com'); const inf=run("reconocimientosInforme({periodo:'Final'})");
+    ok(inf.total===4,'el informe junta todos los reconocimientos del período ('+inf.total+')');
+    ok(JSON.stringify(inf.filas.map(f=>[f[0],f[1],f[2]]))===JSON.stringify([['Excelencia','8°-1','Betancourt Ruiz'],['Excelencia','8°-2','Zuluaga Perez'],['Rendimiento académico','8°-1','Arce Lopez'],['Convivencia escolar','8°-2','Zuluaga Perez']]),'orden: por tipo (excelencia primero), curso y apellidos '+JSON.stringify(inf.filas.map(f=>[f[0],f[1],f[2]])));
+    const fa=inf.filas.filter(f=>f[2]==='Arce Lopez')[0]; ok(/tipo de documento/.test(fa[11])&&!/tipo de documento/.test(inf.filas[0][11]),'el estado de los datos dice qué falta (tipo de documento de Arce): '+fa[11]);
+    yo('dora@x.com'); ok(falla("reconocimientosInforme({periodo:'Final'})")!==null,'un docente no genera el informe');
+    hojas.Comision_Actas.v.pop(); hojas.Comision_Secciones.v.length-=2; hojas.Estudiantes.v.length=n0; hojas.Estudiantes.v[0]=hdr0; }
   hojas.Grupos.v.length-=4; hojas.Estudiantes.v.length-=3; }
 // ---- historial: versiones anteriores y cambios en hojas, con retroceso ----
 yo('coord@x.com');

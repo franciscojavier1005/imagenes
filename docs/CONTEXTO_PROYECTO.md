@@ -855,3 +855,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 116 (2026-11-25, versión 2026.11.25-d)
 - Matrícula y áreas derivadas de los listados; nacionalidad; retirados; modales arriba; reconocimientos (nombres, puesto, promedio confirmado); promoción sin inhibidos; «Habilitar de nuevo» en desplegable; sin aviso de versiones.
+
+## Ampliación 117 (2026-11-25, versiones -e a -g)
+- «Retirado», promoción con franjas, tipo de documento sugerido, informe de reconocimientos (Excel/Hojas), auditoría y manuales.

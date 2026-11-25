@@ -1,7 +1,7 @@
 # Estado actual (LEER ESTO PRIMERO; es corto a propósito)
 
 **Dueño:** Francisco Javier Cortés Cabezas (coordinador académico, I.E. ICET, Tumaco). Español, respuestas cortas, sin bloques de código en el chat; los archivos se entregan con SendUserFile. Rama `claude/teacher-attendance-system-fso0tf` (sin PR salvo que lo pida). Nunca escribir «OPS». No versionar datos reales (libro, plantilla con nombres). No escribir en Google/Drive/OneDrive desde la sesión (solo lectura con el conector).
-**Versión vigente: 2026.11.25-r** (la versión se cambia SOLO en `apps_script/Leeme.gs`: `VERSION_SISTEMA`, `FECHA_VERSION`, `HISTORIAL_VERSIONES`; las pantallas la reciben por `<?= VERSION ?>`).
+**Versión vigente: 2026.11.25-s** (la versión se cambia SOLO en `apps_script/Leeme.gs`: `VERSION_SISTEMA`, `FECHA_VERSION`, `HISTORIAL_VERSIONES`; las pantallas la reciben por `<?= VERSION ?>`).
 
 ## Qué es
 «Control de Procesos ICET»: libro de Google Sheets + Apps Script. (1) Asistencia docente (ronda, novedades, reuniones, paneles). (2) **Comisiones de evaluación y promoción**: acta por grado y período, versionado optimista, turno de edición o modo equipo, historial de 8 días, borradores locales.
@@ -29,6 +29,7 @@
 - Alternancias del horario: `COM_ALTERNAN_DEFECTO` (solo Quintero en 0801/0802, CSI) + parámetro `comisiones_alternan`; faltan los demás pares.
 
 ## Pendientes
+- Actas de período: la promoción solo aparece en el acta final; el usuario sugiere una vista «promoción parcial» (estado de áreas por período). Pendiente de definir.
 - Mac (Safari): no hay permisos que activar en la app; probar Chrome, ventana privada con UNA cuenta de Google, o Safari → Ajustes → Privacidad → desmarcar «Impedir seguimiento entre sitios» y permitir ventanas emergentes. Google muestra «No se pudo abrir el archivo»; pedir el enlace completo (termina en `/exec`) y probar en Chrome/ventana privada, una sola cuenta de Google.
 Auditoría completa de velocidad con todos los grados. Capturas de los manuales desactualizadas. El usuario debe correr «unificar actas duplicadas» y corregir `grupo` de promovidos (p. ej. Valencia Ibarra Keyla Johana → 1001).
 - Umbral: el SIEE aprueba de 3,0 a 5,0; el rector redondea de 2,91 a 3,0 en la plataforma, así que en la práctica reprueba quien queda **por debajo de 2,91**. Los textos del SIEE (superación 3,0–5,0) NO cambian. `.xlsx` antiguos versionados en la raíz (revisar si traen datos reales).

@@ -882,3 +882,4 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - Limpieza: eliminado Mensaje_Profes_Comisiones (reemplazado por Circular_Profes_Comisiones).
 - 2026-11-25: infografía vertical de la guía rápida (docs/whatsapp/Infografia_Comisiones_ICET.png, scripts/generar_infografia.js; leer versión de Leeme.gs).
 - 2026-11-25 (-r): seguimiento: orden por clic en el encabezado de la tabla (sin botones flotantes) y fecha corta.
+- 2026-11-25 (-s): matrícula sin casillas (Por verificar solo etiqueta); prueba de sincronía Áreas↔Reprobación. Pendiente: 'promoción parcial' (nombre/vista) en actas de período.

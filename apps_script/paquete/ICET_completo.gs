@@ -3882,11 +3882,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-r';
+var VERSION_SISTEMA = '2026.11.25-s';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-s', fecha: '2026-11-25', cambios: [
+    'Comisiones: en Matrícula ya no queda ninguna casilla numérica (tampoco «Por verificar»): todas las cifras son etiquetas que salen de los listados. Se comprobó con una prueba automática que lo marcado en Áreas aparece en Reprobación (y al desmarcar desaparece) y que las cifras de Áreas se actualizan.'
+  ] },
   { version: '2026.11.25-r', fecha: '2026-11-25', cambios: [
     'Seguimiento de las comisiones: los botones «Por fecha» y «Por avance» ya no ocupan espacio ni tapan la tabla; ahora se ordena tocando el título de cada columna (grado, avance, responsable, último cambio, estado; otro toque invierte el orden). El «Último cambio» se muestra corto (día/mes/año hora:minuto) en lugar del texto largo de la fecha.'
   ] },

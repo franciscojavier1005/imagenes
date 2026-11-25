@@ -286,7 +286,7 @@ function abrirInfRec(){
   el('botones').innerHTML='<div class="caja"><button class="btn" onclick="iniciar()">Volver al menú</button></div>'+
    '<div class="caja"><b>Estudiantes con reconocimiento o mérito, con sus datos completos</b><div class="msg" style="color:#555">Agrupado por tipo (excelencia, rendimiento académico, convivencia y los demás), luego por curso (de preescolar a 11.º) y en orden alfabético por apellidos. Muestra además qué datos faltan de cada estudiante.</div>'+
    '<label>Período<select id="irP"><option>Final</option><option>Tercero</option><option>Segundo</option><option>Primero</option></select></label>'+
-   '<button class="btn" onclick="irExcel()">⬇ Descargar para Excel (.csv)</button> <button class="btn" onclick="irHoja()">📄 Crear en Hojas de cálculo de Google</button><div class="msg" id="irM"></div><div id="irV"></div></div>';
+   '<button class="btn" onclick="irExcel()">⬇ Descargar para Excel (.csv)</button> <button class="btn" onclick="irHoja()">📄 Crear en Hojas de cálculo de Google</button> <button class="btn" onclick="irPdf()">📕 Descargar PDF</button><div class="msg" id="irM"></div><div id="irV"></div></div>';
 }
 function irMsg(t,ok){ var m=el('irM'); if(m){ m.style.color=ok?'#1b6b4a':'#a33'; m.innerHTML=t||''; } }
 function irCsv(r){ var q=function(x){ x=String(x==null?'':x); return '"'+x.replace(/"/g,'""')+'"'; };
@@ -300,6 +300,10 @@ function irExcel(){ irMsg('Preparando…',true);
     var c={}; r.filas.forEach(function(f){ c[f[0]]=(c[f[0]]||0)+1; });
     el('irV').innerHTML='<table style="border-collapse:collapse;font-size:13px">'+Object.keys(c).map(function(k){ return '<tr><td style="padding:3px 10px 3px 0"><b>'+esc(k)+'</b></td><td>'+c[k]+'</td></tr>'; }).join('')+'</table>';
   }).withFailureHandler(function(e){ irMsg(esc(String(e&&e.message||e).replace(/^Error: /,''))); }).reconocimientosInforme({periodo:el('irP').value}); }
+function irPdf(){ irMsg('Generando el PDF…',true);
+  srv().withSuccessHandler(function(r){ var b=atob(r.base64), a=new Uint8Array(b.length); for(var i=0;i<b.length;i++) a[i]=b.charCodeAt(i);
+    var u=URL.createObjectURL(new Blob([a],{type:'application/pdf'})), l=document.createElement('a'); l.href=u; l.download=r.nombre; document.body.appendChild(l); l.click(); setTimeout(function(){ URL.revokeObjectURL(u); l.remove(); },4000); irMsg('Listo: PDF con '+r.total+' estudiantes.',true); })
+   .withFailureHandler(function(e){ irMsg(esc(String(e&&e.message||e).replace(/^Error: /,''))); }).reconocimientosPdf({periodo:el('irP').value}); }
 function irHoja(){ irMsg('Creando la hoja en su Drive…',true);
   srv().withSuccessHandler(function(r){ irMsg('Hoja creada con '+r.total+' estudiantes: <a target="_blank" href="'+esc(r.url)+'">abrir en Hojas de cálculo</a> (está en «App Asistencia / Informes»).',true); })
    .withFailureHandler(function(e){ irMsg(esc(String(e&&e.message||e).replace(/^Error: /,''))); }).reconocimientosHoja({periodo:el('irP').value}); }

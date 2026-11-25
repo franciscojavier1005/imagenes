@@ -198,6 +198,11 @@ ok(run("comisionMailPersonal_('juan@icet.edu.co')")===''&&run("comisionMailPerso
     const fa=inf.filas.filter(f=>f[2]==='Arce Lopez')[0]; ok(/tipo de documento/.test(fa[11])&&!/tipo de documento/.test(inf.filas[0][11]),'el estado de los datos dice qué falta (tipo de documento de Arce): '+fa[11]);
     yo('dora@x.com'); ok(falla("reconocimientosInforme({periodo:'Final'})")!==null,'un docente no genera el informe');
     hojas.Comision_Actas.v.pop(); hojas.Comision_Secciones.v.length-=2; hojas.Estudiantes.v.length=n0; hojas.Estudiantes.v[0]=hdr0; }
+  { yo('coord@x.com'); const a1=run("comisionAbrir({periodo:'Tercero',grado:'08'})").acta.id;
+    run("comisionActaRetirar({acta:'"+a1+"',accion:'archivar'})"); const a2=run("comisionAbrir({periodo:'Tercero',grado:'08'})").acta.id;
+    ok(a2!==a1,'al archivar el acta, se puede iniciar una nueva'); const gu=run("comisionActasGuardadas({periodo:'Tercero',grado:'08'})"); ok(gu.length===1&&gu[0].id===a1&&gu[0].estado==='ARCHIVADA','el acta archivada se puede ver y recuperar');
+    run("comisionActaRecuperar({acta:'"+a1+"'})"); ok(run("comisionAbrir({periodo:'Tercero',grado:'08'})").acta.id===a1,'al recuperarla vuelve a ser la acta abierta'); ok(run("comisionActasGuardadas({periodo:'Tercero',grado:'08'})")[0].id===a2,'la que estaba abierta queda archivada');
+    run("comisionActaRetirar({acta:'"+a1+"',accion:'borrar'})"); ok(run("comisionActasGuardadas({periodo:'Tercero',grado:'08'})").some(x=>x.id===a1&&x.estado==='BORRADA'),'borrar es recuperable: queda en la lista de guardadas'); }
   hojas.Grupos.v.length-=4; hojas.Estudiantes.v.length-=3; }
 // ---- historial: versiones anteriores y cambios en hojas, con retroceso ----
 yo('coord@x.com');

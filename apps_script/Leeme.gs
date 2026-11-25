@@ -5,11 +5,15 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-h';
+var VERSION_SISTEMA = '2026.11.25-i';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-i', fecha: '2026-11-25', cambios: [
+    'Comisiones: en la matrícula, inicial, nuevos, retirados y no asisten se ven como texto simple (sin cuadros ni giradores) y la matrícula final se destaca con recuadro y letra grande. Reprobación rediseñada: cada estudiante en una línea con el número de áreas reprobadas, su inasistencia y el veredicto (1 o 2 áreas: se promueve con áreas pendientes; más de 2: no se promueve, reprueba el grado, con recuadro rojo); cada área en su propia línea con sus causas (sin notas) y ✕ para quitarla, lo que se actualiza solo en Áreas. En Reprobación, Reconocimientos, Convivencia, Compromisos y PIAR ya no aparecen quienes no asisten o se retiraron (al marcarlos se les vacían áreas, causas y reconocimientos). Promoción: nombres en una sola línea; en 11.º, quien pierde un área no participa en la ceremonia de graduación y quien reprueba más de 2 no se gradúa. Se corrige que el tipo de algunos reconocimientos no apareciera (nombres antiguos en mayúscula). Colores más suaves en los semáforos de porcentajes, los DBA y los botones de agregar.',
+    'Nuevo: «PDF de reconocimientos» (coordinación y directivos, todos los grupos; cada docente, los grupos que atiende; también en el informe del menú). Nuevo: «Nueva acta · archivar · recuperar» (bajo el selector de período): archivar el acta y empezar una nueva, borrarla y empezar en blanco, o recuperar un acta archivada o borrada; nada se pierde.'
+  ] },
   { version: '2026.11.25-h', fecha: '2026-11-25', cambios: [
     'Comisiones: «Total actual» y «Listado actual» pasan a llamarse «Matrícula final». El resumen de los listados muestra por separado los retirados y los que no asisten (ya no «deshabilitados») y la tabla de cursos trae una columna «No asisten». En la matrícula, inicial, nuevos, retirados y no asisten son de solo lectura (salen de los listados); hombres, mujeres, venezolanos y ecuatorianos parten de lo marcado en el listado y se pueden ajustar; si la matrícula dice más venezolanos o ecuatorianos de los marcados queda un pendiente que lleva al listado.'
   ] },

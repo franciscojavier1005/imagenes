@@ -75,6 +75,10 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   respaldoRevisionAhora: ['directivo'],
   reconocimientosInforme: ['directivo'],
   reconocimientosHoja: ['directivo'],
+  reconocimientosPdf: ['directivo', 'docente'],
+  comisionActaRetirar: ['directivo', 'docente'],
+  comisionActasGuardadas: ['directivo', 'docente'],
+  comisionActaRecuperar: ['directivo', 'docente'],
   comisionUnionLeer: ['directivo', 'docente'],
   comisionUnionGuardar: ['directivo'],
   comisionHistorial: ['directivo', 'docente'],
@@ -120,7 +124,7 @@ function apiFunciones_() {
     levantarMarcasEstudiante: levantarMarcasEstudiante,
     informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
     editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, cerrarReunion: cerrarReunion, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas,
-    comisionContexto: comisionContexto, comisionGradoDatos: comisionGradoDatos, comisionSeguimiento: comisionSeguimiento, comisionPermisosLeer: comisionPermisosLeer, comisionModoLeer: comisionModoLeer, comisionModoGuardar: comisionModoGuardar, trasladoBuscar: trasladoBuscar, trasladoSolicitar: trasladoSolicitar, trasladoListar: trasladoListar, trasladoResolver: trasladoResolver, estudiantesDelGrupo: estudiantesDelGrupo, trasladoMasivo: trasladoMasivo, estudiantesCampoMasivo: estudiantesCampoMasivo, docentesCampoMasivo: docentesCampoMasivo, importarLibro: importarLibro, respaldoRevisionAhora: respaldoRevisionAhora, reconocimientosInforme: reconocimientosInforme, reconocimientosHoja: reconocimientosHoja, comisionUnionLeer: comisionUnionLeer, comisionUnionGuardar: comisionUnionGuardar, comisionHistorial: comisionHistorial, comisionRestaurar: comisionRestaurar, comisionHojaDeshacer: comisionHojaDeshacer, comisionPermisosGuardar: comisionPermisosGuardar, comisionCierreSimple: comisionCierreSimple, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
+    comisionContexto: comisionContexto, comisionGradoDatos: comisionGradoDatos, comisionSeguimiento: comisionSeguimiento, comisionPermisosLeer: comisionPermisosLeer, comisionModoLeer: comisionModoLeer, comisionModoGuardar: comisionModoGuardar, trasladoBuscar: trasladoBuscar, trasladoSolicitar: trasladoSolicitar, trasladoListar: trasladoListar, trasladoResolver: trasladoResolver, estudiantesDelGrupo: estudiantesDelGrupo, trasladoMasivo: trasladoMasivo, estudiantesCampoMasivo: estudiantesCampoMasivo, docentesCampoMasivo: docentesCampoMasivo, importarLibro: importarLibro, respaldoRevisionAhora: respaldoRevisionAhora, reconocimientosInforme: reconocimientosInforme, reconocimientosHoja: reconocimientosHoja, reconocimientosPdf: reconocimientosPdf, comisionActaRetirar: comisionActaRetirar, comisionActasGuardadas: comisionActasGuardadas, comisionActaRecuperar: comisionActaRecuperar, comisionUnionLeer: comisionUnionLeer, comisionUnionGuardar: comisionUnionGuardar, comisionHistorial: comisionHistorial, comisionRestaurar: comisionRestaurar, comisionHojaDeshacer: comisionHojaDeshacer, comisionPermisosGuardar: comisionPermisosGuardar, comisionCierreSimple: comisionCierreSimple, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
     comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte, comisionBorrador: comisionBorrador, comisionPendientes: comisionPendientes, comisionGuardarPdf: comisionGuardarPdf, comisionEstudiante: comisionEstudiante
   };
 }

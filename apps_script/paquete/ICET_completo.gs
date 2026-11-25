@@ -3876,11 +3876,15 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-h';
+var VERSION_SISTEMA = '2026.11.25-i';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-i', fecha: '2026-11-25', cambios: [
+    'Comisiones: en la matrícula, inicial, nuevos, retirados y no asisten se ven como texto simple (sin cuadros ni giradores) y la matrícula final se destaca con recuadro y letra grande. Reprobación rediseñada: cada estudiante en una línea con el número de áreas reprobadas, su inasistencia y el veredicto (1 o 2 áreas: se promueve con áreas pendientes; más de 2: no se promueve, reprueba el grado, con recuadro rojo); cada área en su propia línea con sus causas (sin notas) y ✕ para quitarla, lo que se actualiza solo en Áreas. En Reprobación, Reconocimientos, Convivencia, Compromisos y PIAR ya no aparecen quienes no asisten o se retiraron (al marcarlos se les vacían áreas, causas y reconocimientos). Promoción: nombres en una sola línea; en 11.º, quien pierde un área no participa en la ceremonia de graduación y quien reprueba más de 2 no se gradúa. Se corrige que el tipo de algunos reconocimientos no apareciera (nombres antiguos en mayúscula). Colores más suaves en los semáforos de porcentajes, los DBA y los botones de agregar.',
+    'Nuevo: «PDF de reconocimientos» (coordinación y directivos, todos los grupos; cada docente, los grupos que atiende; también en el informe del menú). Nuevo: «Nueva acta · archivar · recuperar» (bajo el selector de período): archivar el acta y empezar una nueva, borrarla y empezar en blanco, o recuperar un acta archivada o borrada; nada se pierde.'
+  ] },
   { version: '2026.11.25-h', fecha: '2026-11-25', cambios: [
     'Comisiones: «Total actual» y «Listado actual» pasan a llamarse «Matrícula final». El resumen de los listados muestra por separado los retirados y los que no asisten (ya no «deshabilitados») y la tabla de cursos trae una columna «No asisten». En la matrícula, inicial, nuevos, retirados y no asisten son de solo lectura (salen de los listados); hombres, mujeres, venezolanos y ecuatorianos parten de lo marcado en el listado y se pueden ajustar; si la matrícula dice más venezolanos o ecuatorianos de los marcados queda un pendiente que lleva al listado.'
   ] },
@@ -5055,7 +5059,7 @@ function comisionLog_(acta, usuario, accion, detalle) {
 /** Hojas de cálculo convierte «05» en el número 5 al guardar: el código de grado se normaliza siempre a dos cifras (00-11) o CS1/CS2. */
 function comisionGradoKey_(v, periodo) { var s = String(v == null ? '' : v).trim(); s = /^\d$/.test(s) ? '0' + s : s; return comisionUnion_(periodo)[s] || s; }
 /** Actas vigentes (las marcadas DUPLICADA por la unificación no se muestran). */
-function comisionActas_() { return datosOCrea_('Comision_Actas', COL_CACTAS).map(function (a) { a.grado = comisionGradoKey_(a.grado, a.periodo); return a; }).filter(function (a) { return a.estado !== 'DUPLICADA'; }); }
+function comisionActas_() { return datosOCrea_('Comision_Actas', COL_CACTAS).map(function (a) { a.grado = comisionGradoKey_(a.grado, a.periodo); return a; }).filter(function (a) { return !/^(DUPLICADA|ARCHIVADA|BORRADA)$/.test(String(a.estado)); }); }
 /** Cuántas partes (secciones) tiene guardadas cada acta. */
 function comisionContarSecciones_() { var c = {}; datosOCrea_('Comision_Secciones', COL_CSEC).forEach(function (s) { c[String(s.acta_id)] = (c[String(s.acta_id)] || 0) + 1; }); return c; }
 function comisionActa_(id) {
@@ -5987,6 +5991,44 @@ function comisionSeguimiento() {
   return out.sort(function (x, y) { return String(y.ultima.fecha).localeCompare(String(x.ultima.fecha)); });
 }
 
+
+/* ------------------------------ nueva acta: archivar, borrar (recuperable) y recuperar ------------------------------ */
+/** Cambia el estado de un acta (ARCHIVADA, BORRADA o ABIERTA). Solo la persona con el turno de edición, coordinación o el desarrollador. p = { acta, accion: 'archivar' | 'borrar' }. */
+function comisionActaRetirar(p) {
+  var quien = comisionQuien_(); p = p || {};
+  var lock = LockService.getScriptLock(); lock.waitLock(15000);
+  try {
+    var a = comisionActa_(p.acta), mem = quien.coord ? '' : comisionTurno_(quien, a); if (mem) throw new Error(mem);
+    if (['archivar', 'borrar'].indexOf(p.accion) < 0) throw new Error('Acción no válida.');
+    var est = p.accion === 'borrar' ? 'BORRADA' : 'ARCHIVADA', fila = comisionFilaActa_(a.id);
+    hojaOCrea_('Comision_Actas', COL_CACTAS).getRange(fila, 6).setValue(est);
+    comisionLog_(a.id, quien.nombre, est, 'Acta ' + a.periodo + ' ' + a.grado + ' → ' + est + '. Puede recuperarse.');
+    return { ok: true, estado: est };
+  } finally { lock.releaseLock(); }
+}
+/** Actas archivadas o borradas de un grado y período (para recuperarlas). p = { periodo, grado }. */
+function comisionActasGuardadas(p) {
+  var quien = comisionQuien_(); p = p || {}; var cnt = comisionContarSecciones_(), grado = comisionGradoKey_(p.grado, p.periodo), per = String(p.periodo || '');
+  return datosOCrea_('Comision_Actas', COL_CACTAS).filter(function (a) { return /^(ARCHIVADA|BORRADA)$/.test(String(a.estado)) && String(a.periodo) === per && comisionGradoKey_(a.grado, a.periodo) === grado; })
+    .map(function (a) { return { id: String(a.id), estado: String(a.estado), creada: String(a.fecha_creacion), por: String(a.creada_por), partes: cnt[String(a.id)] || 0 }; });
+}
+/** Recupera un acta archivada o borrada: pasa a ABIERTA y la que estuviera abierta se archiva. p = { acta }. */
+function comisionActaRecuperar(p) {
+  var quien = comisionQuien_(); p = p || {};
+  var lock = LockService.getScriptLock(); lock.waitLock(15000);
+  try {
+    var v = hojaOCrea_('Comision_Actas', COL_CACTAS).getDataRange().getValues(), h = v[0].map(String), ie = h.indexOf('estado'), ii = h.indexOf('id'), ip = h.indexOf('periodo'), ig = h.indexOf('grado'), fila = 0, obj = null;
+    for (var i = 1; i < v.length; i++) if (String(v[i][ii]) === String(p.acta)) { fila = i + 1; obj = v[i]; break; }
+    if (!fila || !/^(ARCHIVADA|BORRADA)$/.test(String(obj[ie]))) throw new Error('Esa acta no está archivada.');
+    if (!quien.coord) { var turno = comisionTurno_(quien, { responsable: '' }); if (turno) throw new Error(turno); }
+    var per = String(obj[ip]), gr = comisionGradoKey_(obj[ig], per);
+    for (var j = 1; j < v.length; j++) if (j !== fila - 1 && String(v[j][ie]) === 'ABIERTA' && String(v[j][ip]) === per && comisionGradoKey_(v[j][ig], per) === gr) hojaOCrea_('Comision_Actas', COL_CACTAS).getRange(j + 1, ie + 1).setValue('ARCHIVADA');
+    hojaOCrea_('Comision_Actas', COL_CACTAS).getRange(fila, ie + 1).setValue('ABIERTA');
+    comisionLog_(String(p.acta), quien.nombre, 'RECUPERADA', 'Acta ' + per + ' ' + gr);
+    return { ok: true };
+  } finally { lock.releaseLock(); }
+}
+
 // ===================== Traslados.gs =====================
 /**
  * Traslados de estudiantes entre cursos o grados (desde los listados de la comisión).
@@ -6226,6 +6268,29 @@ function reconocimientosHoja(p) {
   return { url: ss.getUrl(), total: r.total };
 }
 
+
+/** Grupos (códigos) que atiende una persona: los que dirige o en los que dicta, en cualquier grado. */
+function comisionMisGrupos_(quien) {
+  var N = comisionSinTildes_(quien.nombre), r = {};
+  datos_('Direccion_Grupo').forEach(function (d) { if ([d.docente_1, d.docente_2].some(function (n) { return n && comisionSinTildes_(n) === N; })) r[trasladoCodigo_(d.grupo)] = 1; });
+  comisionHorarioConAlternan_().forEach(function (h) { if (h.docente && h.grupo && comisionSinTildes_(h.docente) === N) r[trasladoCodigo_(h.grupo)] = 1; });
+  return r;
+}
+/** PDF de los reconocimientos: coordinación y directivos, todos los grupos; cada docente, los grupos que atiende. p = { periodo }. Devuelve { nombre, base64, total }. */
+function reconocimientosPdf(p) {
+  var q = comisionQuien_(), f = reconocimientosFilas_((p || {}).periodo), per = String((p || {}).periodo || 'Final');
+  if (q.rol !== 'directivo') { var mis = comisionMisGrupos_(q); f = f.filter(function (x) { return mis[x.gc]; }); }
+  if (!f.length) throw new Error('No hay reconocimientos guardados' + (q.rol === 'directivo' ? '' : ' en los grupos que usted atiende') + ' en el período ' + per + '.');
+  var esc = function (x) { return String(x == null ? '' : x).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }, h = '<html><body style="font-family:Arial,sans-serif;font-size:10px"><h2 style="margin:0">I.E. ICET · Reconocimientos ' + new Date().getFullYear() + '</h2><div style="color:#555;margin-bottom:8px">Período ' + esc(per) + ' · ' + f.length + ' estudiantes · ' + esc(ahoraTxt_()) + '</div>', tipo = null;
+  f.forEach(function (x) {
+    if (x.tipo !== tipo) { if (tipo !== null) h += '</table>'; tipo = x.tipo; h += '<h3 style="margin:12px 0 4px;color:#0f2a5c">' + esc(tipo) + '</h3><table style="border-collapse:collapse;width:100%"><tr style="background:#e8eef9"><th align="left">Curso</th><th align="left">Apellidos y nombres</th><th>Sexo</th><th>Documento</th><th>Promedio</th><th>Puesto</th><th align="left">Datos</th></tr>'; }
+    h += '<tr style="border-bottom:1px solid #ddd"><td>' + esc(x.curso) + '</td><td>' + esc(x.ape + ' ' + x.nom) + '</td><td align="center">' + esc(x.sexo) + '</td><td align="center">' + esc((x.tdoc ? x.tdoc + ' ' : '') + x.ndoc) + '</td><td align="center">' + esc(x.prom) + '</td><td align="center">' + esc(x.puesto) + '</td><td>' + esc(x.datos) + '</td></tr>';
+  });
+  h += '</table><p style="color:#777;margin-top:14px">Control de Procesos ICET · Autor: Francisco Javier Cortés Cabezas</p></body></html>';
+  var blob = HtmlService.createHtmlOutput(h).getBlob().getAs('application/pdf');
+  return { nombre: 'Reconocimientos_ICET_' + per + '.pdf', base64: Utilities.base64Encode(blob.getBytes()), total: f.length };
+}
+
 // ===================== Api.gs =====================
 /**
  * API del "back": el proyecto vinculado al libro, desplegado como aplicación web que se ejecuta COMO EL PROPIETARIO
@@ -6304,6 +6369,10 @@ var API_PERMISOS = {   // función -> roles que pueden llamarla ('*' = cualquier
   respaldoRevisionAhora: ['directivo'],
   reconocimientosInforme: ['directivo'],
   reconocimientosHoja: ['directivo'],
+  reconocimientosPdf: ['directivo', 'docente'],
+  comisionActaRetirar: ['directivo', 'docente'],
+  comisionActasGuardadas: ['directivo', 'docente'],
+  comisionActaRecuperar: ['directivo', 'docente'],
   comisionUnionLeer: ['directivo', 'docente'],
   comisionUnionGuardar: ['directivo'],
   comisionHistorial: ['directivo', 'docente'],
@@ -6349,7 +6418,7 @@ function apiFunciones_() {
     levantarMarcasEstudiante: levantarMarcasEstudiante,
     informeRondas: informeRondas, enviarRondasAMi: enviarRondasAMi,
     editarReunion: editarReunion, agregarPersonaReunion: agregarPersonaReunion, historialReuniones: historialReuniones, cerrarReunion: cerrarReunion, historialNovedades: historialNovedades, anularReunion: anularReunion, avisosHoy: avisosHoy, quitarReunionesDuplicadas: quitarReunionesDuplicadas,
-    comisionContexto: comisionContexto, comisionGradoDatos: comisionGradoDatos, comisionSeguimiento: comisionSeguimiento, comisionPermisosLeer: comisionPermisosLeer, comisionModoLeer: comisionModoLeer, comisionModoGuardar: comisionModoGuardar, trasladoBuscar: trasladoBuscar, trasladoSolicitar: trasladoSolicitar, trasladoListar: trasladoListar, trasladoResolver: trasladoResolver, estudiantesDelGrupo: estudiantesDelGrupo, trasladoMasivo: trasladoMasivo, estudiantesCampoMasivo: estudiantesCampoMasivo, docentesCampoMasivo: docentesCampoMasivo, importarLibro: importarLibro, respaldoRevisionAhora: respaldoRevisionAhora, reconocimientosInforme: reconocimientosInforme, reconocimientosHoja: reconocimientosHoja, comisionUnionLeer: comisionUnionLeer, comisionUnionGuardar: comisionUnionGuardar, comisionHistorial: comisionHistorial, comisionRestaurar: comisionRestaurar, comisionHojaDeshacer: comisionHojaDeshacer, comisionPermisosGuardar: comisionPermisosGuardar, comisionCierreSimple: comisionCierreSimple, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
+    comisionContexto: comisionContexto, comisionGradoDatos: comisionGradoDatos, comisionSeguimiento: comisionSeguimiento, comisionPermisosLeer: comisionPermisosLeer, comisionModoLeer: comisionModoLeer, comisionModoGuardar: comisionModoGuardar, trasladoBuscar: trasladoBuscar, trasladoSolicitar: trasladoSolicitar, trasladoListar: trasladoListar, trasladoResolver: trasladoResolver, estudiantesDelGrupo: estudiantesDelGrupo, trasladoMasivo: trasladoMasivo, estudiantesCampoMasivo: estudiantesCampoMasivo, docentesCampoMasivo: docentesCampoMasivo, importarLibro: importarLibro, respaldoRevisionAhora: respaldoRevisionAhora, reconocimientosInforme: reconocimientosInforme, reconocimientosHoja: reconocimientosHoja, reconocimientosPdf: reconocimientosPdf, comisionActaRetirar: comisionActaRetirar, comisionActasGuardadas: comisionActasGuardadas, comisionActaRecuperar: comisionActaRecuperar, comisionUnionLeer: comisionUnionLeer, comisionUnionGuardar: comisionUnionGuardar, comisionHistorial: comisionHistorial, comisionRestaurar: comisionRestaurar, comisionHojaDeshacer: comisionHojaDeshacer, comisionPermisosGuardar: comisionPermisosGuardar, comisionCierreSimple: comisionCierreSimple, comisionAbrir: comisionAbrir, comisionCargar: comisionCargar, comisionCambios: comisionCambios, comisionGuardar: comisionGuardar,
     comisionResponsable: comisionResponsable, comisionConfirmar: comisionConfirmar, comisionCierre: comisionCierre, comisionReabrir: comisionReabrir, comisionSubirSoporte: comisionSubirSoporte, comisionBorrador: comisionBorrador, comisionPendientes: comisionPendientes, comisionGuardarPdf: comisionGuardarPdf, comisionEstudiante: comisionEstudiante
   };
 }

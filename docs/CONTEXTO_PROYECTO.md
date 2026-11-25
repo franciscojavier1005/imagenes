@@ -858,3 +858,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 117 (2026-11-25, versiones -e a -g)
 - «Retirado», promoción con franjas, tipo de documento sugerido, informe de reconocimientos (Excel/Hojas), auditoría y manuales.
+
+## Ampliación 118 (2026-11-25, versión 2026.11.25-i)
+- Reprobación rediseñada, matrícula final destacada, graduación 11.º, PDF de reconocimientos, archivar/recuperar actas, colores suaves.

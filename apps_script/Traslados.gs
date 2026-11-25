@@ -235,3 +235,26 @@ function reconocimientosHoja(p) {
   bitacora_('Informe de reconocimientos', r.total + ' filas · ' + r.periodo + ' · por ' + q.nombre);
   return { url: ss.getUrl(), total: r.total };
 }
+
+
+/** Grupos (códigos) que atiende una persona: los que dirige o en los que dicta, en cualquier grado. */
+function comisionMisGrupos_(quien) {
+  var N = comisionSinTildes_(quien.nombre), r = {};
+  datos_('Direccion_Grupo').forEach(function (d) { if ([d.docente_1, d.docente_2].some(function (n) { return n && comisionSinTildes_(n) === N; })) r[trasladoCodigo_(d.grupo)] = 1; });
+  comisionHorarioConAlternan_().forEach(function (h) { if (h.docente && h.grupo && comisionSinTildes_(h.docente) === N) r[trasladoCodigo_(h.grupo)] = 1; });
+  return r;
+}
+/** PDF de los reconocimientos: coordinación y directivos, todos los grupos; cada docente, los grupos que atiende. p = { periodo }. Devuelve { nombre, base64, total }. */
+function reconocimientosPdf(p) {
+  var q = comisionQuien_(), f = reconocimientosFilas_((p || {}).periodo), per = String((p || {}).periodo || 'Final');
+  if (q.rol !== 'directivo') { var mis = comisionMisGrupos_(q); f = f.filter(function (x) { return mis[x.gc]; }); }
+  if (!f.length) throw new Error('No hay reconocimientos guardados' + (q.rol === 'directivo' ? '' : ' en los grupos que usted atiende') + ' en el período ' + per + '.');
+  var esc = function (x) { return String(x == null ? '' : x).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }, h = '<html><body style="font-family:Arial,sans-serif;font-size:10px"><h2 style="margin:0">I.E. ICET · Reconocimientos ' + new Date().getFullYear() + '</h2><div style="color:#555;margin-bottom:8px">Período ' + esc(per) + ' · ' + f.length + ' estudiantes · ' + esc(ahoraTxt_()) + '</div>', tipo = null;
+  f.forEach(function (x) {
+    if (x.tipo !== tipo) { if (tipo !== null) h += '</table>'; tipo = x.tipo; h += '<h3 style="margin:12px 0 4px;color:#0f2a5c">' + esc(tipo) + '</h3><table style="border-collapse:collapse;width:100%"><tr style="background:#e8eef9"><th align="left">Curso</th><th align="left">Apellidos y nombres</th><th>Sexo</th><th>Documento</th><th>Promedio</th><th>Puesto</th><th align="left">Datos</th></tr>'; }
+    h += '<tr style="border-bottom:1px solid #ddd"><td>' + esc(x.curso) + '</td><td>' + esc(x.ape + ' ' + x.nom) + '</td><td align="center">' + esc(x.sexo) + '</td><td align="center">' + esc((x.tdoc ? x.tdoc + ' ' : '') + x.ndoc) + '</td><td align="center">' + esc(x.prom) + '</td><td align="center">' + esc(x.puesto) + '</td><td>' + esc(x.datos) + '</td></tr>';
+  });
+  h += '</table><p style="color:#777;margin-top:14px">Control de Procesos ICET · Autor: Francisco Javier Cortés Cabezas</p></body></html>';
+  var blob = HtmlService.createHtmlOutput(h).getBlob().getAs('application/pdf');
+  return { nombre: 'Reconocimientos_ICET_' + per + '.pdf', base64: Utilities.base64Encode(blob.getBytes()), total: f.length };
+}

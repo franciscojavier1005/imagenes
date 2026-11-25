@@ -353,7 +353,7 @@ var _sond_snap=sondeo;sondeo=function(){_sond_snap();try{if(ACTA&&S&&SYNC.activo
 guardaBorrador=function(manual){try{guardaBorEsp();guardaPos();if(SYNC.activo&&S&&ACTA){var parts=particiona(),cola=[];Object.keys(parts).forEach(function(k){if(SYNC.last[k]!==undefined&&js(parts[k])!==SYNC.last[k]&&puedeEscribir(k))cola.push(k)});if(cola.length)guardaDrafts(cola,parts);try{tick()}catch(e){}}
   estadoGuard('Borrador guardado '+ahora(),'v');if(manual)$('#finMsg').innerHTML='<div class="bien">Borrador guardado a las '+ahora()+': ya está en el libro (si hay conexión) y en este equipo. Si se cierra la pantalla, se pierde la conexión o se actualiza la aplicación, al volver entrará <b>donde estaba</b>, con lo que escribió.</div>'}catch(e){estadoGuard('No se pudo guardar el borrador','f')}};
 avisoBorrador=function(){};
-/* ---------- matrícula: hombres + mujeres = total actual (si sube una casilla, baja la otra); por defecto todos hombres, o lo que traen las hojas ---------- */
+/* ---------- matrícula: hombres + mujeres = matrícula final (si sube una casilla, baja la otra); por defecto todos hombres, o lo que traen las hojas ---------- */
 function faltaSinTel(e){return (e.falta||[]).filter(function(x){return x!=='Teléfono del acudiente'})}
 function matInvariante(){if(!S||!S.mat)return;S.mat.forEach(function(r,i){if(r.ok)return;var t=tot(r);
   if(!r.sxSet&&!r.m){var L=EST.filter(function(e){return e.g===r.g&&!e.baja});if(L.length&&L.every(function(e){return e.sx==='M'||e.sx==='F'}))r.m=Math.min(t,L.filter(function(e){return e.sx==='M'}).length)}
@@ -574,17 +574,23 @@ function nacCelda(e){if(e.baja)return esc(e.nac||'—');var v=e.nac||'Colombiana
 function setNac(id,v){var e=est(id);if(!e)return;if(v==='Otra…'){v=(prompt('¿Cuál es la nacionalidad de '+nom(e)+'?')||'').trim();if(!v){pintaLis();return}}
  e.nac=v;e.mod=1;e.falta=(e.falta||[]).filter(function(x){return x!=='Nacionalidad'});pintaTodo()}
 function nacPorDefecto(){(EST||[]).forEach(function(e){if(!e.nac){e.nac='Colombiana';e.falta=(e.falta||[]).filter(function(x){return x!=='Nacionalidad'})}})}
+function matSuma(){var o={ini:0,nu:0,re:0,de:0};(S&&S.mat||[]).forEach(function(r){o.ini+=r.ini||0;o.nu+=r.nu||0;o.re+=r.re||0;o.de+=r.de||0});return o}
+function retC(g){var r=S.mat[S.gs.indexOf(g)];return r?r.re:0}
+function noaC(g){var r=S.mat[S.gs.indexOf(g)];return r?r.de:0}
 function matDeriva(){if(!S||!S.gs||!S.mat)return;nacPorDefecto();S.gs.forEach(function(g,i){var r=S.mat[i];if(!r)return;var L=EST.filter(function(e){return e.g===g}),act=L.filter(function(e){return !e.baja}),ret=/^(No asist|Desert|Nunca)/;
   r.ini=L.filter(function(e){return !e.ing}).length;r.nu=L.filter(function(e){return e.ing&&!e.baja}).length;
   r.re=L.filter(function(e){return !e.ing&&e.baja&&!ret.test(e.bajaMotivo||'')}).length;r.de=L.filter(function(e){return !e.ing&&e.baja&&ret.test(e.bajaMotivo||'')}).length;
-  var ve=act.filter(function(e){return /venez/i.test(e.nac||'')}).length,ec=act.filter(function(e){return /ecuator/i.test(e.nac||'')}).length;
-  if(r.veDecl===undefined)r.veDecl=(+r.ve||0)>ve?(+r.ve||0):0;if(r.ecDecl===undefined)r.ecDecl=(+r.ec||0)>ec?(+r.ec||0):0;if(r.veDecl&&ve>=r.veDecl)r.veDecl=0;if(r.ecDecl&&ec>=r.ecDecl)r.ecDecl=0;
-  r.ve=ve;r.ec=ec;r.m=act.filter(function(e){return e.sx==='M'}).length;r.f=act.filter(function(e){return e.sx==='F'}).length});try{rpDeriva()}catch(e){}}
+  var dr={m:act.filter(function(e){return e.sx==='M'}).length,f:act.filter(function(e){return e.sx==='F'}).length,ve:act.filter(function(e){return /venez/i.test(e.nac||'')}).length,ec:act.filter(function(e){return /ecuator/i.test(e.nac||'')}).length};
+  r.man=r.man||{};r.veL=dr.ve;r.ecL=dr.ec;['m','f','ve','ec'].forEach(function(k){if(!r.man[k])r[k]=dr[k]})});try{rpDeriva()}catch(e){}}
+function setMatMan(i,k,v){var r=S.mat[i];r.man=r.man||{};r[k]=Math.max(0,+v||0);r.man[k]=1;r.ok=false;pintaMat()}
+function matRecalcula(i){var r=S.mat[i];r.man={};r.ok=false;pintaMat()}
 ['pintaMat','pintaLis','pintaAreas','pintaProm','pendientesCierre','particiona','pintaListas'].forEach(function(n){var f=window[n];if(typeof f!=='function')return;window[n]=function(){try{matDeriva()}catch(e){}return f.apply(this,arguments)}});
 // matrícula: las cifras salen de los listados (solo lectura)
-var _pm_d=pintaMat;pintaMat=function(){var r=_pm_d.apply(this,arguments);try{document.querySelectorAll('#tMat input[type=number]').forEach(function(i){var oc=i.getAttribute('onchange')||'';if(/\.(ini|nu|re|de|m|f|ve|ec)=/.test(oc)){i.disabled=true;i.title='Sale de los listados: corríjalo allí (No asiste, Retirado, Agregar, Sexo, Nacionalidad)'}});
+var _pm_d=pintaMat;pintaMat=function(){var r=_pm_d.apply(this,arguments);try{document.querySelectorAll('#tMat input[type=number]').forEach(function(i){var oc=i.getAttribute('onchange')||'',m=/S\.mat\[(\d+)\]\.(ini|nu|re|de|m|f|ve|ec)=/.exec(oc);if(!m)return;
+   if(/^(ini|nu|re|de)$/.test(m[2])){i.disabled=true;i.title='Sale de los listados: corríjalo allí (No asiste, Retirado, Agregar)'}
+   else{i.setAttribute('onchange','setMatMan('+m[1]+',\''+m[2]+'\',this.value)');i.title='Viene de lo marcado en el listado; puede corregirlo aquí'}});
   document.querySelectorAll('#tMat button').forEach(function(b){if(/usaMarcas/.test(b.getAttribute('onclick')||''))b.style.display='none'});
-  var nota=document.getElementById('matDeriv');if(!nota&&$('#tMat')){var d=document.createElement('div');d.id='matDeriv';d.className='nota';d.innerHTML='<b>La matrícula sale de los listados.</b> Inicial = estudiantes del listado original; nuevos = agregados; retirados = quienes se fueron a otra institución o domicilio o cancelaron; no asisten = los marcados «No asiste»; hombres, mujeres, venezolanos y ecuatorianos = lo que se marcó en el listado. Si algo no cuadra, <b>corríjalo en Listados</b>. <button class="btn s" onclick="irK(\'sL\')">Ir a Listados</button>';$('#tMat').closest('.tw').insertAdjacentElement('beforebegin',d)}}catch(e){}return r};
+  var nota=document.getElementById('matDeriv');if(!nota&&$('#tMat')){var d=document.createElement('div');d.id='matDeriv';d.className='nota';d.innerHTML='<b>Inicial, nuevos, retirados y no asisten salen de los listados</b> (solo lectura): corríjalos en <button class="btn s" onclick="irK(\'sL\')">Listados</button>. La <b>matrícula final</b> = inicial + nuevos − retirados − no asisten. <b>Hombres, mujeres, venezolanos y ecuatorianos</b> parten de lo marcado en el listado y se pueden ajustar aquí.';$('#tMat').closest('.tw').insertAdjacentElement('beforebegin',d)}}catch(e){}return r};
 // áreas: los reprobados son los estudiantes seleccionados; aprobados = matrícula final − reprobados
 function rpDeriva(){if(!S||!S.rep||S.niv==='pre')return;AREAS.forEach(function(a){S.rp[a]=S.gs.map(function(g){return S.rep.filter(function(r){var e=est(r.id);return e&&e.g===g&&!e.baja&&r.items.some(function(i){return i.area===a})}).length})})}
 var _pa_d=pintaAreas;pintaAreas=function(){try{rpDeriva()}catch(e){}var r=_pa_d.apply(this,arguments);try{document.querySelectorAll('#areasBox input[type=number], .card .tw table.plain input[type=number]').forEach(function(i){if(/S\.rp\[/.test(i.getAttribute('onchange')||'')){i.disabled=true;i.title='Se cuenta con los estudiantes que seleccione en «Seleccionar»'}});
@@ -597,8 +603,8 @@ function tipoNorm(t){var k=String(t||'').toUpperCase().trim();return TIPOS_LEG[k
 var _au_t=aplicaUna;aplicaUna=function(k,d){var r=_au_t.call(this,k,d);try{if(k==='general')S.tiposRec=TIPOS_NUEVOS.slice();if(/^reconocimientos:/.test(k))S.rec.forEach(function(x){x.tipo=tipoNorm(x.tipo)})}catch(e){}return r};
 var _pcd=pendientesCierre;pendientesCierre=function(){var L=_pcd();try{
  L.forEach(function(x){if(/Confirme o corrija el promedio/.test(x.msg||''))x.adv=false});
- (S.mat||[]).forEach(function(r){if(r.veDecl)L.push({paso:'sL',comp:'Listados',curso:r.g,persona:'',msg:'La matrícula registró '+r.veDecl+' venezolano'+(r.veDecl===1?'':'s')+' y en el listado solo hay '+r.ve+' marcado'+(r.ve===1?'':'s')+': indique en la columna «Nacionalidad» quiénes son.',donde:'Director/a de grupo',adv:false});
-  if(r.ecDecl)L.push({paso:'sL',comp:'Listados',curso:r.g,persona:'',msg:'La matrícula registró '+r.ecDecl+' ecuatoriano'+(r.ecDecl===1?'':'s')+' y en el listado solo hay '+r.ec+' marcado'+(r.ec===1?'':'s')+': indique en la columna «Nacionalidad» quiénes son.',donde:'Director/a de grupo',adv:false})});
+ (S.mat||[]).forEach(function(r){if((+r.ve||0)>(+r.veL||0))L.push({paso:'sL',comp:'Listados',curso:r.g,persona:'',msg:'La matrícula dice '+r.ve+' venezolano'+(r.ve===1?'':'s')+' y en el listado solo hay '+(r.veL||0)+' marcado'+(r.veL===1?'':'s')+': indique en la columna «Nacionalidad» quiénes son.',donde:'Director/a de grupo',adv:false});
+  if((+r.ec||0)>(+r.ecL||0))L.push({paso:'sL',comp:'Listados',curso:r.g,persona:'',msg:'La matrícula dice '+r.ec+' ecuatoriano'+(r.ec===1?'':'s')+' y en el listado solo hay '+(r.ecL||0)+' marcado'+(r.ecL===1?'':'s')+': indique en la columna «Nacionalidad» quiénes son.',donde:'Director/a de grupo',adv:false})});
  var ord=PKEYS.concat(['p2']);L.forEach(function(x){x.o=ord.indexOf(x.paso)});L.sort(function(a,b){return a.o-b.o})}catch(e){}return L};
 
 

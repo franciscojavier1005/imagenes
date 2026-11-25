@@ -2,7 +2,7 @@
 
 Autor y dueño: Francisco Javier Cortés Cabezas (coordinador académico, I.E. ICET, Tumaco). Responder en español, corto, sin bloques de código en el chat; los archivos se entregan con SendUserFile. Rama: `claude/teacher-attendance-system-fso0tf` (sin PR salvo que lo pida). No escribir "OPS". No versionar datos reales (libro xlsx, plantilla con datos).
 
-**Versión vigente: 2026.11.25-g** (solo se cambia en `Leeme.gs`: las pantallas la reciben por `<?= VERSION ?>`; ya no hay que hacer `sed` en los .html) (ver `VERSION_SISTEMA` en `apps_script/Leeme.gs`).
+**Versión vigente: 2026.11.25-h** (solo se cambia en `Leeme.gs`: las pantallas la reciben por `<?= VERSION ?>`; ya no hay que hacer `sed` en los .html) (ver `VERSION_SISTEMA` en `apps_script/Leeme.gs`).
 
 ## Qué es
 Libro de Google Sheets + Apps Script: (1) asistencia docente (ronda, novedades, reuniones, paneles) y (2) **Comisiones de evaluación y promoción** (acta por grado y período, varios docentes a la vez, versionado optimista, turno de edición, historial 8 días, borradores locales).
@@ -39,6 +39,8 @@ Hecho 2026-11-25 (-c): sexo confirmado por curso (`S.sxOk`), documento/sexo obli
 - Tipo de documento sugerido «TI» (`tdocSug`) que el docente confirma o cambia (`tdocCelda`, `setTdoc`); «Confirmar sexo y documento del curso» (`S.sxOk`) también confirma lo sugerido.
 
 - Informe de reconocimientos (`reconocimientosInforme`/`reconocimientosHoja` en `Traslados.gs`; pantalla `abrirInfRec` en `Menu.html`; CSV con `;` y BOM para Excel o hoja de Google en «App Asistencia / Informes»). Auditoría API: `/tmp/auditoria_api.py` (permisos vs despacho vs llamadas de las pantallas: sin faltantes). Manuales regenerados (PDF + `Manuales.html`).
+
+- «Matrícula final» (antes total actual). Matrícula: ini/nu/re/de solo lectura (de los listados); m/f/ve/ec editables (`setMatMan`, bandera `r.man`; `r.veL/ecL` = lo marcado en el listado). Resumen de listados: retirados y no asisten separados (`matSuma`, `retC`, `noaC`).
 
 ## Pendientes conocidos
 - Mensaje cortado del usuario: «necesitamos para los reconocimientos poder elegir…» (preguntar qué).

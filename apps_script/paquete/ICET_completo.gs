@@ -3876,11 +3876,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-g';
+var VERSION_SISTEMA = '2026.11.25-h';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-h', fecha: '2026-11-25', cambios: [
+    'Comisiones: «Total actual» y «Listado actual» pasan a llamarse «Matrícula final». El resumen de los listados muestra por separado los retirados y los que no asisten (ya no «deshabilitados») y la tabla de cursos trae una columna «No asisten». En la matrícula, inicial, nuevos, retirados y no asisten son de solo lectura (salen de los listados); hombres, mujeres, venezolanos y ecuatorianos parten de lo marcado en el listado y se pueden ajustar; si la matrícula dice más venezolanos o ecuatorianos de los marcados queda un pendiente que lleva al listado.'
+  ] },
   { version: '2026.11.25-g', fecha: '2026-11-25', cambios: [
     'Nuevo en el menú de directivos: «Informe de reconocimientos (Excel)»: todos los estudiantes con reconocimiento o mérito del período, con tipo y número de documento, sexo, lugar de expedición, nacionalidad, promedio, puesto y qué datos faltan; agrupados por tipo (excelencia, rendimiento académico, convivencia y los demás), luego por curso (de preescolar a 11.º) y en orden alfabético por apellidos. Se descarga para Excel (.csv) o se crea como hoja de Google en «App Asistencia / Informes».',
     'Revisión general: manuales actualizados (sistema y comisiones) y comprobación de todas las funciones.'

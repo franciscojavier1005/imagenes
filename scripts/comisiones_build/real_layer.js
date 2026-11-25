@@ -182,7 +182,7 @@ function abreActa(){
  var label=$('#grado').value,per=$('#periodo').value,code=LABEL_DE[label];if(!code||!per)return;
  SYNC.activo=false;clearInterval(SYNC.t1);clearInterval(SYNC.t2);clearInterval(SYNC.t3);SYNC.ver={};SYNC.last={};avisoSync('');estadoSync('Cargando el acta…','a');
  var SNAP=false;
- API('comisionGradoDatos',{grado:code,periodo:per}).then(function(d){return API('comisionAbrir',{periodo:per,grado:code}).then(function(r){try{guardaSnap(code,per,d,r)}catch(e){}return [d,r]})})
+ Promise.all([API('comisionGradoDatos',{grado:code,periodo:per}),API('comisionAbrir',{periodo:per,grado:code})]).then(function(x){try{guardaSnap(code,per,x[0],x[1])}catch(e){}return [x[0],x[1]]})
  .catch(function(e){var sn=leeSnap(code,per);if(sn){SNAP=true;return [sn.d,sn.r]}throw e})
  .then(function(dr){var r=dr[1];MODO=r.modo||'UNO';ALC=r.alcance||null;construyeGrado(dr[0]);
   ACTA=r.acta;init(GK=Object.keys(G)[0]);$('#grado').value=GK;$('#periodo').value=per;$('#acta').value=ACTA.acta_no;
@@ -595,7 +595,7 @@ var _pm_d=pintaMat;pintaMat=function(){var r=_pm_d.apply(this,arguments);try{doc
 // áreas: los reprobados son los estudiantes seleccionados; aprobados = matrícula final − reprobados
 function rpDeriva(){if(!S||!S.rep||S.niv==='pre')return;AREAS.forEach(function(a){S.rp[a]=S.gs.map(function(g){return S.rep.filter(function(r){var e=est(r.id);return e&&e.g===g&&!e.baja&&r.items.some(function(i){return i.area===a})}).length})})}
 var _pa_d=pintaAreas;pintaAreas=function(){try{rpDeriva()}catch(e){}var r=_pa_d.apply(this,arguments);try{document.querySelectorAll('#areasBox input[type=number], .card .tw table.plain input[type=number]').forEach(function(i){if(/S\.rp\[/.test(i.getAttribute('onchange')||'')){i.disabled=true;i.title='Se cuenta con los estudiantes que seleccione en «Seleccionar»'}});
-  var n=document.getElementById('notaRp');if(!n&&$('#notaAr')){var d=document.createElement('div');d.id='notaRp';d.className='nota';d.innerHTML='<b>Matrícula final</b> = solo quienes asisten (sin «No asiste» ni retirados). Los <b>reprobados</b> se cuentan con los estudiantes que usted elija en «Seleccionar» de cada área; los <b>aprobados</b> son la matrícula final menos los reprobados. Reprueba el área quien quede por debajo de 3,0 en la valoración final.';$('#notaAr').insertAdjacentElement('afterend',d)}}catch(e){}return r};
+  var n=document.getElementById('notaRp');if(!n&&$('#notaAr')){var d=document.createElement('div');d.id='notaRp';d.className='nota';d.innerHTML='<b>Matrícula final</b> = solo quienes asisten (sin «No asiste» ni retirados). Los <b>reprobados</b> se cuentan con los estudiantes que usted elija en «Seleccionar» de cada área; los <b>aprobados</b> son la matrícula final menos los reprobados. Reprueba el área quien quede por debajo de 2,91 en la valoración final.';$('#notaAr').insertAdjacentElement('afterend',d)}}catch(e){}return r};
 // reconocimientos: confirmar el promedio sugerido y nombres con inicial mayúscula
 function confirmaProm(i){if(S.rec[i]){S.rec[i].promDef=false;pintaListas();pintaPendientes()}}
 var TIPOS_LEG={'EXCELENCIA':0,'RENDIMIENTO ACADÉMICO':1,'CONVIVENCIA ESCOLAR':2,'COLABORACIÓN Y BUEN PORTE DEL UNIFORME (ALTERNATIVO, SIN MEDALLA NI MENCIÓN)':3,'COLABORACIÓN Y BUEN PORTE DEL UNIFORME':3,'OTROS':4};

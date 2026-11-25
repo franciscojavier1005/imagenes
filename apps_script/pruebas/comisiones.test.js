@@ -203,6 +203,12 @@ ok(run("comisionMailPersonal_('juan@icet.edu.co')")===''&&run("comisionMailPerso
     ok(a2!==a1,'al archivar el acta, se puede iniciar una nueva'); const gu=run("comisionActasGuardadas({periodo:'Tercero',grado:'08'})"); ok(gu.length===1&&gu[0].id===a1&&gu[0].estado==='ARCHIVADA','el acta archivada se puede ver y recuperar');
     run("comisionActaRecuperar({acta:'"+a1+"'})"); ok(run("comisionAbrir({periodo:'Tercero',grado:'08'})").acta.id===a1,'al recuperarla vuelve a ser la acta abierta'); ok(run("comisionActasGuardadas({periodo:'Tercero',grado:'08'})")[0].id===a2,'la que estaba abierta queda archivada');
     run("comisionActaRetirar({acta:'"+a1+"',accion:'borrar'})"); ok(run("comisionActasGuardadas({periodo:'Tercero',grado:'08'})").some(x=>x.id===a1&&x.estado==='BORRADA'),'borrar es recuperable: queda en la lista de guardadas'); }
+  { const h0=hojas.Horario.v[0].slice(); hojas.Horario.v[0]=h0.concat(['tipo','grupos_enfasis']); hojas.Grupos.v.push(['0801','REGULAR','8°','8°-1',null]);
+    hojas.Horario.v.push(['Docente Enfasis','','','','ART','ENFASIS','0801'],['Docente Enfasis Dos','','','','CNA','ENFASIS','0801']);
+    const d8=run("comisionGradoDatos({grado:'08',periodo:'Final'})");
+    ok(d8.ap.indexOf('Docente Enfasis')>=0&&d8.ap.indexOf('Docente Enfasis Dos')>=0,'los docentes del énfasis (filas sin grupo) entran al equipo del acta');
+    ok(Object.values(d8.areas).some(v=>/Docente Enfasis Dos/.test(v)),'y a las áreas que dictan en el énfasis');
+    hojas.Horario.v.length-=2; hojas.Horario.v[0]=h0; hojas.Grupos.v.pop(); }
   hojas.Grupos.v.length-=4; hojas.Estudiantes.v.length-=3; }
 // ---- historial: versiones anteriores y cambios en hojas, con retroceso ----
 yo('coord@x.com');

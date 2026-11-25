@@ -1776,9 +1776,15 @@ var MAX_BYTES_SOPORTE = 8 * 1024 * 1024;
 
 /* ------------------------------ parámetros (hoja Parametros) ------------------------------ */
 function parametro_(clave, defecto) {
-  var sh = SpreadsheetApp.getActive().getSheetByName('Parametros');
-  if (!sh) return defecto;
-  var v = sh.getDataRange().getValues();
+  var v;
+  if (typeof VAL_REQ !== 'undefined' && VAL_REQ) {   // solicitud de solo lectura: se lee una sola vez
+    if (!VAL_REQ.__par) { var sh0 = SpreadsheetApp.getActive().getSheetByName('Parametros'); VAL_REQ.__par = sh0 ? sh0.getDataRange().getValues() : []; }
+    v = VAL_REQ.__par; if (!v.length) return defecto;
+  } else {
+    var sh = SpreadsheetApp.getActive().getSheetByName('Parametros');
+    if (!sh) return defecto;
+    v = sh.getDataRange().getValues();
+  }
   for (var i = 1; i < v.length; i++) if (v[i][0] === clave && v[i][1] !== '' && v[i][1] != null) return v[i][1] instanceof Date ? ymd_(v[i][1]) : String(v[i][1]);
   return defecto;
 }
@@ -3876,11 +3882,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-i';
+var VERSION_SISTEMA = '2026.11.25-j';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-j', fecha: '2026-11-25', cambios: [
+    'Comisiones: la valoración que reprueba un área es la inferior a 2,91 (criterio del rector; textos del SIEE actualizados: la superación es de 2,91 a 5,0). Los docentes de los énfasis (6.º y 7.º en pareja; 8.º a 11.º en equipo) ya entran al equipo del acta y a las áreas que dictan (por ejemplo, Ciencias Naturales con Miriam Lemos y Héctor Villota). En excelencia y rendimiento académico el promedio admite hasta 3 decimales. El acta abre más rápido: el listado del grado y el acta se piden a la vez.'
+  ] },
   { version: '2026.11.25-i', fecha: '2026-11-25', cambios: [
     'Comisiones: en la matrícula, inicial, nuevos, retirados y no asisten se ven como texto simple (sin cuadros ni giradores) y la matrícula final se destaca con recuadro y letra grande. Reprobación rediseñada: cada estudiante en una línea con el número de áreas reprobadas, su inasistencia y el veredicto (1 o 2 áreas: se promueve con áreas pendientes; más de 2: no se promueve, reprueba el grado, con recuadro rojo); cada área en su propia línea con sus causas (sin notas) y ✕ para quitarla, lo que se actualiza solo en Áreas. En Reprobación, Reconocimientos, Convivencia, Compromisos y PIAR ya no aparecen quienes no asisten o se retiraron (al marcarlos se les vacían áreas, causas y reconocimientos). Promoción: nombres en una sola línea; en 11.º, quien pierde un área no participa en la ceremonia de graduación y quien reprueba más de 2 no se gradúa. Se corrige que el tipo de algunos reconocimientos no apareciera (nombres antiguos en mayúscula). Colores más suaves en los semáforos de porcentajes, los DBA y los botones de agregar.',
     'Nuevo: «PDF de reconocimientos» (coordinación y directivos, todos los grupos; cada docente, los grupos que atiende; también en el informe del menú). Nuevo: «Nueva acta · archivar · recuperar» (bajo el selector de período): archivar el acta y empezar una nueva, borrarla y empezar en blanco, o recuperar un acta archivada o borrada; nada se pierde.'
@@ -5787,7 +5796,12 @@ function comisionAlternan_() {
   return COM_ALTERNAN_DEFECTO.concat(Array.isArray(c) ? c : []);
 }
 function comisionHorarioConAlternan_() {
-  var h = datos_('Horario').slice();
+  var h = [];
+  datos_('Horario').forEach(function (x) {
+    if (String(x.tipo) === 'ENFASIS') {   // las filas de énfasis no traen «grupo»: el curso está en grupos_enfasis; así los docentes del énfasis entran al equipo y a las áreas
+      String(x.grupos_enfasis || '').split(/[;,\s]+/).forEach(function (g) { if (g) h.push({ docente: x.docente, grupo: g, area: x.area, tipo: 'ENFASIS' }); });
+    } else h.push(x);
+  });
   comisionAlternan_().forEach(function (a) { (a.grupos || []).forEach(function (g) { if (a.docente && g) h.push({ docente: String(a.docente), grupo: String(g), area: String(a.area || '') }); }); });
   return h;
 }
@@ -5902,8 +5916,11 @@ function comisionAHojas_(seccion, datos, por, acta) {
 }
 function comisionTitulo_(s) { return String(s == null ? '' : s).toLowerCase().replace(/(^|[\s\-])([a-záéíóúñü])/g, function (m, a, b) { return a + b.toUpperCase(); }).replace(/ (De|Del|La|Las|Los|Y) /g, function (m) { return m.toLowerCase(); }).trim(); }
 function comisionCorreoDe_(nombre) {
-  var f = null; try { f = filaClaveDoc_(nombre); } catch (e) { f = null; }
-  var c = f && String(f.v[f.col.correo_contacto] || '').trim();
+  var c = '';
+  if (VAL_REQ) {   // en solicitudes de solo lectura se lee la hoja de claves una sola vez para todas las personas
+    if (!VAL_REQ.__cl) { VAL_REQ.__cl = {}; try { datos_('Claves_Docentes').forEach(function (x) { VAL_REQ.__cl[sinTildesDoc_(x.docente)] = String(x.correo_contacto || '').trim(); }); } catch (e) { /* sin hoja */ } }
+    c = VAL_REQ.__cl[sinTildesDoc_(nombre)] || '';
+  } else { var f = null; try { f = filaClaveDoc_(nombre); } catch (e) { f = null; } c = f && String(f.v[f.col.correo_contacto] || '').trim(); }
   if (c) return c;
   var d = datos_('Docentes').filter(function (x) { return comisionSinTildes_(x.nombre_completo) === comisionSinTildes_(nombre); })[0];
   return d && d.correo ? String(d.correo).trim() : '';

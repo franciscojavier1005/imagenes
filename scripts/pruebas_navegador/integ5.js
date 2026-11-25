@@ -76,16 +76,16 @@ const TN=ses('Nom17 Nom18 Nom19','666666666');
  // ---- respaldo local: sin conexión, recarga y regreso al último paso
  await N.evaluate(()=>{irTab('p1');ir(3)});await N.waitForTimeout(300);
  global.OFF=true;
- await N.evaluate(()=>{S.mat[0].ini=77;S.mat[0].nu=1;});await N.waitForTimeout(4500);
+ await N.evaluate(()=>{S.mat[0].dud=77;});await N.waitForTimeout(4500);
  console.log('offline estado',await N.evaluate(()=>document.getElementById('estadoG').textContent.slice(0,60)),'drafts',await N.evaluate(()=>hayDrafts()));
  await N.reload();await N.waitForTimeout(1200);
  global.OFF=false;
  await N.waitForTimeout(3500);
- const rr=await N.evaluate(()=>({ini:S.mat[0].ini,paso:paso,tab:PANE,aviso:(document.getElementById('avisoBorr')||{}).textContent.slice(0,70)}));
+ const rr=await N.evaluate(()=>({ini:S.mat[0].dud,paso:paso,tab:PANE,aviso:(document.getElementById('avisoBorr')||{}).textContent.slice(0,70)}));
  console.log('tras recarga',JSON.stringify(rr));
  await N.waitForTimeout(3000);
  const sv=(await srvCall(TN,'comisionCargar',[{acta:await N.evaluate(()=>ACTA.id)}])).ok.secciones['matricula:0501'];
- console.log('en el libro',JSON.stringify(sv&&sv.datos&&sv.datos.mat&&sv.datos.mat.ini),'drafts pendientes',await N.evaluate(()=>hayDrafts()));
+ console.log('en el libro',JSON.stringify(sv&&sv.datos&&sv.datos.mat&&sv.datos.mat.dud),'drafts pendientes',await N.evaluate(()=>hayDrafts()));
  // ---- ajustes del coordinador: acompañantes sin obligaciones, nacionalidad por defecto, completar datos, imprimible libre
  const t2=await N.evaluate(()=>{const fco=S.int.filter(x=>/Nom21|Cortes/.test(x.n))[0];const e=EST.filter(x=>x.g==='5°-1')[0];
    const rev=revLista().map(x=>x.n);
@@ -102,11 +102,11 @@ const TN=ses('Nom17 Nom18 Nom19','666666666');
  console.log('OFFLINE',JSON.stringify(await N.evaluate(()=>({gs:S&&S.gs,est:EST.length,aviso:(document.getElementById('avisoBorr')||{}).textContent.slice(0,60),estado:document.getElementById('estadoG').textContent.slice(0,40)}))));
  global.OFF2=false;
  // ---- «Guardar borrador» y «Recuperar borrador»
- {global.OFF=true;await N.evaluate(()=>{matSet(0,'ini',55);guardaBorrador(true);SYNC.activo=false;dEsc({})});await N.waitForTimeout(500);
+ {global.OFF=true;await N.evaluate(()=>{S.mat[0].dud=55;guardaBorrador(true);SYNC.activo=false;dEsc({})});await N.waitForTimeout(500);
   await N.reload();await N.waitForTimeout(1500);await N.waitForSelector('#pOk',{timeout:5000}).catch(()=>{});global.OFF=false;await N.waitForTimeout(3500);
-  const a1=await N.evaluate(()=>({ini:S.mat[0].ini,aviso:(document.getElementById('avisoBorr')||{}).textContent.slice(0,60)}));console.log('BORRADOR antes',JSON.stringify(a1));
+  const a1=await N.evaluate(()=>({ini:S.mat[0].dud,aviso:(document.getElementById('avisoBorr')||{}).textContent.slice(0,60)}));console.log('BORRADOR antes',JSON.stringify(a1));
   await N.evaluate(()=>{const b=[...document.querySelectorAll('#avisoBorr button')].find(x=>/Recuperar/.test(x.textContent));if(b)b.click()});await N.waitForTimeout(800);
-  console.log('BORRADOR despues',JSON.stringify(await N.evaluate(()=>({ini:S.mat[0].ini}))));}
+  console.log('BORRADOR despues',JSON.stringify(await N.evaluate(()=>({ini:S.mat[0].dud}))));}
  const rc=await N.evaluate(()=>{const e=EST.filter(x=>x.g==='5°-1')[0];const mk=t=>({id:e.id,prom:'',tipo:t,puesto:0});return S.tiposRec.map(t=>t.split(' (')[0]+':'+promBad(mk(t)))});
  console.log('RECONOC',JSON.stringify(rc));
  console.log('ERRORES',JSON.stringify(er));

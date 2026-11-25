@@ -864,3 +864,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 119 (2026-11-25, cierre de sesión larga)
 - Auditoría final (permisos/API, sintaxis, datos personales en pantallas) y respaldo del contexto: `docs/ESTADO_ACTUAL.md` reescrito, copia en `docs/respaldo_contexto/`, `docs/PROMPT_NUEVA_CONVERSACION.md`, pruebas de navegador en `scripts/pruebas_navegador/` (sin nombres reales).
+
+## Ampliación 120 (2026-11-25, versión 2026.11.25-j)
+- Umbral 2,91, énfasis dentro del equipo/áreas, promedio con 3 decimales, apertura más rápida (carga en paralelo y menos lecturas).

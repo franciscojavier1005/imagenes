@@ -12,9 +12,15 @@ var MAX_BYTES_SOPORTE = 8 * 1024 * 1024;
 
 /* ------------------------------ parámetros (hoja Parametros) ------------------------------ */
 function parametro_(clave, defecto) {
-  var sh = SpreadsheetApp.getActive().getSheetByName('Parametros');
-  if (!sh) return defecto;
-  var v = sh.getDataRange().getValues();
+  var v;
+  if (typeof VAL_REQ !== 'undefined' && VAL_REQ) {   // solicitud de solo lectura: se lee una sola vez
+    if (!VAL_REQ.__par) { var sh0 = SpreadsheetApp.getActive().getSheetByName('Parametros'); VAL_REQ.__par = sh0 ? sh0.getDataRange().getValues() : []; }
+    v = VAL_REQ.__par; if (!v.length) return defecto;
+  } else {
+    var sh = SpreadsheetApp.getActive().getSheetByName('Parametros');
+    if (!sh) return defecto;
+    v = sh.getDataRange().getValues();
+  }
   for (var i = 1; i < v.length; i++) if (v[i][0] === clave && v[i][1] !== '' && v[i][1] != null) return v[i][1] instanceof Date ? ymd_(v[i][1]) : String(v[i][1]);
   return defecto;
 }

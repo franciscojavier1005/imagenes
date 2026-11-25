@@ -770,7 +770,12 @@ function comisionAlternan_() {
   return COM_ALTERNAN_DEFECTO.concat(Array.isArray(c) ? c : []);
 }
 function comisionHorarioConAlternan_() {
-  var h = datos_('Horario').slice();
+  var h = [];
+  datos_('Horario').forEach(function (x) {
+    if (String(x.tipo) === 'ENFASIS') {   // las filas de énfasis no traen «grupo»: el curso está en grupos_enfasis; así los docentes del énfasis entran al equipo y a las áreas
+      String(x.grupos_enfasis || '').split(/[;,\s]+/).forEach(function (g) { if (g) h.push({ docente: x.docente, grupo: g, area: x.area, tipo: 'ENFASIS' }); });
+    } else h.push(x);
+  });
   comisionAlternan_().forEach(function (a) { (a.grupos || []).forEach(function (g) { if (a.docente && g) h.push({ docente: String(a.docente), grupo: String(g), area: String(a.area || '') }); }); });
   return h;
 }
@@ -885,8 +890,11 @@ function comisionAHojas_(seccion, datos, por, acta) {
 }
 function comisionTitulo_(s) { return String(s == null ? '' : s).toLowerCase().replace(/(^|[\s\-])([a-záéíóúñü])/g, function (m, a, b) { return a + b.toUpperCase(); }).replace(/ (De|Del|La|Las|Los|Y) /g, function (m) { return m.toLowerCase(); }).trim(); }
 function comisionCorreoDe_(nombre) {
-  var f = null; try { f = filaClaveDoc_(nombre); } catch (e) { f = null; }
-  var c = f && String(f.v[f.col.correo_contacto] || '').trim();
+  var c = '';
+  if (VAL_REQ) {   // en solicitudes de solo lectura se lee la hoja de claves una sola vez para todas las personas
+    if (!VAL_REQ.__cl) { VAL_REQ.__cl = {}; try { datos_('Claves_Docentes').forEach(function (x) { VAL_REQ.__cl[sinTildesDoc_(x.docente)] = String(x.correo_contacto || '').trim(); }); } catch (e) { /* sin hoja */ } }
+    c = VAL_REQ.__cl[sinTildesDoc_(nombre)] || '';
+  } else { var f = null; try { f = filaClaveDoc_(nombre); } catch (e) { f = null; } c = f && String(f.v[f.col.correo_contacto] || '').trim(); }
   if (c) return c;
   var d = datos_('Docentes').filter(function (x) { return comisionSinTildes_(x.nombre_completo) === comisionSinTildes_(nombre); })[0];
   return d && d.correo ? String(d.correo).trim() : '';

@@ -152,4 +152,7 @@ const TN=ses('Nom17 Nom18 Nom19','666666666');
  const mg=await N.evaluate(()=>{const g=S.gs[0],L=EST.filter(e=>e.g===g&&!e.baja);S.rec=[{id:L[1].id,prom:'4,9',tipo:'EXCELENCIA',puesto:1},{id:L[2].id,prom:'4,8',tipo:'Excelencia',puesto:2},{id:L[3].id,prom:'',tipo:'Convivencia escolar',puesto:0}];matDeriva();pintaMerge();const f=[...document.querySelectorAll('#recMerge table tr')].slice(1).map(r=>r.cells[0].textContent.trim());S.rec=[];return f});
  ok(mg.length===3&&mg.every(x=>x&&x!=='—'),'el listado para combinar correspondencia muestra el tipo en todas las filas '+JSON.stringify(mg));
 
+ const et=await N.evaluate(()=>{const g=S.gs[0],L=EST.filter(e=>e.g===g&&!e.baja);S.rep=[{id:L[4].id,inas:0,items:[{area:'Matemáticas',mot:['Bajo rendimiento']}],gen:[],otro:''}];irTab&&irTab('p2');pintaAreas();const t=[...document.querySelectorAll('.rpTagsRow button')].map(b=>b.textContent);quitaRepArea(L[4].id,'Matemáticas');const d=S.rep.length;S.rep=[];return [t.length,/✕/.test(t[0]||''),d]});
+ ok(et[0]>=1&&et[1]&&et[2]===0,'en Áreas aparecen etiquetas con los reprobados de cada área y se pueden quitar '+JSON.stringify(et));
+
  console.log('ERRORES',JSON.stringify(er));await b.close();console.log(fallos?fallos+' FALLA(S)':'Todo bien');process.exit(0)})();

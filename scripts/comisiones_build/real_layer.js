@@ -647,3 +647,13 @@ var _pu_a=pintaUnion;pintaUnion=function(){_pu_a();try{var box=$('#unionBox');if
 var _ap_rep=abrirPick;abrirPick=function(t){if(t==='rep'){alert('Los reprobados se eligen en el paso Áreas, con «Seleccionar» en cada área. Esta lista es un reflejo: aquí solo se agregan las causas.');irK('s2');return}return _ap_rep(t)};
 function vaciaRep(g){if(!confirm('¿Quitar a TODOS los reprobados de '+g+'? Se vacían sus áreas y causas. Después vuelva a elegir con «Seleccionar» en cada área.'))return;S.rep=S.rep.filter(function(r){var e=est(r.id);return !(e&&e.g===g)});pintaTodo()}
 var _pa_v=pintaAreas;pintaAreas=function(){var r=_pa_v.apply(this,arguments);try{document.querySelectorAll('#tAreas .card').forEach(function(c){var h=c.querySelector('.ehead');if(!h||h.querySelector('.vaciaRep'))return;var g=(h.firstChild&&h.firstChild.textContent||'').trim();if(g&&S.gs.indexOf(g)>=0){var b=document.createElement('button');b.className='btn s r vaciaRep';b.style.cssText='float:right;font-size:11px';b.textContent='Vaciar reprobados';b.onclick=function(){vaciaRep(g)};h.appendChild(b)}})}catch(e){}return r};
+
+// ===== Áreas: etiquetas con los estudiantes reprobados de cada área (para ubicarlos y quitarlos rápido) =====
+function quitaRepArea(id,area){var r=S.rep.filter(function(x){return x.id===id})[0];if(!r)return;r.items=r.items.filter(function(i){return i.area!==area});if(!r.items.length)S.rep=S.rep.filter(function(x){return x!==r});pintaTodo()}
+var _pa_et=pintaAreas;pintaAreas=function(){var r=_pa_et.apply(this,arguments);try{if(S.niv==='pre')return r;
+ document.querySelectorAll('#tAreas .card').forEach(function(c){var h=c.querySelector('.ehead');if(!h)return;var g=(h.firstChild&&h.firstChild.textContent||'').trim();if(S.gs.indexOf(g)<0)return;
+  c.querySelectorAll('tr[data-area]').forEach(function(tr){var old=tr.nextElementSibling;if(old&&old.classList.contains('rpTagsRow'))old.remove();var area=tr.getAttribute('data-area');
+   var L=S.rep.filter(function(x){var e=est(x.id);return e&&e.g===g&&!e.baja&&x.items.some(function(i){return i.area===area})}).map(function(x){return est(x.id)}).sort(function(a,b){return nom(a).localeCompare(nom(b),'es')});
+   if(!L.length)return;var row=document.createElement('tr');row.className='rpTagsRow';var td=document.createElement('td');td.colSpan=tr.cells.length;td.style.cssText='padding:2px 6px 6px';
+   td.innerHTML=L.map(function(e){return '<button class="chip a" style="margin:1px 3px 1px 0;cursor:pointer" title="Quitar a '+esc(nom(e))+' de esta área" onclick="quitaRepArea('+e.id+',\''+area.replace(/'/g,"\\'")+'\')">'+esc(nom(e))+' ✕</button>'}).join('');
+   row.appendChild(td);tr.insertAdjacentElement('afterend',row)})})}catch(e){}return r};

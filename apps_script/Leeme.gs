@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-k';
+var VERSION_SISTEMA = '2026.11.25-l';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-l', fecha: '2026-11-25', cambios: [
+    'Comisiones: la lista de Reprobación es ahora un REFLEJO de Áreas (solo lectura): los reprobados se agregan o quitan únicamente con «Seleccionar» en cada área (desmarcar quita) y en Reprobación solo se escriben las causas de cada área, la inasistencia y una anotación. En Áreas cada curso trae «Vaciar reprobados» para empezar de cero (útil con datos antiguos de grado 11). La matrícula final y el total del grado se destacan con el mismo fondo redondeado de la matrícula tentativa, con el número más grande. En el listado para combinar correspondencia el tipo de reconocimiento aparece en TODAS las filas (antes solo en la primera de cada tipo y por eso parecía faltar a algunos estudiantes).'
+  ] },
   { version: '2026.11.25-k', fecha: '2026-11-25', cambios: [
     'Comisiones: los docentes que alternan por semana ya aparecen como complemento en cada grupo. Sociales e Inglés: Quintero (inglés) con Ortiz (sociales) en 7.º, 8.º y Caminar 2; Pulgarín (sociales) con Betancourth (inglés) en 9.º a 11.º. Ética y Religión: Castillo (religión) con Casanova (ética) en Caminar 1-2, 7.º, 8.º y Caminar 2; Estacio (religión) con Montaño (ética) en 9.º a 11.º. Ciencias Naturales: Lemos y Villota en 9.º a 11.º y Caminar 2. Lozano y García Gobea atienden solas de 6.º a Caminar 1-1.'
   ] },

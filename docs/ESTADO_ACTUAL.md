@@ -1,7 +1,7 @@
 # Estado actual (LEER ESTO PRIMERO; es corto a propósito)
 
 **Dueño:** Francisco Javier Cortés Cabezas (coordinador académico, I.E. ICET, Tumaco). Español, respuestas cortas, sin bloques de código en el chat; los archivos se entregan con SendUserFile. Rama `claude/teacher-attendance-system-fso0tf` (sin PR salvo que lo pida). Nunca escribir «OPS». No versionar datos reales (libro, plantilla con nombres). No escribir en Google/Drive/OneDrive desde la sesión (solo lectura con el conector).
-**Versión vigente: 2026.11.25-k** (la versión se cambia SOLO en `apps_script/Leeme.gs`: `VERSION_SISTEMA`, `FECHA_VERSION`, `HISTORIAL_VERSIONES`; las pantallas la reciben por `<?= VERSION ?>`).
+**Versión vigente: 2026.11.25-l** (la versión se cambia SOLO en `apps_script/Leeme.gs`: `VERSION_SISTEMA`, `FECHA_VERSION`, `HISTORIAL_VERSIONES`; las pantallas la reciben por `<?= VERSION ?>`).
 
 ## Qué es
 «Control de Procesos ICET»: libro de Google Sheets + Apps Script. (1) Asistencia docente (ronda, novedades, reuniones, paneles). (2) **Comisiones de evaluación y promoción**: acta por grado y período, versionado optimista, turno de edición o modo equipo, historial de 8 días, borradores locales.
@@ -20,7 +20,7 @@
 - Modo `UNO` (una persona edita) o `EQUIPO` (cada docente solo su curso/áreas) por `comisiones_modo`.
 - **La matrícula sale de los listados** (`matDeriva`): inicial, nuevos (agregados), retirados, no asisten = solo lectura (texto); hombres, mujeres, venezolanos, ecuatorianos editables (`setMatMan`). «Matrícula final» = inicial + nuevos − retirados − no asisten, destacada. Cada director confirma sexo, nacionalidad (Colombiana por defecto) y tipo de documento (TI sugerido) con «Confirmar sexo y documento del curso».
 - «No asiste…» (inhibe) y «Retirado…» (otra institución/domicilio/canceló); sus datos se vacían de reprobación, reconocimientos, convivencia, compromisos y PIAR (`limpiaBajas`) y no salen en promoción.
-- Reprobación en tarjetas de una línea (`repCard`); los reprobados por área se cuentan de esas tarjetas (`rpDeriva`); más de 2 áreas = no promovido; 11.º: quien pierde un área no participa en la graduación.
+- Reprobación = REFLEJO de Áreas (solo lectura; `repCard` solo causas/inasistencia/anotación): los reprobados se eligen en Áreas con «Seleccionar» (desmarcar quita; «Vaciar reprobados» por curso) y `rpDeriva` cuenta desde `S.rep`; más de 2 áreas = no promovido; 11.º: quien pierde un área no participa en la graduación.
 - Promoción: alfabética; franja amarilla (con áreas pendientes) y rosada (no promovidos).
 - Reconocimientos: Excelencia (puesto 1.º–10.º), Rendimiento académico (1.º–10.º), Convivencia escolar, Colaboración y buen porte del uniforme, Otros (sin puesto); promedio sugerido 4,6 que se confirma; documento y sexo obligatorios para reconocidos.
 - «Habilitar de nuevo» (coord/desarrollador) con justificación. Traslados: coord aplica; otros solicitan (`Traslados_Estudiantes`). Menú de directivos: traslados y cambios masivos, importación de otro libro, informe de reconocimientos (Excel .csv, hoja de Google y PDF por grupos), seguimiento (destacadas + tabla), manuales PDF, copia de revisión (cada 6 h).

@@ -95,7 +95,7 @@ const TN=ses('Nom17 Nom18 Nom19','666666666');
  const hb=await N.evaluate(()=>{PERFIL='c';S.revL={'Nom17 Nom18 Nom19':'07:00'};S.recOk={'5°-1':recSig('5°-1')};pintaLis();pintaListas();return [document.querySelectorAll('#habI_rev button').length,document.querySelectorAll('#habI_rec button').length]});
  ok(hb[0]===1&&hb[1]===1,'coordinación ve «Habilitar de nuevo» junto a la revisión y los reconocimientos '+JSON.stringify(hb));
 
- const br=await N.evaluate(()=>{pintaListas();return !!document.getElementById('barRepA')&&document.querySelectorAll('#brA option').length});ok(br>0,'barra para seleccionar reprobados por área en la lista de reprobación ('+br+' áreas)');
+ const br=await N.evaluate(()=>{pintaListas();return !!document.getElementById('barRepA')&&!document.querySelector('#brA')});ok(br,'la lista de reprobación es solo reflejo de Áreas (sin selector propio)');
 
  await N.evaluate(()=>{irTab('p1');ir(1)});await N.waitForTimeout(1500);
  const vis=await N.evaluate(()=>{const w=document.querySelector('#lisBox details.lisd');if(w)w.open=true;const t=document.querySelector('#lisBox table.lis');return t?{ths:[...t.rows[0].cells].map(x=>x.textContent),btnsEnFila:t.querySelectorAll('tr td button').length,enc:!!document.querySelector('#lisBox .lisbar button')}:null});
@@ -138,7 +138,7 @@ const TN=ses('Nom17 Nom18 Nom19','666666666');
  const rc3=await N.evaluate(()=>{const g=S.gs[0],L=EST.filter(e=>e.g===g&&!e.baja),a=L[2],b=L[3];S.rep=[{id:a.id,inas:2,items:['Matemáticas','Inglés','Ciencias Sociales'].map(x=>({area:x,mot:['Bajo rendimiento']})),gen:[],otro:''},{id:b.id,inas:0,items:[{area:'Matemáticas',mot:['Bajo rendimiento']}],gen:[],otro:''}];
   const h1=repCard(S.rep[0],0),h2=repCard(S.rep[1],1);const ok1=/3 áreas reprobadas/.test(h1)&&/NO se promueve/.test(h1)&&/rpf/.test(h1)&&/1 área reprobada/.test(h2)&&/se promueve con área pendiente/.test(h2);
   noAsiste(b.id,true,true);matDeriva();const ok2=S.rep.length===1&&S.rep[0].id===a.id;noAsiste(b.id,false,true);S.rep=[];
-  pintaMat();console.log('DBG',document.querySelectorAll('#tMat input[type=number]').length,document.querySelectorAll('#tMat .roMat').length,(document.querySelector('#tMat input[type=number]')||{getAttribute:()=>'-'}).getAttribute('onchange'));const sp=document.querySelectorAll('#tMat .roMat').length>0,mf=document.querySelectorAll('#tMat .mfin').length>0;return [ok1,ok2,sp,mf,document.querySelectorAll('#tMat input[type=number]').length,document.querySelectorAll('#tMat tr').length,(document.querySelector('#tMat input[type=number]')||{getAttribute:()=>'-'}).getAttribute('onchange')]});
+  pintaMat();console.log('DBG',document.querySelectorAll('#tMat input[type=number]').length,document.querySelectorAll('#tMat .roMat').length,(document.querySelector('#tMat input[type=number]')||{getAttribute:()=>'-'}).getAttribute('onchange'));const sp=document.querySelectorAll('#tMat .roMat').length>0,mf=document.querySelectorAll('#tMat .mbig').length>0;return [ok1,ok2,sp,mf,document.querySelectorAll('#tMat input[type=number]').length,document.querySelectorAll('#tMat tr').length,(document.querySelector('#tMat input[type=number]')||{getAttribute:()=>'-'}).getAttribute('onchange')]});
  ok(rc3.slice(0,4).every(Boolean),'reprobación en una línea con veredicto, sin inhibidos; matrícula en texto y final destacada '+JSON.stringify(rc3));
  const pr=await N.evaluate(()=>{const g=S.gs[0],e=EST.filter(x=>x.g===g&&!x.baja)[1];S.rec=S.rec||[];S.rec.push({id:e.id,prom:'4,6',tipo:'EXCELENCIA',puesto:1});matDeriva();const t=S.rec[S.rec.length-1].tipo;S.rec.pop();return t});
  ok(pr==='Excelencia','los reconocimientos guardados con nombre en mayúscula se muestran con su tipo ('+pr+')');
@@ -148,5 +148,8 @@ const TN=ses('Nom17 Nom18 Nom19','666666666');
 
  const mm2=await N.evaluate(()=>{pintaMat();const a=[...document.querySelectorAll('#tMat input[type=number]')].map(x=>x.getAttribute('onchange')||'');const ed=a.filter(x=>/setMatMan\(0,'(m|f|ve|ec)'/.test(x)).length;setMatMan(0,'m',3);const r=S.mat[0],t=tot(r);return [ed,r.m===3,r.f===t-3,document.querySelectorAll('#tMat .roMat').length>=4,(()=>{S.mat[0].man={};matDeriva();return true})()]});
  ok(mm2[0]===4&&mm2[1]&&mm2[2]&&mm2[3],'hombres, mujeres, venezolanos y ecuatorianos se pueden ajustar; hombres+mujeres = matrícula final '+JSON.stringify(mm2));
+
+ const mg=await N.evaluate(()=>{const g=S.gs[0],L=EST.filter(e=>e.g===g&&!e.baja);S.rec=[{id:L[1].id,prom:'4,9',tipo:'EXCELENCIA',puesto:1},{id:L[2].id,prom:'4,8',tipo:'Excelencia',puesto:2},{id:L[3].id,prom:'',tipo:'Convivencia escolar',puesto:0}];matDeriva();pintaMerge();const f=[...document.querySelectorAll('#recMerge table tr')].slice(1).map(r=>r.cells[0].textContent.trim());S.rec=[];return f});
+ ok(mg.length===3&&mg.every(x=>x&&x!=='—'),'el listado para combinar correspondencia muestra el tipo en todas las filas '+JSON.stringify(mg));
 
  console.log('ERRORES',JSON.stringify(er));await b.close();console.log(fallos?fallos+' FALLA(S)':'Todo bien');process.exit(0)})();

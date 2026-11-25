@@ -870,3 +870,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 121 (2026-11-25, versión 2026.11.25-k)
 - Alternancias CSI, ETR y CNA cargadas en `COM_ALTERNAN_DEFECTO`.
+
+## Ampliación 122 (2026-11-25, versión 2026.11.25-l)
+- Reprobación solo lectura (reflejo de Áreas), vaciar reprobados por curso, matrícula final como chip grande.

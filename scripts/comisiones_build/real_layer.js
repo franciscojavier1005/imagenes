@@ -403,8 +403,9 @@ function pickAgrega(){var ids=Object.keys(PICK_SEL).filter(function(k){return PI
  if(PICK_AREA){var ar=PICK_AREA.area,gi=PICK_AREA.gi,g=S.gs[gi];
   EST.forEach(function(e){if(e.g!==g||e.baja)return;var want=!!PICK_SEL[e.id],r=S.rep.filter(function(x){return x.id===e.id})[0];
    if(want){if(!r){r={id:e.id,inas:0,items:[],gen:[],otro:''};S.rep.push(r)}if(!r.items.some(function(i){return i.area===ar}))r.items.push({area:ar,mot:['Bajo rendimiento']})}
+   else if(r){r.items=r.items.filter(function(i){return i.area!==ar});if(!r.items.length)S.rep=S.rep.filter(function(x){return x!==r})}
    });
-  S.rp[ar][gi]=Math.max(+S.rp[ar][gi]||0,S.rep.filter(function(r){return est(r.id).g===g&&r.items.some(function(i){return i.area===ar})}).length);
+  S.rp[ar][gi]=S.rep.filter(function(r){return est(r.id).g===g&&r.items.some(function(i){return i.area===ar})}).length;
   cierra('mPick');PICK_AREA=null;pintaTodo();return}
  var t=pickTipo,n=0;ids.forEach(function(id){if(S[t].some(function(x){return x.id===id}))return;
   var v=window.alert;window.alert=function(){};try{elige(id)}finally{window.alert=v}
@@ -413,7 +414,7 @@ function pickAgrega(){var ids=Object.keys(PICK_SEL).filter(function(k){return PI
 abrirPick=function(t){pickTipo=t;PICK_AREA=null;PICK_SEL={};pickPrepara()};
 function pickPrepara(){$('#mpG').innerHTML=(PICK_AREA?'':'<option>Todos los grupos</option>')+S.gs.filter(function(g){return PICK_AREA?g===S.gs[PICK_AREA.gi]:permP(g)}).map(function(g){return '<option>'+g+'</option>'}).join('');
  $('#mpQ').value='';$('#mPick').classList.add('on');$('#mpG').onchange=pintaPick;
- $('#mPick h3').textContent=PICK_AREA?'Reprobados de '+PICK_AREA.area+' · '+S.gs[PICK_AREA.gi]:'Agregar estudiantes (marque uno o varios)';
+ $('#mPick h3').textContent=PICK_AREA?'Reprobados de '+PICK_AREA.area+' · '+S.gs[PICK_AREA.gi]+' (marque quién reprueba; desmarcar lo quita)':'Agregar estudiantes (marque uno o varios)';
  $('#mpNo').style.display=PICK_AREA?'none':'';$('#mpNo').onclick=function(){cierra('mPick');abrirNuevo(pickTipo)};
  if(!$('#mpOk')){var b=document.createElement('button');b.className='btn p';b.id='mpOk';b.onclick=pickAgrega;$('#mpNo').parentNode.insertBefore(b,$('#mpNo'))}
  $('#mpOk').textContent='Agregar seleccionados';pintaPick()}
@@ -465,8 +466,9 @@ var _ab_u=abreActa;abreActa=function(){try{pintaUnion()}catch(e){}return _ab_u.a
 // barra en la lista de reprobación: elegir área y curso y seleccionar desde el listado de estudiantes
 function barraRepArea(){var old=document.getElementById('barRepA');if(old)old.remove();if(!S||!S.gs||S.niv==='pre'||!$('#repL'))return;
  var d=document.createElement('div');d.id='barRepA';d.className='nota';
- d.innerHTML='<div style="margin-bottom:4px"><small class="g">Cada estudiante que agregue aquí con sus áreas <b>se cuenta solo en los reprobados de esas áreas</b> (paso Áreas). Si falta alguien en la lista del curso, agréguelo antes en <b>Listados</b>.</small></div><b>Seleccionar reprobados por área:</b> <select id="brA" style="width:auto;max-width:100%">'+areasLista().map(function(a){return '<option>'+esc(a)+'</option>'}).join('')+'</select> <select id="brG" style="width:auto">'+S.gs.map(function(g,i){return '<option value="'+i+'">'+esc(g)+'</option>'}).join('')+'</select> <button class="btn s p" onclick="abrePickArea($(\'#brA\').value,+$(\'#brG\').value)">Seleccionar desde el listado</button>';
- $('#repL').insertAdjacentElement('beforebegin',d)}
+ d.innerHTML='<b>Esta lista es el reflejo de «Áreas».</b> Para agregar o quitar a un estudiante de un área use <b>«Seleccionar»</b> en el paso Áreas. Aquí solo se agregan las <b>causas</b> de cada área, la inasistencia y una anotación. <button class="btn s p" onclick="irK(\'s2\')">Ir a Áreas</button>';
+ $('#repL').insertAdjacentElement('beforebegin',d);
+ document.querySelectorAll("#s3 button[onclick*=\"abrirPick('rep')\"]").forEach(function(b){b.style.display='none'})}
 var _pl_b=pintaListas;pintaListas=function(){var r=_pl_b.apply(this,arguments);try{barraRepArea()}catch(e){}return r};
 
 
@@ -639,3 +641,9 @@ function actaRetira(acc){if(!confirm(acc==='archivar'?'¿Archivar esta acta y em
  API('comisionActaRetirar',{acta:ACTA.id,accion:acc}).then(function(){cierra('mActaOps');try{localStorage.removeItem(borKey())}catch(e){}alert('Hecho. Se abre un acta nueva en blanco.');abreActa()}).catch(function(e){alert(msgE(e))})}
 function actaRecupera(id){if(!confirm('¿Recuperar esa acta? La que está abierta ahora se archiva.'))return;API('comisionActaRecuperar',{acta:id}).then(function(){cierra('mActaOps');alert('Acta recuperada.');abreActa()}).catch(function(e){alert(msgE(e))})}
 var _pu_a=pintaUnion;pintaUnion=function(){_pu_a();try{var box=$('#unionBox');if(box&&!document.getElementById('btnActaOps'))box.insertAdjacentHTML('beforeend','<div style="margin-top:6px"><button class="btn s" id="btnActaOps" onclick="abreActaOps()">📁 Nueva acta · archivar · recuperar</button></div>')}catch(e){}};
+
+
+// ===== reprobación = reflejo de Áreas =====
+var _ap_rep=abrirPick;abrirPick=function(t){if(t==='rep'){alert('Los reprobados se eligen en el paso Áreas, con «Seleccionar» en cada área. Esta lista es un reflejo: aquí solo se agregan las causas.');irK('s2');return}return _ap_rep(t)};
+function vaciaRep(g){if(!confirm('¿Quitar a TODOS los reprobados de '+g+'? Se vacían sus áreas y causas. Después vuelva a elegir con «Seleccionar» en cada área.'))return;S.rep=S.rep.filter(function(r){var e=est(r.id);return !(e&&e.g===g)});pintaTodo()}
+var _pa_v=pintaAreas;pintaAreas=function(){var r=_pa_v.apply(this,arguments);try{document.querySelectorAll('#tAreas .card').forEach(function(c){var h=c.querySelector('.ehead');if(!h||h.querySelector('.vaciaRep'))return;var g=(h.firstChild&&h.firstChild.textContent||'').trim();if(g&&S.gs.indexOf(g)>=0){var b=document.createElement('button');b.className='btn s r vaciaRep';b.style.cssText='float:right;font-size:11px';b.textContent='Vaciar reprobados';b.onclick=function(){vaciaRep(g)};h.appendChild(b)}})}catch(e){}return r};

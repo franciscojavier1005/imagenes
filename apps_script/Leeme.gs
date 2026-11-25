@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-e';
+var VERSION_SISTEMA = '2026.11.25-f';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-f', fecha: '2026-11-25', cambios: [
+    'Comisiones, listados: el tipo de documento se sugiere como «TI · Tarjeta de identidad» cuando está vacío (casilla amarilla «sugerido») y el docente lo confirma con «Confirmar sexo y documento del curso» o lo cambia (RC, TI, CC, cédula de extranjería, pasaporte, PEP, PPT o permiso de la Secretaría de Educación), igual que el sexo y la nacionalidad (Colombiana por defecto). En Reprobación se avisa que cada estudiante agregado con sus áreas se cuenta solo en los reprobados de esas áreas.'
+  ] },
   { version: '2026.11.25-e', fecha: '2026-11-25', cambios: [
     'Comisiones: el botón «Retiró…» pasa a llamarse «Retirado…». En la promoción, dentro de cada curso los estudiantes van en orden alfabético por apellido: primero quienes se promueven, luego (franja amarilla) quienes pasan con áreas pendientes y al final (franja rosada) quienes no se promueven; quienes no asisten o están retirados no aparecen.'
   ] },

@@ -465,7 +465,7 @@ var _ab_u=abreActa;abreActa=function(){try{pintaUnion()}catch(e){}return _ab_u.a
 // barra en la lista de reprobación: elegir área y curso y seleccionar desde el listado de estudiantes
 function barraRepArea(){var old=document.getElementById('barRepA');if(old)old.remove();if(!S||!S.gs||S.niv==='pre'||!$('#repL'))return;
  var d=document.createElement('div');d.id='barRepA';d.className='nota';
- d.innerHTML='<b>Seleccionar reprobados por área:</b> <select id="brA" style="width:auto;max-width:100%">'+areasLista().map(function(a){return '<option>'+esc(a)+'</option>'}).join('')+'</select> <select id="brG" style="width:auto">'+S.gs.map(function(g,i){return '<option value="'+i+'">'+esc(g)+'</option>'}).join('')+'</select> <button class="btn s p" onclick="abrePickArea($(\'#brA\').value,+$(\'#brG\').value)">Seleccionar desde el listado</button>';
+ d.innerHTML='<div style="margin-bottom:4px"><small class="g">Cada estudiante que agregue aquí con sus áreas <b>se cuenta solo en los reprobados de esas áreas</b> (paso Áreas). Si falta alguien en la lista del curso, agréguelo antes en <b>Listados</b>.</small></div><b>Seleccionar reprobados por área:</b> <select id="brA" style="width:auto;max-width:100%">'+areasLista().map(function(a){return '<option>'+esc(a)+'</option>'}).join('')+'</select> <select id="brG" style="width:auto">'+S.gs.map(function(g,i){return '<option value="'+i+'">'+esc(g)+'</option>'}).join('')+'</select> <button class="btn s p" onclick="abrePickArea($(\'#brA\').value,+$(\'#brG\').value)">Seleccionar desde el listado</button>';
  $('#repL').insertAdjacentElement('beforebegin',d)}
 var _pl_b=pintaListas;pintaListas=function(){var r=_pl_b.apply(this,arguments);try{barraRepArea()}catch(e){}return r};
 
@@ -537,17 +537,17 @@ function cambiaModo(){var n=MODO==='EQUIPO'?'UNO':'EQUIPO';if(!confirm(n==='EQUI
 // ===== sexo de los estudiantes: cada director de grupo lo actualiza o confirma; datos obligatorios de reconocidos; recordatorios =====
 function sxFalta(g){return EST.filter(function(e){return e.g===g&&!e.baja&&!e.sx}).length}
 function sxBtn(g){var n=sxFalta(g),ok=S.sxOk&&S.sxOk[g];
- if(ok&&!n)return '<button class="btn s sx" title="Sexo confirmado por '+esc(ok.por||'')+'. Pulse para volver a revisarlo." onclick="confirmaSexo(\''+g+'\',false)">✔ Sexo confirmado</button>';
- return '<button class="btn s sxf" onclick="confirmaSexo(\''+g+'\',true)">⚠ Confirmar sexo del curso'+(n?' (faltan '+n+')':'')+'</button>'}
+ if(ok&&!n)return '<button class="btn s sx" title="Sexo confirmado por '+esc(ok.por||'')+'. Pulse para volver a revisarlo." onclick="confirmaSexo(\''+g+'\',false)">✔ Sexo y documento confirmados</button>';
+ return '<button class="btn s sxf" onclick="confirmaSexo(\''+g+'\',true)">⚠ Confirmar sexo y documento del curso'+(n?' (faltan '+n+')':'')+'</button>'}
 function confirmaSexo(g,v){S.sxOk=S.sxOk||{};if(v){var n=sxFalta(g);if(n){alert('Faltan '+n+' estudiante'+(n===1?'':'s')+' sin sexo en '+g+'. Elíjalo en la columna «Sexo» de cada uno y vuelva a confirmar.');return}
   if(!confirm('¿Confirma que el sexo de TODOS los estudiantes de '+g+' está revisado y es correcto?'))return;S.sxOk[g]={por:USR||'(sin elegir)',t:ahora()}}else delete S.sxOk[g];pintaLis();pintaPasos();pintaPendientes()}
 function misCursos(){var g=G[GK]||{},gs=S.gs,r=[];(g.dir||[]).forEach(function(n,i){if(n===USR&&gs[i])r.push(gs[i])});(g.dir2||[]).forEach(function(d){if(d.n===USR&&r.indexOf(d.gr)<0)r.push(d.gr)});return r}
 var _srl_s=setRevL;setRevL=function(v){if(v){var mal=misCursos().filter(function(g){return sxFalta(g)||!(S.sxOk&&S.sxOk[g])});
-  if(mal.length){alert('Antes de confirmar su revisión debe actualizar o confirmar el sexo de los estudiantes de: '+mal.join(', ')+'.\n\nEn cada curso use «Confirmar sexo del curso».');pintaLis();return}}return _srl_s(v)};
+  if(mal.length){alert('Antes de confirmar su revisión debe actualizar o confirmar el sexo de los estudiantes de: '+mal.join(', ')+'.\n\nEn cada curso use «Confirmar sexo y documento del curso».');pintaLis();return}}return _srl_s(v)};
 var _pcc=pendientesCierre;pendientesCierre=function(){var L=_pcc();try{
  L.forEach(function(x){if(x.comp==='Datos de estudiantes (reconocidos)'&&x.id){var e=est(x.id),f=(e&&e.falta||[]).filter(function(y){return y==='Tipo y número de documento'||y==='Sexo'});if(f.length){x.adv=false;x.msg='Obligatorio por el reconocimiento: complete '+f.join(' y ')+'. '+x.msg}}});
  S.gs.forEach(function(g){var n=sxFalta(g);if(n)L.push({paso:'sL',comp:'Listados',curso:g,persona:'',msg:'Faltan '+n+' estudiante'+(n===1?'':'s')+' sin sexo: actualícelo en el listado.',donde:'Director/a de grupo',adv:false});
-  else if(!(S.sxOk&&S.sxOk[g]))L.push({paso:'sL',comp:'Listados',curso:g,persona:'',msg:'Falta confirmar el sexo de los estudiantes del curso (botón «Confirmar sexo del curso»).',donde:'Director/a de grupo',adv:false})});
+  else if(!(S.sxOk&&S.sxOk[g]))L.push({paso:'sL',comp:'Listados',curso:g,persona:'',msg:'Falta confirmar el sexo, la nacionalidad y el tipo de documento de los estudiantes del curso (botón «Confirmar sexo y documento del curso»).',donde:'Director/a de grupo',adv:false})});
  var ord=PKEYS.concat(['p2']);L.forEach(function(x){x.o=ord.indexOf(x.paso)});L.sort(function(a,b){return a.o-b.o})}catch(e){}return L};
 // Datos faltantes: los demás estudiantes sin tipo o número de documento (no obligatorio)
 var _pf_o=pintaFalt;pintaFalt=function(){_pf_o();try{var old=document.getElementById('faltOtros');if(old)old.remove();var el=$('#falt');if(!el||!S||!S.gs)return;var us=usados(),por={};
@@ -600,3 +600,14 @@ var _pcd=pendientesCierre;pendientesCierre=function(){var L=_pcd();try{
  (S.mat||[]).forEach(function(r){if(r.veDecl)L.push({paso:'sL',comp:'Listados',curso:r.g,persona:'',msg:'La matrícula registró '+r.veDecl+' venezolano'+(r.veDecl===1?'':'s')+' y en el listado solo hay '+r.ve+' marcado'+(r.ve===1?'':'s')+': indique en la columna «Nacionalidad» quiénes son.',donde:'Director/a de grupo',adv:false});
   if(r.ecDecl)L.push({paso:'sL',comp:'Listados',curso:r.g,persona:'',msg:'La matrícula registró '+r.ecDecl+' ecuatoriano'+(r.ecDecl===1?'':'s')+' y en el listado solo hay '+r.ec+' marcado'+(r.ec===1?'':'s')+': indique en la columna «Nacionalidad» quiénes son.',donde:'Director/a de grupo',adv:false})});
  var ord=PKEYS.concat(['p2']);L.forEach(function(x){x.o=ord.indexOf(x.paso)});L.sort(function(a,b){return a.o-b.o})}catch(e){}return L};
+
+
+// ===== tipo de documento sugerido (TI) que el docente confirma o cambia; igual que el sexo y la nacionalidad =====
+var TDOCS=[['RC','Registro civil'],['TI','Tarjeta de identidad'],['CC','Cédula de ciudadanía'],['CE','Cédula de extranjería'],['PA','Pasaporte'],['PEP','Permiso especial de permanencia'],['PPT','Permiso por protección temporal'],['SED','Permiso de la Secretaría de Educación']];
+function tdocCelda(e){if(e.baja)return esc(e.tdoc||'—');var v=e.tdoc||'TI';
+ return '<select style="width:auto;max-width:96px;padding:3px;'+(e.tdocSug?'background:#fff3cf;border-color:#e0872b':'')+'" title="'+(e.tdocSug?'Sugerido: confírmelo con «Confirmar sexo y documento del curso» o cámbielo':'')+'" onchange="setTdoc('+e.id+',this.value)">'+TDOCS.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===v?' selected':'')+' title="'+esc(o[1])+'">'+o[0]+' · '+esc(o[1])+'</option>'}).join('')+'</select>'+(e.tdocSug?' <span class="chip a" title="Sugerido">sugerido</span>':'')}
+function setTdoc(id,v){var e=est(id);if(!e)return;e.tdoc=v;e.tdocSug=0;e.mod=1;if(e.ndoc)e.falta=(e.falta||[]).filter(function(x){return x!=='Tipo y número de documento'});pintaTodo()}
+var _npd=nacPorDefecto;nacPorDefecto=function(){_npd();(EST||[]).forEach(function(e){if(!e.tdoc&&!e.baja){e.tdoc='TI';e.tdocSug=1}})};
+var _cfs=confirmaSexo;confirmaSexo=function(g,v){var sug=EST.filter(function(e){return e.g===g&&e.tdocSug});var antes=S.sxOk&&S.sxOk[g];_cfs(g,v);
+ if(v&&S.sxOk&&S.sxOk[g]&&!antes)sug.forEach(function(e){e.tdocSug=0;e.mod=1;if(e.ndoc)e.falta=(e.falta||[]).filter(function(x){return x!=='Tipo y número de documento'})});if(v)pintaTodo()};
+

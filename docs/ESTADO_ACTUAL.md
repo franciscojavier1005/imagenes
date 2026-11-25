@@ -2,7 +2,7 @@
 
 Autor y dueño: Francisco Javier Cortés Cabezas (coordinador académico, I.E. ICET, Tumaco). Responder en español, corto, sin bloques de código en el chat; los archivos se entregan con SendUserFile. Rama: `claude/teacher-attendance-system-fso0tf` (sin PR salvo que lo pida). No escribir "OPS". No versionar datos reales (libro xlsx, plantilla con datos).
 
-**Versión vigente: 2026.11.25-e** (solo se cambia en `Leeme.gs`: las pantallas la reciben por `<?= VERSION ?>`; ya no hay que hacer `sed` en los .html) (ver `VERSION_SISTEMA` en `apps_script/Leeme.gs`).
+**Versión vigente: 2026.11.25-f** (solo se cambia en `Leeme.gs`: las pantallas la reciben por `<?= VERSION ?>`; ya no hay que hacer `sed` en los .html) (ver `VERSION_SISTEMA` en `apps_script/Leeme.gs`).
 
 ## Qué es
 Libro de Google Sheets + Apps Script: (1) asistencia docente (ronda, novedades, reuniones, paneles) y (2) **Comisiones de evaluación y promoción** (acta por grado y período, varios docentes a la vez, versionado optimista, turno de edición, historial 8 días, borradores locales).
@@ -35,6 +35,8 @@ Hecho 2026-11-25 (-c): sexo confirmado por curso (`S.sxOk`), documento/sexo obli
 - LA MATRÍCULA SALE DE LOS LISTADOS (`matDeriva` en `real_layer.js`): ini/nu/re/de/m/f/ve/ec derivados de `EST` y de solo lectura; reprobados por área derivados de `S.rep` (`rpDeriva`); nacionalidad por defecto «Colombiana»; tipos de reconocimiento en minúscula (`TIPOS_NUEVOS`, `tipoNorm` convierte los guardados en mayúscula); puesto 1–10 solo para excelencia y rendimiento; modales arriba (`.modal{align-items:flex-start}`); sin aviso de «versiones distintas».
 
 - Promoción: `promOrdena` (alfabético; franja amarilla = promovidos con áreas pendientes; franja rosada = no promovidos). Botón «Retirado…» (no «Retiró»).
+
+- Tipo de documento sugerido «TI» (`tdocSug`) que el docente confirma o cambia (`tdocCelda`, `setTdoc`); «Confirmar sexo y documento del curso» (`S.sxOk`) también confirma lo sugerido.
 
 ## Pendientes conocidos
 - Mensaje cortado del usuario: «necesitamos para los reconocimientos poder elegir…» (preguntar qué).

@@ -154,5 +154,7 @@ const TN=ses('Nom17 Nom18 Nom19','666666666');
 
  const et=await N.evaluate(()=>{const g=S.gs[0],L=EST.filter(e=>e.g===g&&!e.baja);S.rep=[{id:L[4].id,inas:0,items:[{area:'Matemáticas',mot:['Bajo rendimiento']}],gen:[],otro:''}];irTab&&irTab('p2');pintaAreas();const t=[...document.querySelectorAll('.rpTagsRow button')].map(b=>b.textContent);quitaRepArea(L[4].id,'Matemáticas');const d=S.rep.length;S.rep=[];return [t.length,/✕/.test(t[0]||''),d]});
  ok(et[0]>=1&&et[1]&&et[2]===0,'en Áreas aparecen etiquetas con los reprobados de cada área y se pueden quitar '+JSON.stringify(et));
+ const nt=await N.evaluate(()=>{const g0=EST.filter(e=>e.g===S.gs[0]&&!e.baja)[0];const sv=S.rep;S.rep=[{id:g0.id,inas:0,items:[{area:'Matemáticas',mot:['Bajo rendimiento']}],gen:[],otro:''}];const w=window.prompt;window.prompt=()=>'Falta de acompañamiento familiar';notaArea(0,0);pintaListas();const a=!!document.querySelector('.rpn')&&S.rep[0].items[0].nota==='Falta de acompañamiento familiar';const t=document.body.innerHTML.indexOf('Anotación:')>=0;notaArea(0,0,1);pintaListas();window.prompt=w;const q=!document.querySelector('.rpn');S.rep=sv;return [a,t,q]});
+ ok(nt&&nt[0]&&nt[1]&&nt[2],'anotación opcional por área: se agrega, se muestra y se quita '+JSON.stringify(nt));
 
  console.log('ERRORES',JSON.stringify(er));await b.close();console.log(fallos?fallos+' FALLA(S)':'Todo bien');process.exit(0)})();

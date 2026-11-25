@@ -9,7 +9,7 @@ const T=[
 <h3>«Retirado» o «No asiste»</h3><ul><li><b>Retirado:</b> solo con plena seguridad (otra institución o ciudad, canceló o falleció).</li><li>Si hay dudas: <b>«No asiste»</b> (orientación del rector).</li><li>Quien queda inhabilitado <b>desaparece del resto del acta</b>.</li></ul>
 <h3>Matrícula</h3><ul><li>Es <b>informativa</b>: sale sola de los listados. No se escribe nada.</li><li>Si una cifra no cuadra, corrija el <b>sexo o la nacionalidad</b> en el listado.</li></ul>
 <h3>Áreas</h3><ul><li>En cada área pulse <b>«Seleccionar»</b> y marque <b>varios estudiantes a la vez</b>.</li><li>Reprueba quien queda <b>por debajo de 2,91</b>.</li></ul>
-<h3>Reprobación</h3><ul><li>Se llena sola desde Áreas.</li><li>Solo registre las <b>causas</b> de cada área, la inasistencia y una anotación.</li></ul>`},
+<h3>Reprobación</h3><ul><li>Se llena sola desde Áreas.</li><li>Solo registre las <b>causas</b> de cada área y la inasistencia.</li><li>Si quiere justificar mejor un caso: botón <b>«+ Anotación»</b> junto al área (opcional).</li></ul>`},
 {n:'3',t:'Promoción, convivencia y reconocimientos',c:'#8a4b0b',h:`
 <h3>Promoción (solo acta final)</h3><ul><li>Todos salen promovidos por defecto.</li><li><span class="am">Amarillo</span>: 1 o 2 áreas pendientes. <span class="ro">Rosado</span>: más de 2 áreas, no promovidos.</li><li>En 11.º, quien pierde un área no participa en la ceremonia de graduación.</li></ul>
 <h3>Convivencia y compromisos</h3><ul><li>Solo si hubo casos. Si no: <b>«No hubo casos»</b>.</li><li>Compromisos con padres y estudiantes: aparte de convivencia.</li></ul>
@@ -27,6 +27,6 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fff}.w{width:10
 .bd{padding:26px 48px 20px;font-size:31px;line-height:1.38;color:#222}h3{font-size:34px;color:${x.c};margin:22px 0 6px;border-bottom:3px solid ${x.c}33;padding-bottom:4px}
 ul{margin:6px 0 0;padding-left:34px}li{margin:7px 0}.im{background:#fff3cf;border:3px solid #e0872b;border-radius:14px;padding:16px 22px;font-weight:bold;font-size:32px}
 .am{background:#ffe680;padding:0 8px;border-radius:6px}.ro{background:#ffc2d1;padding:0 8px;border-radius:6px}
-.ft{padding:14px 48px 26px;font-size:22px;color:#888}</style></head><body><div class="w" id="c"><div class="hd"><small>Comisiones de Evaluación y Promoción · ${x.n} de 4</small><h1>${x.t}</h1></div><div class="bd">${x.h}</div><div class="ft">Coordinación Académica · I.E. ICET · Control de Procesos ICET · Autor: Francisco Javier Cortés Cabezas</div></div></body></html>`;
+.ft{padding:14px 48px 26px;font-size:22px;color:#888}</style></head><body><div class="w" id="c"><div class="hd"><small>Comisiones de Evaluación y Promoción · ${x.n} de 4</small><h1>${x.t}</h1></div><div class="bd">${x.h}</div><div class="ft">Coordinación Académica · Institución Ciudadela Educativa Tumaco (ICET) · Control de Procesos ICET · Autor: Francisco Javier Cortés Cabezas</div></div></body></html>`;
 await p.setContent(html);await p.locator('#c').screenshot({path:`docs/whatsapp/Comisiones_${x.n}_de_4.png`})}
 await b.close()})();

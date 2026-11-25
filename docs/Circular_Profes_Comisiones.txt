@@ -1,0 +1,241 @@
+COMISIONES DE EVALUACIÓN Y PROMOCIÓN
+
+Institución Ciudadela Educativa Tumaco – ICET
+Coordinación Académica
+
+ORIENTACIONES PARA EL DILIGENCIAMIENTO DE LAS ACTAS
+
+Colegas, buen día:
+
+Les comparto esta orientación práctica para facilitar el diligenciamiento de las actas de las Comisiones de Evaluación y Promoción mediante la aplicación institucional.
+
+El procedimiento puede tomar entre 40 y 60 minutos, siempre que los listados de estudiantes estén previamente revisados y actualizados. Por esta razón, la recomendación principal es realizar una adecuada depuración de los listados antes de comenzar la comisión.
+
+ANTES DE COMENZAR
+
+En la primera pestaña de la aplicación, «Cómo funciona», y en el menú «Manuales» están disponibles la guía rápida y el manual de las Comisiones de Evaluación y Promoción. Allí pueden consultar las instrucciones y resolver las dudas que se presenten durante el proceso.
+
+1. INICIO DE LA COMISIÓN
+
+1. Ingresar a la aplicación.
+2. Seleccionar el grado y el período académico correspondiente.
+3. Registrar el lugar donde se realiza la reunión y la hora de inicio.
+4. Cada docente registra su correo electrónico al empezar y su número de cédula al finalizar; es obligatorio participar y permanecer hasta que termine la reunión.
+5. En el apartado de asistencia, se debe insertar como mínimo a un directivo docente en el acta. De manera opcional, se pueden incluir otras personas que acompañen la comisión, sean docentes o no pertenezcan al cuerpo docente.
+
+Importante: la inclusión de al menos un directivo docente en el registro de asistencia es obligatoria.
+
+2. LISTADOS: REVISIÓN Y DEPURACIÓN
+
+Este es uno de los pasos más importantes, porque la información registrada en los listados alimenta los demás apartados del acta.
+
+Verificación de los datos de los estudiantes
+
+El director o la directora de grupo debe revisar cuidadosamente la información de cada estudiante:
+
+- Nombres y apellidos, verificando que estén correctamente escritos.
+- Sexo.
+- Nacionalidad.
+- Tipo de documento.
+- Número de documento.
+
+Se deben completar los datos faltantes y corregir cualquier inconsistencia que se identifique. Si no se conoce el documento, consulten el archivo o pregunten al estudiante o a su acudiente; puede ser el número establecido por el rector o por la Secretaría de Educación (por ejemplo, en estudiantes extranjeros).
+
+Al terminar de revisar el curso, el director o la directora de grupo debe pulsar «Confirmar sexo y documento del curso». Es obligatorio para poder confirmar la revisión del listado.
+
+Atención especial a los estudiantes que recibirán reconocimientos: es indispensable verificar con precisión sus nombres, apellidos y documentos de identidad. Esto evitará errores en las actas, menciones, certificados y demás reconocimientos o distinciones que se entreguen.
+
+Estudiantes retirados
+
+La opción «Retirado» debe utilizarse únicamente cuando exista certeza de que el estudiante se trasladó a otra institución o ciudad, canceló su matrícula o falleció.
+
+Si no existe certeza sobre alguna de estas situaciones, se debe seleccionar «No asiste», de acuerdo con la orientación del rector.
+
+Cuando un estudiante queda inhabilitado como retirado, desaparece de las demás secciones del acta. Por eso, es necesario verificar muy bien la información antes de realizar esta acción.
+
+Incorporación de estudiantes nuevos y traslados
+
+La aplicación permite agregar estudiantes que no aparecen en los listados y trasladar estudiantes que se encuentran registrados en otro grado o nivel, pero que por alguna situación académica o administrativa deben estar ubicados en otro grupo.
+
+Estas modificaciones deben tener una justificación clara, por ejemplo, una promoción anticipada o una actualización pendiente de los listados.
+
+Se recomienda solicitar al coordinador académico que gestione las incorporaciones y los traslados correspondientes. Si por alguna circunstancia el docente realiza directamente una de estas operaciones, deberá informar oportunamente al coordinador académico, justificar el motivo y proporcionar la información necesaria para verificar el movimiento.
+
+Particularidad de Caminar en Secundaria
+
+- Secundaria 1: los estudiantes cursan los grados sexto y séptimo durante el mismo año lectivo.
+- Secundaria 2: los estudiantes cursan los grados octavo y noveno durante el mismo año lectivo.
+
+En el tercer período pasan al grado siguiente y, al finalizar el año, quedan ubicados en el último grado correspondiente a su ciclo.
+
+En la aplicación, Caminar 1 (Secundaria 1) se integra al acta del grado sexto y Caminar 2 (Secundaria 2) al acta del grado octavo. Si se requiere alguna configuración distinta, se debe consultar con el coordinador académico, quien puede cambiar la integración.
+
+Confirmación de los listados
+
+No se deben realizar las confirmaciones ni activar los candados de verificación hasta haber revisado completamente los listados y la información de los estudiantes.
+
+Una vez verificados y corregidos los datos, se pueden realizar las confirmaciones correspondientes en la aplicación.
+
+3. MATRÍCULA
+
+Este apartado es informativo. La aplicación calcula automáticamente las cifras de matrícula a partir de los listados de estudiantes previamente depurados.
+
+Por tanto, no es necesario ingresar manualmente los datos de matrícula.
+
+Si las cifras no coinciden o aparecen datos faltantes o inconsistencias, se debe revisar primero el listado de estudiantes y acudir a la oficina de Archivo o a Rectoría para verificar y solicitar la actualización de la información.
+
+Si la inconsistencia corresponde al sexo o la nacionalidad de un estudiante, se debe revisar y corregir el registro directamente en el apartado «Listados».
+
+4. ÁREAS
+
+En este apartado se debe seleccionar, para cada área, a todos los estudiantes que la reprobaron.
+
+- La aplicación permite realizar selecciones múltiples, por lo que se pueden seleccionar de manera masiva los estudiantes que reprobaron cada área, sin necesidad de incorporarlos uno por uno.
+- Se debe repetir el procedimiento en cada una de las áreas.
+- Se considera reprobada un área cuando la calificación es inferior a 2,91 (el SIEE aprueba de 3,0 a 5,0 y, por criterio del rector, de 2,91 a 3,0 se redondea a 3,0).
+
+La información seleccionada en este apartado alimenta automáticamente la sección de «Reprobación».
+
+Es importante verificar que los estudiantes seleccionados correspondan efectivamente a quienes reprobaron cada área.
+
+5. REPROBACIÓN
+
+Este apartado se alimenta automáticamente con los estudiantes seleccionados previamente en cada una de las áreas. La aplicación incorpora de manera masiva a los estudiantes que presentan reprobación, por lo que no es necesario volver a ingresar sus nombres ni sus calificaciones.
+
+El docente debe registrar la causa o las causas de reprobación correspondientes en cada área, además de las situaciones de inasistencia y las observaciones pertinentes.
+
+Es importante que las causas queden asociadas al área respectiva y no se registren de manera general cuando correspondan a situaciones diferentes. Se pueden registrar varias causas cuando sea necesario.
+
+Opcionalmente, junto a cada área está el botón «+ Anotación», que permite escribir una nota para justificar mejor el caso del estudiante en esa área. La anotación general del estudiante sigue disponible en «Anotación y motivos generales». Las anotaciones salen en el acta impresa.
+
+6. PROMOCIÓN
+
+Este apartado se diligencia únicamente en el acta final.
+
+Los estudiantes aparecen promovidos por defecto y la aplicación organiza la información de acuerdo con los resultados registrados en las áreas.
+
+Se identifican los siguientes grupos:
+
+- Sin áreas pendientes: estudiantes que cumplen las condiciones de promoción.
+- En grado undécimo, quien pierde un área no participa en la ceremonia de graduación.
+- Una o dos áreas pendientes: estudiantes que presentan una o dos áreas reprobadas.
+- Más de dos áreas reprobadas: estudiantes que, en el acta final, aparecen como no promovidos.
+
+La aplicación utiliza colores para facilitar la identificación de los casos: amarillo para estudiantes con una o dos áreas pendientes y rosado para quienes tienen más de dos áreas reprobadas.
+
+La información de este apartado depende de los registros realizados previamente. Por ello, cualquier inconsistencia debe revisarse en las secciones de áreas y listados.
+
+7. CONVIVENCIA
+
+En este apartado se registran las situaciones o los casos de convivencia presentados durante el período académico.
+
+Si no se presentaron situaciones que deban reportarse, se debe seleccionar la opción «No hubo casos».
+
+8. COMPROMISOS
+
+Este apartado es independiente del de Convivencia.
+
+Aquí se registran los compromisos establecidos con los padres de familia y los estudiantes, cuando existan situaciones que requieran acuerdos, acompañamiento o seguimiento.
+
+Se deben consignar de manera clara los compromisos adquiridos.
+
+9. RECONOCIMIENTOS
+
+La aplicación permite seleccionar varios estudiantes y asignar más de un reconocimiento a un mismo estudiante.
+
+Antes de realizar las selecciones, es indispensable verificar que los datos de identificación estén completos y correctamente escritos. Si se presentan errores en los nombres, apellidos o documentos, se debe regresar al apartado «Listados» para realizar la revisión correspondiente.
+
+Reconocimientos de Excelencia y Rendimiento Académico
+
+En estos reconocimientos se deben tener en cuenta las siguientes indicaciones:
+
+- La aplicación muestra inicialmente un promedio de 4,6. Este valor es provisional y debe sustituirse obligatoriamente por el promedio real del estudiante.
+- El promedio puede registrarse hasta con tres cifras decimales.
+- Se debe ajustar el puesto correspondiente, teniendo en cuenta que la aplicación permite registrar hasta el décimo lugar.
+
+Reconocimiento de Convivencia
+
+- No requiere registrar puesto.
+- La calificación es opcional.
+
+Otros reconocimientos
+
+En «Colaboración y buen porte del uniforme» y en «Otros», no es necesario registrar calificación ni puesto.
+
+Recomendación: antes de finalizar, revisar nuevamente los nombres y documentos de los estudiantes seleccionados. Esta verificación es especialmente importante para evitar errores en las menciones, certificados y entregas de reconocimientos.
+
+10. REVISIÓN Y CIERRE DEL ACTA
+
+Antes de finalizar, se debe realizar una revisión general de todos los apartados.
+
+Se recomienda prestar especial atención a la sección «Datos faltantes», donde se pueden identificar campos que aún requieren información.
+
+Si el docente no alcanza a terminar el diligenciamiento, debe utilizar la opción «Guardar borrador» antes de salir de la aplicación. De esta manera, podrá recuperar posteriormente el trabajo y continuar desde el punto en que quedó.
+
+Cuando toda la información esté completa y revisada, se debe seleccionar «Mi parte lista».
+
+Antes de cerrar, se imprime el acta desde la pestaña «Imprimible» y se recogen las firmas en papel. Al finalizar, cada asistente confirma con su correo y un código; después el acta queda en solo lectura.
+
+Importante:
+
+- Guardar un borrador no equivale a firmar ni a cerrar definitivamente el acta.
+- No se debe volver a firmar un acta que ya ha sido firmada.
+- Antes de completar el cierre, se debe verificar que la información esté correcta.
+
+11. IMPRIMIBLES E INFORMES
+
+El acta se imprime antes de cerrar (pestaña «Imprimible»), como se indicó en el cierre. Una vez cerrada, la aplicación permite consultar informes y reportes de seguimiento.
+
+Los docentes pueden consultar la información correspondiente a sus estudiantes y los directores de grupo pueden revisar los resultados generales de su grupo.
+
+Los informes presentan información organizada, gráficos y un tablero de información (dashboard) en las pestañas «Dashboard y gráficos» e «Informe del docente», que facilita la consulta y el análisis de los resultados académicos.
+
+12. RETROALIMENTACIÓN POSTERIOR A LAS COMISIONES
+
+Una vez finalizadas las Comisiones de Evaluación y Promoción, y transcurridos algunos días, los docentes podrán solicitar al coordinador académico la retroalimentación correspondiente al proceso realizado.
+
+La Coordinación Académica enviará una retroalimentación a cada uno de los grados, en la que se compartirán las observaciones y orientaciones pertinentes, con el propósito de fortalecer los procesos académicos y mejorar el desarrollo de las próximas comisiones.
+
+De esta manera, el proceso no termina con la firma y el cierre del acta, sino que también contempla un espacio posterior de revisión, acompañamiento y mejora.
+
+13. NUEVA ACTA, BORRADORES, ARCHIVO Y RECUPERACIÓN
+
+La aplicación cuenta con opciones para administrar las actas y continuar los procesos cuando sea necesario:
+
+- Nueva acta: permite iniciar una nueva comisión desde cero.
+- Guardar borrador: permite conservar el trabajo realizado cuando el acta todavía está incompleta.
+- Recuperar borrador: devuelve el avance guardado con «Guardar borrador».
+- Archivar o borrar: retira una acta de la vista cuando corresponda; ambas se pueden recuperar.
+- Recuperar acta: permite volver a abrir una acta archivada o borrada.
+
+Si no se ha terminado el diligenciamiento, se debe guardar el borrador antes de salir. Posteriormente, se puede ingresar nuevamente, recuperar el borrador y continuar el proceso.
+
+Recuerde que guardar un borrador no significa que el acta esté firmada o cerrada definitivamente.
+
+---
+
+RECOMENDACIONES FINALES
+
+Para facilitar el trabajo de las Comisiones de Evaluación y Promoción y evitar inconsistencias en las actas, se recomienda:
+
+1. Revisar y depurar los listados antes de iniciar el diligenciamiento.
+2. Verificar nombres, apellidos, sexo, nacionalidad, tipo y número de documento de cada estudiante.
+3. Solicitar al coordinador académico la gestión de incorporaciones y traslados. Si el docente realiza directamente alguno de estos movimientos, debe informar y justificar oportunamente.
+4. No confirmar los listados ni activar los candados de verificación hasta comprobar que toda la información esté correcta.
+5. Revisar cuidadosamente la selección masiva de estudiantes que reprobaron cada área.
+6. Registrar la causa o las causas de reprobación en cada área correspondiente.
+7. Verificar los promedios y puestos de los estudiantes seleccionados para reconocimientos.
+8. Guardar el borrador si no se alcanza a terminar el diligenciamiento.
+9. Una vez cerrada el acta, consultar los documentos imprimibles y los informes disponibles.
+10. Solicitar la retroalimentación posterior a las comisiones para conocer las observaciones y orientaciones de la Coordinación Académica.
+
+Para resolver inquietudes relacionadas con el procedimiento o con el funcionamiento de la aplicación, pueden dirigirse a la Coordinación Académica.
+
+AGRADECIMIENTO
+
+Agradecemos su atención, compromiso y colaboración en el diligenciamiento de las actas de las Comisiones de Evaluación y Promoción.
+
+El adecuado registro y verificación de la información contribuye a mantener la calidad, confiabilidad y organización de los procesos académicos de nuestra institución.
+
+COORDINACIÓN ACADÉMICA
+INSTITUCIÓN CIUDADELA EDUCATIVA TUMACO – ICET

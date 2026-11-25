@@ -1,7 +1,7 @@
 # Estado actual (LEER ESTO PRIMERO; es corto a propósito)
 
 **Dueño:** Francisco Javier Cortés Cabezas (coordinador académico, I.E. ICET, Tumaco). Español, respuestas cortas, sin bloques de código en el chat; los archivos se entregan con SendUserFile. Rama `claude/teacher-attendance-system-fso0tf` (sin PR salvo que lo pida). Nunca escribir «OPS». No versionar datos reales (libro, plantilla con nombres). No escribir en Google/Drive/OneDrive desde la sesión (solo lectura con el conector).
-**Versión vigente: 2026.11.25-o** (la versión se cambia SOLO en `apps_script/Leeme.gs`: `VERSION_SISTEMA`, `FECHA_VERSION`, `HISTORIAL_VERSIONES`; las pantallas la reciben por `<?= VERSION ?>`).
+**Versión vigente: 2026.11.25-p** (la versión se cambia SOLO en `apps_script/Leeme.gs`: `VERSION_SISTEMA`, `FECHA_VERSION`, `HISTORIAL_VERSIONES`; las pantallas la reciben por `<?= VERSION ?>`).
 
 ## Qué es
 «Control de Procesos ICET»: libro de Google Sheets + Apps Script. (1) Asistencia docente (ronda, novedades, reuniones, paneles). (2) **Comisiones de evaluación y promoción**: acta por grado y período, versionado optimista, turno de edición o modo equipo, historial de 8 días, borradores locales.

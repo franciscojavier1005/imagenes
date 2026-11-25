@@ -876,4 +876,5 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - 2026-11-25 (-m): Guía rápida de comisiones (PDF 1 pág., scripts/generar_guia_rapida.js) + capítulo R en el manual de comisiones; ambos en Manuales.html.
 - 2026-11-25 (-n): matrícula 100% solo lectura (sexo/nacionalidad desde listados); confirmar curso exige número de documento; mensaje para profes docs/Mensaje_Profes_Comisiones.txt.
 - 2026-11-25 (-o): confirmar curso declara sexo, nacionalidad y documento (aviso: archivo/acudiente/n.º del rector o Secretaría); mensaje para profes en TXT y PDF (scripts/generar_mensaje_profes.js).
-- 2026-11-25: imágenes WhatsApp de comisiones (docs/whatsapp, scripts/generar_imagenes_whatsapp.js); texto revisado contra la app (firma/imprimible antes de cerrar, Caminar, recuperar borrador). Pendiente: nota por área en Reprobación (si el usuario lo aprueba).
+- 2026-11-25: imágenes WhatsApp de comisiones (docs/whatsapp, scripts/generar_imagenes_whatsapp.js); texto revisado contra la app (firma/imprimible antes de cerrar, Caminar, recuperar borrador). 
+- 2026-11-25 (-p): anotación opcional por área en Reprobación (it.nota; sale en acta impresa); «Cómo funciona» alineado con la circular; circular corregida docs/Circular_Profes_Comisiones (txt/pdf); institución: Institución Ciudadela Educativa Tumaco (ICET).

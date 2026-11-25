@@ -3882,11 +3882,14 @@ function levantarMarcasEstudiante(p) {
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-j';
+var VERSION_SISTEMA = '2026.11.25-k';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-k', fecha: '2026-11-25', cambios: [
+    'Comisiones: los docentes que alternan por semana ya aparecen como complemento en cada grupo. Sociales e Inglés: Quintero (inglés) con Ortiz (sociales) en 7.º, 8.º y Caminar 2; Pulgarín (sociales) con Betancourth (inglés) en 9.º a 11.º. Ética y Religión: Castillo (religión) con Casanova (ética) en Caminar 1-2, 7.º, 8.º y Caminar 2; Estacio (religión) con Montaño (ética) en 9.º a 11.º. Ciencias Naturales: Lemos y Villota en 9.º a 11.º y Caminar 2. Lozano y García Gobea atienden solas de 6.º a Caminar 1-1.'
+  ] },
   { version: '2026.11.25-j', fecha: '2026-11-25', cambios: [
     'Comisiones: el SIEE aprueba de 3,0 a 5,0; por criterio del rector en la plataforma, de 2,91 a 3,0 se redondea a 3,0, así que en la práctica reprueba el área quien queda por debajo de 2,91 (la pantalla de Áreas lo explica). Los docentes de los énfasis (6.º y 7.º en pareja; 8.º a 11.º en equipo) ya entran al equipo del acta y a las áreas que dictan (por ejemplo, Ciencias Naturales con Miriam Lemos y Héctor Villota). En excelencia y rendimiento académico el promedio admite hasta 3 decimales. El acta abre más rápido: el listado del grado y el acta se piden a la vez.'
   ] },
@@ -5790,7 +5793,22 @@ function comisionesVerGuardado() {
 /* ------------------------------ datos del grado para la pantalla real ------------------------------ */
 /* Docentes que ALTERNAN cada semana con quien figura en el Horario (el Horario trae una sola persona por franja). Se suman al equipo del acta con la misma área.
    Defecto: María del Carmen Quintero alterna Sociales/Inglés (CSI) con Adiela Ortiz en 8.º (0801 y 0802). Otros casos: parámetro comisiones_alternan = [{"docente":"...","grupos":["0801"],"area":"CSI"}]. */
-var COM_ALTERNAN_DEFECTO = [{ docente: 'Quintero Ramírez María del Carmen', grupos: ['0801', '0802'], area: 'CSI' }];
+var COM_ALTERNAN_DEFECTO = [
+  // Sociales e Inglés (CSI): cada pareja alterna por semana y cada docente tiene su especialidad (aclarado por el coordinador, 2026-11-25).
+  // 6.º hasta CS1-1: García Gobea alterna consigo misma (no necesita complemento).
+  { docente: 'Quintero Ramírez María del Carmen', grupos: ['0801', '0802', 'CS201', 'CS202'], area: 'CSI' },   // inglés
+  { docente: 'Ortiz Araujo Adiela Carlota', grupos: ['0701', '0702', '0703', '0704'], area: 'CSI' },             // sociales
+  { docente: 'Pulgarín Ortiz César Marino', grupos: ['0901', '0902', '1001'], area: 'CSI' },                     // sociales
+  { docente: 'Betancourth Ocampo Yohana Patricia', grupos: ['1002', '1101', '1102'], area: 'CSI' },              // inglés
+  // Ética y Religión (ETR): Lozano atiende sola 6.º hasta CS1-1; en CS1-2 y 7.º alternan Castillo (religión) y Casanova (ética); en 8.º y CS2 también; en 9.º a 11.º, Estacio (religión) y Montaño (ética).
+  { docente: 'Castillo Angulo Martha Cecilia', grupos: ['0701', '0702', '0703', '0704', 'CS102'], area: 'ETR' },
+  { docente: 'Casanova Quiñones Yoli del Carmen', grupos: ['0801', '0802', 'CS201', 'CS202', 'CS102'], area: 'ETR' },
+  { docente: 'Estacio Estupiñán Rosario', grupos: ['1002', '1101', '1102'], area: 'ETR' },
+  { docente: 'Montaño Arizala Leidis Claudina', grupos: ['0901', '0902', '1001'], area: 'ETR' },
+  // Ciencias Naturales (CNA): en 9.º a 11.º y CS2 son complemento Miriam Lemos (química) y Héctor Villota (física).
+  { docente: 'Lemos Guancha Miriam', grupos: ['1001', '1002', '1101', '1102'], area: 'CNA' },
+  { docente: 'Villota Rubio Héctor Hugo', grupos: ['0901', '0902', 'CS201', 'CS202'], area: 'CNA' }
+];
 function comisionAlternan_() {
   var c = []; try { c = JSON.parse(parametro_('comisiones_alternan', '[]')) || []; } catch (e) { c = []; }
   return COM_ALTERNAN_DEFECTO.concat(Array.isArray(c) ? c : []);

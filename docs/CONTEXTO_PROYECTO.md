@@ -867,3 +867,6 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 
 ## Ampliación 120 (2026-11-25, versión 2026.11.25-j)
 - Umbral 2,91, énfasis dentro del equipo/áreas, promedio con 3 decimales, apertura más rápida (carga en paralelo y menos lecturas).
+
+## Ampliación 121 (2026-11-25, versión 2026.11.25-k)
+- Alternancias CSI, ETR y CNA cargadas en `COM_ALTERNAN_DEFECTO`.

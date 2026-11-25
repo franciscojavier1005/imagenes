@@ -764,7 +764,22 @@ function comisionesVerGuardado() {
 /* ------------------------------ datos del grado para la pantalla real ------------------------------ */
 /* Docentes que ALTERNAN cada semana con quien figura en el Horario (el Horario trae una sola persona por franja). Se suman al equipo del acta con la misma área.
    Defecto: María del Carmen Quintero alterna Sociales/Inglés (CSI) con Adiela Ortiz en 8.º (0801 y 0802). Otros casos: parámetro comisiones_alternan = [{"docente":"...","grupos":["0801"],"area":"CSI"}]. */
-var COM_ALTERNAN_DEFECTO = [{ docente: 'Quintero Ramírez María del Carmen', grupos: ['0801', '0802'], area: 'CSI' }];
+var COM_ALTERNAN_DEFECTO = [
+  // Sociales e Inglés (CSI): cada pareja alterna por semana y cada docente tiene su especialidad (aclarado por el coordinador, 2026-11-25).
+  // 6.º hasta CS1-1: García Gobea alterna consigo misma (no necesita complemento).
+  { docente: 'Quintero Ramírez María del Carmen', grupos: ['0801', '0802', 'CS201', 'CS202'], area: 'CSI' },   // inglés
+  { docente: 'Ortiz Araujo Adiela Carlota', grupos: ['0701', '0702', '0703', '0704'], area: 'CSI' },             // sociales
+  { docente: 'Pulgarín Ortiz César Marino', grupos: ['0901', '0902', '1001'], area: 'CSI' },                     // sociales
+  { docente: 'Betancourth Ocampo Yohana Patricia', grupos: ['1002', '1101', '1102'], area: 'CSI' },              // inglés
+  // Ética y Religión (ETR): Lozano atiende sola 6.º hasta CS1-1; en CS1-2 y 7.º alternan Castillo (religión) y Casanova (ética); en 8.º y CS2 también; en 9.º a 11.º, Estacio (religión) y Montaño (ética).
+  { docente: 'Castillo Angulo Martha Cecilia', grupos: ['0701', '0702', '0703', '0704', 'CS102'], area: 'ETR' },
+  { docente: 'Casanova Quiñones Yoli del Carmen', grupos: ['0801', '0802', 'CS201', 'CS202', 'CS102'], area: 'ETR' },
+  { docente: 'Estacio Estupiñán Rosario', grupos: ['1002', '1101', '1102'], area: 'ETR' },
+  { docente: 'Montaño Arizala Leidis Claudina', grupos: ['0901', '0902', '1001'], area: 'ETR' },
+  // Ciencias Naturales (CNA): en 9.º a 11.º y CS2 son complemento Miriam Lemos (química) y Héctor Villota (física).
+  { docente: 'Lemos Guancha Miriam', grupos: ['1001', '1002', '1101', '1102'], area: 'CNA' },
+  { docente: 'Villota Rubio Héctor Hugo', grupos: ['0901', '0902', 'CS201', 'CS202'], area: 'CNA' }
+];
 function comisionAlternan_() {
   var c = []; try { c = JSON.parse(parametro_('comisiones_alternan', '[]')) || []; } catch (e) { c = []; }
   return COM_ALTERNAN_DEFECTO.concat(Array.isArray(c) ? c : []);

@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-j';
+var VERSION_SISTEMA = '2026.11.25-k';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-k', fecha: '2026-11-25', cambios: [
+    'Comisiones: los docentes que alternan por semana ya aparecen como complemento en cada grupo. Sociales e Inglés: Quintero (inglés) con Ortiz (sociales) en 7.º, 8.º y Caminar 2; Pulgarín (sociales) con Betancourth (inglés) en 9.º a 11.º. Ética y Religión: Castillo (religión) con Casanova (ética) en Caminar 1-2, 7.º, 8.º y Caminar 2; Estacio (religión) con Montaño (ética) en 9.º a 11.º. Ciencias Naturales: Lemos y Villota en 9.º a 11.º y Caminar 2. Lozano y García Gobea atienden solas de 6.º a Caminar 1-1.'
+  ] },
   { version: '2026.11.25-j', fecha: '2026-11-25', cambios: [
     'Comisiones: el SIEE aprueba de 3,0 a 5,0; por criterio del rector en la plataforma, de 2,91 a 3,0 se redondea a 3,0, así que en la práctica reprueba el área quien queda por debajo de 2,91 (la pantalla de Áreas lo explica). Los docentes de los énfasis (6.º y 7.º en pareja; 8.º a 11.º en equipo) ya entran al equipo del acta y a las áreas que dictan (por ejemplo, Ciencias Naturales con Miriam Lemos y Héctor Villota). En excelencia y rendimiento académico el promedio admite hasta 3 decimales. El acta abre más rápido: el listado del grado y el acta se piden a la vez.'
   ] },

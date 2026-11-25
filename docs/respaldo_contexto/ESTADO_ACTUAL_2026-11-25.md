@@ -1,7 +1,7 @@
 # Estado actual (LEER ESTO PRIMERO; es corto a propósito)
 
 **Dueño:** Francisco Javier Cortés Cabezas (coordinador académico, I.E. ICET, Tumaco). Español, respuestas cortas, sin bloques de código en el chat; los archivos se entregan con SendUserFile. Rama `claude/teacher-attendance-system-fso0tf` (sin PR salvo que lo pida). Nunca escribir «OPS». No versionar datos reales (libro, plantilla con nombres). No escribir en Google/Drive/OneDrive desde la sesión (solo lectura con el conector).
-**Versión vigente: 2026.11.25-j** (la versión se cambia SOLO en `apps_script/Leeme.gs`: `VERSION_SISTEMA`, `FECHA_VERSION`, `HISTORIAL_VERSIONES`; las pantallas la reciben por `<?= VERSION ?>`).
+**Versión vigente: 2026.11.25-k** (la versión se cambia SOLO en `apps_script/Leeme.gs`: `VERSION_SISTEMA`, `FECHA_VERSION`, `HISTORIAL_VERSIONES`; las pantallas la reciben por `<?= VERSION ?>`).
 
 ## Qué es
 «Control de Procesos ICET»: libro de Google Sheets + Apps Script. (1) Asistencia docente (ronda, novedades, reuniones, paneles). (2) **Comisiones de evaluación y promoción**: acta por grado y período, versionado optimista, turno de edición o modo equipo, historial de 8 días, borradores locales.
@@ -30,8 +30,9 @@
 
 ## Pendientes
 - Mac (Safari): no hay permisos que activar en la app; probar Chrome, ventana privada con UNA cuenta de Google, o Safari → Ajustes → Privacidad → desmarcar «Impedir seguimiento entre sitios» y permitir ventanas emergentes. Google muestra «No se pudo abrir el archivo»; pedir el enlace completo (termina en `/exec`) y probar en Chrome/ventana privada, una sola cuenta de Google.
-- Pares de docentes que alternan (ética/religión, CS2…). Auditoría completa de velocidad con todos los grados. Capturas de los manuales desactualizadas. El usuario debe correr «unificar actas duplicadas» y corregir `grupo` de promovidos (p. ej. Valencia Ibarra Keyla Johana → 1001).
+Auditoría completa de velocidad con todos los grados. Capturas de los manuales desactualizadas. El usuario debe correr «unificar actas duplicadas» y corregir `grupo` de promovidos (p. ej. Valencia Ibarra Keyla Johana → 1001).
 - Umbral: el SIEE aprueba de 3,0 a 5,0; el rector redondea de 2,91 a 3,0 en la plataforma, así que en la práctica reprueba quien queda **por debajo de 2,91**. Los textos del SIEE (superación 3,0–5,0) NO cambian. `.xlsx` antiguos versionados en la raíz (revisar si traen datos reales).
-- Énfasis: las filas `tipo=ENFASIS` del Horario no traen `grupo` (usan `grupos_enfasis`); `comisionHorarioConAlternan_` las incluye para equipos y áreas. Pendiente: tabla de **parejas que alternan** en CSI (Sociales/Inglés) y ETR (Ética/Religión) por grupo: el Horario trae un solo docente por grupo; preguntar al coordinador el complemento (hoy solo Quintero↔Ortiz en 0801/0802).
+- Énfasis: las filas `tipo=ENFASIS` del Horario no traen `grupo` (usan `grupos_enfasis`); `comisionHorarioConAlternan_` las incluye para equipos y áreas.
+- Alternancias (`COM_ALTERNAN_DEFECTO`, ya cargadas con lo explicado por el coordinador): CSI Quintero↔Ortiz (7.º, 8.º, CS2), Pulgarín↔Betancourth (9.º–11.º), García Gobea sola (6.º–CS1-1); ETR Castillo↔Casanova (CS1-2, 7.º, 8.º, CS2), Estacio↔Montaño (9.º–11.º), Lozano sola (6.º–CS1-1); CNA Lemos y Villota (9.º–11.º y CS2). Otras parejas: parámetro `comisiones_alternan`.
 - Promedio de excelencia/rendimiento admite 3 decimales. Velocidad: lecturas por solicitud 28→11 en `comisionGradoDatos` (`VAL_REQ` también para correos y `Parametros`); el cliente pide listado y acta en paralelo.
 - Documento para otros chats: https://claude.ai/artifact/4eqpmkvtdV5WMmjQG4KkTp

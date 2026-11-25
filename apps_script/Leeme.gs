@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-u';
+var VERSION_SISTEMA = '2026.11.25-v';
 var FECHA_VERSION = '2026-11-25';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.25-v', fecha: '2026-11-25', cambios: [
+    'Comisiones (solo forma): en Listados, las cifras de arriba van centradas con fondos suaves (retirados en rosado, no asisten en amarillo), cada curso muestra también su matrícula final, el número del listado se destaca con un fondo discreto, los botones «Retirado» y «No asiste» tienen su color suave y cada lista trae «Lista anterior / siguiente / Inicio». En Áreas las cifras son más pequeñas y sin negrita y las etiquetas de reprobados van dentro del área (sin fila extra). Rosados más claros en Reprobación, Promoción y Recomendaciones (números más pequeños; los botones de estándares y DBA caben en la misma línea). Nuevos botones flotantes ▲ ▼ para subir y bajar al inicio o al final de cada sección, también en el menú principal.'
+  ] },
   { version: '2026.11.25-u', fecha: '2026-11-25', cambios: [
     'Comisiones: paleta más suave. En Áreas, los aprobados van en verde suave y los reprobados en rosado suave. En Reprobación, los estudiantes con 1 o 2 áreas (promovidos con áreas pendientes) salen en amarillo suave, como en Promoción, y quienes pierden más de 2 áreas en rosado suave.'
   ] },

@@ -886,3 +886,4 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - 2026-11-25 (-t): Promoción↔Reprobación↔Áreas sincronizadas (S.rep única fuente; pendMan migrado); Áreas con etiquetas; rosado en reprobación/recomendaciones; botones de colores; reconocimientos Otros con lista/crear.
 - 2026-11-25: material de comisiones (guía, circular, infografía, tarjetas) actualizado con sincronía Promoción↔Reprobación↔Áreas, Áreas solo lectura y reconocimientos Otros.
 - 2026-11-25 (-u): paleta suave: aprobados verde, reprobados rosado, 1-2 áreas amarillo.
+- 2026-11-25 (-v): solo forma: listados centrados/colores, rosados claros, números pequeños, etiquetas dentro del área, botones ▲▼ y lista anterior/siguiente (Comisiones y Menú).

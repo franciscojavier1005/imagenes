@@ -5,11 +5,14 @@
  * VERSION_SISTEMA e HISTORIAL_VERSIONES aquí (la prueba leeme.test.js lo verifica).
  * Autor del sistema: Francisco Javier Cortés Cabezas (I.E. ICET, Tumaco).
  */
-var VERSION_SISTEMA = '2026.11.25-v';
-var FECHA_VERSION = '2026-11-25';
+var VERSION_SISTEMA = '2026.11.26-w';
+var FECHA_VERSION = '2026-11-26';
 
 /** De la más nueva a la más antigua. */
 var HISTORIAL_VERSIONES = [
+  { version: '2026.11.26-w', fecha: '2026-11-26', cambios: [
+    'Comisiones (forma y navegación): en Áreas los estudiantes reprobados de cada área se listan en una fila propia, con el nombre completo en una sola línea y varios por línea cuando caben. En Listados, cada curso muestra, antes de los botones, su matrícula final (destacada), agregados, retirados y no asisten. Las tablas anchas indican si continúan hacia la derecha o la izquierda. Nuevos botones flotantes: ☰ menú del acta, ◀ fase anterior y ▶ fase siguiente (además de ▲ ▼). En Reprobación se avisa cuando un estudiante reprueba TODAS las áreas (verificar si asiste; si no, marcar «No asiste…» en Listados) y queda como pendiente de aviso. Las recomendaciones dicen «para el siguiente periodo» en las actas de período y «para el siguiente grado» en el acta final.'
+  ] },
   { version: '2026.11.25-v', fecha: '2026-11-25', cambios: [
     'Comisiones (solo forma): en Listados, las cifras de arriba van centradas con fondos suaves (retirados en rosado, no asisten en amarillo), cada curso muestra también su matrícula final, el número del listado se destaca con un fondo discreto, los botones «Retirado» y «No asiste» tienen su color suave y cada lista trae «Lista anterior / siguiente / Inicio». En Áreas las cifras son más pequeñas y sin negrita y las etiquetas de reprobados van dentro del área (sin fila extra). Rosados más claros en Reprobación, Promoción y Recomendaciones (números más pequeños; los botones de estándares y DBA caben en la misma línea). Nuevos botones flotantes ▲ ▼ para subir y bajar al inicio o al final de cada sección, también en el menú principal.'
   ] },

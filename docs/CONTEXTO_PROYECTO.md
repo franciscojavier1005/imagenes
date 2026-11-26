@@ -887,3 +887,4 @@ Ampliación 10 (2026-11-16): enlace con el libro de asistencia y año escolar: d
 - 2026-11-25: material de comisiones (guía, circular, infografía, tarjetas) actualizado con sincronía Promoción↔Reprobación↔Áreas, Áreas solo lectura y reconocimientos Otros.
 - 2026-11-25 (-u): paleta suave: aprobados verde, reprobados rosado, 1-2 áreas amarillo.
 - 2026-11-25 (-v): solo forma: listados centrados/colores, rosados claros, números pequeños, etiquetas dentro del área, botones ▲▼ y lista anterior/siguiente (Comisiones y Menú).
+- 2026-11-26 (-w): Áreas con reprobados en fila propia (nombre en una línea), estadística por curso en Listados, indicadores de scroll ambos lados, botones ☰◀▶▲▼, aviso reprueba-todas, recomendaciones por período; guía/manual/infografía/tarjetas con ilustraciones (scripts/ilustraciones_comisiones.js).

@@ -108,6 +108,8 @@ Es importante que las causas queden asociadas al área respectiva y no se regist
 
 Todo está sincronizado: si en Promoción se agrega un área a un estudiante, aparece también aquí con el aviso «Falta la causa» y en las cifras de Áreas; el docente debe escribir la causa. Al quitarla, desaparece de las tres partes.
 
+Si un estudiante aparece reprobando todas las áreas, verifiquen si asiste: si no asiste, deben marcarlo «No asiste» en Listados y desaparecerá de Reprobación y de Áreas. Esa corrección la hace el docente.
+
 Opcionalmente, junto a cada área está el botón «+ Anotación», que permite escribir una nota para justificar mejor el caso del estudiante en esa área. La anotación general del estudiante sigue disponible en «Anotación y motivos generales». Las anotaciones salen en el acta impresa.
 
 6. PROMOCIÓN
@@ -200,6 +202,8 @@ Una vez finalizadas las Comisiones de Evaluación y Promoción, y transcurridos 
 La Coordinación Académica enviará una retroalimentación a cada uno de los grados, en la que se compartirán las observaciones y orientaciones pertinentes, con el propósito de fortalecer los procesos académicos y mejorar el desarrollo de las próximas comisiones.
 
 De esta manera, el proceso no termina con la firma y el cierre del acta, sino que también contempla un espacio posterior de revisión, acompañamiento y mejora.
+
+En la aplicación hay botones flotantes en la esquina (☰ menú del acta, ◀ fase anterior, ▶ fase siguiente, ▲ subir, ▼ bajar) que facilitan moverse, sobre todo en el celular. En las actas de período, las recomendaciones son para el siguiente período; en el acta final, para el siguiente grado.
 
 13. NUEVA ACTA, BORRADORES, ARCHIVO Y RECUPERACIÓN
 
